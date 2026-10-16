@@ -1,6 +1,7 @@
 // Veri erişim katmanı. Şimdilik örnek veri döner; sonra gerçek uçuş API'sine
 // (Duffel, Amadeus vb.) buradan bağlanılacak. Sayfalar veriyi yalnızca buradan alır.
 import { defaultSearch, popularDestinations, popularRoutes } from "@/data/mock/home";
+import { routes } from "@/data/mock/routes";
 
 export type SearchParams = {
   from: string;
@@ -35,4 +36,12 @@ export function searchHref(p: Partial<SearchParams> = {}): string {
 
 export function routeHref(slug: { from: string; to: string }): string {
   return `/ucuslar/${slug.from}/${slug.to}`;
+}
+
+export function getRouteSlugs() {
+  return routes.map((r) => ({ nereden: r.from.slug, nereye: r.to.slug }));
+}
+
+export function getRoute(from: string, to: string) {
+  return routes.find((r) => r.from.slug === from && r.to.slug === to) ?? null;
 }

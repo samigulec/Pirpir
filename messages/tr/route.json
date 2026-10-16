@@ -1,1 +1,30 @@
-{}
+{
+  "breadcrumb": "Konum",
+  "home": "Ana sayfa",
+  "heroTitle": "{to} uçuşlar",
+  "fromPrice": "gidiş-dönüş <price></price>'dan başlayan",
+  "cta": "Tarih seç, bilet bul",
+  "facts": {
+    "label": "Kısa bilgiler",
+    "duration": "Uçuş süresi",
+    "durationValue": "{h} sa {m} dk direkt",
+    "airports": "Havalimanları",
+    "airlines": "Havayolları",
+    "timeDiff": "Saat farkı"
+  },
+  "monthly": {
+    "title": "Hangi ay daha ucuz?",
+    "subtitle": "Aylara göre en düşük gidiş-dönüş fiyatı. Bir aya dokun.",
+    "groupLabel": "Ay seçimi",
+    "aria": "{month}: {price}",
+    "cheapest": "Yılın en ucuz ayı!",
+    "diff": "En ucuz aydan {price} pahalı",
+    "note": "Örnek fiyatlar. Gerçek fiyatlar arama anında güncellenir.",
+    "names": ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"],
+    "short": ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"]
+  },
+  "deals": { "title": "Yaklaşan en ucuz tarihler", "select": "Seç" },
+  "airports": { "title": "Hangi havalimanı sana uygun?" },
+  "tips": { "title": "{city} için ipuçları" },
+  "others": { "title": "{country} başka nereler?" }
+}

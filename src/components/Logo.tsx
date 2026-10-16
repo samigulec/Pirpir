@@ -11,7 +11,7 @@ export function LogoMark({ size = 34 }: { size?: number }) {
   );
 }
 
-export function Logo({ compact = false }: { compact?: boolean }) {
+export function Logo({ compact = false, tight = false }: { compact?: boolean; tight?: boolean }) {
   return (
     <Link href="/" className="flex items-center gap-2 text-ink no-underline">
       {compact ? (
@@ -22,7 +22,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
       ) : (
         <>
           <LogoMark />
-          <span className="font-display text-[28px] font-bold tracking-[-0.01em]">{brand.name}</span>
+          <span className={`font-display text-[28px] font-bold ${tight ? "tracking-[-0.01em]" : ""}`}>{brand.name}</span>
         </>
       )}
     </Link>

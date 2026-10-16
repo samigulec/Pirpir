@@ -11,7 +11,7 @@ export async function HomeHeader() {
     <>
       {/* Masaüstü (Main.dc.html) */}
       <header className="mx-auto hidden max-w-page flex-wrap items-center justify-between gap-4 px-6 py-[22px] md:flex">
-        <Logo />
+        <Logo tight />
         <nav aria-label={t("mainNav")} className="flex flex-wrap gap-x-[22px] gap-y-1 font-bold">
           <a href="#populer" className="py-[10px] text-ink no-underline">{t("nav.popular")}</a>
           <a href="#rotalar" className="py-[10px] text-ink no-underline">{t("nav.routes")}</a>
