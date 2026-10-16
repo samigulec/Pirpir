@@ -3,6 +3,7 @@
 import { defaultSearch, popularDestinations, popularRoutes } from "@/data/mock/home";
 import { routes } from "@/data/mock/routes";
 import { flexibleDateTip, offers, type Offer } from "@/data/mock/flights";
+import { demoBooking } from "@/data/mock/booking";
 
 export type SearchParams = {
   from: string;
@@ -64,4 +65,10 @@ const PAX_COUNT: Record<string, number> = { "1a": 1, "2a": 2, "2a1c": 3, "2a2c":
 
 export function paxCount(pax?: string): number {
   return (pax && PAX_COUNT[pax]) || 1;
+}
+
+export async function getBooking(id: string) {
+  if (id !== demoBooking.id) return null;
+  const offer = await getOffer(demoBooking.offerId);
+  return offer ? { ...demoBooking, offer } : null;
 }

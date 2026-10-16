@@ -1,1 +1,20 @@
-{}
+{
+  "metaTitle": "Bilet onayı",
+  "title": "Biletin hazır!",
+  "sent": "E-biletini <email></email> adresine gönderdik.",
+  "pnrLabel": "Rezervasyon kodu",
+  "outbound": "Gidiş · {date}",
+  "inbound": "Dönüş · {date}",
+  "transferVia": "{city} aktarmalı",
+  "direct": "Direkt",
+  "download": "Bileti indir",
+  "calendar": "Takvime ekle",
+  "share": "Paylaş",
+  "remind": {
+    "title": "Valiz hatırlatsın mı?",
+    "text": "Online check-in açılınca ve uçuştan 3 saat önce sana bildirim gönderelim.",
+    "off": "Evet, hatırlat",
+    "on": "Hatırlatma açık ✓"
+  },
+  "home": "Ana sayfaya dön"
+}
