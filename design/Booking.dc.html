@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>rotala — Rezervasyon</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Nunito:wght@400;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#2F5BD3}a:hover{color:#1E3F9E}
+summary{cursor:pointer;list-style:none}
+summary::-webkit-details-marker{display:none}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; background: #FFFFFF; color: #1E2A44; font-family: 'Nunito', system-ui, sans-serif; font-size: 17px; line-height: 1.55">
+
+  <header style="max-width: 720px; margin: 0 auto; padding: 22px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px">
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: #1E2A44">
+      <svg width="34" height="34" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="#FFD166"></circle><path d="M9 23 C 15 12, 25 12, 31 18" fill="none" stroke="#1E2A44" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 6"></path><circle cx="31" cy="18" r="3.5" fill="#FF8A65"></circle></svg>
+      <span style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 28px">rotala</span>
+    </a>
+    <select aria-label="Para birimi" value="{{cur}}" onChange="{{setCur}}" style="font: inherit; font-weight: 800; font-size: 15px; color: #1E2A44; background: #F5F8FD; border: 0; border-radius: 999px; padding: 10px 14px; min-height: 44px; cursor: pointer">
+      <option value="TRY">₺ TRY</option><option value="EUR">€ EUR</option><option value="USD">$ USD</option>
+    </select>
+  </header>
+
+  <main style="max-width: 720px; margin: 0 auto; padding: 8px 24px 80px; display: flex; flex-direction: column; gap: 22px">
+    <a href="Results.dc.html" style="font-weight: 700; align-self: flex-start; padding: 6px 0; font-size: 15px">← Uçuşlara dön</a>
+
+    <!-- Steps -->
+    <ol aria-label="Adımlar" style="list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; font-weight: 800; font-size: 14px">
+      <li style="flex: 1; display: flex; flex-direction: column; gap: 6px"><span style="height: 6px; border-radius: 3px; background: #2F5BD3"></span>Yolcu</li>
+      <li style="flex: 1; display: flex; flex-direction: column; gap: 6px"><span style="height: 6px; border-radius: 3px; background: #2F5BD3"></span>Bagaj</li>
+      <li style="flex: 1; display: flex; flex-direction: column; gap: 6px"><span style="height: 6px; border-radius: 3px; background: #2F5BD3"></span>Ödeme</li>
+    </ol>
+
+    <h1 style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 44px; line-height: 1.1">Neredeyse hazırsın!</h1>
+
+    <!-- Flight recap -->
+    <div style="background: #EAF3FF; border-radius: 28px; padding: 22px 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+        <span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 22px">Amsterdam → İzmir</span>
+        <span style="font-weight: 700; color: #56607A">Transavia + Pegasus</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px">
+        <div style="background: #FFFFFF; border-radius: 18px; padding: 12px 16px; display: flex; flex-direction: column">
+          <span style="font-size: 13px; font-weight: 800; color: #56607A">Gidiş · Cmt 24 Eki</span>
+          <span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 20px">06:40 → 13:05</span>
+          <span style="font-size: 13px; font-weight: 700; color: #56607A">İstanbul'da 1 sa 20 dk aktarma</span>
+        </div>
+        <div style="background: #FFFFFF; border-radius: 18px; padding: 12px 16px; display: flex; flex-direction: column">
+          <span style="font-size: 13px; font-weight: 800; color: #56607A">Dönüş · Cmt 31 Eki</span>
+          <span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 20px">12:10 → 19:00</span>
+          <span style="font-size: 13px; font-weight: 700; color: #56607A">Antalya'da aktarma</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Passenger -->
+    <section style="display: flex; flex-direction: column; gap: 12px">
+      <h2 style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 24px">Kim uçuyor?</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px">
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 15px">Ad (pasaporttaki gibi)
+          <input type="text" placeholder="Ayşe" style="font: inherit; font-size: 18px; font-weight: 600; padding: 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 15px">Soyad
+          <input type="text" placeholder="Yılmaz" style="font: inherit; font-size: 18px; font-weight: 600; padding: 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 15px">Cinsiyet (pasaporttaki gibi)
+          <select style="font: inherit; font-size: 18px; font-weight: 600; padding: 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+            <option>Kadın</option><option>Erkek</option>
+          </select>
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 15px">Doğum tarihi
+          <input type="text" placeholder="GG.AA.YYYY" style="font: inherit; font-size: 18px; font-weight: 600; padding: 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 15px">Uyruk
+          <select style="font: inherit; font-size: 18px; font-weight: 600; padding: 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+            <option>Türkiye</option><option>Hollanda</option><option>Belçika</option><option>Almanya</option><option>Diğer</option>
+          </select>
+        </label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 15px">Pasaport no
+          <input type="text" placeholder="U12345678" style="font: inherit; font-size: 18px; font-weight: 600; padding: 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+        </label>
+      </div>
+      <span style="font-size: 14px; color: #56607A">Yurt dışı uçuşlarında havayolu pasaport bilgini ister. Pasaportun dönüşten sonra en az 6 ay geçerli olmalı.</span>
+    </section>
+
+    <!-- Contact -->
+    <section style="display: flex; flex-direction: column; gap: 12px">
+      <h2 style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 24px">Sana nasıl ulaşalım?</h2>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 15px">E-posta (biletin buraya gelir)
+        <input type="email" placeholder="ayse@eposta.com" style="font: inherit; font-size: 18px; font-weight: 600; padding: 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+      </label>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span id="tel-label" style="font-weight: 800; font-size: 15px">Telefon (uçuş değişirse SMS atarız)</span>
+        <div style="display: flex; gap: 8px">
+          <select aria-label="Ülke kodu" style="font: inherit; font-size: 18px; font-weight: 700; padding: 14px 12px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+            <option>+31</option><option>+90</option><option>+32</option><option>+49</option>
+          </select>
+          <input type="tel" aria-labelledby="tel-label" placeholder="6 1234 5678" style="flex: 1; min-width: 0; font: inherit; font-size: 18px; font-weight: 600; padding: 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+        </div>
+      </div>
+    </section>
+
+    <!-- Bags -->
+    <section style="display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; align-items: center; gap: 14px">
+        <svg width="44" height="55" viewBox="0 0 120 150" role="img" aria-label="Valiz karakteri" style="flex: none">
+          <path d="M44 30 V 16 a8 8 0 0 1 8 -8 h16 a8 8 0 0 1 8 8 V 30" fill="none" stroke="#1E2A44" stroke-width="5" stroke-linecap="round"></path>
+          <rect x="16" y="30" width="88" height="100" rx="20" fill="#FF8A65" stroke="#1E2A44" stroke-width="4.5"></rect>
+          <circle cx="46" cy="78" r="5.5" fill="#1E2A44"></circle><circle cx="74" cy="78" r="5.5" fill="#1E2A44"></circle>
+          <ellipse cx="36" cy="92" rx="7" ry="4.5" fill="#FFD1C2"></ellipse><ellipse cx="84" cy="92" rx="7" ry="4.5" fill="#FFD1C2"></ellipse>
+          <path d="M53 90 Q 60 98 67 90" fill="none" stroke="#1E2A44" stroke-width="4" stroke-linecap="round"></path>
+          <circle cx="36" cy="138" r="7" fill="#1E2A44"></circle><circle cx="84" cy="138" r="7" fill="#1E2A44"></circle>
+        </svg>
+        <div style="display: flex; flex-direction: column">
+          <h2 style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 24px">Ne kadar eşya?</h2>
+          <span style="color: #56607A; font-size: 15px">Valiz: “Şimdi eklemek havalimanından ucuz!”</span>
+        </div>
+      </div>
+      <div role="radiogroup" aria-label="Bagaj" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px">
+        <sc-for list="{{bags}}" as="b" hint-placeholder-count="3">
+          <button type="button" role="radio" aria-checked="{{b.checked}}" onClick="{{b.pick}}" style="{{b.style}}">
+            <span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 19px">{{b.title}}</span>
+            <span style="font-size: 14px; font-weight: 600">{{b.desc}}</span>
+            <span style="font-weight: 800; margin-top: 6px">{{b.priceLabel}}</span>
+          </button>
+        </sc-for>
+      </div>
+      <span style="font-size: 14px; color: #56607A">Aktarmalı rotada bagajını İstanbul'da alıp yeniden teslim etmen gerekebilir.</span>
+    </section>
+
+    <!-- Payment -->
+    <section style="display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px">
+        <h2 style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 24px">Nasıl ödemek istersin?</h2>
+        <span style="display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 800; color: #2E7A4D">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+          Şifreli, güvenli bağlantı
+        </span>
+      </div>
+      <div role="radiogroup" aria-label="Ödeme yöntemi" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px">
+        <sc-for list="{{payments}}" as="p" hint-placeholder-count="4">
+          <button type="button" role="radio" aria-checked="{{p.checked}}" onClick="{{p.pick}}" style="{{p.style}}">
+            <span style="width: 64px; height: 46px; border-radius: 14px; background: #FFFFFF; display: inline-flex; align-items: center; justify-content: center">
+              <sc-if value="{{p.iconCard}}" hint-placeholder-val="{{ false }}">
+                <svg width="56" height="40" viewBox="0 0 56 40" aria-hidden="true">
+                  <rect x="4" y="6" width="48" height="28" rx="6" fill="#9CC3FF" stroke="#1E2A44" stroke-width="2.5"></rect>
+                  <rect x="5.5" y="11" width="45" height="5" fill="#1E2A44"></rect>
+                  <rect x="10" y="21" width="10" height="8" rx="2" fill="#FFD166" stroke="#1E2A44" stroke-width="1.5"></rect>
+                  <circle cx="35" cy="23" r="1.8" fill="#1E2A44"></circle><circle cx="44" cy="23" r="1.8" fill="#1E2A44"></circle>
+                  <ellipse cx="32" cy="27" rx="2.2" ry="1.4" fill="#FFB4A2"></ellipse><ellipse cx="47" cy="27" rx="2.2" ry="1.4" fill="#FFB4A2"></ellipse>
+                  <path d="M37 27 Q 39.5 29.5 42 27" fill="none" stroke="#1E2A44" stroke-width="1.8" stroke-linecap="round"></path>
+                </svg>
+              </sc-if>
+              <sc-if value="{{p.iconBank}}" hint-placeholder-val="{{ false }}">
+                <svg width="56" height="40" viewBox="0 0 56 40" aria-hidden="true">
+                  <path d="M10 15 L 28 5 L 46 15 Z" fill="#FF8A65" stroke="#1E2A44" stroke-width="2.5" stroke-linejoin="round"></path>
+                  <rect x="12" y="15" width="32" height="17" fill="#FFFFFF" stroke="#1E2A44" stroke-width="2.5"></rect>
+                  <path d="M18 18 V 29 M38 18 V 29" stroke="#9CC3FF" stroke-width="3.5" stroke-linecap="round"></path>
+                  <circle cx="25" cy="21" r="1.6" fill="#1E2A44"></circle><circle cx="31" cy="21" r="1.6" fill="#1E2A44"></circle>
+                  <path d="M25.5 25 Q 28 27.5 30.5 25" fill="none" stroke="#1E2A44" stroke-width="1.8" stroke-linecap="round"></path>
+                  <rect x="8" y="32" width="40" height="4" rx="2" fill="#1E2A44"></rect>
+                  <circle cx="28" cy="11" r="1.8" fill="#FFD166"></circle>
+                </svg>
+              </sc-if>
+              <sc-if value="{{p.iconPhone}}" hint-placeholder-val="{{ false }}">
+                <svg width="56" height="40" viewBox="0 0 56 40" aria-hidden="true">
+                  <rect x="17" y="3" width="22" height="34" rx="6" fill="#FFFFFF" stroke="#1E2A44" stroke-width="2.5"></rect>
+                  <rect x="24" y="6" width="8" height="2.5" rx="1.2" fill="#1E2A44"></rect>
+                  <circle cx="28" cy="20" r="7.5" fill="#4CAF7A"></circle>
+                  <path d="M24.5 20 l 2.5 2.5 l 4.5 -5" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M8 14 Q 4 20 8 26 M12 16 Q 9.5 20 12 24" fill="none" stroke="#9CC3FF" stroke-width="2.2" stroke-linecap="round"></path>
+                  <path d="M48 14 Q 52 20 48 26 M44 16 Q 46.5 20 44 24" fill="none" stroke="#9CC3FF" stroke-width="2.2" stroke-linecap="round"></path>
+                </svg>
+              </sc-if>
+              <sc-if value="{{p.iconWallet}}" hint-placeholder-val="{{ false }}">
+                <svg width="56" height="40" viewBox="0 0 56 40" aria-hidden="true">
+                  <rect x="14" y="5" width="26" height="12" rx="3" fill="#9CC3FF" stroke="#1E2A44" stroke-width="2" transform="rotate(-8 27 11)"></rect>
+                  <rect x="6" y="11" width="44" height="25" rx="7" fill="#FFD166" stroke="#1E2A44" stroke-width="2.5"></rect>
+                  <path d="M36 19 H 50 V 29 H 36 a5 5 0 0 1 0 -10 Z" fill="#FF8A65" stroke="#1E2A44" stroke-width="2.2" stroke-linejoin="round"></path>
+                  <circle cx="38" cy="24" r="1.8" fill="#FFFFFF"></circle>
+                  <circle cx="16" cy="22" r="1.8" fill="#1E2A44"></circle><circle cx="25" cy="22" r="1.8" fill="#1E2A44"></circle>
+                  <path d="M17.5 27 Q 20.5 29.5 23.5 27" fill="none" stroke="#1E2A44" stroke-width="1.8" stroke-linecap="round"></path>
+                </svg>
+              </sc-if>
+            </span>
+            <span style="font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 18px">{{p.label}}</span>
+            <span style="font-size: 13px; font-weight: 700; color: #56607A">{{p.sub}}</span>
+          </button>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{isCard}}" hint-placeholder-val="{{ true }}">
+        <div style="border: 2px solid #E3E8F2; border-radius: 24px; padding: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px">
+          <label style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 15px">Kart üzerindeki isim
+            <input type="text" placeholder="AYSE YILMAZ" style="font: inherit; font-size: 18px; font-weight: 600; padding: 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF; text-transform: uppercase">
+          </label>
+          <label style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 15px">Kart numarası
+            <span style="position: relative; display: flex">
+              <input type="text" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" value="{{cardNumber}}" onChange="{{setCard}}" style="flex: 1; min-width: 0; font: inherit; font-size: 18px; font-weight: 700; letter-spacing: 0.06em; padding: 14px 120px 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+              <span style="{{brandStyle}}">{{brandLabel}}</span>
+            </span>
+          </label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 15px">Son kullanma
+            <input type="text" inputmode="numeric" autocomplete="cc-exp" placeholder="AA/YY" style="font: inherit; font-size: 18px; font-weight: 600; padding: 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+          </label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 15px">CVC (arkadaki 3 hane)
+            <input type="text" inputmode="numeric" autocomplete="cc-csc" placeholder="123" style="font: inherit; font-size: 18px; font-weight: 600; padding: 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+          </label>
+          <label style="grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; cursor: pointer">
+            <input type="checkbox" style="accent-color: #2F5BD3; width: 20px; height: 20px">
+            Kartımı bir sonraki rezervasyon için güvenle kaydet
+          </label>
+          <span style="grid-column: 1 / -1; font-size: 14px; color: #56607A">Bankan ödemeyi onaylamak için uygulamasında ya da SMS ile kısa bir doğrulama (3D Secure) isteyebilir.</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{isRedirect}}" hint-placeholder-val="{{ false }}">
+        <div style="background: #F5F8FD; border-radius: 20px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px">
+          <span style="font-weight: 700; color: #1E2A44">{{redirectNote}}</span>
+          <sc-if value="{{isIdeal}}" hint-placeholder-val="{{ false }}">
+            <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 800; font-size: 15px">Bankanı seç
+              <select style="font: inherit; font-size: 18px; font-weight: 600; padding: 14px 18px; border: 2px solid #E3E8F2; border-radius: 18px; min-height: 56px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF">
+                <option>ING</option><option>ABN AMRO</option><option>Rabobank</option><option>SNS</option><option>ASN Bank</option><option>bunq</option><option>Knab</option><option>Revolut</option>
+              </select>
+            </label>
+          </sc-if>
+        </div>
+      </sc-if>
+    </section>
+
+    <!-- Promo -->
+    <details style="background: #F5F8FD; border-radius: 22px; padding: 16px 20px">
+      <summary style="font-weight: 800; display: flex; justify-content: space-between; gap: 12px">İndirim kodun var mı? <span aria-hidden="true">+</span></summary>
+      <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap">
+        <input type="text" aria-label="İndirim kodu" placeholder="Kodu yaz" style="flex: 1 1 200px; font: inherit; font-weight: 700; padding: 12px 16px; border: 2px solid #E3E8F2; border-radius: 16px; min-height: 52px; box-sizing: border-box; color: #1E2A44; background: #FFFFFF; text-transform: uppercase">
+        <button type="button" onClick="{{applyPromo}}" style="border: 0; background: #1E2A44; color: #FFFFFF; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 17px; padding: 12px 22px; border-radius: 16px; min-height: 52px; cursor: pointer">Uygula</button>
+      </div>
+      <sc-if value="{{promo}}" hint-placeholder-val="{{ false }}">
+        <span style="display: block; margin-top: 10px; font-weight: 800; color: #2E7A4D">Kod uygulandı, {{promoLabel}} indirim kazandın!</span>
+      </sc-if>
+    </details>
+
+    <!-- Total -->
+    <div style="background: #1E2A44; color: #FFFFFF; border-radius: 28px; padding: 22px 24px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; padding-bottom: 14px; border-bottom: 1px solid #3A4766">
+        <div style="display: flex; justify-content: space-between; gap: 12px"><span style="color: #C9D3E6">Bilet (1 yetişkin, gidiş-dönüş)</span><span>{{ticketLabel}}</span></div>
+        <div style="display: flex; justify-content: space-between; gap: 12px"><span style="color: #C9D3E6">Bagaj</span><span>{{bagLabel}}</span></div>
+        <sc-if value="{{promo}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; justify-content: space-between; gap: 12px"><span style="color: #C9D3E6">İndirim kodu</span><span style="color: #8FE3B0">− {{promoLabel}}</span></div>
+        </sc-if>
+        <div style="display: flex; justify-content: space-between; gap: 12px"><span style="color: #C9D3E6">Vergiler ve hizmet bedeli</span><span>Dahil</span></div>
+      </div>
+      <div style="display: flex; flex-direction: column">
+        <span style="font-weight: 700; color: #C9D3E6">Toplam</span>
+        <span style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 38px; line-height: 1.1">{{totalLabel}}</span>
+      </div>
+      <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 15px; font-weight: 600; cursor: pointer">
+        <input type="checkbox" checked="{{terms}}" onChange="{{toggleTerms}}" style="accent-color: #FFD166; width: 22px; height: 22px; margin: 1px 0 0; flex: none">
+        <span><a href="#" style="color: #FFD166">Kullanım koşullarını</a>, havayolu kurallarını ve <a href="#" style="color: #FFD166">gizlilik politikasını</a> okudum, kabul ediyorum.</span>
+      </label>
+      <sc-if value="{{terms}}" hint-placeholder-val="{{ false }}">
+        <a href="Confirm.dc.html" style="text-decoration: none; background: #FFD166; color: #1E2A44; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 21px; padding: 14px 32px; border-radius: 999px; min-height: 60px; box-sizing: border-box; display: flex; align-items: center; justify-content: center">{{payLabel}}</a>
+      </sc-if>
+      <sc-if value="{{noTerms}}" hint-placeholder-val="{{ true }}">
+        <button type="button" disabled aria-disabled="true" style="border: 0; background: #3A4766; color: #C9D3E6; font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 21px; padding: 14px 32px; border-radius: 999px; min-height: 60px; cursor: not-allowed">{{payLabel}}</button>
+        <span style="font-size: 14px; color: #C9D3E6; text-align: center; margin-top: -6px">Devam etmek için koşulları kabul etmen gerekiyor.</span>
+      </sc-if>
+    </div>
+    <span style="text-align: center; font-size: 14px; color: #56607A">Satın aldıktan sonra 24 saat içinde ücretsiz iptal. [İPTAL KOŞULLARI] · Yardım: [DESTEK TELEFONU]</span>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2100}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { bag: 'small', cur: 'TRY', pay: 'card', card: '', terms: false, promo: false }; }
+  renderVals() {
+    const rates = { TRY: 1, EUR: 1 / 40, USD: 1 / 34.5 };
+    const sym = { TRY: '₺', EUR: '€', USD: '$' };
+    const fmt = (n) => sym[this.state.cur] + Math.round(n * rates[this.state.cur]).toLocaleString('tr-TR');
+
+    const payBase = 'display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; padding: 14px 16px; border-radius: 20px; font: inherit; cursor: pointer; min-height: 120px;';
+    const payments = [
+      { id: 'card', label: 'Kart', sub: 'Visa, Mastercard, Amex', iconCard: true, iconBank: false, iconPhone: false, iconWallet: false },
+      { id: 'ideal', label: 'iDEAL', sub: 'Hollanda bankaları', iconCard: false, iconBank: true, iconPhone: false, iconWallet: false },
+      { id: 'apple', label: 'Apple Pay', sub: 'iPhone, Mac', iconCard: false, iconBank: false, iconPhone: true, iconWallet: false },
+      { id: 'google', label: 'Google Pay', sub: 'Android, Chrome', iconCard: false, iconBank: false, iconPhone: false, iconWallet: true }
+    ].map((p) => {
+      const on = this.state.pay === p.id;
+      return { ...p, checked: on ? 'true' : 'false', style: payBase + (on ? ' background: #EAF3FF; color: #1E2A44; border: 3px solid #2F5BD3;' : ' background: #FFFFFF; color: #1E2A44; border: 3px solid #E3E8F2;'), pick: () => this.setState({ pay: p.id }) };
+    });
+    const redirectNotes = {
+      ideal: 'Bankanı seç, Öde’ye bastığında bankanın uygulamasına yönlendirileceksin.',
+      apple: 'Öde’ye bastığında Apple Pay açılır, Face ID veya Touch ID ile onayla.',
+      google: 'Öde’ye bastığında Google Pay açılır, telefonundan onayla.'
+    };
+
+    const digits = this.state.card.replace(/\D/g, '').slice(0, 16);
+    const cardNumber = digits.replace(/(.{4})/g, '$1 ').trim();
+    const first = digits.charAt(0);
+    const brand = first === '4' ? 'Visa' : (first === '5' || first === '2') ? 'Mastercard' : first === '3' ? 'Amex' : '';
+    const brandStyle = 'position: absolute; right: 10px; top: 50%; transform: translateY(-50%); height: 34px; min-width: 96px; padding: 0 10px; box-sizing: border-box; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;' + (brand ? ' background: #EAF3FF; color: #1E2A44; border: 1.5px solid #2F5BD3;' : ' background: #F5F8FD; color: #56607A; border: 1.5px dashed #B9C4DA;');
+
+    const defs = [
+      { id: 'small', title: 'Küçük çanta', desc: 'Koltuk altına sığar', price: 0 },
+      { id: 'cabin', title: 'Kabin bavulu', desc: '10 kg, üst dolaba', price: 640 },
+      { id: 'big', title: 'Büyük bavul', desc: '20 kg, uçağın altına', price: 1380 }
+    ];
+    const base = 'display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: 18px 20px; border-radius: 22px; font: inherit; cursor: pointer; min-height: 120px;';
+    const bags = defs.map((b) => {
+      const on = this.state.bag === b.id;
+      return {
+        ...b,
+        priceLabel: b.price === 0 ? 'Ücretsiz' : '+ ' + fmt(b.price),
+        checked: on ? 'true' : 'false',
+        style: base + (on ? ' background: #FFE8E0; color: #1E2A44; border: 3px solid #FF8A65;' : ' background: #FFFFFF; color: #1E2A44; border: 3px solid #E3E8F2;'),
+        pick: () => this.setState({ bag: b.id })
+      };
+    });
+    const sel = defs.find((b) => b.id === this.state.bag);
+    const discount = this.state.promo ? 150 : 0;
+    const total = 2760 + sel.price - discount;
+    const payNames = { card: 'Kartla öde', ideal: 'iDEAL ile öde', apple: 'Apple Pay ile öde', google: 'Google Pay ile öde' };
+
+    return {
+      bags, payments,
+      isCard: this.state.pay === 'card',
+      isRedirect: this.state.pay !== 'card',
+      isIdeal: this.state.pay === 'ideal',
+      redirectNote: redirectNotes[this.state.pay] || '',
+      cardNumber,
+      setCard: (e) => this.setState({ card: e.target.value }),
+      brandLabel: brand ? brand + ' ✓' : 'Kart türü',
+      brandStyle,
+      ticketLabel: fmt(2760),
+      bagLabel: sel.price === 0 ? 'Ücretsiz' : fmt(sel.price),
+      promo: this.state.promo,
+      promoLabel: fmt(150),
+      applyPromo: () => this.setState({ promo: true }),
+      totalLabel: fmt(total),
+      payLabel: payNames[this.state.pay] + ' · ' + fmt(total),
+      terms: this.state.terms,
+      noTerms: !this.state.terms,
+      toggleTerms: () => this.setState({ terms: !this.state.terms }),
+      cur: this.state.cur,
+      setCur: (e) => this.setState({ cur: e.target.value })
+    };
+  }
+}
+</script>
+</body>
+</html>

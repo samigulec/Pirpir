@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-label="Roma illüstrasyonu: kemerli antik amfitiyatro">
+              <defs><pattern id="romaArch" width="24" height="22" patternUnits="userSpaceOnUse" x="62"><rect x="6" y="4" width="12" height="16" rx="6" fill="#B86E4B"></rect></pattern></defs>
+              <rect width="320" height="180" fill="#FFE9B8"></rect>
+              <circle cx="250" cy="48" r="22" fill="#FFD166"></circle>
+              <path d="M40 66 a14 9 0 0 1 28 -2 a12 8 0 0 1 22 4 Z" fill="#FFFFFF"></path>
+              <path d="M58 148 V 84 Q 160 60 262 76 V 148 Z" fill="#E8A87C"></path>
+              <path d="M58 92 Q 160 70 262 84" fill="none" stroke="#C97F5A" stroke-width="3"></path>
+              <rect x="62" y="96" width="196" height="22" fill="url(#romaArch)"></rect>
+              <rect x="62" y="122" width="196" height="22" fill="url(#romaArch)"></rect>
+              <path d="M262 76 L 280 100 V 148 H 262 Z" fill="#D9946B"></path>
+              <rect y="146" width="320" height="34" fill="#E9D3A6"></rect>
+              <path d="M24 160 h40 M240 168 h50" stroke="#D7BC88" stroke-width="4" stroke-linecap="round"></path>
+            </svg>

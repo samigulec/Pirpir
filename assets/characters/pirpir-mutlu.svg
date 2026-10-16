@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" aria-label="Pırpır, sevinen küçük uçak">
+          <path d="M70 52 L 95 18 L 118 22 L 108 54 Z" fill="#9CC3FF" stroke="#1E2A44" stroke-width="4" stroke-linejoin="round"></path>
+          <path d="M34 58 L 20 26 L 40 26 L 58 52 Z" fill="#FF8A65" stroke="#1E2A44" stroke-width="4" stroke-linejoin="round"></path>
+          <rect x="24" y="46" width="146" height="56" rx="28" fill="#FFFFFF" stroke="#1E2A44" stroke-width="4"></rect>
+          <circle cx="52" cy="68" r="6" fill="#9CC3FF"></circle><circle cx="72" cy="68" r="6" fill="#9CC3FF"></circle>
+          <path d="M112 66 Q 118 60 124 66" fill="none" stroke="#1E2A44" stroke-width="4" stroke-linecap="round"></path><path d="M140 66 Q 146 60 152 66" fill="none" stroke="#1E2A44" stroke-width="4" stroke-linecap="round"></path>
+          <ellipse cx="110" cy="82" rx="7" ry="4.5" fill="#FFB4A2"></ellipse><ellipse cx="156" cy="82" rx="7" ry="4.5" fill="#FFB4A2"></ellipse>
+          <path d="M124 78 Q 132 94 140 78 Z" fill="#1E2A44"></path>
+          <path d="M84 84 L 70 122 L 100 122 L 112 88 Z" fill="#5B8DEF" stroke="#1E2A44" stroke-width="4" stroke-linejoin="round"></path>
+          <circle cx="176" cy="74" r="7" fill="#FFD166" stroke="#1E2A44" stroke-width="4"></circle>
+          <ellipse cx="184" cy="56" rx="4" ry="13" fill="#FFD166" stroke="#1E2A44" stroke-width="3"></ellipse>
+          <ellipse cx="184" cy="92" rx="4" ry="13" fill="#FFD166" stroke="#1E2A44" stroke-width="3"></ellipse>
+        </svg>
