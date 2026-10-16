@@ -1,0 +1,33 @@
+// Kaynak: assets/cities/istanbul.svg — npm run svg ile üretildi, elle düzenleme.
+import type { SVGProps } from "react";
+
+export function Istanbul(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 320 180"
+      preserveAspectRatio="xMidYMid slice"
+      role="img"
+      aria-label="İstanbul illüstrasyonu: kubbeli cami, minareler, Galata Kulesi ve vapur"
+      {...props}
+    >
+      <rect width="320" height="180" fill="#FFD9C7" />
+      <circle cx="262" cy="52" r="24" fill="#FFB38A" />
+      <path d="M30 40 q6 -6 12 0 q6 -6 12 0" fill="none" stroke="#3A4A7A" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M180 28 q5 -5 10 0 q5 -5 10 0" fill="none" stroke="#3A4A7A" strokeWidth="2.5" strokeLinecap="round" />
+      <g fill="#3A4A7A">
+      <rect x="70" y="104" width="116" height="38" />
+      <path d="M92 106 a36 36 0 0 1 72 0 Z" />
+      <path d="M74 112 a14 14 0 0 1 28 0 Z" /><path d="M154 112 a14 14 0 0 1 28 0 Z" />
+      <rect x="126" y="60" width="4" height="12" />
+      <rect x="54" y="54" width="7" height="88" /><path d="M53 55 L57.5 30 L62 55 Z" />
+      <rect x="195" y="54" width="7" height="88" /><path d="M194 55 L198.5 30 L203 55 Z" />
+      <rect x="236" y="92" width="22" height="50" /><path d="M232 94 L247 62 L262 94 Z" />
+      </g>
+      <g fill="#FFD9C7"><rect x="241" y="104" width="4" height="8" rx="2" /><rect x="249" y="104" width="4" height="8" rx="2" /></g>
+      <rect y="140" width="320" height="40" fill="#5B8DEF" />
+      <path d="M10 156 q10 -5 20 0 M70 166 q10 -5 20 0 M210 160 q10 -5 20 0 M270 170 q10 -5 20 0" fill="none" stroke="#9CC3FF" strokeWidth="3" strokeLinecap="round" />
+      <path d="M118 150 h56 l-8 10 h-40 Z" fill="#FFFFFF" /><rect x="132" y="141" width="24" height="9" rx="2" fill="#FFFFFF" /><rect x="140" y="134" width="5" height="8" fill="#FF8A65" />
+    </svg>
+  );
+}

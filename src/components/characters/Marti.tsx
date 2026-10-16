@@ -1,0 +1,24 @@
+// Kaynak: assets/characters/marti.svg — npm run svg ile üretildi, elle düzenleme.
+import type { SVGProps } from "react";
+
+export function Marti(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 150 120"
+      role="img"
+      aria-label="Martı, denizci şapkalı martı karakteri"
+      {...props}
+    >
+      <path d="M34 74 L 12 64 L 18 88 Z" fill="#C9D3E6" stroke="#1E2A44" strokeWidth="4" strokeLinejoin="round" />
+      <path d="M62 100 V 114 M84 100 V 114" stroke="#FFB020" strokeWidth="5" strokeLinecap="round" />
+      <ellipse cx="72" cy="78" rx="42" ry="27" fill="#FFFFFF" stroke="#1E2A44" strokeWidth="4" />
+      <path d="M42 72 Q 70 44 96 72 Q 70 84 42 72 Z" fill="#C9D3E6" stroke="#1E2A44" strokeWidth="4" strokeLinejoin="round" />
+      <circle cx="108" cy="50" r="20" fill="#FFFFFF" stroke="#1E2A44" strokeWidth="4" />
+      <path d="M126 48 L 144 54 L 126 60 Z" fill="#FFB020" stroke="#1E2A44" strokeWidth="3.5" strokeLinejoin="round" />
+      <circle cx="112" cy="46" r="4.5" fill="#1E2A44" />
+      <ellipse cx="102" cy="60" rx="5" ry="3.5" fill="#FFB4A2" />
+      <path d="M94 34 H 122 L 117 22 H 99 Z" fill="#2F5BD3" stroke="#1E2A44" strokeWidth="3" strokeLinejoin="round" />
+    </svg>
+  );
+}
