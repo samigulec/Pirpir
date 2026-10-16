@@ -1,1 +1,20 @@
-{}
+{
+  "metaTitle": "Arama sonuçları",
+  "summaryMeta": "{dates} · {count} kişi",
+  "change": "Değiştir",
+  "sortLabel": "Sıralama",
+  "sort": { "cheap": "En ucuz", "fast": "En hızlı", "direct": "Sadece direkt" },
+  "count": "{count} uçuş bulundu",
+  "countNote": "fiyatlar kişi başı, gidiş-dönüş, vergiler dahil",
+  "countNoteOneWay": "fiyatlar kişi başı, tek yön, vergiler dahil",
+  "badge": { "cheap": "En ucuz", "fast": "En hızlı" },
+  "returnInfo": "Dönüş {date}, {time}",
+  "transfer": "Aktarma: {via}, {wait} bekleme",
+  "select": "Seç",
+  "tip": {
+    "title": "İki gün sonra uçarsan <price></price> daha ucuz!",
+    "text": "{day}'de en düşük fiyat <price></price>.",
+    "cta": "Göster →"
+  },
+  "empty": "Bu filtreye uyan uçuş yok."
+}

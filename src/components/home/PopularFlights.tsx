@@ -38,7 +38,7 @@ export function PopularFlights({ fromLabel, destinations }: { fromLabel: string;
                 role="tab"
                 aria-selected={on}
                 onClick={() => setCat(c)}
-                className={`min-h-[44px] cursor-pointer rounded-pill border-0 px-[18px] py-[10px] font-display text-base font-semibold ${
+                className={`min-h-[44px] cursor-pointer rounded-pill border-0 px-[18px] leading-[normal] py-[10px] font-display text-base font-semibold ${
                   on ? "bg-ink text-white" : "bg-field text-ink"
                 }`}
               >

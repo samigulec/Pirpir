@@ -2,6 +2,7 @@
 // (Duffel, Amadeus vb.) buradan bağlanılacak. Sayfalar veriyi yalnızca buradan alır.
 import { defaultSearch, popularDestinations, popularRoutes } from "@/data/mock/home";
 import { routes } from "@/data/mock/routes";
+import { flexibleDateTip, offers, type Offer } from "@/data/mock/flights";
 
 export type SearchParams = {
   from: string;
@@ -44,4 +45,23 @@ export function getRouteSlugs() {
 
 export function getRoute(from: string, to: string) {
   return routes.find((r) => r.from.slug === from && r.to.slug === to) ?? null;
+}
+
+/** Arama sonuçları. Şimdilik her arama için örnek teklifler döner. */
+export async function searchFlights(_params: SearchParams): Promise<Offer[]> {
+  return offers;
+}
+
+export async function getFlexibleDateTip(_params: SearchParams) {
+  return flexibleDateTip;
+}
+
+export async function getOffer(id: string): Promise<Offer | null> {
+  return offers.find((o) => o.id === id) ?? null;
+}
+
+const PAX_COUNT: Record<string, number> = { "1a": 1, "2a": 2, "2a1c": 3, "2a2c": 4, "1a1i": 2 };
+
+export function paxCount(pax?: string): number {
+  return (pax && PAX_COUNT[pax]) || 1;
 }

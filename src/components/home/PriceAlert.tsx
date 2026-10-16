@@ -33,7 +33,7 @@ export function PriceAlert() {
               </label>
               <button
                 type="submit"
-                className="min-h-[52px] cursor-pointer rounded-pill border-0 bg-sun px-7 py-3 font-display text-[19px] font-semibold text-ink"
+                className="min-h-[52px] cursor-pointer rounded-pill border-0 bg-sun leading-[normal] px-7 py-3 font-display text-[19px] font-semibold text-ink"
               >
                 {t("submit")}
               </button>

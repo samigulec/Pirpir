@@ -32,7 +32,7 @@ export function PillLink({ href, children }: { href: string; children: React.Rea
   return (
     <Link
       href={href}
-      className="box-border inline-flex min-h-[44px] items-center rounded-pill bg-sky px-5 py-[10px] font-extrabold text-ink no-underline"
+      className="box-border inline-flex min-h-[44px] items-center whitespace-nowrap rounded-pill bg-sky px-5 py-[10px] font-extrabold text-ink no-underline"
     >
       {children}
     </Link>
