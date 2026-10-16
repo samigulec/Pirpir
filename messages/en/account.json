@@ -1,24 +1,32 @@
 {
   "login": {
     "metaTitle": "Sign in",
-    "title": "Welcome back!",
-    "subtitle": "Enter your email and we'll send you a one-tap sign-in link. No passwords to remember.",
+    "title": "Sign in to your account",
     "email": "Email",
-    "submit": "Send sign-in link",
     "sending": "Sending…",
     "or": "or",
-    "google": "Continue with Google",
     "sentTitle": "Check your inbox",
     "sentText": "We've sent a sign-in link to <email></email>. Just tap the link.",
     "sentAgain": "Use a different email",
-    "why": "Sign in to keep your tickets with you on every device and manage your price alerts.",
     "demoNote": "Sample mode: email verification is off and you're signed in straight away. Data is only kept in this browser.",
     "errors": {
       "email": "Enter a valid email address.",
-      "failed": "We couldn't send the link right now. Please try again shortly.",
-      "google": "Google sign-in isn't available right now.",
-      "link": "This sign-in link has expired or was already used. Request a new one."
-    }
+      "failed": "Sign-in failed or the link has expired. Please try again.",
+      "provider": "Sign-in with this method isn't working right now. Try again or continue with email.",
+      "notConfigured": "This sign-in method isn't available yet. You can continue with email for now."
+    },
+    "newHere": "No account yet? One is created on your first sign-in, no password needed.",
+    "providers": {
+      "google": "Continue with Google",
+      "facebook": "Continue with Facebook",
+      "apple": "Continue with Apple"
+    },
+    "emailPlaceholder": "Enter your email address",
+    "continue": "Continue",
+    "wrongEmail": "Booked with the wrong email address?",
+    "wrongEmailHelp": "Our support team can help: [DESTEK TELEFONU]",
+    "legal": "By continuing you accept the <terms>Terms of Use</terms> and <privacy>Privacy Policy</privacy>.",
+    "close": "Close"
   },
   "trips": {
     "metaTitle": "My trips",

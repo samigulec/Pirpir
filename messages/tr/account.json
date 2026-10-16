@@ -1,24 +1,32 @@
 {
   "login": {
     "metaTitle": "Giriş yap",
-    "title": "Tekrar hoş geldin!",
-    "subtitle": "E-postanı yaz, sana tek tıkla giriş bağlantısı gönderelim. Şifre hatırlamak yok.",
+    "title": "Hesabına giriş yap",
     "email": "E-posta",
-    "submit": "Giriş bağlantısı gönder",
     "sending": "Gönderiliyor…",
-    "or": "ya da",
-    "google": "Google ile devam et",
+    "or": "veya",
     "sentTitle": "E-postanı kontrol et",
     "sentText": "<email></email> adresine bir giriş bağlantısı gönderdik. Bağlantıya dokunman yeterli.",
     "sentAgain": "Başka bir e-posta kullan",
-    "why": "Giriş yapınca biletlerin her cihazda yanında olur, fiyat alarmlarını yönetirsin.",
     "demoNote": "Örnek mod: e-posta doğrulaması kapalı, hemen giriş yapılır. Bilgiler yalnızca bu tarayıcıda tutulur.",
     "errors": {
       "email": "Geçerli bir e-posta adresi yaz.",
-      "failed": "Bağlantıyı şu an gönderemedik. Biraz sonra tekrar dene.",
-      "google": "Google ile giriş şu an yapılamadı.",
-      "link": "Giriş bağlantısının süresi dolmuş ya da daha önce kullanılmış. Yeni bir bağlantı iste."
-    }
+      "failed": "Giriş yapılamadı ya da bağlantının süresi doldu. Tekrar dene.",
+      "provider": "Bu yöntemle şu an giriş yapılamadı. Tekrar dene ya da e-postayla devam et.",
+      "notConfigured": "Bu giriş yöntemi henüz açık değil. Şimdilik e-postayla devam edebilirsin."
+    },
+    "newHere": "Hesabın yok mu? İlk girişte otomatik oluşturulur, şifre gerekmez.",
+    "providers": {
+      "google": "Google ile devam et",
+      "facebook": "Facebook ile devam et",
+      "apple": "Apple ile devam et"
+    },
+    "emailPlaceholder": "E-posta adresini yaz",
+    "continue": "Devam",
+    "wrongEmail": "Rezervasyonu yanlış e-postayla mı yaptın?",
+    "wrongEmailHelp": "Destek ekibimiz yardımcı olur: [DESTEK TELEFONU]",
+    "legal": "Devam ederek <terms>Kullanım Koşulları</terms>'nı ve <privacy>Gizlilik Politikası</privacy>'nı kabul etmiş olursun.",
+    "close": "Kapat"
   },
   "trips": {
     "metaTitle": "Biletlerim",

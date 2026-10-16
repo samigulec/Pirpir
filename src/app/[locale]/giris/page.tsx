@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CurrencySelect } from "@/components/HeaderControls";
-import { Pirpir } from "@/components/characters";
-import { LoginForm } from "@/components/account/LoginForm";
+import { LoginPageClient } from "@/components/auth/LoginPage";
 import { isSupabaseConfigured } from "@/lib/auth/config";
+import { getPathname } from "@/i18n/navigation";
+import { asLocale } from "@/lib/intl";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -19,25 +20,26 @@ export default async function LoginPage({ params, searchParams }: { params: Prom
   setRequestLocale(locale);
   const q = await searchParams;
   const t = await getTranslations("account.login");
-  const tc = await getTranslations("common.characters");
-  const next = typeof q.next === "string" ? q.next : undefined;
-  const error = typeof q.error === "string" && ["link", "google"].includes(q.error) ? q.error : undefined;
-  const supabase = isSupabaseConfigured();
+  // "next" kanonik yol olarak gelir (/hesap); dile göre çevrilir (/en/account).
+  const rawNext = typeof q.next === "string" && q.next.startsWith("/") && !q.next.startsWith("//") ? q.next : undefined;
+  let next: string | undefined;
+  try {
+    next = rawNext ? getPathname({ href: rawNext as "/hesap", locale: asLocale(locale) }) : undefined;
+  } catch {
+    next = rawNext;
+  }
+  const error = q.error === "link" || q.error === "provider" ? (q.error === "link" ? "failed" : "provider") : undefined;
 
   return (
     <div className="min-h-screen w-full bg-white">
       <SiteHeader width="form">
         <CurrencySelect />
       </SiteHeader>
-      <main className="mx-auto flex max-w-form flex-col gap-[22px] px-6 pb-20 pt-2">
-        <div className="flex flex-col items-center gap-3 rounded-[40px] bg-sky px-7 py-9 text-center">
-          <Pirpir aria-label={tc("pirpir")} highlights={false} width={150} height={105} />
-          <h1 className="m-0 font-display text-[44px] font-bold leading-[1.1]">{t("title")}</h1>
-          <p className="m-0 max-w-[460px] text-lg text-muted">{t("subtitle")}</p>
+      <main className="mx-auto flex max-w-[508px] flex-col gap-5 px-6 pb-20 pt-2">
+        <div className="rounded-[32px] border-2 border-solid border-line px-6 pb-7 pt-8 sm:px-9">
+          <LoginPageClient next={next} initialError={error} />
         </div>
-        <LoginForm next={next} google={supabase && process.env.NEXT_PUBLIC_AUTH_GOOGLE === "1"} initialError={error} />
-        <p className="m-0 text-center text-[15px] text-muted">{t("why")}</p>
-        {!supabase && <p className="m-0 rounded-[20px] bg-sun-soft px-5 py-4 text-sm font-bold text-sun-text">{t("demoNote")}</p>}
+        {!isSupabaseConfigured() && <p className="m-0 rounded-[20px] bg-sun-soft px-5 py-4 text-sm font-bold text-sun-text">{t("demoNote")}</p>}
       </main>
     </div>
   );

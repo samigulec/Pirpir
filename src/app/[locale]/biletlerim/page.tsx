@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CurrencySelect } from "@/components/HeaderControls";
-import { AccountPill } from "@/components/AccountLinks";
+import { AccountPill, LoginButton } from "@/components/AccountLinks";
 import { Biletcik } from "@/components/characters";
 import { TripCard } from "@/components/account/TripCard";
 import { Link } from "@/i18n/navigation";
@@ -42,7 +42,7 @@ export default async function TripsPage({ params }: { params: Promise<{ locale: 
               <span className="font-display text-xl font-semibold">{t("guestTitle")}</span>
               <span className="text-[15px] text-muted">{t("guestText")}</span>
             </div>
-            <Link href={{ pathname: "/giris", query: { next: "/biletlerim" } }} className={pill}>{t("guestCta")}</Link>
+            <LoginButton className={pill}>{t("guestCta")}</LoginButton>
           </div>
         )}
 

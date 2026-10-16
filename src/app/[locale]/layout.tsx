@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
+import { LoginModalProvider } from "@/components/auth/LoginModal";
 import { brand } from "@/config/brand";
 import { fredoka, nunito } from "@/config/fonts";
 import { routing } from "@/i18n/routing";
@@ -35,7 +36,9 @@ export default async function LocaleLayout({
     <html lang={locale} className={`${fredoka.variable} ${nunito.variable}`}>
       <body>
         <NextIntlClientProvider>
-          <CurrencyProvider>{children}</CurrencyProvider>
+          <CurrencyProvider>
+            <LoginModalProvider>{children}</LoginModalProvider>
+          </CurrencyProvider>
         </NextIntlClientProvider>
       </body>
     </html>

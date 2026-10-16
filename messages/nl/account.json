@@ -1,24 +1,32 @@
 {
   "login": {
     "metaTitle": "Inloggen",
-    "title": "Welkom terug!",
-    "subtitle": "Vul je e-mailadres in, dan sturen we je een inloglink. Geen wachtwoord nodig.",
+    "title": "Log in op je account",
     "email": "E-mail",
-    "submit": "Stuur inloglink",
     "sending": "Bezig met versturen…",
     "or": "of",
-    "google": "Doorgaan met Google",
     "sentTitle": "Check je mailbox",
     "sentText": "We hebben een inloglink naar <email></email> gestuurd. Tik op de link en je bent binnen.",
     "sentAgain": "Ander e-mailadres gebruiken",
-    "why": "Log in om je tickets op elk apparaat bij de hand te hebben en je prijsalarmen te beheren.",
     "demoNote": "Voorbeeldmodus: e-mailverificatie staat uit en je bent meteen ingelogd. Gegevens blijven alleen in deze browser.",
     "errors": {
       "email": "Vul een geldig e-mailadres in.",
-      "failed": "We konden de link nu niet versturen. Probeer het zo opnieuw.",
-      "google": "Inloggen met Google lukt nu niet.",
-      "link": "Deze inloglink is verlopen of al gebruikt. Vraag een nieuwe aan."
-    }
+      "failed": "Inloggen mislukt of de link is verlopen. Probeer het opnieuw.",
+      "provider": "Inloggen met deze methode lukt nu niet. Probeer opnieuw of ga verder met e-mail.",
+      "notConfigured": "Deze inlogmethode is nog niet beschikbaar. Je kunt voorlopig met e-mail verder."
+    },
+    "newHere": "Nog geen account? Die wordt bij je eerste keer inloggen aangemaakt, zonder wachtwoord.",
+    "providers": {
+      "google": "Doorgaan met Google",
+      "facebook": "Doorgaan met Facebook",
+      "apple": "Doorgaan met Apple"
+    },
+    "emailPlaceholder": "Vul je e-mailadres in",
+    "continue": "Doorgaan",
+    "wrongEmail": "Met het verkeerde e-mailadres geboekt?",
+    "wrongEmailHelp": "Ons supportteam helpt je graag: [DESTEK TELEFONU]",
+    "legal": "Door verder te gaan ga je akkoord met de <terms>Gebruiksvoorwaarden</terms> en het <privacy>Privacybeleid</privacy>.",
+    "close": "Sluiten"
   },
   "trips": {
     "metaTitle": "Mijn reizen",

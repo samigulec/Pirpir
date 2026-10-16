@@ -42,7 +42,7 @@ Tarayıcı dili Hollandaca olan biri `/`'e gelirse `/nl`'ye yönlenir; seçilen 
 - Kurulum: Supabase'de proje aç → `supabase/migrations/0001_bookings.sql`'i SQL Editor'da çalıştır →
   Authentication → URL Configuration'da **Site URL** ve **Redirect URLs**'e `https://<site>/auth/callback` ekle →
   `.env.example`'daki üç Supabase değişkenini Vercel'e gir.
-- Giriş: e-postaya tek kullanımlık bağlantı (isteğe bağlı Google). Biletler hesaba ve aynı e-postaya bağlanır (RLS).
+- Giriş: "Giriş yap"a basınca sayfa değişmeden açılan pencere (`src/components/auth/LoginModal.tsx`): Google / Facebook / Apple ve e-postaya tek kullanımlık bağlantı. Sosyal sağlayıcılar Supabase → Authentication → Providers'ta açılıp `NEXT_PUBLIC_AUTH_PROVIDERS`'a yazılır. Biletler hesaba ve aynı e-postaya bağlanır (RLS).
 
 ## Sayfalar
 

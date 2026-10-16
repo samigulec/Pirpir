@@ -4,14 +4,21 @@ import { headers } from "next/headers";
 import { redirect as externalRedirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { getPathname, redirect } from "@/i18n/navigation";
-import { isSupabaseConfigured } from "@/lib/auth/config";
+import { enabledProviders, isSupabaseConfigured } from "@/lib/auth/config";
 import { clearSession, getCurrentUser, setDemoUser } from "@/lib/auth/session";
 import { supabaseServer } from "@/lib/auth/supabase-server";
 import { asLocale } from "@/lib/intl";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-export type LoginState = { status: "idle" | "sent" | "error"; error?: "email" | "failed" | "google"; email?: string };
+export type OAuthProvider = "google" | "facebook" | "apple";
+const OAUTH: OAuthProvider[] = ["google", "facebook", "apple"];
+
+export type LoginState = {
+  status: "idle" | "sent" | "signedIn" | "error";
+  error?: "email" | "failed" | "provider" | "notConfigured";
+  email?: string;
+};
 
 async function siteOrigin() {
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
@@ -33,10 +40,9 @@ export async function requestLogin(_prev: LoginState, form: FormData): Promise<L
   const locale = asLocale(await getLocale());
 
   if (!isSupabaseConfigured()) {
-    // Örnek mod: doğrulama yok, hemen giriş.
+    // Örnek mod: doğrulama yok, hemen giriş. Pencere kapanır, sayfa yenilenir.
     await setDemoUser({ email });
-    if (next) redirect({ href: next as "/", locale });
-    redirect({ href: "/biletlerim", locale });
+    return { status: "signedIn", email };
   }
 
   const supabase = await supabaseServer();
@@ -53,15 +59,21 @@ export async function requestLogin(_prev: LoginState, form: FormData): Promise<L
   return { status: "sent", email };
 }
 
-export async function signInWithGoogle(form: FormData) {
+/** Google / Facebook / Apple: sağlayıcının giriş sayfasına yönlendirir, dönüş /auth/callback'e gelir. */
+export async function signInWithProvider(_prev: LoginState, form: FormData): Promise<LoginState> {
+  const provider = String(form.get("provider") ?? "") as OAuthProvider;
+  if (!OAUTH.includes(provider)) return { status: "error", error: "provider" };
+  if (!isSupabaseConfigured() || !enabledProviders().includes(provider)) return { status: "error", error: "notConfigured" };
   const next = safeNext(String(form.get("next") ?? "")) ?? "/";
   const supabase = await supabaseServer();
   const callback = new URL("/auth/callback", await siteOrigin());
   callback.searchParams.set("next", next);
-  const { data, error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: callback.toString() } });
-  const locale = asLocale(await getLocale());
-  if (error || !data.url) redirect({ href: { pathname: "/giris", query: { error: "google" } }, locale });
-  else externalRedirect(data.url);
+  const { data, error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: callback.toString() } });
+  if (error || !data.url) {
+    console.error("Sosyal giriş başlatılamadı:", error?.message);
+    return { status: "error", error: "provider" };
+  }
+  externalRedirect(data.url);
 }
 
 export async function signOut() {
