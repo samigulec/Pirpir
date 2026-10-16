@@ -8,11 +8,13 @@ export type Leg = {
   toCode: string;
   airline: string;
   /** Aktarma yeri (yoksa direkt). */
-  via?: { city: string; code: string; wait?: string };
+  via?: { city: string; locative: string; code: string; wait?: string };
 };
 
 export type Offer = {
   id: string;
+  fromCity: string;
+  toCity: string;
   mins: number;
   outbound: Leg;
   inbound: Leg;
@@ -27,6 +29,8 @@ const ADB = "ADB";
 export const offers: Offer[] = [
   {
     id: "ams-adb-1",
+    fromCity: "Amsterdam",
+    toCity: "İzmir",
     mins: 220,
     airline: "Pegasus",
     price: 3420,
@@ -36,15 +40,19 @@ export const offers: Offer[] = [
   },
   {
     id: "ams-adb-2",
+    fromCity: "Amsterdam",
+    toCity: "İzmir",
     mins: 325,
     airline: "Transavia + Pegasus",
     price: 2760,
     bagInfo: "Küçük çanta dahil",
-    outbound: { date: "2026-10-24", dep: "06:40", arr: "13:05", fromCode: AMS, toCode: ADB, airline: "Transavia + Pegasus", via: { city: "İstanbul", code: "IST", wait: "1 sa 20 dk" } },
-    inbound: { date: "2026-10-31", dep: "12:10", arr: "19:00", fromCode: ADB, toCode: AMS, airline: "SunExpress", via: { city: "Antalya", code: "AYT" } },
+    outbound: { date: "2026-10-24", dep: "06:40", arr: "13:05", fromCode: AMS, toCode: ADB, airline: "Transavia + Pegasus", via: { city: "İstanbul", locative: "İstanbul'da", code: "IST", wait: "1 sa 20 dk" } },
+    inbound: { date: "2026-10-31", dep: "12:10", arr: "19:00", fromCode: ADB, toCode: AMS, airline: "SunExpress", via: { city: "Antalya", locative: "Antalya'da", code: "AYT" } },
   },
   {
     id: "ams-adb-3",
+    fromCity: "Amsterdam",
+    toCity: "İzmir",
     mins: 225,
     airline: "SunExpress",
     price: 3890,
@@ -54,12 +62,14 @@ export const offers: Offer[] = [
   },
   {
     id: "ams-adb-4",
+    fromCity: "Amsterdam",
+    toCity: "İzmir",
     mins: 365,
     airline: "Turkish Airlines",
     price: 5240,
     bagInfo: "Kabin bavulu + 23 kg dahil",
-    outbound: { date: "2026-10-24", dep: "11:50", arr: "18:55", fromCode: AMS, toCode: ADB, airline: "Turkish Airlines", via: { city: "İstanbul", code: "IST", wait: "2 sa 10 dk" } },
-    inbound: { date: "2026-10-31", dep: "07:30", arr: "13:45", fromCode: ADB, toCode: AMS, airline: "Turkish Airlines", via: { city: "İstanbul", code: "IST" } },
+    outbound: { date: "2026-10-24", dep: "11:50", arr: "18:55", fromCode: AMS, toCode: ADB, airline: "Turkish Airlines", via: { city: "İstanbul", locative: "İstanbul'da", code: "IST", wait: "2 sa 10 dk" } },
+    inbound: { date: "2026-10-31", dep: "07:30", arr: "13:45", fromCode: ADB, toCode: AMS, airline: "Turkish Airlines", via: { city: "İstanbul", locative: "İstanbul'da", code: "IST" } },
   },
 ];
 

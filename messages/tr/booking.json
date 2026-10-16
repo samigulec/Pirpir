@@ -1,1 +1,81 @@
-{}
+{
+  "metaTitle": "Rezervasyon",
+  "back": "← Uçuşlara dön",
+  "steps": { "label": "Adımlar", "passenger": "Yolcu", "bags": "Bagaj", "payment": "Ödeme" },
+  "title": "Neredeyse hazırsın!",
+  "outbound": "Gidiş · {date}",
+  "inbound": "Dönüş · {date}",
+  "transferWait": "{place} {wait} aktarma",
+  "transfer": "{place} aktarma",
+  "direct": "Direkt",
+  "passenger": {
+    "title": "Kim uçuyor?",
+    "firstName": "Ad (pasaporttaki gibi)",
+    "lastName": "Soyad",
+    "gender": "Cinsiyet (pasaporttaki gibi)",
+    "female": "Kadın",
+    "male": "Erkek",
+    "birth": "Doğum tarihi",
+    "birthPlaceholder": "GG.AA.YYYY",
+    "nationality": "Uyruk",
+    "passport": "Pasaport no",
+    "note": "Yurt dışı uçuşlarında havayolu pasaport bilgini ister. Pasaportun dönüşten sonra en az 6 ay geçerli olmalı."
+  },
+  "contact": {
+    "title": "Sana nasıl ulaşalım?",
+    "email": "E-posta (biletin buraya gelir)",
+    "phone": "Telefon (uçuş değişirse SMS atarız)",
+    "phoneCode": "Ülke kodu"
+  },
+  "bags": {
+    "title": "Ne kadar eşya?",
+    "valiz": "Valiz: “Şimdi eklemek havalimanından ucuz!”",
+    "label": "Bagaj",
+    "free": "Ücretsiz",
+    "options": {
+      "small": { "title": "Küçük çanta", "desc": "Koltuk altına sığar" },
+      "cabin": { "title": "Kabin bavulu", "desc": "10 kg, üst dolaba" },
+      "big": { "title": "Büyük bavul", "desc": "20 kg, uçağın altına" }
+    },
+    "transferNote": "Aktarmalı rotada bagajını {place} alıp yeniden teslim etmen gerekebilir."
+  },
+  "payment": {
+    "title": "Nasıl ödemek istersin?",
+    "secure": "Şifreli, güvenli bağlantı",
+    "label": "Ödeme yöntemi",
+    "methods": {
+      "card": { "label": "Kart", "sub": "Visa, Mastercard, Amex", "pay": "Kartla öde" },
+      "ideal": { "label": "iDEAL", "sub": "Hollanda bankaları", "pay": "iDEAL ile öde", "note": "Bankanı seç, Öde’ye bastığında bankanın uygulamasına yönlendirileceksin." },
+      "apple": { "label": "Apple Pay", "sub": "iPhone, Mac", "pay": "Apple Pay ile öde", "note": "Öde’ye bastığında Apple Pay açılır, Face ID veya Touch ID ile onayla." },
+      "google": { "label": "Google Pay", "sub": "Android, Chrome", "pay": "Google Pay ile öde", "note": "Öde’ye bastığında Google Pay açılır, telefonundan onayla." }
+    },
+    "cardName": "Kart üzerindeki isim",
+    "cardNamePlaceholder": "AYSE YILMAZ",
+    "cardNumber": "Kart numarası",
+    "cardType": "Kart türü",
+    "expiry": "Son kullanma",
+    "expiryPlaceholder": "AA/YY",
+    "cvc": "CVC (arkadaki 3 hane)",
+    "saveCard": "Kartımı bir sonraki rezervasyon için güvenle kaydet",
+    "threeDs": "Bankan ödemeyi onaylamak için uygulamasında ya da SMS ile kısa bir doğrulama (3D Secure) isteyebilir.",
+    "bank": "Bankanı seç"
+  },
+  "promo": {
+    "question": "İndirim kodun var mı?",
+    "label": "İndirim kodu",
+    "placeholder": "Kodu yaz",
+    "apply": "Uygula",
+    "applied": "Kod uygulandı, {amount} indirim kazandın!"
+  },
+  "total": {
+    "ticket": "Bilet (1 yetişkin, gidiş-dönüş)",
+    "bag": "Bagaj",
+    "promo": "İndirim kodu",
+    "taxes": "Vergiler ve hizmet bedeli",
+    "included": "Dahil",
+    "total": "Toplam",
+    "terms": "<terms>Kullanım koşullarını</terms>, havayolu kurallarını ve <privacy>gizlilik politikasını</privacy> okudum, kabul ediyorum.",
+    "needTerms": "Devam etmek için koşulları kabul etmen gerekiyor."
+  },
+  "footnote": "Satın aldıktan sonra 24 saat içinde ücretsiz iptal. [İPTAL KOŞULLARI] · Yardım: [DESTEK TELEFONU]"
+}
