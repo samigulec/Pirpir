@@ -1,0 +1,32 @@
+{
+  "logoHome": "Ana sayfa",
+  "language": "Dil",
+  "currency": "Para birimi",
+  "myTickets": "Biletlerim",
+  "signIn": "Giriş yap",
+  "profile": "Profil",
+  "mainNav": "Ana menü",
+  "nav": { "popular": "Popüler uçuşlar", "routes": "Rotalar", "help": "Yardım" },
+  "bottomNav": { "label": "Alt gezinme", "search": "Ara", "tickets": "Biletlerim", "help": "Yardım" },
+  "duration": "{h} sa {m} dk",
+  "direct": "Direkt",
+  "oneStop": "1 aktarma",
+  "roundTrip": "gidiş-dönüş",
+  "footer": {
+    "company": "Şirket",
+    "about": "Hakkımızda",
+    "careers": "Kariyer",
+    "press": "Basın",
+    "help": "Yardım",
+    "helpCenter": "Yardım merkezi",
+    "baggage": "Bagaj kuralları",
+    "cancel": "İptal ve iade",
+    "popular": "Popüler",
+    "istanbul": "İstanbul uçuşları",
+    "antalya": "Antalya uçuşları",
+    "izmir": "İzmir uçuşları",
+    "privacy": "Gizlilik",
+    "terms": "Koşullar",
+    "cookies": "Çerezler"
+  }
+}

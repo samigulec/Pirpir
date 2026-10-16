@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    margin: 0;
+    background: #ffffff;
+    color: #1e2a44;
+    font-family: var(--font-nunito), system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  /* Özgüllük düşük tutuldu; Tailwind renk sınıfları her zaman kazanır. */
+  a {
+    color: #2f5bd3;
+    text-decoration: underline;
+  }
+  a:where(:hover) {
+    color: #1e3f9e;
+  }
+  summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  /* Tarayıcının varsayılan placeholder rengi (tasarımdaki gibi). */
+  input::placeholder {
+    color: revert;
+    opacity: revert;
+  }
+  input,
+  select,
+  button {
+    font: inherit;
+  }
+}
