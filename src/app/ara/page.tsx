@@ -3,9 +3,12 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { SiteHeader, SignInLink } from "@/components/SiteHeader";
 import { CurrencySelect } from "@/components/HeaderControls";
-import { ResultsView } from "@/components/results/ResultsView";
+import { ResultsView, type ResultsTip } from "@/components/results/ResultsView";
+import { findAirport } from "@/data/airports";
 import { formatDayLong, formatRange } from "@/lib/dates";
-import { getDefaultSearch, getFlexibleDateTip, paxCount, searchFlights, searchHref, type SearchParams } from "@/lib/flights";
+import { dataMode, getFlexibleDateTip, searchFlights } from "@/lib/flights";
+import { parseSearch, paxTotal, searchHref, validateSearch } from "@/lib/search";
+import type { Offer } from "@/lib/providers/types";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("results");
@@ -14,23 +17,34 @@ export async function generateMetadata(): Promise<Metadata> {
 
 type Query = Record<string, string | string[] | undefined>;
 
-const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
-
 export default async function ResultsPage({ searchParams }: { searchParams: Promise<Query> }) {
-  const q = await searchParams;
-  const d = getDefaultSearch();
-  const params: SearchParams = {
-    from: one(q.from) || d.from,
-    to: one(q.to) || d.to,
-    date: one(q.date) || d.date,
-    // "return" yoksa ve tarih de verilmemişse varsayılan gidiş-dönüş; verilmiş tarihte yoksa tek yön.
-    returnDate: one(q.return) ?? (one(q.date) ? undefined : d.returnDate),
-    pax: one(q.pax),
-  };
-  const oneWay = !params.returnDate;
-
+  const q = parseSearch(await searchParams);
   const t = await getTranslations("results");
-  const [offers, tip] = await Promise.all([searchFlights(params), getFlexibleDateTip(params)]);
+  const tSearch = await getTranslations("home.search");
+  const error = validateSearch(q);
+  const fromCity = findAirport(q.from)?.city ?? q.from;
+  const toCity = findAirport(q.to)?.city ?? q.to;
+
+  let offers: Offer[] = [];
+  let failed = false;
+  let tip: ResultsTip = null;
+  if (!error) {
+    try {
+      const [list, flex] = await Promise.all([searchFlights(q), getFlexibleDateTip(q)]);
+      offers = list;
+      if (flex) {
+        tip = { href: searchHref({ ...flex.query, returnDate: flex.query.returnDate ?? "" }), day: formatDayLong(flex.query.date), price: flex.price, save: flex.save };
+      }
+    } catch (e) {
+      console.error("Uçuş araması başarısız:", e);
+      failed = true;
+    }
+  }
+  const mode = dataMode();
+  const note = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : undefined;
+  const panel = "flex flex-col items-start gap-3 rounded-[28px] bg-field px-6 py-5";
+  const pill =
+    "box-border inline-flex min-h-[44px] items-center rounded-pill bg-primary px-5 py-[10px] font-display font-semibold text-white no-underline";
 
   return (
     <div className="min-h-screen w-full bg-white">
@@ -45,11 +59,13 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-[28px] bg-sky px-[22px] py-[18px]">
           <div className="flex flex-col">
             <span className="font-display text-[26px] font-semibold">
-              {params.from} → {params.to}
+              {fromCity} → {toCity}
             </span>
-            <span className="font-semibold text-muted">
-              {t("summaryMeta", { dates: formatRange(params.date, params.returnDate), count: paxCount(params.pax) })}
-            </span>
+            {!error && (
+              <span className="font-semibold text-muted">
+                {t("summaryMeta", { dates: formatRange(q.date, q.returnDate), count: paxTotal(q.pax) })}
+              </span>
+            )}
           </div>
           <Link
             href="/"
@@ -59,16 +75,21 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
           </Link>
         </div>
 
-        <ResultsView
-          offers={offers}
-          oneWay={oneWay}
-          tip={{
-            href: searchHref({ ...params, date: tip.date }),
-            day: formatDayLong(tip.date),
-            price: tip.price,
-            save: tip.save,
-          }}
-        />
+        {error ? (
+          <div role="alert" className={panel}>
+            <span className="font-display text-xl font-semibold">{t("invalid.title")}</span>
+            <span className="text-muted">{tSearch(`errors.${error}`)}</span>
+            <Link href="/" className={pill}>{t("invalid.back")}</Link>
+          </div>
+        ) : failed ? (
+          <div role="alert" className={panel}>
+            <span className="font-display text-xl font-semibold">{t("failed.title")}</span>
+            <span className="text-muted">{t("failed.text")}</span>
+            <Link href={searchHref({ ...q, returnDate: q.returnDate ?? "" })} className={pill}>{t("failed.retry")}</Link>
+          </div>
+        ) : (
+          <ResultsView offers={offers} oneWay={!q.returnDate} tip={tip} note={note} />
+        )}
       </main>
     </div>
   );

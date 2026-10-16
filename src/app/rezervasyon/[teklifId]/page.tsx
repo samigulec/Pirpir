@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CurrencySelect } from "@/components/HeaderControls";
 import { BookingForm } from "@/components/booking/BookingForm";
-import { DEMO_BOOKING_ID } from "@/data/mock/booking";
-import type { Leg } from "@/data/mock/flights";
-import { formatDayWithWeekday } from "@/lib/dates";
-import { getOffer, searchHref } from "@/lib/flights";
+import { passengerSlots } from "@/lib/booking-validate";
+import { formatDayWithWeekday, minsParts } from "@/lib/dates";
+import { dataMode, getOffer } from "@/lib/flights";
+import type { Leg } from "@/lib/providers/types";
+import { searchHref } from "@/lib/search";
+import { locative } from "@/lib/tr-suffix";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("booking");
@@ -17,30 +18,50 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function BookingPage({ params }: { params: Promise<{ teklifId: string }> }) {
   const { teklifId } = await params;
-  const offer = await getOffer(teklifId);
-  if (!offer) notFound();
+  const offer = await getOffer(decodeURIComponent(teklifId));
   const t = await getTranslations("booking");
+  const tc = await getTranslations("common");
+
+  const header = (
+    <SiteHeader width="form">
+      <CurrencySelect />
+    </SiteHeader>
+  );
+
+  if (!offer) {
+    return (
+      <div className="min-h-screen w-full bg-white">
+        {header}
+        <main className="mx-auto flex max-w-form flex-col items-start gap-4 px-6 pb-20 pt-2">
+          <h1 className="m-0 font-display text-[44px] font-bold leading-[1.1]">{t("expiredPage.title")}</h1>
+          <p className="m-0 text-muted">{t("expiredPage.text")}</p>
+          <Link href="/" className="box-border inline-flex min-h-[48px] items-center rounded-pill bg-primary px-6 py-3 font-display text-lg font-semibold text-white no-underline">
+            {t("expiredPage.cta")}
+          </Link>
+        </main>
+      </div>
+    );
+  }
 
   const legNote = (leg: Leg) =>
     !leg.via
       ? t("direct")
-      : leg.via.wait
-        ? t("transferWait", { place: leg.via.locative, wait: leg.via.wait })
-        : t("transfer", { place: leg.via.locative });
+      : leg.via.waitMins
+        ? t("transferWait", { place: locative(leg.via.city), wait: tc("duration", minsParts(leg.via.waitMins)) })
+        : t("transfer", { place: locative(leg.via.city) });
 
   const legs = [
     { title: t("outbound", { date: formatDayWithWeekday(offer.outbound.date) }), leg: offer.outbound },
-    { title: t("inbound", { date: formatDayWithWeekday(offer.inbound.date) }), leg: offer.inbound },
+    ...(offer.inbound ? [{ title: t("inbound", { date: formatDayWithWeekday(offer.inbound.date) }), leg: offer.inbound }] : []),
   ];
+  const q = offer.query;
 
   return (
     <div className="min-h-screen w-full bg-white">
-      <SiteHeader width="form">
-        <CurrencySelect />
-      </SiteHeader>
+      {header}
 
       <main className="mx-auto flex max-w-form flex-col gap-[22px] px-6 pb-20 pt-2">
-        <Link href={searchHref({ from: offer.fromCity, to: offer.toCity })} className="self-start py-[6px] text-[15px] font-bold">
+        <Link href={searchHref({ ...q, returnDate: q.returnDate ?? "" })} className="self-start py-[6px] text-[15px] font-bold">
           {t("back")}
         </Link>
 
@@ -68,6 +89,7 @@ export default async function BookingPage({ params }: { params: Promise<{ teklif
                 <span className="text-[13px] font-extrabold text-muted">{title}</span>
                 <span className="font-display text-xl font-semibold">
                   {leg.dep} → {leg.arr}
+                  {leg.arrDayOffset > 0 && <sup className="ml-1 text-[12px] text-coral-text">+{leg.arrDayOffset}</sup>}
                 </span>
                 <span className="text-[13px] font-bold text-muted">{legNote(leg)}</span>
               </div>
@@ -75,10 +97,7 @@ export default async function BookingPage({ params }: { params: Promise<{ teklif
           </div>
         </div>
 
-        <BookingForm
-          ticketPrice={offer.price} confirmHref={`/rezervasyon/${DEMO_BOOKING_ID}/onay`}
-          transferPlace={offer.outbound.via?.locative}
-        />
+        <BookingForm offer={offer} slots={passengerSlots(offer)} testMode={dataMode() !== "live"} />
 
         <span className="text-center text-sm text-muted">{t("footnote")}</span>
       </main>

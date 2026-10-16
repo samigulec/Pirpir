@@ -6,8 +6,17 @@
   "signIn": "Giriş yap",
   "profile": "Profil",
   "mainNav": "Ana menü",
-  "nav": { "popular": "Popüler uçuşlar", "routes": "Rotalar", "help": "Yardım" },
-  "bottomNav": { "label": "Alt gezinme", "search": "Ara", "tickets": "Biletlerim", "help": "Yardım" },
+  "nav": {
+    "popular": "Popüler uçuşlar",
+    "routes": "Rotalar",
+    "help": "Yardım"
+  },
+  "bottomNav": {
+    "label": "Alt gezinme",
+    "search": "Ara",
+    "tickets": "Biletlerim",
+    "help": "Yardım"
+  },
   "duration": "{h} sa {m} dk",
   "direct": "Direkt",
   "oneStop": "1 aktarma",
@@ -28,5 +37,6 @@
     "privacy": "Gizlilik",
     "terms": "Koşullar",
     "cookies": "Çerezler"
-  }
+  },
+  "stops": "{n} aktarma"
 }

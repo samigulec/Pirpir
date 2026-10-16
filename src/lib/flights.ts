@@ -1,17 +1,41 @@
-// Veri erişim katmanı. Şimdilik örnek veri döner; sonra gerçek uçuş API'sine
-// (Duffel, Amadeus vb.) buradan bağlanılacak. Sayfalar veriyi yalnızca buradan alır.
-import { defaultSearch, popularDestinations, popularRoutes } from "@/data/mock/home";
+// Veri erişim katmanı. Sayfalar uçuş verisini yalnızca buradan alır.
+// DUFFEL_ACCESS_TOKEN tanımlıysa Duffel, değilse örnek veri sağlayıcısı kullanılır.
+import "server-only";
+import { popularDestinations, popularRoutes } from "@/data/mock/home";
 import { routes } from "@/data/mock/routes";
-import { flexibleDateTip, offers, type Offer } from "@/data/mock/flights";
-import { demoBooking } from "@/data/mock/booking";
+import { demoFlexibleTip, demoProvider } from "./providers/demo";
+import { duffelProvider, isDuffelTestMode } from "./providers/duffel";
+import type { FlightProvider } from "./providers/types";
+import type { SearchQuery } from "./search";
 
-export type SearchParams = {
-  from: string;
-  to: string;
-  date: string;
-  returnDate?: string;
-  pax?: string;
-};
+export type DataMode = "demo" | "test" | "live";
+
+export function dataMode(): DataMode {
+  if (!process.env.DUFFEL_ACCESS_TOKEN) return "demo";
+  return isDuffelTestMode() ? "test" : "live";
+}
+
+function provider(): FlightProvider {
+  return dataMode() === "demo" ? demoProvider : duffelProvider;
+}
+
+export function searchFlights(q: SearchQuery) {
+  return provider().search(q);
+}
+
+export async function getOffer(id: string) {
+  // Örnek teklif kimlikleri her modda açılabilir (eski bağlantılar bozulmasın).
+  if (id.startsWith("demo_")) return demoProvider.getOffer(id);
+  return provider().getOffer(id);
+}
+
+/** "İki gün sonra uçarsan … daha ucuz" ipucu. Gerçek API'de ek arama maliyeti olduğu için yalnızca örnek modda. */
+export async function getFlexibleDateTip(q: SearchQuery) {
+  return dataMode() === "demo" ? demoFlexibleTip(q) : null;
+}
+
+export { provider as getProvider };
+export { routeHref, searchHref } from "./search";
 
 export function getPopularDestinations() {
   return popularDestinations;
@@ -21,54 +45,10 @@ export function getPopularRoutes() {
   return popularRoutes;
 }
 
-export function getDefaultSearch() {
-  return defaultSearch;
-}
-
-export function searchHref(p: Partial<SearchParams> = {}): string {
-  const q = new URLSearchParams();
-  q.set("from", p.from ?? defaultSearch.from);
-  q.set("to", p.to ?? defaultSearch.to);
-  q.set("date", p.date ?? defaultSearch.date);
-  const ret = p.returnDate === undefined ? defaultSearch.returnDate : p.returnDate;
-  if (ret) q.set("return", ret);
-  if (p.pax) q.set("pax", p.pax);
-  return `/ara?${q.toString()}`;
-}
-
-export function routeHref(slug: { from: string; to: string }): string {
-  return `/ucuslar/${slug.from}/${slug.to}`;
-}
-
 export function getRouteSlugs() {
   return routes.map((r) => ({ nereden: r.from.slug, nereye: r.to.slug }));
 }
 
 export function getRoute(from: string, to: string) {
   return routes.find((r) => r.from.slug === from && r.to.slug === to) ?? null;
-}
-
-/** Arama sonuçları. Şimdilik her arama için örnek teklifler döner. */
-export async function searchFlights(_params: SearchParams): Promise<Offer[]> {
-  return offers;
-}
-
-export async function getFlexibleDateTip(_params: SearchParams) {
-  return flexibleDateTip;
-}
-
-export async function getOffer(id: string): Promise<Offer | null> {
-  return offers.find((o) => o.id === id) ?? null;
-}
-
-const PAX_COUNT: Record<string, number> = { "1a": 1, "2a": 2, "2a1c": 3, "2a2c": 4, "1a1i": 2 };
-
-export function paxCount(pax?: string): number {
-  return (pax && PAX_COUNT[pax]) || 1;
-}
-
-export async function getBooking(id: string) {
-  if (id !== demoBooking.id) return null;
-  const offer = await getOffer(demoBooking.offerId);
-  return offer ? { ...demoBooking, offer } : null;
 }

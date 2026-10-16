@@ -6,9 +6,20 @@ import { PillLink, SiteHeader } from "@/components/SiteHeader";
 import { Bulut, Pirpir, Valiz } from "@/components/characters";
 import { Calendar, Download, Share } from "@/components/icons";
 import { RemindToggle } from "@/components/booking/RemindToggle";
-import type { Leg } from "@/data/mock/flights";
+import { SAMPLE_BOOKING_ID } from "@/data/mock/booking";
+import { readBooking } from "@/lib/booking-store";
 import { formatDayWithWeekday } from "@/lib/dates";
-import { getBooking } from "@/lib/flights";
+import { demoProvider } from "@/lib/providers/demo";
+import type { Booking, Leg } from "@/lib/providers/types";
+import { defaultDates } from "@/lib/search";
+
+/** Biletçik ipucunun gösterdiği örnek onay ekranı (Amsterdam → İzmir). */
+async function sampleBooking(): Promise<Booking | null> {
+  const offers = await demoProvider.search({ from: "AMS", to: "ADB", ...defaultDates(), pax: { adults: 1, children: 0, infants: 0 } });
+  const o = offers.find((x) => x.outbound.via) ?? offers[0];
+  if (!o) return null;
+  return { id: SAMPLE_BOOKING_ID, provider: "demo", email: "ayse@eposta.com", offer: o, total: o.total };
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("confirm");
@@ -19,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 // burada [teklifId] adıyla gelir: /rezervasyon/<rezervasyonId>/onay
 export default async function ConfirmPage({ params }: { params: Promise<{ teklifId: string }> }) {
   const { teklifId: bookingId } = await params;
-  const booking = await getBooking(bookingId);
+  const booking = bookingId === SAMPLE_BOOKING_ID ? await sampleBooking() : await readBooking(bookingId);
   if (!booking) notFound();
   const t = await getTranslations("confirm");
   const tc = await getTranslations("common");
@@ -27,7 +38,7 @@ export default async function ConfirmPage({ params }: { params: Promise<{ teklif
 
   const legs = [
     { title: t("outbound", { date: formatDayWithWeekday(offer.outbound.date) }), leg: offer.outbound },
-    { title: t("inbound", { date: formatDayWithWeekday(offer.inbound.date) }), leg: offer.inbound },
+    ...(offer.inbound ? [{ title: t("inbound", { date: formatDayWithWeekday(offer.inbound.date) }), leg: offer.inbound }] : []),
   ];
   const legNote = (leg: Leg) => `${leg.airline} · ${leg.via ? t("transferVia", { city: leg.via.city }) : t("direct")}`;
 
@@ -53,7 +64,7 @@ export default async function ConfirmPage({ params }: { params: Promise<{ teklif
           </p>
           <div className="flex flex-col items-center rounded-[20px] bg-white px-7 py-3">
             <span className="text-[13px] font-extrabold text-muted">{t("pnrLabel")}</span>
-            <span className="font-display text-[32px] font-bold tracking-[0.12em]">{booking.pnr}</span>
+            <span className="font-display text-[32px] font-bold tracking-[0.12em]">{booking.pnr ?? "[PNR]"}</span>
           </div>
         </div>
 

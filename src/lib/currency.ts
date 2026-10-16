@@ -10,6 +10,15 @@ export const SYMBOLS: Record<Currency, string> = { TRY: "₺", EUR: "€", USD: 
 export const CURRENCY_COOKIE = "cur";
 export const CURRENCY_STORAGE_KEY = "rotala.cur";
 
+// Sağlayıcıdan gelen fiyatları TRY'ye çevirmek için (örnek kurlar, 1 TRY = x birim).
+const PROVIDER_RATES: Record<string, number> = { ...RATES, GBP: 1 / 46 };
+
+/** Sağlayıcı fiyatı (ör. "123.45 EUR") → TRY. Bilinmeyen para birimi EUR sayılır. */
+export function toTry(amount: number, currency: string): number {
+  const rate = PROVIDER_RATES[currency.toUpperCase()] ?? RATES.EUR;
+  return Math.round(amount / rate);
+}
+
 export function isCurrency(v: unknown): v is Currency {
   return v === "TRY" || v === "EUR" || v === "USD";
 }

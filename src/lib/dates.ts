@@ -36,3 +36,20 @@ export function formatDayWithWeekday(iso: string): string {
 export function formatDayLong(iso: string): string {
   return `${fmt(iso, { weekday: "long" })} ${fmt(iso, { day: "numeric", month: "long" })}`;
 }
+
+/** Arama kutusu için kısa: 24 – 31 Eki  |  28 Eki – 5 Kas  |  24 Eki */
+export function formatRangeShort(date: string, returnDate?: string): string {
+  const d1 = parse(date);
+  if (!returnDate) return formatDayShort(date);
+  const d2 = parse(returnDate);
+  if (d1.getUTCMonth() === d2.getUTCMonth() && d1.getUTCFullYear() === d2.getUTCFullYear()) {
+    return `${d1.getUTCDate()} – ${formatDayShort(returnDate)}`;
+  }
+  return `${formatDayShort(date)} – ${formatDayShort(returnDate)}`;
+}
+
+/** 3 sa 40 dk */
+export function minsParts(mins: number, pad = false) {
+  const m = mins % 60;
+  return { h: Math.floor(mins / 60), m: pad ? String(m).padStart(2, "0") : String(m) };
+}

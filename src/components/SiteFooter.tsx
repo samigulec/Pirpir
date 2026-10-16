@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { brand } from "@/config/brand";
-import { routeHref, searchHref } from "@/lib/flights";
+import { routeHref, searchHref } from "@/lib/search";
 
 /** Ana sayfanın geniş altbilgisi. */
 export async function SiteFooter() {

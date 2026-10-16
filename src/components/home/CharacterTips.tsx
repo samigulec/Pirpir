@@ -2,8 +2,8 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Biletcik, Bulut, Gunes, Pasi, Pirpir, Valiz } from "../characters";
 import { Price } from "../Price";
-import { searchHref } from "@/lib/flights";
-import { DEMO_BOOKING_ID, DEMO_OFFER_ID } from "@/data/mock/booking";
+import { searchHref } from "@/lib/search";
+import { SAMPLE_BOOKING_ID } from "@/data/mock/booking";
 
 export async function CharacterTips() {
   const t = await getTranslations("home.tips");
@@ -11,10 +11,10 @@ export async function CharacterTips() {
 
   const tips = [
     { key: "bulut", href: searchHref({ to: "Roma" }), bg: "bg-sun-soft", name: "text-sun-text", art: <Bulut highlights={false} width={100} height={70} className="flex-none" />, quote: t.rich("bulut.quote", { price: price(1890) }) },
-    { key: "valiz", href: `/rezervasyon/${DEMO_OFFER_ID}`, bg: "bg-coral-soft", name: "text-coral-text", art: <Valiz stripe={false} highlights={false} width={64} height={80} className="flex-none" />, quote: t("valiz.quote") },
+    { key: "valiz", href: searchHref(), bg: "bg-coral-soft", name: "text-coral-text", art: <Valiz stripe={false} highlights={false} width={64} height={80} className="flex-none" />, quote: t("valiz.quote") },
     { key: "pirpir", href: "#alarm", bg: "bg-sky", name: "text-primary-dark", art: <Pirpir aria-label="Pırpır karakteri" windows={false} highlights={false} blades={false} width={100} height={70} className="flex-none" />, quote: t("pirpir.quote") },
     { key: "pasi", href: "#sss", bg: "bg-pink-soft", name: "text-plum-text", art: <Pasi width={64} height={80} className="flex-none" />, quote: t("pasi.quote") },
-    { key: "biletcik", href: `/rezervasyon/${DEMO_BOOKING_ID}/onay`, bg: "bg-green-soft", name: "text-green-text", art: <Biletcik width={100} height={65} className="flex-none" />, quote: t("biletcik.quote") },
+    { key: "biletcik", href: `/rezervasyon/${SAMPLE_BOOKING_ID}/onay`, bg: "bg-green-soft", name: "text-green-text", art: <Biletcik width={100} height={65} className="flex-none" />, quote: t("biletcik.quote") },
     { key: "gunes", href: searchHref({ to: "Antalya" }), bg: "bg-sun-softer", name: "text-sun-text", art: <Gunes width={80} height={80} className="flex-none" />, quote: t.rich("gunes.quote", { price: price(3090) }) },
   ] as const;
 

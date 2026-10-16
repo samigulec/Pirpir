@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Pirpir } from "../characters";
 import { CloudShape, Check, Clock, Headset, Lock } from "../icons";
 import { SearchForm } from "./SearchForm";
+import type { AirportValue } from "./AirportField";
 
 export function HomeHero({
   from,
@@ -13,11 +14,11 @@ export function HomeHero({
   defaults,
   afterHero,
 }: {
-  from: string;
-  to: string;
-  onFrom: (v: string) => void;
-  onTo: (v: string) => void;
-  defaults: { date: string; returnDate: string };
+  from: AirportValue;
+  to: AirportValue;
+  onFrom: (v: AirportValue) => void;
+  onTo: (v: AirportValue) => void;
+  defaults: { date: string; returnDate: string; today: string };
   /** Hero kutusunun hemen altına (telefonda fırsat kartı). */
   afterHero?: React.ReactNode;
 }) {

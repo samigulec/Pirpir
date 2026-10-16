@@ -3,11 +3,18 @@
   "summaryMeta": "{dates} · {count} kişi",
   "change": "Değiştir",
   "sortLabel": "Sıralama",
-  "sort": { "cheap": "En ucuz", "fast": "En hızlı", "direct": "Sadece direkt" },
+  "sort": {
+    "cheap": "En ucuz",
+    "fast": "En hızlı",
+    "direct": "Sadece direkt"
+  },
   "count": "{count} uçuş bulundu",
   "countNote": "fiyatlar kişi başı, gidiş-dönüş, vergiler dahil",
   "countNoteOneWay": "fiyatlar kişi başı, tek yön, vergiler dahil",
-  "badge": { "cheap": "En ucuz", "fast": "En hızlı" },
+  "badge": {
+    "cheap": "En ucuz",
+    "fast": "En hızlı"
+  },
   "returnInfo": "Dönüş {date}, {time}",
   "transfer": "Aktarma: {via}, {wait} bekleme",
   "select": "Seç",
@@ -16,5 +23,19 @@
     "text": "{day}'de en düşük fiyat <price></price>.",
     "cta": "Göster →"
   },
-  "empty": "Bu filtreye uyan uçuş yok."
+  "empty": "Bu filtreye uyan uçuş yok.",
+  "demoNote": "örnek veri",
+  "testNote": "test modu",
+  "nextDay": "+{n} gün",
+  "invalid": {
+    "title": "Bu aramayı yapamadık",
+    "back": "Aramayı düzelt"
+  },
+  "failed": {
+    "title": "Uçuşları şu an getiremedik",
+    "text": "Biraz sonra tekrar dene. Sorun sürerse bize yaz.",
+    "retry": "Tekrar dene"
+  },
+  "noResults": "Bu tarihlerde uçuş bulamadık. Başka bir tarih dene.",
+  "loading": "Pırpır en uygun uçuşları arıyor…"
 }

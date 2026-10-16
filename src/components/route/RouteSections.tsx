@@ -4,7 +4,7 @@ import { Biletcik, Bulut, Gunes, Marti, Pasi, Pirpir, Valiz } from "../character
 import { Building, Clock, Globe, Plane } from "../icons";
 import { Price } from "../Price";
 import type { CharacterKey, RouteData } from "@/data/mock/routes";
-import { searchHref } from "@/lib/flights";
+import { searchHref } from "@/lib/search";
 import { splitDuration } from "@/lib/format";
 
 const h2 = "m-0 font-display text-[36px] font-bold";

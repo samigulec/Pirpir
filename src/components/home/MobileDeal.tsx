@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
 import { Bulut } from "../characters";
 import { ArrowRight } from "../icons";
-import { searchHref } from "@/lib/flights";
+import { searchHref } from "@/lib/search";
 
 /** Yalnızca telefonda: Mobile.dc.html'deki Bulut fırsat kartı. */
 export function MobileDeal() {

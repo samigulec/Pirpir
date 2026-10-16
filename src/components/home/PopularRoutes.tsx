@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { ArrowRight } from "../icons";
 import { Price } from "../Price";
 import type { PopularRoute } from "@/data/mock/home";
-import { routeHref, searchHref } from "@/lib/flights";
+import { routeHref, searchHref } from "@/lib/search";
 import { splitDuration } from "@/lib/format";
 
 export async function PopularRoutes({ routes }: { routes: PopularRoute[] }) {
@@ -16,7 +16,7 @@ export async function PopularRoutes({ routes }: { routes: PopularRoute[] }) {
         {routes.map((r) => (
           <Link
             key={`${r.from}-${r.to}`}
-            href={r.routeSlug ? routeHref(r.routeSlug) : searchHref({ from: r.from, to: r.to })}
+            href={r.routeSlug ? routeHref(r.routeSlug) : searchHref({ from: r.fromCode, to: r.toCode })}
             className="box-border flex min-h-[64px] items-center justify-between gap-3 rounded-[20px] bg-field px-[18px] py-[14px] text-ink no-underline"
           >
             <span className="flex flex-col">

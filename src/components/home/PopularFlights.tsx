@@ -6,14 +6,22 @@ import { useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
 import { Antalya, Barselona, Istanbul, Londra, Paris, Roma } from "../cities";
 import type { CategoryId, PopularDestination } from "@/data/mock/home";
-import { routeHref, searchHref } from "@/lib/flights";
+import { routeHref, searchHref } from "@/lib/search";
 import { splitDuration } from "@/lib/format";
 
 const CATEGORIES: CategoryId[] = ["all", "tr", "eu", "sea", "city"];
 
 const ILLUSTRATIONS = { ist: Istanbul, ayt: Antalya, fco: Roma, bcn: Barselona, lhr: Londra, cdg: Paris };
 
-export function PopularFlights({ fromLabel, destinations }: { fromLabel: string; destinations: PopularDestination[] }) {
+export function PopularFlights({
+  fromLabel,
+  fromCode,
+  destinations,
+}: {
+  fromLabel: string;
+  fromCode: string;
+  destinations: PopularDestination[];
+}) {
   const t = useTranslations("home.popular");
   const tc = useTranslations("common");
   const { fmt } = useCurrency();
@@ -52,7 +60,7 @@ export function PopularFlights({ fromLabel, destinations }: { fromLabel: string;
       <div className="grid grid-cols-[repeat(auto-fill,minmax(min(320px,100%),1fr))] gap-[18px]">
         {shown.map((d) => {
           const Illustration = ILLUSTRATIONS[d.id];
-          const href = d.routeSlug ? routeHref(d.routeSlug) : searchHref({ to: d.city });
+          const href = d.routeSlug && fromCode === "AMS" ? routeHref(d.routeSlug) : searchHref({ from: fromCode, to: d.code });
           return (
             <Link
               key={d.id}

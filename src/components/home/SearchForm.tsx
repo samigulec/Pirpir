@@ -4,17 +4,22 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { SwapHorizontal, SwapVertical } from "../icons";
-import { searchHref, type SearchParams } from "@/lib/flights";
+import { AirportField, type AirportValue } from "./AirportField";
+import { Counter, FieldPopover } from "./Popover";
+import { resolveAirport } from "@/data/airports";
+import { formatRangeShort } from "@/lib/dates";
+import { MAX_PASSENGERS, addDays, paxTotal, searchHref, validateSearch, type Passengers, type SearchError } from "@/lib/search";
 
 type Trip = "rt" | "ow";
-
-const PAX = ["1a", "2a", "2a1c", "2a2c", "1a1i"] as const;
 
 const fieldBox =
   "flex min-w-0 flex-col rounded-[16px] bg-field px-4 py-[10px] md:rounded-[18px] md:px-[18px] md:py-3";
 const fieldLabel = "text-[12px] font-extrabold text-muted md:text-[13px]";
 const fieldInput =
   "min-w-0 border-0 bg-transparent p-0 font-extrabold text-ink outline-none md:text-[19px]";
+
+const dateInput =
+  "box-border min-h-[48px] w-full rounded-[14px] border-2 border-solid border-line bg-white px-3 py-2 font-bold text-ink";
 
 export function SearchForm({
   from,
@@ -23,37 +28,50 @@ export function SearchForm({
   onTo,
   defaults,
 }: {
-  from: string;
-  to: string;
-  onFrom: (v: string) => void;
-  onTo: (v: string) => void;
-  defaults: { date: string; returnDate: string };
+  from: AirportValue;
+  to: AirportValue;
+  onFrom: (v: AirportValue) => void;
+  onTo: (v: AirportValue) => void;
+  defaults: { date: string; returnDate: string; today: string };
 }) {
   const t = useTranslations("home.search");
   const router = useRouter();
   const [trip, setTrip] = useState<Trip>("rt");
-  const [pax, setPax] = useState<(typeof PAX)[number]>("1a");
+  const [date, setDate] = useState(defaults.date);
+  const [returnDate, setReturnDate] = useState(defaults.returnDate);
+  const [pax, setPax] = useState<Passengers>({ adults: 1, children: 0, infants: 0 });
+  const [error, setError] = useState<SearchError | null>(null);
 
   const swap = () => {
     onFrom(to);
     onTo(from);
   };
 
+  const paxLabel = [
+    t("paxAdults", { n: pax.adults }),
+    pax.children ? t("paxChildren", { n: pax.children }) : null,
+    pax.infants ? t("paxInfants", { n: pax.infants }) : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const params: Partial<SearchParams> = {
-      from,
-      to,
-      date: defaults.date,
-      returnDate: trip === "rt" ? defaults.returnDate : "",
-      pax,
-    };
-    router.push(searchHref(params));
+    const a = from.code ?? resolveAirport(from.text)?.code ?? "";
+    const b = to.code ?? resolveAirport(to.text)?.code ?? "";
+    const q = { from: a, to: b, date, returnDate: trip === "rt" ? returnDate : undefined, pax };
+    const err = validateSearch(q);
+    setError(err);
+    if (err) return;
+    router.push(searchHref({ ...q, returnDate: q.returnDate ?? "" }));
   };
+
+  const total = paxTotal(pax);
 
   return (
     <form
       onSubmit={submit}
+      noValidate
       className="relative box-border flex w-full max-w-[920px] flex-col gap-2 rounded-[24px] bg-white p-[10px] md:gap-3 md:rounded-[28px] md:p-[14px] md:shadow-search"
     >
       <div className="flex gap-[6px] px-[6px] pt-1">
@@ -77,10 +95,15 @@ export function SearchForm({
 
       <div className="grid grid-cols-2 gap-[6px] md:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] md:gap-2">
         <div className="relative col-span-2 flex flex-col gap-[6px] md:flex-row md:gap-2">
-          <label className={`${fieldBox} md:flex-1`}>
-            <span className={fieldLabel}>{t("from")}</span>
-            <input type="text" value={from} onChange={(e) => onFrom(e.target.value)} className={`${fieldInput} text-[18px]`} />
-          </label>
+          <AirportField
+            label={t("from")}
+            value={from}
+            onChange={(v) => { onFrom(v); setError(null); }}
+            invalid={error === "from" || error === "same"}
+            className={`${fieldBox} md:flex-1`}
+            labelClassName={fieldLabel}
+            inputClassName={`${fieldInput} text-[18px]`}
+          />
           <button
             type="button"
             aria-label={t("swap")}
@@ -90,23 +113,86 @@ export function SearchForm({
             <span className="md:hidden"><SwapVertical /></span>
             <span className="hidden md:inline"><SwapHorizontal /></span>
           </button>
-          <label className={`${fieldBox} md:flex-1 md:pl-[30px]`}>
-            <span className={fieldLabel}>{t("to")}</span>
-            <input type="text" value={to} onChange={(e) => onTo(e.target.value)} className={`${fieldInput} text-[18px]`} />
-          </label>
+          <AirportField
+            label={t("to")}
+            value={to}
+            onChange={(v) => { onTo(v); setError(null); }}
+            invalid={error === "to" || error === "same"}
+            className={`${fieldBox} md:flex-1 md:pl-[30px]`}
+            labelClassName={fieldLabel}
+            inputClassName={`${fieldInput} text-[18px]`}
+          />
         </div>
-        <label className={fieldBox}>
-          <span className={fieldLabel}>{t("when")}</span>
-          <input type="text" readOnly value={trip === "rt" ? t("dateRange") : t("dateSingle")} className={`${fieldInput} text-base`} />
-        </label>
-        <label className={fieldBox}>
-          <span className={fieldLabel}>{t("pax")}</span>
-          <select value={pax} onChange={(e) => setPax(e.target.value as (typeof PAX)[number])} className={`${fieldInput} w-full text-base`}>
-            {PAX.map((p) => (
-              <option key={p} value={p}>{t(`paxOptions.${p}`)}</option>
-            ))}
-          </select>
-        </label>
+
+        <FieldPopover
+          label={t("when")}
+          value={formatRangeShort(date, trip === "rt" ? returnDate : undefined)}
+          className={fieldBox}
+          labelClassName={fieldLabel}
+          valueClassName={`${fieldInput} text-base`}
+        >
+          {(close) => (
+            <>
+              <label className="flex flex-col gap-1 text-sm font-extrabold text-muted">
+                {t("departDate")}
+                <input
+                  type="date"
+                  min={defaults.today}
+                  value={date}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (!v) return;
+                    setDate(v);
+                    if (returnDate < v) setReturnDate(addDays(v, 7));
+                    setError(null);
+                  }}
+                  className={dateInput}
+                />
+              </label>
+              {trip === "rt" && (
+                <label className="flex flex-col gap-1 text-sm font-extrabold text-muted">
+                  {t("returnDate")}
+                  <input
+                    type="date"
+                    min={date}
+                    value={returnDate}
+                    onChange={(e) => e.target.value && setReturnDate(e.target.value)}
+                    className={dateInput}
+                  />
+                </label>
+              )}
+              <button type="button" onClick={close} className="min-h-[44px] cursor-pointer rounded-pill border-0 bg-ink px-5 font-display text-base font-semibold text-white">
+                {t("done")}
+              </button>
+            </>
+          )}
+        </FieldPopover>
+
+        <FieldPopover
+          label={t("pax")}
+          value={paxLabel}
+          className={fieldBox}
+          labelClassName={fieldLabel}
+          valueClassName={`${fieldInput} text-base md:pl-1`}
+          panelClassName="md:left-auto md:right-0 min-w-[300px]"
+          chevron
+        >
+          {(close) => (
+            <>
+              <Counter label={t("adults")} hint={t("adultsHint")} value={pax.adults} min={1} max={MAX_PASSENGERS - pax.children - pax.infants}
+                onChange={(n) => setPax({ ...pax, adults: n, infants: Math.min(pax.infants, n) })} />
+              <Counter label={t("children")} hint={t("childrenHint")} value={pax.children} min={0} max={MAX_PASSENGERS - pax.adults - pax.infants}
+                onChange={(n) => setPax({ ...pax, children: n })} />
+              <Counter label={t("infants")} hint={t("infantsHint")} value={pax.infants} min={0} max={Math.min(pax.adults, MAX_PASSENGERS - pax.adults - pax.children)}
+                onChange={(n) => setPax({ ...pax, infants: n })} />
+              <span className="text-[13px] font-semibold text-muted">{t("paxNote", { max: MAX_PASSENGERS, total })}</span>
+              <button type="button" onClick={close} className="min-h-[44px] cursor-pointer rounded-pill border-0 bg-ink px-5 font-display text-base font-semibold text-white">
+                {t("done")}
+              </button>
+            </>
+          )}
+        </FieldPopover>
+
         <button
           type="submit"
           className="col-span-2 flex min-h-[56px] cursor-pointer items-center justify-center gap-2 rounded-[16px] border-0 bg-primary font-display text-[20px] font-semibold text-white md:col-span-1 md:min-h-[68px] md:rounded-[18px] md:text-[21px]"
@@ -114,6 +200,12 @@ export function SearchForm({
           {t("submit")}
         </button>
       </div>
+
+      {error && (
+        <p role="alert" className="m-0 px-[6px] text-[15px] font-extrabold text-coral-text">
+          {t(`errors.${error}`)}
+        </p>
+      )}
     </form>
   );
 }
