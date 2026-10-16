@@ -1,0 +1,87 @@
+{
+  "metaTitle": "Ana sayfa",
+  "hero": {
+    "title": "Nereye uçmak istersin?",
+    "subtitle": "Yazman yeterli. En uygun bileti biz bulalım.",
+    "pirpirLabel": "Pırpır, gülümseyen küçük uçak"
+  },
+  "search": {
+    "roundTrip": "Gidiş-dönüş",
+    "oneWay": "Tek yön",
+    "from": "Nereden",
+    "to": "Nereye",
+    "swap": "Kalkış ve varışı değiştir",
+    "when": "Ne zaman",
+    "dateRange": "24 – 31 Eki",
+    "dateSingle": "24 Eki",
+    "pax": "Kaç kişi",
+    "paxOptions": {
+      "1a": "1 yetişkin",
+      "2a": "2 yetişkin",
+      "2a1c": "2 yetişkin, 1 çocuk",
+      "2a2c": "2 yetişkin, 2 çocuk",
+      "1a1i": "1 yetişkin, 1 bebek"
+    },
+    "paxShort": "1 kişi",
+    "submit": "Bilet bul"
+  },
+  "trust": {
+    "label": "Neden rotala",
+    "secure": "Güvenli ödeme",
+    "noFees": "Gizli ücret yok, gördüğün fiyat son fiyat",
+    "support": "Türkçe destek [DESTEK SAATLERİ]",
+    "cancel": "24 saat içinde ücretsiz iptal"
+  },
+  "mobileDeal": {
+    "title": "Hafta sonu Roma'ya kaçalım mı?",
+    "price": "<price></price>'dan başlayan",
+    "cta": "Roma fırsatını gör"
+  },
+  "popular": {
+    "from": "{city} çıkışlı",
+    "title": "Popüler uçuşlar",
+    "categoryLabel": "Kategori",
+    "categories": { "all": "Tümü", "tr": "Türkiye", "eu": "Avrupa", "sea": "Deniz & güneş", "city": "Şehir turu" },
+    "cards": {
+      "ist": { "badge": "En çok aranan", "meta": "Türkiye · IST, SAW", "alt": "İstanbul illüstrasyonu: kubbeli cami, minareler, Galata Kulesi ve vapur" },
+      "ayt": { "badge": "Deniz & güneş", "meta": "Türkiye · AYT", "alt": "Antalya illüstrasyonu: güneş, deniz, plaj ve palmiye" },
+      "fco": { "badge": "En ucuz", "meta": "İtalya · FCO", "alt": "Roma illüstrasyonu: kemerli antik amfitiyatro" },
+      "bcn": { "badge": "Şehir + plaj", "meta": "İspanya · BCN", "alt": "Barselona illüstrasyonu: sivri kuleli bazilika ve deniz" },
+      "lhr": { "badge": "En kısa uçuş", "meta": "Birleşik Krallık · LHR, LGW", "alt": "Londra illüstrasyonu: saat kulesi ve kırmızı iki katlı otobüs" },
+      "cdg": { "badge": "Hafta sonu", "meta": "Fransa · CDG, ORY", "alt": "Paris illüstrasyonu: demir kule ve parkta ağaçlar" }
+    }
+  },
+  "tips": {
+    "title": "Ekibimizden ipuçları",
+    "subtitle": "Yolculuğun her adımında yanında küçük bir yardımcı var.",
+    "bulut": { "name": "Bulut · fırsat avcısı", "quote": "“Hafta sonu Roma'ya kaçalım mı? <price></price>'dan.”" },
+    "valiz": { "name": "Valiz · bagaj uzmanı", "quote": "“Bagajını şimdi ekle, havalimanında daha pahalı.”" },
+    "pirpir": { "name": "Pırpır · fiyat bekçisi", "quote": "“Fiyat düşünce sana haber veririm, söz!”" },
+    "pasi": { "name": "Pasi · belge dostu", "quote": "“Pasaportunun son tarihine bir bak, sonra sorun çıkmasın.”" },
+    "biletcik": { "name": "Biletçik · check-in rehberi", "quote": "“Online check-in açılınca seni ilk ben dürterim.”" },
+    "gunes": { "name": "Güneş · tatil sever", "quote": "“Antalya'da deniz seni bekliyor, <price></price>'dan.”" }
+  },
+  "routes": { "title": "Hollanda'dan Türkiye'ye popüler rotalar" },
+  "steps": {
+    "search": { "title": "Ara", "text": "Nereden, nereye, ne zaman. Bu kadar." },
+    "pick": { "title": "Seç", "text": "En ucuz ve en hızlıyı senin için işaretliyoruz." },
+    "fly": { "title": "Uç", "text": "Biletin anında e-postanda. İyi yolculuklar!" }
+  },
+  "alert": {
+    "title": "Fiyat düşünce Pırpır sana haber versin",
+    "email": "E-posta adresin",
+    "submit": "Haber ver",
+    "thanks": "Tamamdır! İlk indirimde e-postanı dürteceğim.",
+    "note": "Haftada en fazla bir e-posta. İstediğin zaman çık."
+  },
+  "faq": {
+    "title": "Sıkça sorulanlar",
+    "items": {
+      "when": { "q": "Biletim ne zaman gelir?", "a": "Ödeme onaylanır onaylanmaz e-biletin e-postana gelir. Genelde birkaç dakika sürer." },
+      "cancel": { "q": "Biletimi iptal edebilir miyim?", "a": "Satın aldıktan sonraki 24 saat içinde ücretsiz iptal edebilirsin. Sonrası havayolunun kurallarına bağlı. [İPTAL KOŞULLARI]" },
+      "bags": { "q": "Bagaj fiyata dahil mi?", "a": "Her uçuşta neyin dahil olduğunu sonuç kartında yazıyoruz. Ek bagajı rezervasyon sırasında tek tıkla ekleyebilirsin." },
+      "transfer": { "q": "Aktarmalı uçuşta bagajımı tekrar vermem gerekir mi?", "a": "Aynı biletteki aktarmalarda genelde hayır. Farklı havayollarını birleştiren rotalarda gerekebilir; bunu uçuş kartında açıkça belirtiyoruz." },
+      "payment": { "q": "Hangi ödeme yöntemlerini kabul ediyorsunuz?", "a": "Kredi ve banka kartı, iDEAL, Apple Pay ve Google Pay." }
+    }
+  }
+}
