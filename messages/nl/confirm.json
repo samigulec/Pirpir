@@ -1,0 +1,20 @@
+{
+  "metaTitle": "Boekingsbevestiging",
+  "title": "Je ticket is klaar!",
+  "sent": "We hebben je e-ticket naar <email></email> gestuurd.",
+  "pnrLabel": "Boekingscode",
+  "outbound": "Heen · {date}",
+  "inbound": "Terug · {date}",
+  "transferVia": "via {city}",
+  "direct": "Direct",
+  "download": "Ticket downloaden",
+  "calendar": "Toevoegen aan agenda",
+  "share": "Delen",
+  "remind": {
+    "title": "Zal Valiz je eraan herinneren?",
+    "text": "We sturen je een melding zodra online inchecken opengaat en 3 uur voor je vlucht.",
+    "off": "Ja, herinner me",
+    "on": "Herinnering aan ✓"
+  },
+  "home": "Terug naar home"
+}

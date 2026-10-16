@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { brand } from "@/config/brand";
 import { routeHref, searchHref } from "@/lib/search";
@@ -12,7 +12,7 @@ export async function SiteFooter() {
       <div className="mx-auto grid max-w-page grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-7 px-6 pb-10 pt-12 text-[15px]">
         <div className="flex flex-col gap-[10px]">
           <span className="font-display text-[26px] font-bold">{brand.name}</span>
-          <span className="text-muted">{brand.tagline}</span>
+          <span className="text-muted">{t("tagline")}</span>
         </div>
         <nav aria-label={t("company")} className="flex flex-col gap-2">
           <span className="font-extrabold">{brand.name}</span>
@@ -29,8 +29,8 @@ export async function SiteFooter() {
         <nav aria-label={t("popular")} className="flex flex-col gap-2">
           <span className="font-extrabold">{t("popular")}</span>
           <Link href={routeHref({ from: "amsterdam", to: "istanbul" })} className={link}>{t("istanbul")}</Link>
-          <Link href={searchHref({ to: "Antalya" })} className={link}>{t("antalya")}</Link>
-          <Link href={searchHref({ to: "İzmir" })} className={link}>{t("izmir")}</Link>
+          <Link href={searchHref({ to: "AYT" })} className={link}>{t("antalya")}</Link>
+          <Link href={searchHref({ to: "ADB" })} className={link}>{t("izmir")}</Link>
         </nav>
       </div>
       <div className="mx-auto flex max-w-page flex-wrap justify-between gap-3 border-0 border-t border-solid border-line px-6 pb-10 pt-[18px] text-sm text-muted">

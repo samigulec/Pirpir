@@ -1,13 +1,14 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
 import { Antalya, Barselona, Istanbul, Londra, Paris, Roma } from "../cities";
 import type { CategoryId, PopularDestination } from "@/data/mock/home";
+import { cityByCode, countryName, findAirport } from "@/data/airports";
 import { routeHref, searchHref } from "@/lib/search";
-import { splitDuration } from "@/lib/format";
+import { minsParts } from "@/lib/dates";
 
 const CATEGORIES: CategoryId[] = ["all", "tr", "eu", "sea", "city"];
 
@@ -25,6 +26,7 @@ export function PopularFlights({
   const t = useTranslations("home.popular");
   const tc = useTranslations("common");
   const { fmt } = useCurrency();
+  const locale = useLocale();
   const [cat, setCat] = useState<CategoryId>("all");
 
   const shown = destinations.filter((d) => cat === "all" || d.tags.includes(cat));
@@ -75,8 +77,10 @@ export function PopularFlights({
               </div>
               <div className="flex items-end justify-between gap-3 px-2">
                 <div className="flex flex-col">
-                  <span className="font-display text-[26px] font-semibold leading-[1.15]">{d.city}</span>
-                  <span className="text-[15px] font-bold text-muted">{t(`cards.${d.id}.meta`)}</span>
+                  <span className="font-display text-[26px] font-semibold leading-[1.15]">{cityByCode(d.code, locale)}</span>
+                  <span className="text-[15px] font-bold text-muted">
+                    {countryName(findAirport(d.code)?.country ?? "", locale)} · {d.airports.join(", ")}
+                  </span>
                 </div>
                 <div className="flex flex-col items-end">
                   <span className="text-[13px] font-bold text-muted">{tc("roundTrip")}</span>
@@ -85,7 +89,7 @@ export function PopularFlights({
               </div>
               <div className="flex flex-wrap gap-[6px] px-2">
                 <span className="rounded-pill bg-field px-[10px] py-[3px] text-[13px] font-extrabold">
-                  {tc("direct")} · {tc("duration", splitDuration(d.mins, true))}
+                  {tc("direct")} · {tc("duration", minsParts(d.mins, true))}
                 </span>
                 <span className="rounded-pill bg-field px-[10px] py-[3px] text-[13px] font-extrabold">{d.airlines.join(" · ")}</span>
               </div>

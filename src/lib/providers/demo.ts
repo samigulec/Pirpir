@@ -2,7 +2,7 @@
 // tutarlı (aynı aramada hep aynı) teklifler üretir. Fiyatlar ve saatler ÖRNEKTİR.
 import { distanceKm, findAirport, type Airport } from "@/data/airports";
 import { addDays, todayIso, type SearchQuery } from "../search";
-import type { BagOption, Booking, FlightProvider, Leg, Offer, OrderInput } from "./types";
+import type { BagInfo, BagOption, Booking, FlightProvider, Leg, Offer, OrderInput } from "./types";
 
 function hash(s: string): number {
   let h = 2166136261;
@@ -48,16 +48,16 @@ function hasDirect(a: Airport, b: Airport): boolean {
   return Math.min(a.size, b.size) >= 2;
 }
 
-function bagInfo(airline: string): string {
+function bagInfo(airline: string): BagInfo {
   const main = airline.split(" + ")[0];
-  if (FULL_SERVICE.has(main)) return "Kabin bavulu + 23 kg dahil";
-  if (HOLIDAY.has(main)) return "Kabin bavulu + 20 kg dahil";
-  return "Küçük çanta dahil";
+  if (FULL_SERVICE.has(main)) return { cabin: true, checked: true, checkedKg: 23 };
+  if (HOLIDAY.has(main)) return { cabin: true, checked: true, checkedKg: 20 };
+  return { cabin: false };
 }
 
-function bagOptions(info: string, km: number): BagOption[] {
+function bagOptions(info: BagInfo, km: number): BagOption[] {
   const scale = Math.max(0.6, Math.min(1.4, km / 2200));
-  if (info.includes("23 kg") || info.includes("20 kg")) {
+  if (info.checked) {
     return [{ kind: "small", price: 0 }, { kind: "cabin", price: 0 }, { kind: "big", price: 0 }];
   }
   return [
@@ -189,8 +189,9 @@ export const demoProvider: FlightProvider = {
       id: "demo-" + hash(input.offerId + input.email + Date.now()).toString(36),
       provider: "demo",
       email: input.email,
-      offer: { fromCity: offer.fromCity, toCity: offer.toCity, airline: offer.airline, outbound: offer.outbound, inbound: offer.inbound },
+      offer: { airline: offer.airline, outbound: offer.outbound, inbound: offer.inbound },
       total: totalTry,
+      createdAt: new Date().toISOString(),
     };
   },
 };

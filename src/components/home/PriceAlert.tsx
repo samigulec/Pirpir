@@ -6,11 +6,12 @@ import { Pirpir } from "../characters";
 
 export function PriceAlert() {
   const t = useTranslations("home.alert");
+  const tc = useTranslations("common.characters");
   const [done, setDone] = useState(false);
   return (
     <section id="alarm" className="mx-auto max-w-page px-6 pt-[88px]">
       <div className="flex flex-wrap items-center gap-7 rounded-[40px] bg-ink px-11 py-10 text-white">
-        <Pirpir aria-label="Pırpır karakteri" outline="#FFFFFF" highlights={false} blades={false} width={170} height={119} className="flex-none" />
+        <Pirpir aria-label={tc("pirpir")} outline="#FFFFFF" highlights={false} blades={false} width={170} height={119} className="flex-none" />
         <div className="flex flex-[1_1_340px] flex-col gap-[14px]">
           <h2 className="m-0 font-display text-[34px] font-bold leading-[1.15]">{t("title")}</h2>
           {done ? (

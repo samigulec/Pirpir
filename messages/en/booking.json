@@ -1,0 +1,105 @@
+{
+  "metaTitle": "Booking",
+  "back": "← Back to flights",
+  "steps": { "label": "Steps", "passenger": "Traveller", "bags": "Baggage", "payment": "Payment" },
+  "title": "Almost there!",
+  "outbound": "Outbound · {date}",
+  "inbound": "Return · {date}",
+  "transferWait": "{wait} stop in {city}",
+  "transfer": "Stop in {city}",
+  "direct": "Direct",
+  "passenger": {
+    "title": "Who's flying?",
+    "firstName": "First name (as in passport)",
+    "lastName": "Last name",
+    "gender": "Gender (as in passport)",
+    "female": "Female",
+    "male": "Male",
+    "birth": "Date of birth",
+    "birthPlaceholder": "DD.MM.YYYY",
+    "nationality": "Nationality",
+    "passport": "Passport number",
+    "note": "Airlines ask for passport details on international flights. Your passport must be valid for at least 6 months after your return.",
+    "slot": "Traveller {n} · {type}",
+    "types": { "adult": "Adult", "child": "Child", "infant": "Infant" }
+  },
+  "contact": {
+    "title": "How can we reach you?",
+    "email": "Email (your ticket goes here)",
+    "phone": "Phone (we'll text you if your flight changes)",
+    "phoneCode": "Country code"
+  },
+  "bags": {
+    "title": "How much luggage?",
+    "valiz": "Valiz: “Adding it now is cheaper than at the airport!”",
+    "label": "Baggage",
+    "free": "Free",
+    "options": {
+      "small": { "title": "Small bag", "desc": "Fits under the seat" },
+      "cabin": { "title": "Cabin bag", "desc": "10 kg, overhead bin" },
+      "big": { "title": "Checked bag", "desc": "20 kg, in the hold" }
+    },
+    "transferNote": "On a connecting route you may need to collect your bags in {city} and check them in again."
+  },
+  "payment": {
+    "title": "How would you like to pay?",
+    "secure": "Encrypted, secure connection",
+    "label": "Payment method",
+    "methods": {
+      "card": { "label": "Card", "sub": "Visa, Mastercard, Amex", "pay": "Pay by card" },
+      "ideal": { "label": "iDEAL", "sub": "Dutch banks", "pay": "Pay with iDEAL", "note": "Choose your bank; when you press Pay you'll be sent to your banking app." },
+      "apple": { "label": "Apple Pay", "sub": "iPhone, Mac", "pay": "Pay with Apple Pay", "note": "Apple Pay opens when you press Pay; confirm with Face ID or Touch ID." },
+      "google": { "label": "Google Pay", "sub": "Android, Chrome", "pay": "Pay with Google Pay", "note": "Google Pay opens when you press Pay; confirm on your phone." }
+    },
+    "cardName": "Name on card",
+    "cardNamePlaceholder": "AYSE YILMAZ",
+    "cardNumber": "Card number",
+    "cardType": "Card type",
+    "expiry": "Expiry date",
+    "expiryPlaceholder": "MM/YY",
+    "cvc": "CVC (3 digits on the back)",
+    "saveCard": "Securely save my card for next time",
+    "threeDs": "Your bank may ask for a quick verification (3D Secure) in its app or by text message.",
+    "bank": "Choose your bank"
+  },
+  "promo": {
+    "question": "Got a discount code?",
+    "label": "Discount code",
+    "placeholder": "Enter code",
+    "apply": "Apply",
+    "applied": "Code applied, you saved {amount}!",
+    "invalid": "This code isn't valid."
+  },
+  "total": {
+    "ticket": "Ticket ({pax}, {trip})",
+    "bag": "Baggage",
+    "bagPerPax": "Baggage ({n} people)",
+    "promo": "Discount code",
+    "taxes": "Taxes and service fee",
+    "included": "Included",
+    "total": "Total",
+    "terms": "I have read and accept the <terms>terms of use</terms>, the airline rules and the <privacy>privacy policy</privacy>.",
+    "needTerms": "Please accept the terms to continue."
+  },
+  "footnote": "Free cancellation within 24 hours of booking. [İPTAL KOŞULLARI] · Help: [DESTEK TELEFONU]",
+  "trip": { "rt": "return", "ow": "one way" },
+  "errors": {
+    "summary": "Some details are missing or incorrect. Please check the highlighted fields.",
+    "name": "Enter it as in your passport (letters only).",
+    "birth": "Enter a valid date as DD.MM.YYYY.",
+    "adultAge": "Adults must be at least 12 on the day of travel.",
+    "childAge": "Children must be 2–11 on the day of travel.",
+    "infantAge": "Infants must be under 2 for the whole trip.",
+    "passport": "Check the passport number.",
+    "email": "Enter a valid email address.",
+    "phone": "Check the phone number.",
+    "bag": "Choose a baggage option.",
+    "terms": "Please accept the terms to continue.",
+    "expired": "This offer has expired. Search again for current prices.",
+    "failed": "We couldn't complete the booking right now. You haven't been charged; please try again shortly.",
+    "live": "Payments aren't connected yet, so tickets can't be issued for now."
+  },
+  "testNotice": "Test mode: no payment is taken and your card details are not sent anywhere.",
+  "processing": "Booking…",
+  "expiredPage": { "title": "This offer has expired", "text": "Prices change often. Search again to see current flights.", "cta": "Search again" }
+}

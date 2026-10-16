@@ -1,7 +1,7 @@
 {
   "breadcrumb": "Konum",
   "home": "Ana sayfa",
-  "heroTitle": "{to} uçuşlar",
+  "heroTitle": "{toDat} uçuşlar",
   "fromPrice": "gidiş-dönüş <price></price>'dan başlayan",
   "cta": "Tarih seç, bilet bul",
   "facts": {
@@ -19,12 +19,21 @@
     "aria": "{month}: {price}",
     "cheapest": "Yılın en ucuz ayı!",
     "diff": "En ucuz aydan {price} pahalı",
-    "note": "Örnek fiyatlar. Gerçek fiyatlar arama anında güncellenir.",
-    "names": ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"],
-    "short": ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"]
+    "note": "Örnek fiyatlar. Gerçek fiyatlar arama anında güncellenir."
   },
-  "deals": { "title": "Yaklaşan en ucuz tarihler", "select": "Seç" },
-  "airports": { "title": "Hangi havalimanı sana uygun?" },
-  "tips": { "title": "{city} için ipuçları" },
-  "others": { "title": "{country} başka nereler?" }
+  "deals": {
+    "title": "Yaklaşan en ucuz tarihler",
+    "select": "Seç"
+  },
+  "airports": {
+    "title": "Hangi havalimanı sana uygun?"
+  },
+  "tips": {
+    "title": "{city} için ipuçları"
+  },
+  "others": {
+    "title": "{countryLoc} başka nereler?"
+  },
+  "heroFrom": "{fromAbl}",
+  "metaTitle": "{fromAbl} {toDat} uçuşlar"
 }

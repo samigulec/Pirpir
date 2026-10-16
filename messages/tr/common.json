@@ -1,10 +1,8 @@
 {
-  "logoHome": "Ana sayfa",
   "language": "Dil",
   "currency": "Para birimi",
   "myTickets": "Biletlerim",
   "signIn": "Giriş yap",
-  "profile": "Profil",
   "mainNav": "Ana menü",
   "nav": {
     "popular": "Popüler uçuşlar",
@@ -36,7 +34,24 @@
     "izmir": "İzmir uçuşları",
     "privacy": "Gizlilik",
     "terms": "Koşullar",
-    "cookies": "Çerezler"
+    "cookies": "Çerezler",
+    "tagline": "Uçmanın en kolay yolu."
   },
-  "stops": "{n} aktarma"
+  "stops": "{n} aktarma",
+  "account": "Hesabım",
+  "notFound": {
+    "title": "Bu sayfa uçup gitmiş",
+    "text": "Aradığın sayfayı bulamadık. Ana sayfadan yeniden başlayalım.",
+    "cta": "Ana sayfaya dön"
+  },
+  "characters": {
+    "pirpir": "Pırpır, küçük uçak",
+    "pirpirHappy": "Pırpır, sevinen küçük uçak",
+    "bulut": "Bulut karakteri",
+    "valiz": "Valiz karakteri",
+    "pasi": "Pasi, pasaport karakteri",
+    "biletcik": "Biletçik, biniş kartı karakteri",
+    "gunes": "Güneş karakteri",
+    "marti": "Martı, denizci şapkalı martı karakteri"
+  }
 }

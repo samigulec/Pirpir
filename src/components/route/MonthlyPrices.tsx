@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { monthNames } from "@/lib/dates";
+import { intlLocale } from "@/lib/intl";
 import { useCurrency } from "../CurrencyProvider";
 
 export function MonthlyPrices({ values, defaultMonth }: { values: number[]; defaultMonth: number }) {
@@ -9,8 +11,9 @@ export function MonthlyPrices({ values, defaultMonth }: { values: number[]; defa
   const { fmt, fmtShort } = useCurrency();
   const [month, setMonth] = useState(defaultMonth);
 
-  const names = t.raw("names") as string[];
-  const short = t.raw("short") as string[];
+  const loc = intlLocale(useLocale());
+  const names = monthNames(loc, "long");
+  const short = monthNames(loc, "short");
   const max = Math.max(...values);
   const min = Math.min(...values);
   const diff = values[month] - min;

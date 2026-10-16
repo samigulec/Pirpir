@@ -1,0 +1,20 @@
+{
+  "metaTitle": "Booking confirmation",
+  "title": "Your ticket is ready!",
+  "sent": "We've sent your e-ticket to <email></email>.",
+  "pnrLabel": "Booking reference",
+  "outbound": "Outbound · {date}",
+  "inbound": "Return · {date}",
+  "transferVia": "via {city}",
+  "direct": "Direct",
+  "download": "Download ticket",
+  "calendar": "Add to calendar",
+  "share": "Share",
+  "remind": {
+    "title": "Want Valiz to remind you?",
+    "text": "We'll notify you when online check-in opens and 3 hours before your flight.",
+    "off": "Yes, remind me",
+    "on": "Reminder on ✓"
+  },
+  "home": "Back to home"
+}

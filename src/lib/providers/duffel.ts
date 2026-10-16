@@ -5,7 +5,7 @@ import "server-only";
 import { findAirport } from "@/data/airports";
 import { toTry } from "../currency";
 import type { SearchQuery } from "../search";
-import type { BagKind, BagOption, Booking, FlightProvider, Leg, Offer, OrderInput } from "./types";
+import type { BagInfo, BagKind, BagOption, Booking, FlightProvider, Leg, Offer, OrderInput } from "./types";
 
 const API = "https://api.duffel.com";
 
@@ -119,11 +119,9 @@ function includedBags(o: DOffer) {
   return { checked: q("checked"), carryOn: q("carry_on") };
 }
 
-function bagInfo(o: DOffer): string {
+function bagInfo(o: DOffer): BagInfo {
   const { checked, carryOn } = includedBags(o);
-  if (checked > 0) return "Kabin bavulu + bagaj dahil";
-  if (carryOn > 0) return "Kabin bavulu dahil";
-  return "Küçük çanta dahil";
+  return { cabin: carryOn > 0, checked: checked > 0 };
 }
 
 function bagOptions(o: DOffer): BagOption[] {
@@ -264,8 +262,9 @@ export const duffelProvider: FlightProvider = {
       provider: "duffel",
       pnr: order.booking_reference,
       email: input.email,
-      offer: { fromCity: offer.fromCity, toCity: offer.toCity, airline: offer.airline, outbound: offer.outbound, inbound: offer.inbound },
+      offer: { airline: offer.airline, outbound: offer.outbound, inbound: offer.inbound },
       total: totalTry,
+      createdAt: new Date().toISOString(),
     };
   },
 };

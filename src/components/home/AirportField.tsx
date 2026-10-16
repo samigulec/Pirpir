@@ -1,7 +1,8 @@
 "use client";
 
 import { useId, useState } from "react";
-import { suggestAirports, type Airport } from "@/data/airports";
+import { useLocale } from "next-intl";
+import { cityName, countryName, suggestAirports, type Airport } from "@/data/airports";
 
 export type AirportValue = { text: string; code?: string };
 
@@ -24,12 +25,13 @@ export function AirportField({
   invalid?: boolean;
 }) {
   const id = useId();
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const items = open ? suggestAirports(value.text) : [];
 
   const pick = (a: Airport) => {
-    onChange({ text: a.city, code: a.code });
+    onChange({ text: cityName(a, locale), code: a.code });
     setOpen(false);
   };
 
@@ -79,8 +81,8 @@ export function AirportField({
               className={`flex cursor-pointer items-center justify-between gap-3 rounded-[12px] px-3 py-2 ${i === active ? "bg-field" : ""}`}
             >
               <span className="flex min-w-0 flex-col">
-                <span className="font-extrabold text-ink">{a.city}</span>
-                <span className="truncate text-[13px] font-semibold text-muted">{a.name} · {a.country}</span>
+                <span className="font-extrabold text-ink">{cityName(a, locale)}</span>
+                <span className="truncate text-[13px] font-semibold text-muted">{a.name} · {countryName(a.country, locale)}</span>
               </span>
               <span className="font-display font-semibold text-primary">{a.code}</span>
             </li>

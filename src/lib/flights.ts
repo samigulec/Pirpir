@@ -35,7 +35,6 @@ export async function getFlexibleDateTip(q: SearchQuery) {
 }
 
 export { provider as getProvider };
-export { routeHref, searchHref } from "./search";
 
 export function getPopularDestinations() {
   return popularDestinations;

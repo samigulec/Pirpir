@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useLocale } from "next-intl";
+import { INTL_LOCALE, isLocale } from "@/i18n/config";
 import {
   CURRENCY_COOKIE,
   CURRENCY_STORAGE_KEY,
@@ -50,6 +52,8 @@ function persist(c: Currency) {
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [cur, setCurState] = useState<Currency>("TRY");
+  const locale = useLocale();
+  const intl = INTL_LOCALE[isLocale(locale) ? locale : "tr"];
 
   useEffect(() => {
     const initial = readInitial();
@@ -68,10 +72,10 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     () => ({
       cur,
       setCur,
-      fmt: (n) => formatPrice(n, cur),
-      fmtShort: (n) => formatShort(n, cur),
+      fmt: (n) => formatPrice(n, cur, intl),
+      fmtShort: (n) => formatShort(n, cur, intl),
     }),
-    [cur, setCur],
+    [cur, setCur, intl],
   );
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;

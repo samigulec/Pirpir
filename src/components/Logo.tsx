@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { brand } from "@/config/brand";
 
 export function LogoMark({ size = 34 }: { size?: number }) {

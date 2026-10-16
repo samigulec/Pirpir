@@ -89,19 +89,21 @@ export function parseSearch(raw: Raw, now = new Date()): SearchQuery {
   return { from, to, date, returnDate, pax };
 }
 
-export function searchHref(q: Partial<SearchQuery> & { from?: string; to?: string } = {}, now = new Date()): string {
+/** Arama sonuçları bağlantısı (dil farkında Link/router için kanonik yol + sorgu). */
+export function searchHref(q: Partial<SearchQuery> = {}, now = new Date()) {
   const d = defaultDates(now);
-  const p = new URLSearchParams();
-  p.set("from", q.from ?? "AMS");
-  p.set("to", q.to ?? "ADB");
-  p.set("date", q.date ?? d.date);
+  const query: Record<string, string> = {
+    from: q.from ?? "AMS",
+    to: q.to ?? "ADB",
+    date: q.date ?? d.date,
+  };
   const ret = q.returnDate === undefined && !q.date ? d.returnDate : q.returnDate;
-  if (ret) p.set("return", ret);
+  if (ret) query.return = ret;
   const pax = q.pax ?? { adults: 1, children: 0, infants: 0 };
-  p.set("adults", String(pax.adults));
-  if (pax.children) p.set("children", String(pax.children));
-  if (pax.infants) p.set("infants", String(pax.infants));
-  return `/ara?${p.toString()}`;
+  query.adults = String(pax.adults);
+  if (pax.children) query.children = String(pax.children);
+  if (pax.infants) query.infants = String(pax.infants);
+  return { pathname: "/ara" as const, query };
 }
 
 export function airportOrThrow(code: string): Airport {
@@ -110,6 +112,14 @@ export function airportOrThrow(code: string): Airport {
   return a;
 }
 
-export function routeHref(slug: { from: string; to: string }): string {
-  return `/ucuslar/${slug.from}/${slug.to}`;
+export function routeHref(slug: { from: string; to: string }) {
+  return { pathname: "/ucuslar/[nereden]/[nereye]" as const, params: { nereden: slug.from, nereye: slug.to } };
+}
+
+export function bookingHref(offerId: string) {
+  return { pathname: "/rezervasyon/[teklifId]" as const, params: { teklifId: offerId } };
+}
+
+export function confirmHref(bookingId: string) {
+  return { pathname: "/rezervasyon/[teklifId]/onay" as const, params: { teklifId: bookingId } };
 }

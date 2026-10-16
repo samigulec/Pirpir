@@ -20,6 +20,9 @@ export type Leg = {
 
 export type BagKind = "small" | "cabin" | "big";
 
+/** Fiyata dahil bagaj (metni dile göre çevrilir). */
+export type BagInfo = { cabin: boolean; checkedKg?: number; checked?: boolean };
+
 export type BagOption = {
   kind: BagKind;
   /** Yolcu başı ek ücret (TRY); 0 = dahil. */
@@ -45,7 +48,7 @@ export type Offer = {
   total: number;
   /** Sağlayıcının kendi para birimindeki toplam (sipariş ödemesi bununla yapılır). */
   raw: { amount: string; currency: string };
-  bagInfo: string;
+  bagInfo: BagInfo;
   bagOptions: BagOption[];
   passportRequired: boolean;
   expiresAt?: string;
@@ -76,8 +79,9 @@ export type Booking = {
   /** Havayolu rezervasyon kodu (örnek modda yok). */
   pnr?: string;
   email: string;
-  offer: Pick<Offer, "fromCity" | "toCity" | "airline" | "outbound" | "inbound">;
+  offer: Pick<Offer, "airline" | "outbound" | "inbound">;
   total: number;
+  createdAt: string;
 };
 
 export interface FlightProvider {

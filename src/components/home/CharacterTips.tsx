@@ -1,22 +1,23 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { Biletcik, Bulut, Gunes, Pasi, Pirpir, Valiz } from "../characters";
 import { Price } from "../Price";
-import { searchHref } from "@/lib/search";
+import { confirmHref, searchHref } from "@/lib/search";
 import { SAMPLE_BOOKING_ID } from "@/data/mock/booking";
 
 export async function CharacterTips() {
   const t = await getTranslations("home.tips");
+  const tc = await getTranslations("common.characters");
   const price = (amount: number) => () => <Price amount={amount} />;
 
   const tips = [
-    { key: "bulut", href: searchHref({ to: "Roma" }), bg: "bg-sun-soft", name: "text-sun-text", art: <Bulut highlights={false} width={100} height={70} className="flex-none" />, quote: t.rich("bulut.quote", { price: price(1890) }) },
-    { key: "valiz", href: searchHref(), bg: "bg-coral-soft", name: "text-coral-text", art: <Valiz stripe={false} highlights={false} width={64} height={80} className="flex-none" />, quote: t("valiz.quote") },
-    { key: "pirpir", href: "#alarm", bg: "bg-sky", name: "text-primary-dark", art: <Pirpir aria-label="Pırpır karakteri" windows={false} highlights={false} blades={false} width={100} height={70} className="flex-none" />, quote: t("pirpir.quote") },
-    { key: "pasi", href: "#sss", bg: "bg-pink-soft", name: "text-plum-text", art: <Pasi width={64} height={80} className="flex-none" />, quote: t("pasi.quote") },
-    { key: "biletcik", href: `/rezervasyon/${SAMPLE_BOOKING_ID}/onay`, bg: "bg-green-soft", name: "text-green-text", art: <Biletcik width={100} height={65} className="flex-none" />, quote: t("biletcik.quote") },
-    { key: "gunes", href: searchHref({ to: "Antalya" }), bg: "bg-sun-softer", name: "text-sun-text", art: <Gunes width={80} height={80} className="flex-none" />, quote: t.rich("gunes.quote", { price: price(3090) }) },
-  ] as const;
+    { key: "bulut", href: searchHref({ to: "FCO" }), bg: "bg-sun-soft", name: "text-sun-text", art: <Bulut aria-label={tc("bulut")} highlights={false} width={100} height={70} className="flex-none" />, quote: t.rich("bulut.quote", { price: price(1890) }) },
+    { key: "valiz", href: searchHref(), bg: "bg-coral-soft", name: "text-coral-text", art: <Valiz aria-label={tc("valiz")} stripe={false} highlights={false} width={64} height={80} className="flex-none" />, quote: t("valiz.quote") },
+    { key: "pirpir", href: { pathname: "/" as const, hash: "alarm" }, bg: "bg-sky", name: "text-primary-dark", art: <Pirpir aria-label={tc("pirpir")} windows={false} highlights={false} blades={false} width={100} height={70} className="flex-none" />, quote: t("pirpir.quote") },
+    { key: "pasi", href: { pathname: "/" as const, hash: "sss" }, bg: "bg-pink-soft", name: "text-plum-text", art: <Pasi aria-label={tc("pasi")} width={64} height={80} className="flex-none" />, quote: t("pasi.quote") },
+    { key: "biletcik", href: confirmHref(SAMPLE_BOOKING_ID), bg: "bg-green-soft", name: "text-green-text", art: <Biletcik aria-label={tc("biletcik")} width={100} height={65} className="flex-none" />, quote: t("biletcik.quote") },
+    { key: "gunes", href: searchHref({ to: "AYT" }), bg: "bg-sun-softer", name: "text-sun-text", art: <Gunes aria-label={tc("gunes")} width={80} height={80} className="flex-none" />, quote: t.rich("gunes.quote", { price: price(3090) }) },
+  ];
 
   return (
     <section className="mx-auto flex max-w-page flex-col gap-6 px-6 pt-[88px]">

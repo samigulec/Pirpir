@@ -1,0 +1,96 @@
+{
+  "metaTitle": "Home",
+  "metaDescription": "Simple, friendly flight search: search, pick, pay, fly.",
+  "hero": {
+    "title": "Where do you want to fly?",
+    "subtitle": "Just type it in. We'll find the best ticket.",
+    "pirpirLabel": "Pırpır, a smiling little plane"
+  },
+  "search": {
+    "roundTrip": "Return",
+    "oneWay": "One way",
+    "from": "From",
+    "to": "To",
+    "swap": "Swap departure and destination",
+    "when": "When",
+    "pax": "Travellers",
+    "submit": "Find tickets",
+    "departDate": "Departure date",
+    "returnDate": "Return date",
+    "done": "Done",
+    "paxAdults": "{n, plural, one {# adult} other {# adults}}",
+    "paxChildren": "{n, plural, one {# child} other {# children}}",
+    "paxInfants": "{n, plural, one {# infant} other {# infants}}",
+    "adults": "Adults",
+    "adultsHint": "12 years and over",
+    "children": "Children",
+    "childrenHint": "2–11 years",
+    "infants": "Infants",
+    "infantsHint": "Under 2, on lap",
+    "paxNote": "Up to {max} travellers. Each infant must travel with an adult.",
+    "errors": {
+      "from": "Choose a departure city from the list.",
+      "to": "Choose a destination from the list.",
+      "same": "Departure and destination can't be the same.",
+      "date": "Choose a valid departure date.",
+      "past": "The departure date can't be in the past.",
+      "return": "The return date can't be before departure.",
+      "pax": "Check the number of travellers."
+    }
+  },
+  "trust": {
+    "label": "Why rotala",
+    "secure": "Secure payment",
+    "noFees": "No hidden fees, the price you see is the price you pay",
+    "support": "Turkish-speaking support [DESTEK SAATLERİ]",
+    "cancel": "Free cancellation within 24 hours"
+  },
+  "mobileDeal": { "title": "Fancy a weekend in Rome?", "price": "from <price></price>", "cta": "See the Rome deal" },
+  "popular": {
+    "from": "From {city}",
+    "title": "Popular flights",
+    "categoryLabel": "Category",
+    "categories": { "all": "All", "tr": "Türkiye", "eu": "Europe", "sea": "Sun & sea", "city": "City trips" },
+    "cards": {
+      "ist": { "badge": "Most searched", "alt": "Istanbul illustration: domed mosque, minarets, Galata Tower and a ferry" },
+      "ayt": { "badge": "Sun & sea", "alt": "Antalya illustration: sun, sea, beach and a palm tree" },
+      "fco": { "badge": "Cheapest", "alt": "Rome illustration: an ancient arched amphitheatre" },
+      "bcn": { "badge": "City + beach", "alt": "Barcelona illustration: a spired basilica and the sea" },
+      "lhr": { "badge": "Shortest flight", "alt": "London illustration: a clock tower and a red double-decker bus" },
+      "cdg": { "badge": "Weekend", "alt": "Paris illustration: an iron tower and trees in a park" }
+    }
+  },
+  "tips": {
+    "title": "Tips from our team",
+    "subtitle": "A little helper at every step of your trip.",
+    "bulut": { "name": "Bulut · deal hunter", "quote": "“Weekend getaway to Rome? From <price></price>.”" },
+    "valiz": { "name": "Valiz · baggage expert", "quote": "“Add your bags now, it costs more at the airport.”" },
+    "pirpir": { "name": "Pırpır · price watcher", "quote": "“I'll tell you when the price drops, promise!”" },
+    "pasi": { "name": "Pasi · document buddy", "quote": "“Check your passport's expiry date so there are no surprises.”" },
+    "biletcik": { "name": "Biletçik · check-in guide", "quote": "“I'll nudge you the moment online check-in opens.”" },
+    "gunes": { "name": "Güneş · holiday lover", "quote": "“The sea in Antalya is waiting, from <price></price>.”" }
+  },
+  "routes": { "title": "Popular routes from the Netherlands to Türkiye" },
+  "steps": {
+    "search": { "title": "Search", "text": "From, to, when. That's it." },
+    "pick": { "title": "Pick", "text": "We mark the cheapest and fastest for you." },
+    "fly": { "title": "Fly", "text": "Your ticket lands in your inbox instantly. Have a great trip!" }
+  },
+  "alert": {
+    "title": "Let Pırpır tell you when prices drop",
+    "email": "Your email address",
+    "submit": "Notify me",
+    "thanks": "All set! I'll nudge your inbox at the first price drop.",
+    "note": "At most one email a week. Unsubscribe any time."
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "items": {
+      "when": { "q": "When will I get my ticket?", "a": "Your e-ticket arrives by email as soon as payment is confirmed. It usually takes a few minutes." },
+      "cancel": { "q": "Can I cancel my ticket?", "a": "You can cancel for free within 24 hours of booking. After that, the airline's rules apply. [İPTAL KOŞULLARI]" },
+      "bags": { "q": "Is baggage included in the price?", "a": "We show what's included on every result card. You can add extra baggage with one tap while booking." },
+      "transfer": { "q": "Do I need to check in my bags again on a connecting flight?", "a": "Usually not for connections on the same ticket. Routes combining different airlines may require it; we clearly mention this on the flight card." },
+      "payment": { "q": "Which payment methods do you accept?", "a": "Credit and debit cards, iDEAL, Apple Pay and Google Pay." }
+    }
+  }
+}

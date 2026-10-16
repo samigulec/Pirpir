@@ -1,17 +1,20 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
 import { Bulut } from "../characters";
-import type { Leg, Offer } from "@/lib/providers/types";
+import { cityByCode } from "@/data/airports";
+import type { BagInfo, Leg, Offer } from "@/lib/providers/types";
+import { bookingHref, searchHref } from "@/lib/search";
+import { intlLocale } from "@/lib/intl";
 import { formatDayShort, minsParts } from "@/lib/dates";
 
 type Sort = "cheap" | "fast" | "direct";
 const SORTS: Sort[] = ["cheap", "fast", "direct"];
 
-export type ResultsTip = { href: string; day: string; price: number; save: number } | null;
+export type ResultsTip = { href: ReturnType<typeof searchHref>; day: string; price: number; save: number } | null;
 
 export function ResultsView({
   offers,
@@ -28,6 +31,8 @@ export function ResultsView({
   const t = useTranslations("results");
   const tc = useTranslations("common");
   const { fmt } = useCurrency();
+  const locale = useLocale();
+  const loc = intlLocale(locale);
   const [sort, setSort] = useState<Sort>("cheap");
 
   // Rozetler sıralamadan bağımsız, tüm sonuçlar üzerinden hesaplanır.
@@ -42,6 +47,8 @@ export function ResultsView({
     return l;
   }, [offers, sort]);
 
+  const bagText = (b: BagInfo) =>
+    b.checked ? (b.checkedKg ? t("bagInfo.checkedKg", { kg: b.checkedKg }) : t("bagInfo.checked")) : b.cabin ? t("bagInfo.cabin") : t("bagInfo.small");
   const dur = (m: number) => tc("duration", minsParts(m));
   const stopsLabel = (leg: Leg) => (leg.stops === 0 ? tc("direct") : leg.stops === 1 ? tc("oneStop") : tc("stops", { n: leg.stops }));
 
@@ -110,13 +117,13 @@ export function ResultsView({
               </div>
               <span className="text-[15px] font-semibold text-muted">
                 {o.airline}
-                {o.inbound && <> · {t("returnInfo", { date: formatDayShort(o.inbound.date), time: o.inbound.dep })}</>}
+                {o.inbound && <> · {t("returnInfo", { date: formatDayShort(o.inbound.date, loc), time: o.inbound.dep })}</>}
               </span>
               <span className="flex flex-wrap gap-[6px]">
-                <span className="rounded-pill bg-field px-[10px] py-[3px] text-[13px] font-extrabold text-ink">{o.bagInfo}</span>
+                <span className="rounded-pill bg-field px-[10px] py-[3px] text-[13px] font-extrabold text-ink">{bagText(o.bagInfo)}</span>
                 {via && (
                   <span className="rounded-pill bg-coral-soft px-[10px] py-[3px] text-[13px] font-extrabold text-ink">
-                    {t("transfer", { via: `${via.city} (${via.code})`, wait: dur(via.waitMins) })}
+                    {t("transfer", { via: `${cityByCode(via.code, locale, via.city)} (${via.code})`, wait: dur(via.waitMins) })}
                   </span>
                 )}
               </span>
@@ -124,7 +131,7 @@ export function ResultsView({
             <div className="flex flex-[1_1_160px] items-center justify-between gap-4">
               <span className="font-display text-[30px] font-bold">{fmt(o.price)}</span>
               <Link
-                href={`/rezervasyon/${o.id}`}
+                href={bookingHref(o.id)}
                 className="box-border inline-flex min-h-[48px] items-center rounded-pill bg-primary px-[26px] py-3 font-display text-[19px] font-semibold text-white no-underline"
               >
                 {t("select")}

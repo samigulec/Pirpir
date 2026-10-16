@@ -1,0 +1,96 @@
+{
+  "metaTitle": "Home",
+  "metaDescription": "Eenvoudig en vriendelijk vliegtickets zoeken: zoek, kies, betaal, vlieg.",
+  "hero": {
+    "title": "Waar wil je naartoe vliegen?",
+    "subtitle": "Typ het gewoon in. Wij vinden het beste ticket.",
+    "pirpirLabel": "Pırpır, een lachend vliegtuigje"
+  },
+  "search": {
+    "roundTrip": "Retour",
+    "oneWay": "Enkele reis",
+    "from": "Van",
+    "to": "Naar",
+    "swap": "Vertrek en bestemming omwisselen",
+    "when": "Wanneer",
+    "pax": "Reizigers",
+    "submit": "Tickets zoeken",
+    "departDate": "Vertrekdatum",
+    "returnDate": "Terugreisdatum",
+    "done": "Klaar",
+    "paxAdults": "{n, plural, one {# volwassene} other {# volwassenen}}",
+    "paxChildren": "{n, plural, one {# kind} other {# kinderen}}",
+    "paxInfants": "{n, plural, one {# baby} other {# baby's}}",
+    "adults": "Volwassenen",
+    "adultsHint": "12 jaar en ouder",
+    "children": "Kinderen",
+    "childrenHint": "2–11 jaar",
+    "infants": "Baby's",
+    "infantsHint": "Jonger dan 2, op schoot",
+    "paxNote": "Maximaal {max} reizigers. Elke baby reist met een volwassene.",
+    "errors": {
+      "from": "Kies een vertrekstad uit de lijst.",
+      "to": "Kies een bestemming uit de lijst.",
+      "same": "Vertrek en bestemming kunnen niet hetzelfde zijn.",
+      "date": "Kies een geldige vertrekdatum.",
+      "past": "De vertrekdatum kan niet in het verleden liggen.",
+      "return": "De terugreisdatum kan niet voor het vertrek liggen.",
+      "pax": "Controleer het aantal reizigers."
+    }
+  },
+  "trust": {
+    "label": "Waarom rotala",
+    "secure": "Veilig betalen",
+    "noFees": "Geen verborgen kosten, de prijs die je ziet is de prijs die je betaalt",
+    "support": "Turkstalige klantenservice [DESTEK SAATLERİ]",
+    "cancel": "Gratis annuleren binnen 24 uur"
+  },
+  "mobileDeal": { "title": "Zin in een weekendje Rome?", "price": "vanaf <price></price>", "cta": "Bekijk de deal naar Rome" },
+  "popular": {
+    "from": "Vanaf {city}",
+    "title": "Populaire vluchten",
+    "categoryLabel": "Categorie",
+    "categories": { "all": "Alles", "tr": "Turkije", "eu": "Europa", "sea": "Zon & zee", "city": "Stedentrips" },
+    "cards": {
+      "ist": { "badge": "Meest gezocht", "alt": "Illustratie van Istanbul: moskee met koepel, minaretten, Galatatoren en een veerboot" },
+      "ayt": { "badge": "Zon & zee", "alt": "Illustratie van Antalya: zon, zee, strand en een palmboom" },
+      "fco": { "badge": "Goedkoopst", "alt": "Illustratie van Rome: een antiek amfitheater met bogen" },
+      "bcn": { "badge": "Stad + strand", "alt": "Illustratie van Barcelona: een basiliek met torens en de zee" },
+      "lhr": { "badge": "Kortste vlucht", "alt": "Illustratie van Londen: een klokkentoren en een rode dubbeldekker" },
+      "cdg": { "badge": "Weekend", "alt": "Illustratie van Parijs: een ijzeren toren en bomen in een park" }
+    }
+  },
+  "tips": {
+    "title": "Tips van ons team",
+    "subtitle": "Bij elke stap van je reis een kleine helper.",
+    "bulut": { "name": "Bulut · dealjager", "quote": "“Weekendje Rome? Vanaf <price></price>.”" },
+    "valiz": { "name": "Valiz · bagage-expert", "quote": "“Voeg je bagage nu toe, op het vliegveld is het duurder.”" },
+    "pirpir": { "name": "Pırpır · prijswaker", "quote": "“Ik laat het je weten als de prijs daalt, beloofd!”" },
+    "pasi": { "name": "Pasi · documentenmaatje", "quote": "“Check de vervaldatum van je paspoort, dan heb je geen verrassingen.”" },
+    "biletcik": { "name": "Biletçik · inchecken", "quote": "“Ik por je meteen zodra online inchecken opengaat.”" },
+    "gunes": { "name": "Güneş · vakantieliefhebber", "quote": "“De zee in Antalya wacht op je, vanaf <price></price>.”" }
+  },
+  "routes": { "title": "Populaire routes van Nederland naar Turkije" },
+  "steps": {
+    "search": { "title": "Zoek", "text": "Van, naar, wanneer. Meer niet." },
+    "pick": { "title": "Kies", "text": "Wij markeren de goedkoopste en snelste voor je." },
+    "fly": { "title": "Vlieg", "text": "Je ticket staat meteen in je mailbox. Goede reis!" }
+  },
+  "alert": {
+    "title": "Laat Pırpır je waarschuwen als de prijs daalt",
+    "email": "Je e-mailadres",
+    "submit": "Houd me op de hoogte",
+    "thanks": "Geregeld! Bij de eerste prijsdaling krijg je een seintje.",
+    "note": "Maximaal één e-mail per week. Afmelden kan altijd."
+  },
+  "faq": {
+    "title": "Veelgestelde vragen",
+    "items": {
+      "when": { "q": "Wanneer krijg ik mijn ticket?", "a": "Zodra de betaling is bevestigd, krijg je je e-ticket per e-mail. Meestal duurt dat een paar minuten." },
+      "cancel": { "q": "Kan ik mijn ticket annuleren?", "a": "Binnen 24 uur na boeking kun je gratis annuleren. Daarna gelden de regels van de luchtvaartmaatschappij. [İPTAL KOŞULLARI]" },
+      "bags": { "q": "Is bagage inbegrepen in de prijs?", "a": "Op elke resultaatkaart staat wat er inbegrepen is. Extra bagage voeg je tijdens het boeken met één tik toe." },
+      "transfer": { "q": "Moet ik mijn bagage bij een overstap opnieuw inchecken?", "a": "Bij overstappen op hetzelfde ticket meestal niet. Bij routes met verschillende maatschappijen kan het nodig zijn; dat staat duidelijk op de vluchtkaart." },
+      "payment": { "q": "Welke betaalmethoden accepteren jullie?", "a": "Creditcard en betaalpas, iDEAL, Apple Pay en Google Pay." }
+    }
+  }
+}

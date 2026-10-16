@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { Help, Search, Ticket } from "../icons";
 
@@ -12,7 +12,7 @@ export async function MobileNav() {
       className="fixed inset-x-0 bottom-0 z-10 grid grid-cols-3 border-0 border-t border-solid border-line bg-white px-2 pb-5 pt-[6px] md:hidden"
     >
       <Link href="/" className={`${item} font-extrabold text-primary`}><Search />{t("search")}</Link>
-      <Link href="#" className={`${item} font-bold text-muted`}><Ticket />{t("tickets")}</Link>
+      <Link href="/biletlerim" className={`${item} font-bold text-muted`}><Ticket />{t("tickets")}</Link>
       <a href="#sss" className={`${item} font-bold text-muted`}><Help />{t("help")}</a>
     </nav>
   );

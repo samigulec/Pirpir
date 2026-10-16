@@ -1,8 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
+import { intlLocale } from "@/lib/intl";
 import { SwapHorizontal, SwapVertical } from "../icons";
 import { AirportField, type AirportValue } from "./AirportField";
 import { Counter, FieldPopover } from "./Popover";
@@ -36,6 +37,7 @@ export function SearchForm({
 }) {
   const t = useTranslations("home.search");
   const router = useRouter();
+  const loc = intlLocale(useLocale());
   const [trip, setTrip] = useState<Trip>("rt");
   const [date, setDate] = useState(defaults.date);
   const [returnDate, setReturnDate] = useState(defaults.returnDate);
@@ -126,7 +128,7 @@ export function SearchForm({
 
         <FieldPopover
           label={t("when")}
-          value={formatRangeShort(date, trip === "rt" ? returnDate : undefined)}
+          value={formatRangeShort(date, trip === "rt" ? returnDate : undefined, loc)}
           className={fieldBox}
           labelClassName={fieldLabel}
           valueClassName={`${fieldInput} text-base`}

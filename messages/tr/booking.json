@@ -123,7 +123,6 @@
     "rt": "gidiş-dönüş",
     "ow": "tek yön"
   },
-  "inboundNone": "Tek yön",
   "errors": {
     "summary": "Bazı bilgiler eksik ya da hatalı. İşaretli alanlara bir bak.",
     "name": "Pasaporttaki gibi yaz (yalnızca harf).",

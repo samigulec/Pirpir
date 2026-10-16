@@ -27,16 +27,14 @@ export function convert(amountTry: number, cur: Currency): number {
   return Math.round(amountTry * RATES[cur]);
 }
 
-/** ₺2.760 biçimi (tr-TR binlik ayırıcı). */
-export function formatPrice(amountTry: number, cur: Currency): string {
-  return SYMBOLS[cur] + convert(amountTry, cur).toLocaleString("tr-TR");
+/** ₺2.760 biçimi; binlik ayırıcı sayfa diline göre (tr/nl: nokta, en: virgül). */
+export function formatPrice(amountTry: number, cur: Currency, intlLocale = "tr-TR"): string {
+  return SYMBOLS[cur] + convert(amountTry, cur).toLocaleString(intlLocale);
 }
 
-/** Grafik etiketleri için kısa biçim: ₺2,9B */
-export function formatShort(amountTry: number, cur: Currency): string {
+/** Grafik etiketleri için kısa biçim: ₺2,9B · ₺2.9K · ₺2,9K */
+export function formatShort(amountTry: number, cur: Currency, intlLocale = "tr-TR"): string {
   const v = convert(amountTry, cur);
-  return (
-    SYMBOLS[cur] +
-    (v >= 1000 ? (v / 1000).toLocaleString("tr-TR", { maximumFractionDigits: 1 }) + "B" : String(v))
-  );
+  const compact = new Intl.NumberFormat(intlLocale, { notation: "compact", maximumFractionDigits: 1 }).format(v);
+  return SYMBOLS[cur] + compact.replace(/\s/g, "");
 }

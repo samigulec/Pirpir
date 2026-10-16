@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale } from "next-intl";
+import { cityByCode } from "@/data/airports";
 import { HomeHero } from "./HomeHero";
 import { MobileDeal } from "./MobileDeal";
 import { PopularFlights } from "./PopularFlights";
@@ -15,12 +17,13 @@ export function HomeView({
   destinations: PopularDestination[];
   defaults: { date: string; returnDate: string; today: string };
 }) {
-  const [from, setFrom] = useState<AirportValue>({ text: "Amsterdam", code: "AMS" });
-  const [to, setTo] = useState<AirportValue>({ text: "İzmir", code: "ADB" });
+  const locale = useLocale();
+  const [from, setFrom] = useState<AirportValue>({ text: cityByCode("AMS", locale), code: "AMS" });
+  const [to, setTo] = useState<AirportValue>({ text: cityByCode("ADB", locale), code: "ADB" });
   return (
     <>
       <HomeHero from={from} to={to} onFrom={setFrom} onTo={setTo} defaults={defaults} afterHero={<MobileDeal />} />
-      <PopularFlights fromLabel={from.text || "Amsterdam"} fromCode={from.code ?? "AMS"} destinations={destinations} />
+      <PopularFlights fromLabel={from.text || cityByCode("AMS", locale)} fromCode={from.code ?? "AMS"} destinations={destinations} />
     </>
   );
 }

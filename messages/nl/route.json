@@ -1,0 +1,30 @@
+{
+  "breadcrumb": "Kruimelpad",
+  "home": "Home",
+  "heroFrom": "Vanaf {from}",
+  "heroTitle": "Vluchten naar {to}",
+  "metaTitle": "Vluchten van {from} naar {to}",
+  "fromPrice": "retour vanaf <price></price>",
+  "cta": "Kies data, zoek tickets",
+  "facts": {
+    "label": "Kort overzicht",
+    "duration": "Vliegtijd",
+    "durationValue": "{h} u {m} min direct",
+    "airports": "Luchthavens",
+    "airlines": "Maatschappijen",
+    "timeDiff": "Tijdsverschil"
+  },
+  "monthly": {
+    "title": "Welke maand is het goedkoopst?",
+    "subtitle": "Laagste retourprijs per maand. Tik op een maand.",
+    "groupLabel": "Kies een maand",
+    "aria": "{month}: {price}",
+    "cheapest": "Goedkoopste maand van het jaar!",
+    "diff": "{price} duurder dan de goedkoopste maand",
+    "note": "Voorbeeldprijzen. Echte prijzen worden bij het zoeken bijgewerkt."
+  },
+  "deals": { "title": "Goedkoopste data binnenkort", "select": "Kies" },
+  "airports": { "title": "Welke luchthaven past bij jou?" },
+  "tips": { "title": "Tips voor {city}" },
+  "others": { "title": "Waar nog meer in {country}?" }
+}

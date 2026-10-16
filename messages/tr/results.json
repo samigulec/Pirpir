@@ -37,5 +37,11 @@
     "retry": "Tekrar dene"
   },
   "noResults": "Bu tarihlerde uçuş bulamadık. Başka bir tarih dene.",
-  "loading": "Pırpır en uygun uçuşları arıyor…"
+  "loading": "Pırpır en uygun uçuşları arıyor…",
+  "bagInfo": {
+    "small": "Küçük çanta dahil",
+    "cabin": "Kabin bavulu dahil",
+    "checked": "Kabin bavulu + bagaj dahil",
+    "checkedKg": "Kabin bavulu + {kg} kg dahil"
+  }
 }

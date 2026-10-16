@@ -1,0 +1,105 @@
+{
+  "metaTitle": "Boeking",
+  "back": "← Terug naar vluchten",
+  "steps": { "label": "Stappen", "passenger": "Reiziger", "bags": "Bagage", "payment": "Betaling" },
+  "title": "Bijna klaar!",
+  "outbound": "Heen · {date}",
+  "inbound": "Terug · {date}",
+  "transferWait": "Overstap in {city}, {wait}",
+  "transfer": "Overstap in {city}",
+  "direct": "Direct",
+  "passenger": {
+    "title": "Wie vliegt er?",
+    "firstName": "Voornaam (zoals in paspoort)",
+    "lastName": "Achternaam",
+    "gender": "Geslacht (zoals in paspoort)",
+    "female": "Vrouw",
+    "male": "Man",
+    "birth": "Geboortedatum",
+    "birthPlaceholder": "DD.MM.JJJJ",
+    "nationality": "Nationaliteit",
+    "passport": "Paspoortnummer",
+    "note": "Voor internationale vluchten vraagt de maatschappij je paspoortgegevens. Je paspoort moet na terugkomst nog minstens 6 maanden geldig zijn.",
+    "slot": "Reiziger {n} · {type}",
+    "types": { "adult": "Volwassene", "child": "Kind", "infant": "Baby" }
+  },
+  "contact": {
+    "title": "Hoe bereiken we je?",
+    "email": "E-mail (hier komt je ticket)",
+    "phone": "Telefoon (we sturen een sms als je vlucht wijzigt)",
+    "phoneCode": "Landcode"
+  },
+  "bags": {
+    "title": "Hoeveel bagage?",
+    "valiz": "Valiz: “Nu toevoegen is goedkoper dan op het vliegveld!”",
+    "label": "Bagage",
+    "free": "Gratis",
+    "options": {
+      "small": { "title": "Kleine tas", "desc": "Past onder de stoel" },
+      "cabin": { "title": "Handbagage", "desc": "10 kg, in het bagagevak" },
+      "big": { "title": "Grote koffer", "desc": "20 kg, in het ruim" }
+    },
+    "transferNote": "Bij een overstap moet je je bagage in {city} mogelijk ophalen en opnieuw inchecken."
+  },
+  "payment": {
+    "title": "Hoe wil je betalen?",
+    "secure": "Versleutelde, veilige verbinding",
+    "label": "Betaalmethode",
+    "methods": {
+      "card": { "label": "Kaart", "sub": "Visa, Mastercard, Amex", "pay": "Betaal met kaart" },
+      "ideal": { "label": "iDEAL", "sub": "Nederlandse banken", "pay": "Betaal met iDEAL", "note": "Kies je bank; als je op Betalen drukt, ga je naar je bankapp." },
+      "apple": { "label": "Apple Pay", "sub": "iPhone, Mac", "pay": "Betaal met Apple Pay", "note": "Als je op Betalen drukt, opent Apple Pay; bevestig met Face ID of Touch ID." },
+      "google": { "label": "Google Pay", "sub": "Android, Chrome", "pay": "Betaal met Google Pay", "note": "Als je op Betalen drukt, opent Google Pay; bevestig op je telefoon." }
+    },
+    "cardName": "Naam op de kaart",
+    "cardNamePlaceholder": "AYSE YILMAZ",
+    "cardNumber": "Kaartnummer",
+    "cardType": "Kaarttype",
+    "expiry": "Vervaldatum",
+    "expiryPlaceholder": "MM/JJ",
+    "cvc": "CVC (3 cijfers achterop)",
+    "saveCard": "Bewaar mijn kaart veilig voor de volgende keer",
+    "threeDs": "Je bank kan om een korte verificatie (3D Secure) vragen in de app of per sms.",
+    "bank": "Kies je bank"
+  },
+  "promo": {
+    "question": "Heb je een kortingscode?",
+    "label": "Kortingscode",
+    "placeholder": "Voer code in",
+    "apply": "Toepassen",
+    "applied": "Code toegepast, je bespaart {amount}!",
+    "invalid": "Deze code is niet geldig."
+  },
+  "total": {
+    "ticket": "Ticket ({pax}, {trip})",
+    "bag": "Bagage",
+    "bagPerPax": "Bagage ({n} personen)",
+    "promo": "Kortingscode",
+    "taxes": "Belastingen en servicekosten",
+    "included": "Inbegrepen",
+    "total": "Totaal",
+    "terms": "Ik heb de <terms>gebruiksvoorwaarden</terms>, de regels van de maatschappij en het <privacy>privacybeleid</privacy> gelezen en ga ermee akkoord.",
+    "needTerms": "Ga akkoord met de voorwaarden om verder te gaan."
+  },
+  "footnote": "Gratis annuleren binnen 24 uur na boeking. [İPTAL KOŞULLARI] · Hulp: [DESTEK TELEFONU]",
+  "trip": { "rt": "retour", "ow": "enkele reis" },
+  "errors": {
+    "summary": "Sommige gegevens ontbreken of kloppen niet. Bekijk de gemarkeerde velden.",
+    "name": "Vul in zoals in je paspoort (alleen letters).",
+    "birth": "Vul een geldige datum in als DD.MM.JJJJ.",
+    "adultAge": "Volwassenen zijn op de reisdag minstens 12 jaar.",
+    "childAge": "Kinderen zijn op de reisdag 2–11 jaar.",
+    "infantAge": "Baby's zijn de hele reis jonger dan 2 jaar.",
+    "passport": "Controleer het paspoortnummer.",
+    "email": "Vul een geldig e-mailadres in.",
+    "phone": "Controleer het telefoonnummer.",
+    "bag": "Kies een bagageoptie.",
+    "terms": "Ga akkoord met de voorwaarden om verder te gaan.",
+    "expired": "Deze aanbieding is verlopen. Zoek opnieuw voor actuele prijzen.",
+    "failed": "We konden de boeking nu niet afronden. Er is niets afgeschreven; probeer het zo opnieuw.",
+    "live": "Betalingen zijn nog niet gekoppeld, dus tickets kunnen nu nog niet worden uitgegeven."
+  },
+  "testNotice": "Testmodus: er wordt niet betaald en je kaartgegevens worden nergens naartoe gestuurd.",
+  "processing": "Bezig met boeken…",
+  "expiredPage": { "title": "Deze aanbieding is verlopen", "text": "Prijzen veranderen vaak. Zoek opnieuw om actuele vluchten te zien.", "cta": "Opnieuw zoeken" }
+}

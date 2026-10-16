@@ -1,0 +1,33 @@
+{
+  "metaTitle": "Search results",
+  "summaryMeta": "{dates} · {count, plural, one {# traveller} other {# travellers}}",
+  "change": "Change",
+  "sortLabel": "Sort by",
+  "sort": { "cheap": "Cheapest", "fast": "Fastest", "direct": "Direct only" },
+  "count": "{count, plural, one {# flight found} other {# flights found}}",
+  "countNote": "prices per person, return, taxes included",
+  "countNoteOneWay": "prices per person, one way, taxes included",
+  "badge": { "cheap": "Cheapest", "fast": "Fastest" },
+  "returnInfo": "Return {date}, {time}",
+  "transfer": "Stop: {via}, {wait} layover",
+  "select": "Select",
+  "tip": {
+    "title": "Fly two days later and save <price></price>!",
+    "text": "Lowest price on {day}: <price></price>.",
+    "cta": "Show →"
+  },
+  "empty": "No flights match this filter.",
+  "demoNote": "sample data",
+  "testNote": "test mode",
+  "nextDay": "+{n}",
+  "invalid": { "title": "We couldn't run this search", "back": "Fix search" },
+  "failed": { "title": "We can't load flights right now", "text": "Please try again in a moment. If the problem persists, let us know.", "retry": "Try again" },
+  "noResults": "No flights found for these dates. Try another date.",
+  "loading": "Pırpır is looking for the best flights…",
+  "bagInfo": {
+    "small": "Small bag included",
+    "cabin": "Cabin bag included",
+    "checked": "Cabin bag + checked bag included",
+    "checkedKg": "Cabin bag + {kg} kg included"
+  }
+}

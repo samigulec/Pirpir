@@ -1,0 +1,59 @@
+{
+  "login": {
+    "metaTitle": "Inloggen",
+    "title": "Welkom terug!",
+    "subtitle": "Vul je e-mailadres in, dan sturen we je een inloglink. Geen wachtwoord nodig.",
+    "email": "E-mail",
+    "submit": "Stuur inloglink",
+    "sending": "Bezig met versturen…",
+    "or": "of",
+    "google": "Doorgaan met Google",
+    "sentTitle": "Check je mailbox",
+    "sentText": "We hebben een inloglink naar <email></email> gestuurd. Tik op de link en je bent binnen.",
+    "sentAgain": "Ander e-mailadres gebruiken",
+    "why": "Log in om je tickets op elk apparaat bij de hand te hebben en je prijsalarmen te beheren.",
+    "demoNote": "Voorbeeldmodus: e-mailverificatie staat uit en je bent meteen ingelogd. Gegevens blijven alleen in deze browser.",
+    "errors": {
+      "email": "Vul een geldig e-mailadres in.",
+      "failed": "We konden de link nu niet versturen. Probeer het zo opnieuw.",
+      "google": "Inloggen met Google lukt nu niet.",
+      "link": "Deze inloglink is verlopen of al gebruikt. Vraag een nieuwe aan."
+    }
+  },
+  "trips": {
+    "metaTitle": "Mijn reizen",
+    "title": "Mijn reizen",
+    "upcoming": "Komend",
+    "past": "Voorbij",
+    "pnr": "Boekingscode",
+    "view": "Details",
+    "total": "Totaal",
+    "emptyTitle": "Nog geen reizen",
+    "emptyText": "Zullen we je eerste vlucht zoeken?",
+    "emptyCta": "Vluchten zoeken",
+    "biletcik": "“Zodra je ticket klaar is, wacht ik hier op je.”",
+    "guestTitle": "Je tickets op elk apparaat",
+    "guestText": "Log in om alle tickets te zien die je met hetzelfde e-mailadres hebt geboekt. Nu zie je alleen de boekingen uit deze browser.",
+    "guestCta": "Inloggen"
+  },
+  "account": {
+    "metaTitle": "Mijn account",
+    "title": "Mijn account",
+    "hello": "Hoi {name}!",
+    "helloNoName": "Hoi!",
+    "profile": "Profiel",
+    "name": "Je naam",
+    "namePlaceholder": "Ayşe Yılmaz",
+    "email": "E-mail",
+    "save": "Opslaan",
+    "saved": "Opgeslagen.",
+    "saveError": "Opslaan mislukt, probeer het opnieuw.",
+    "preferences": "Voorkeuren",
+    "language": "Taal",
+    "currency": "Valuta",
+    "trips": "Mijn reizen",
+    "tripsText": "Je tickets en boekingscodes.",
+    "signOut": "Uitloggen",
+    "demoNote": "Voorbeeldmodus: je account wordt alleen in deze browser bewaard."
+  }
+}

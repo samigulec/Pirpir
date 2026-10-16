@@ -1,6 +1,6 @@
 import type { Locale } from "./config";
 
-const NAMESPACES = ["common", "home", "route", "results", "booking", "confirm", "characters"] as const;
+const NAMESPACES = ["common", "home", "route", "results", "booking", "confirm", "account"] as const;
 
 // messages/<dil>/<alan>.json dosyalarını tek nesnede birleştirir.
 // Henüz çevrilmemiş diller Türkçeye düşer.

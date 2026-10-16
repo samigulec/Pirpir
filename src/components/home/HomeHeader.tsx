@@ -1,9 +1,7 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Logo } from "../Logo";
 import { CurrencySelect, LanguageSelect } from "../HeaderControls";
-import { PillLink } from "../SiteHeader";
-import { User } from "../icons";
+import { AccountPill, ProfileButton, TicketsLink } from "../AccountLinks";
 
 export async function HomeHeader() {
   const t = await getTranslations("common");
@@ -20,10 +18,8 @@ export async function HomeHeader() {
         <div className="flex flex-wrap items-center justify-end gap-2">
           <LanguageSelect />
           <CurrencySelect />
-          <Link href="#" className="box-border inline-flex min-h-[44px] items-center px-[14px] py-[10px] font-bold text-ink no-underline">
-            {t("myTickets")}
-          </Link>
-          <PillLink href="#">{t("signIn")}</PillLink>
+          <TicketsLink />
+          <AccountPill />
         </div>
       </header>
 
@@ -32,13 +28,7 @@ export async function HomeHeader() {
         <Logo compact />
         <span className="flex items-center gap-[6px]">
           <CurrencySelect compact />
-          <button
-            type="button"
-            aria-label={t("profile")}
-            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-0 bg-sky text-ink"
-          >
-            <User />
-          </button>
+          <ProfileButton />
         </span>
       </header>
     </>

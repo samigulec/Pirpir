@@ -1,0 +1,59 @@
+{
+  "login": {
+    "metaTitle": "Giriş yap",
+    "title": "Tekrar hoş geldin!",
+    "subtitle": "E-postanı yaz, sana tek tıkla giriş bağlantısı gönderelim. Şifre hatırlamak yok.",
+    "email": "E-posta",
+    "submit": "Giriş bağlantısı gönder",
+    "sending": "Gönderiliyor…",
+    "or": "ya da",
+    "google": "Google ile devam et",
+    "sentTitle": "E-postanı kontrol et",
+    "sentText": "<email></email> adresine bir giriş bağlantısı gönderdik. Bağlantıya dokunman yeterli.",
+    "sentAgain": "Başka bir e-posta kullan",
+    "why": "Giriş yapınca biletlerin her cihazda yanında olur, fiyat alarmlarını yönetirsin.",
+    "demoNote": "Örnek mod: e-posta doğrulaması kapalı, hemen giriş yapılır. Bilgiler yalnızca bu tarayıcıda tutulur.",
+    "errors": {
+      "email": "Geçerli bir e-posta adresi yaz.",
+      "failed": "Bağlantıyı şu an gönderemedik. Biraz sonra tekrar dene.",
+      "google": "Google ile giriş şu an yapılamadı.",
+      "link": "Giriş bağlantısının süresi dolmuş ya da daha önce kullanılmış. Yeni bir bağlantı iste."
+    }
+  },
+  "trips": {
+    "metaTitle": "Biletlerim",
+    "title": "Biletlerim",
+    "upcoming": "Yaklaşan",
+    "past": "Geçmiş",
+    "pnr": "Rezervasyon kodu",
+    "view": "Ayrıntılar",
+    "total": "Toplam",
+    "emptyTitle": "Henüz biletin yok",
+    "emptyText": "İlk uçuşunu bulalım mı?",
+    "emptyCta": "Uçuş ara",
+    "biletcik": "“Biletin hazır olunca burada bekleyeceğim.”",
+    "guestTitle": "Biletlerin her cihazda yanında olsun",
+    "guestText": "Giriş yaparsan aynı e-postayla aldığın tüm biletleri burada görürsün. Şimdilik bu tarayıcıda aldıkların listeleniyor.",
+    "guestCta": "Giriş yap"
+  },
+  "account": {
+    "metaTitle": "Hesabım",
+    "title": "Hesabım",
+    "hello": "Merhaba, {name}!",
+    "helloNoName": "Merhaba!",
+    "profile": "Profil",
+    "name": "Adın",
+    "namePlaceholder": "Ayşe Yılmaz",
+    "email": "E-posta",
+    "save": "Kaydet",
+    "saved": "Kaydedildi.",
+    "saveError": "Kaydedilemedi, tekrar dene.",
+    "preferences": "Tercihler",
+    "language": "Dil",
+    "currency": "Para birimi",
+    "trips": "Biletlerim",
+    "tripsText": "Aldığın biletler ve rezervasyon kodların.",
+    "signOut": "Çıkış yap",
+    "demoNote": "Örnek mod: hesabın yalnızca bu tarayıcıda tutuluyor."
+  }
+}

@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTransition } from "react";
+import { useParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useCurrency } from "./CurrencyProvider";
 import { CURRENCIES, SYMBOLS, isCurrency } from "@/lib/currency";
-import { DEFAULT_LOCALE, LOCALES, LOCALE_COOKIE, LOCALE_LABELS, type Locale } from "@/i18n/config";
+import { LOCALES, LOCALE_LABELS, isLocale, type Locale } from "@/i18n/config";
+import { usePathname, useRouter } from "@/i18n/navigation";
 
 const selectBase =
   "min-h-[44px] cursor-pointer rounded-pill border-0 bg-field font-extrabold text-ink";
@@ -28,37 +30,37 @@ export function CurrencySelect({ compact = false }: { compact?: boolean }) {
   );
 }
 
-const LOCALE_STORAGE_KEY = "rotala.locale";
-
-// Şimdilik yalnızca seçimi hatırlar; çeviriler eklenince sayfa diline bağlanacak.
+/** Dil değişince aynı sayfanın o dildeki adresine gider (/ara → /en/search). */
 export function LanguageSelect() {
   const t = useTranslations("common");
-  const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE);
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useParams();
+  const [pending, startTransition] = useTransition();
 
-  useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
-      if (stored && (LOCALES as readonly string[]).includes(stored)) setLocale(stored as Locale);
-    } catch {}
-  }, []);
-
-  const change = (l: Locale) => {
-    setLocale(l);
-    try {
-      window.localStorage.setItem(LOCALE_STORAGE_KEY, l);
-    } catch {}
-    document.cookie = `${LOCALE_COOKIE}=${l}; path=/; max-age=31536000; samesite=lax`;
+  const change = (next: Locale) => {
+    const query = Object.fromEntries(new URLSearchParams(window.location.search));
+    const { locale: _current, ...rest } = params;
+    startTransition(() => {
+      router.replace(
+        // @ts-expect-error -- pathname ve params aynı sayfadan geldiği için birbiriyle uyumlu.
+        { pathname, params: rest, query },
+        { locale: next, scroll: false },
+      );
+    });
   };
 
   return (
     <select
       aria-label={t("language")}
       value={locale}
-      onChange={(e) => change(e.target.value as Locale)}
+      disabled={pending}
+      onChange={(e) => isLocale(e.target.value) && change(e.target.value)}
       className={`${selectBase} px-[14px] py-[10px] text-[15px]`}
     >
       {LOCALES.map((l) => (
-        <option key={l} value={l}>
+        <option key={l} value={l} lang={l}>
           {LOCALE_LABELS[l]}
         </option>
       ))}

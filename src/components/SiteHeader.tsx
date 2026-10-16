@@ -1,6 +1,7 @@
-import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import type { ComponentProps } from "react";
+import { Link } from "@/i18n/navigation";
 import { Logo } from "./Logo";
+import { AccountPill } from "./AccountLinks";
 
 const widths = {
   page: "max-w-page",
@@ -8,27 +9,23 @@ const widths = {
   form: "max-w-form",
 } as const;
 
-/** Sayfa başlığı: solda logo, sağda sayfaya özel kontroller. */
+/** Sayfa başlığı: solda logo, sağda sayfaya özel kontroller. Dar ekranda kontroller alt satıra geçer. */
 export function SiteHeader({
   width = "page",
-  wrap = false,
   children,
 }: {
   width?: keyof typeof widths;
-  wrap?: boolean;
   children?: React.ReactNode;
 }) {
   return (
-    <header
-      className={`mx-auto flex ${widths[width]} items-center justify-between gap-4 px-6 py-[22px] ${wrap ? "flex-wrap" : ""}`}
-    >
+    <header className={`mx-auto flex ${widths[width]} flex-wrap items-center justify-between gap-4 px-6 py-[22px]`}>
       <Logo />
       {children}
     </header>
   );
 }
 
-export function PillLink({ href, children }: { href: string; children: React.ReactNode }) {
+export function PillLink({ href, children }: { href: ComponentProps<typeof Link>["href"]; children: React.ReactNode }) {
   return (
     <Link
       href={href}
@@ -39,7 +36,7 @@ export function PillLink({ href, children }: { href: string; children: React.Rea
   );
 }
 
-export async function SignInLink() {
-  const t = await getTranslations("common");
-  return <PillLink href="#">{t("signIn")}</PillLink>;
+/** Tasarımdaki "Giriş yap" butonu; girişliyse "Hesabım". */
+export function SignInLink() {
+  return <AccountPill />;
 }
