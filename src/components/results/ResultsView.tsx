@@ -55,7 +55,9 @@ export function ResultsView({
   note,
   cityNames,
   settled = true,
+  initialBags,
 }: {
+  initialBags?: { cabin: number; checked: number };
   offers: Offer[];
   oneWay: boolean;
   tip: ResultsTip;
@@ -69,7 +71,7 @@ export function ResultsView({
   const t = useTranslations("results");
   const { fmt } = useCurrency();
   const [sort, setSort] = useState<Sort>("best");
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<Filters>(() => (initialBags ? { ...DEFAULT_FILTERS, bags: initialBags } : DEFAULT_FILTERS));
   const [showFilters, setShowFilters] = useState(false);
   const [selected, setSelected] = useState<Group | null>(null);
 

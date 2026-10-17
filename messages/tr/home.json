@@ -60,14 +60,20 @@
     "flexDays": "± {n} gün",
     "whenCheapest": "Ne zaman · en ucuz",
     "pickDates": "Tarih seç",
-    "pickDate": "Gün seç"
+    "pickDate": "Gün seç",
+    "bagsLabel": "Bagaj",
+    "bagsValue": "Yolcu başı {cabin} kabin, {checked} kontrol edilen bagaj",
+    "cabinBags": "Kabin bagajı",
+    "cabinBagsHint": "Yolcu başı, en fazla 1",
+    "checkedBags": "Kontrol edilen bagaj",
+    "checkedBagsHint": "Yolcu başı, en fazla 3",
+    "bagsNote": "Fiyatlar seçtiğin bagajla birlikte gösterilir; bu bagajı satmayan uçuşlar listelenmez."
   },
   "trust": {
     "label": "Neden rotala",
-    "secure": "Güvenli ödeme",
-    "noFees": "Gizli ücret yok, gördüğün fiyat son fiyat",
-    "support": "Türkçe destek [DESTEK SAATLERİ]",
-    "cancel": "24 saat içinde ücretsiz iptal"
+    "secure": "Kart bilgin bizde saklanmaz",
+    "clear": "Bagaj ve ücretler baştan belli",
+    "manage": "Değişiklik, iptal ve bagaj sitede"
   },
   "mobileDeal": {
     "title": "Hafta sonu Roma'ya kaçalım mı?",

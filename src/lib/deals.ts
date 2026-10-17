@@ -9,6 +9,7 @@ import { popularDestinations } from "@/data/mock/home";
 import { dataMode, searchFlightsCached } from "./flights";
 import { addDays, todayIso, type MultiQuery } from "./search";
 import type { Offer } from "./providers/types";
+import { cheapestWithBags } from "./extras";
 import { bestKnownPrices, routeKey, type KnownPrice } from "./price-calendar";
 
 export type Deal = {
@@ -181,7 +182,7 @@ export async function getRouteDates(routes: [string, string][]): Promise<Record<
 export async function getDayPrice(q: MultiQuery): Promise<number | null> {
   try {
     const offers = await searchFlightsCached(q);
-    return offers.length ? Math.min(...offers.map((o) => o.price)) : null;
+    return cheapestWithBags(offers, q.bags);
   } catch (e) {
     console.error("Gün fiyatı alınamadı:", q.date, e instanceof Error ? e.message : e);
     return null;

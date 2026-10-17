@@ -12,6 +12,7 @@ import { formatDayLong, formatRange } from "@/lib/dates";
 import { dataMode, getFlexibleDateTip, searchFlightsCached, watchSearch } from "@/lib/flights";
 import { paxTotal, searchHref, todayIso, type MultiQuery } from "@/lib/search";
 import { ResultsSearchBar } from "@/components/results/ResultsSearchBar";
+import { cheapestWithBags } from "@/lib/extras";
 import { Pirpir } from "@/components/characters";
 import { flexQueries, parseSearch, validateSearchServer } from "@/lib/search-server";
 import type { Offer } from "@/lib/providers/types";
@@ -86,6 +87,7 @@ export default async function ResultsPage({
             pax: q.pax,
             cabin: q.cabin ?? "economy",
             flex: q.flex ?? 0,
+            bags: q.bags,
           }}
           today={todayIso()}
         />
@@ -139,7 +141,7 @@ function liveChain(q: MultiQuery, locale: string, extras: Promise<Offer[]>[]): P
       cityNames: cityNamesFor(offers, locale),
       done: last,
       // Tarih şeridindeki seçili gün: yalnızca seçilen günün en ucuzu
-      dayPrice: mainDone ? (main.length ? Math.min(...main.map((o) => o.price)) : null) : undefined,
+      dayPrice: mainDone ? cheapestWithBags(main, q.bags) : undefined,
     };
   };
   // Ara sonuçlar en sık 600 ms'de bir gönderilir (çok havayolu peş peşe yanıt verirse sayfa titremesin)
@@ -231,7 +233,7 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
   const modeNote = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : undefined;
   const note = [q.flex ? t("flexNote", { n: q.flex }) : undefined, modeNote].filter(Boolean).join(" · ") || undefined;
   return (
-    <LiveResults first={first} q={q} oneWay={!q.returnDate} tip={tip} note={note} retryHref={searchHref({ ...q, returnDate: q.returnDate ?? "" })} />
+    <LiveResults first={first} q={q} oneWay={!q.returnDate} initialBags={q.bags} tip={tip} note={note} retryHref={searchHref({ ...q, returnDate: q.returnDate ?? "" })} />
   );
 }
 

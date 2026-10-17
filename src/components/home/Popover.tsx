@@ -15,7 +15,7 @@ export function FieldPopover({
   closeLabel = "Kapat",
 }: {
   label: string;
-  value: string;
+  value: React.ReactNode;
   className: string;
   labelClassName: string;
   valueClassName: string;

@@ -29,7 +29,10 @@ export function LiveResults({
   tip,
   note,
   retryHref,
+  initialBags,
 }: {
+  /** Arama kutusunda seçilen bagaj: bagaj filtresinin başlangıcı */
+  initialBags?: { cabin: number; checked: number };
   first: LiveChunk;
   q: MultiQuery;
   oneWay: boolean;
@@ -85,6 +88,7 @@ export function LiveResults({
         note={note}
         cityNames={chunk.cityNames}
         settled={chunk.done}
+        initialBags={initialBags}
       />
     </>
   );

@@ -61,14 +61,20 @@
     "flexDays": "± {n} dagen",
     "whenCheapest": "Wanneer · goedkoopst",
     "pickDates": "Kies data",
-    "pickDate": "Kies een dag"
+    "pickDate": "Kies een dag",
+    "bagsLabel": "Bagage",
+    "bagsValue": "Per reiziger {cabin} handbagage, {checked} ruimbagage",
+    "cabinBags": "Handbagage",
+    "cabinBagsHint": "Per reiziger, max. 1",
+    "checkedBags": "Ruimbagage",
+    "checkedBagsHint": "Per reiziger, max. 3",
+    "bagsNote": "Prijzen zijn inclusief de gekozen bagage; vluchten die deze niet verkopen, worden niet getoond."
   },
   "trust": {
     "label": "Waarom rotala",
-    "secure": "Veilig betalen",
-    "noFees": "Geen verborgen kosten, de prijs die je ziet is de prijs die je betaalt",
-    "support": "Turkstalige klantenservice [DESTEK SAATLERİ]",
-    "cancel": "Gratis annuleren binnen 24 uur"
+    "secure": "We bewaren je kaartgegevens niet",
+    "clear": "Bagage en kosten vooraf duidelijk",
+    "manage": "Wijzigen, annuleren en bagage online"
   },
   "mobileDeal": {
     "title": "Zin in een weekendje Rome?",

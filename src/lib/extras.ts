@@ -29,6 +29,19 @@ export function wantedBagsExtra(bags: Bags, want: BagChoice): { choice: BagChoic
   return { choice, extra: bagCost(bags, choice) };
 }
 
+/**
+ * Kişi başı en düşük fiyat; bagaj istendiyse o bagajın ücretiyle birlikte (sonuç listesiyle aynı hesap).
+ * Bagajı satmayan teklifler sayılmaz; hiçbiri yoksa null.
+ */
+export function cheapestWithBags(offers: { price: number; bags: Bags }[], want?: BagChoice): number | null {
+  const prices = offers.flatMap((o) => {
+    if (!want || (!want.cabin && !want.checked)) return [o.price];
+    const w = wantedBagsExtra(o.bags, want);
+    return w ? [o.price + w.extra] : [];
+  });
+  return prices.length ? Math.min(...prices) : null;
+}
+
 export function findSeat(maps: SeatMap[], segment: number, designator: string) {
   return maps.find((m) => m.segment === segment)?.rows.flatMap((r) => r.seats).find((s) => s?.designator === designator) ?? null;
 }

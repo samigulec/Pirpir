@@ -17,7 +17,11 @@ export type SearchQuery = {
   cabin?: CabinClass;
   /** Esnek tarih (Kiwi'deki "± 3 gün"): seçilen günün bu kadar öncesi ve sonrası da aranır. */
   flex?: Flex;
+  /** Yolcu başı istenen bagaj (arama kutusundan); sonuçlarda bagaj filtresi olarak uygulanır, aramayı değiştirmez. */
+  bags?: { cabin: number; checked: number };
 };
+
+export const MAX_SEARCH_BAGS = { cabin: 1, checked: 3 } as const;
 
 export const FLEX_DAYS = [1, 3, 5] as const;
 export type Flex = 0 | (typeof FLEX_DAYS)[number];
@@ -115,6 +119,8 @@ export function searchHref(
   if (pax.infants) query.infants = String(pax.infants);
   if (q.cabin && q.cabin !== "economy") query.cabin = q.cabin;
   if (q.flex) query.flex = String(q.flex);
+  if (q.bags?.cabin) query.cabinBags = String(q.bags.cabin);
+  if (q.bags?.checked) query.checkedBags = String(q.bags.checked);
   return { pathname: "/ara" as const, query };
 }
 

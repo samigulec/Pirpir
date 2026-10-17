@@ -9,7 +9,8 @@ import { AirportField, type AirportValue } from "./AirportField";
 import { Counter, FieldPopover } from "./Popover";
 import { DateRangePicker } from "./DateRangePicker";
 import { formatRangeShort } from "@/lib/dates";
-import { CABINS, MAX_PASSENGERS, addDays, paxTotal, searchHref, validateSearch, type CabinClass, type Flex, type Passengers, type SearchError } from "@/lib/search";
+import { CabinBagIcon, CheckedBagIcon } from "../results/BagIcons";
+import { CABINS, MAX_PASSENGERS, MAX_SEARCH_BAGS, addDays, paxTotal, searchHref, validateSearch, type CabinClass, type Flex, type Passengers, type SearchError } from "@/lib/search";
 
 type Trip = "rt" | "ow";
 
@@ -19,7 +20,15 @@ const fieldLabel = "text-[12px] font-extrabold text-muted md:text-[13px]";
 const fieldInput =
   "min-w-0 border-0 bg-transparent p-0 font-extrabold text-ink outline-none md:text-[19px]";
 
-export type SearchInitial = { trip: Trip; date: string; returnDate: string; pax: Passengers; cabin: CabinClass; flex: Flex };
+export type SearchInitial = {
+  trip: Trip;
+  date: string;
+  returnDate: string;
+  pax: Passengers;
+  cabin: CabinClass;
+  flex: Flex;
+  bags?: { cabin: number; checked: number };
+};
 
 /**
  * Arama kutusu (ana sayfa ve sonuç sayfasının üstü). Ana sayfada tarih boş başlar; rota seçilince o rotanın
@@ -53,6 +62,7 @@ export function SearchForm({
   const [pax, setPax] = useState<Passengers>(initial?.pax ?? { adults: 1, children: 0, infants: 0 });
   const [cabin, setCabin] = useState<CabinClass>(initial?.cabin ?? "economy");
   const [flex, setFlex] = useState<Flex>(initial?.flex ?? 0);
+  const [bags, setBags] = useState(initial?.bags ?? { cabin: 0, checked: 0 });
   const [error, setError] = useState<SearchError | null>(null);
   // Kullanıcı tarihi kendisi seçtiyse öneri yapılmaz; öneri yapıldıysa alanda "en ucuz" yazar
   const [datesTouched, setDatesTouched] = useState(!!initial);
@@ -83,13 +93,11 @@ export function SearchForm({
   };
 
   // Yalnızca yetişkin varsa "1 yetişkin", karışıksa Kiwi'deki gibi toplam: "3 yolcu".
-  const paxLabel =
-    (pax.children || pax.infants ? t("paxTotal", { n: paxTotal(pax) }) : t("paxAdults", { n: pax.adults })) +
-    (cabin !== "economy" ? ` · ${t(`cabins.${cabin}`)}` : "");
+  const paxLabel = pax.children || pax.infants ? t("paxTotal", { n: paxTotal(pax) }) : t("paxAdults", { n: pax.adults });
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const q = { from: from.map((p) => p.code), to: to.map((p) => p.code), date, returnDate: trip === "rt" && date ? returnDate || addDays(date, 7) : undefined, pax, cabin, flex };
+    const q = { from: from.map((p) => p.code), to: to.map((p) => p.code), date, returnDate: trip === "rt" && date ? returnDate || addDays(date, 7) : undefined, pax, cabin, flex, bags };
     const err = validateSearch(q);
     setError(err);
     if (err) return;
@@ -106,7 +114,8 @@ export function SearchForm({
         compact ? "border-2 border-solid border-line" : "max-w-[1040px] md:shadow-search"
       }`}
     >
-      <div className="flex gap-[6px] px-[6px] pt-1">
+      {/* Üst satır (Kiwi'deki gibi): yolculuk türü, kabin sınıfı ve bagaj */}
+      <div className="flex flex-wrap items-center gap-[6px] px-[6px] pt-1">
         {(["rt", "ow"] as const).map((id) => {
           const on = trip === id;
           return (
@@ -123,6 +132,50 @@ export function SearchForm({
             </button>
           );
         })}
+        <span aria-hidden="true" className="mx-1 hidden h-6 w-px bg-line sm:block" />
+        <label className="relative inline-flex min-h-[40px] items-center">
+          <span className="sr-only">{t("cabinLabel")}</span>
+          <select
+            value={cabin}
+            onChange={(e) => setCabin(e.target.value as CabinClass)}
+            className="min-h-[40px] cursor-pointer appearance-none rounded-pill border-0 bg-field py-2 pl-4 pr-9 text-[15px] font-extrabold text-ink"
+          >
+            {CABINS.map((c) => (
+              <option key={c} value={c}>{t(`cabins.${c}`)}</option>
+            ))}
+          </select>
+          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" className="pointer-events-none absolute right-4">
+            <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </label>
+        <FieldPopover
+          label={t("bagsLabel")}
+          value={
+            <span className="inline-flex items-center gap-3" aria-label={t("bagsValue", bags)}>
+              <span className="inline-flex items-center gap-1"><CabinBagIcon />{bags.cabin}</span>
+              <span className="inline-flex items-center gap-1"><CheckedBagIcon />{bags.checked}</span>
+            </span>
+          }
+          className="min-h-[40px] items-center rounded-pill bg-field px-4 py-2"
+          labelClassName="sr-only"
+          valueClassName="text-[15px] font-extrabold text-ink"
+          panelClassName="md:w-[340px]"
+          closeLabel={t("done")}
+          chevron
+        >
+          {(close) => (
+            <>
+              <Counter label={t("cabinBags")} hint={t("cabinBagsHint")} value={bags.cabin} min={0} max={MAX_SEARCH_BAGS.cabin}
+                onChange={(n) => setBags({ ...bags, cabin: n })} />
+              <Counter label={t("checkedBags")} hint={t("checkedBagsHint")} value={bags.checked} min={0} max={MAX_SEARCH_BAGS.checked}
+                onChange={(n) => setBags({ ...bags, checked: n })} />
+              <span className="text-[13px] font-semibold text-muted">{t("bagsNote")}</span>
+              <button type="button" onClick={close} className="min-h-[44px] cursor-pointer rounded-pill border-0 bg-ink px-5 font-display text-base font-semibold text-white">
+                {t("done")}
+              </button>
+            </>
+          )}
+        </FieldPopover>
       </div>
 
       {/* Masaüstünde Kiwi'deki gibi uzun tek satır: nereden-nereye en geniş, alanlar şehir ekledikçe büyümez */}
@@ -211,25 +264,6 @@ export function SearchForm({
               <Counter label={t("infants")} hint={t("infantsHint")} value={pax.infants} min={0} max={Math.min(pax.adults, MAX_PASSENGERS - pax.adults - pax.children)}
                 onChange={(n) => setPax({ ...pax, infants: n })} />
               <span className="text-[13px] font-semibold text-muted">{t("paxNote", { max: MAX_PASSENGERS, total })}</span>
-              <span aria-hidden="true" className="h-px bg-line" />
-              <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
-                <legend className="mb-2 p-0 font-extrabold">{t("cabinLabel")}</legend>
-                <div className="grid grid-cols-2 gap-2">
-                  {CABINS.map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      aria-pressed={cabin === c}
-                      onClick={() => setCabin(c)}
-                      className={`min-h-[44px] cursor-pointer rounded-[14px] border-2 border-solid px-3 text-[15px] font-extrabold ${
-                        cabin === c ? "border-primary bg-sky text-ink" : "border-line bg-white text-ink"
-                      }`}
-                    >
-                      {t(`cabins.${c}`)}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
               <button type="button" onClick={close} className="min-h-[44px] cursor-pointer rounded-pill border-0 bg-ink px-5 font-display text-base font-semibold text-white">
                 {t("done")}
               </button>

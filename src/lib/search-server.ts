@@ -1,7 +1,7 @@
 // Arama sorgusunun sunucu tarafı: URL'yi dünya havalimanı listesiyle çözer ve doğrular.
 import "server-only";
 import { expandCode, findAirport, isKnownPlace, resolvePlace } from "@/data/airports";
-import { LEGACY_PAX, addDays, defaultDates, int, isCabin, isFlex, one, todayIso, validateSearch, type Flex, type MultiQuery, type Raw, type SearchQuery } from "./search";
+import { LEGACY_PAX, MAX_SEARCH_BAGS, addDays, defaultDates, int, isCabin, isFlex, one, todayIso, validateSearch, type Flex, type MultiQuery, type Raw, type SearchQuery } from "./search";
 
 const splitPlaces = (v: string | undefined, dflt: string) =>
   (v ?? dflt)
@@ -27,6 +27,8 @@ export function parseSearch(raw: Raw, now = new Date()): MultiQuery {
   };
   const cabinRaw = one(raw.cabin);
   const flexRaw = Number(one(raw.flex) ?? 0);
+  const clamp = (v: string | undefined, max: number) => Math.min(max, Math.max(0, int(v, 0)));
+  const bags = { cabin: clamp(one(raw.cabinBags), MAX_SEARCH_BAGS.cabin), checked: clamp(one(raw.checkedBags), MAX_SEARCH_BAGS.checked) };
   const flex: Flex = isFlex(flexRaw) ? flexRaw : 0;
   return {
     from: splitPlaces(one(raw.from), "AMS"),
@@ -36,6 +38,7 @@ export function parseSearch(raw: Raw, now = new Date()): MultiQuery {
     pax,
     cabin: isCabin(cabinRaw) ? cabinRaw : "economy",
     ...(flex ? { flex } : {}),
+    ...(bags.cabin || bags.checked ? { bags } : {}),
   };
 }
 

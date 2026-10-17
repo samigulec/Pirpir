@@ -61,14 +61,20 @@
     "flexDays": "± {n} days",
     "whenCheapest": "When · cheapest",
     "pickDates": "Pick dates",
-    "pickDate": "Pick a day"
+    "pickDate": "Pick a day",
+    "bagsLabel": "Bags",
+    "bagsValue": "Per traveller {cabin} cabin, {checked} checked bags",
+    "cabinBags": "Cabin bag",
+    "cabinBagsHint": "Per traveller, up to 1",
+    "checkedBags": "Checked bag",
+    "checkedBagsHint": "Per traveller, up to 3",
+    "bagsNote": "Prices include the bags you pick; flights that don't sell them are not listed."
   },
   "trust": {
     "label": "Why rotala",
-    "secure": "Secure payment",
-    "noFees": "No hidden fees, the price you see is the price you pay",
-    "support": "Turkish-speaking support [DESTEK SAATLERİ]",
-    "cancel": "Free cancellation within 24 hours"
+    "secure": "We never store your card details",
+    "clear": "Bags and fees shown up front",
+    "manage": "Change, cancel and add bags online"
   },
   "mobileDeal": {
     "title": "Fancy a weekend in Rome?",
