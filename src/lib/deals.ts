@@ -1,9 +1,9 @@
-// Ana sayfadaki fırsatlar: popüler uçuş kartları, karakter ipuçları ve popüler rotalar.
+// Ana sayfadaki fırsatlar: popüler uçuş kartları ve karakter ipuçları.
 // Fiyatlar uydurulmaz; arama sonuçlarıyla aynı sağlayıcıdan (canlı Duffel ya da örnek veri)
 // önümüzdeki hafta sonları için aranır; arama sonuçlarıyla aynı önbelleği paylaşır.
 import "server-only";
 import { after } from "next/server";
-import { popularDestinations, popularRoutes } from "@/data/mock/home";
+import { popularDestinations } from "@/data/mock/home";
 import { dataMode, searchFlightsCached } from "./flights";
 import { addDays, todayIso, type MultiQuery } from "./search";
 import type { Offer } from "./providers/types";
@@ -88,8 +88,6 @@ async function dealFor(from: string[], to: string): Promise<Deal | null> {
   }
 }
 
-export const routeKey = (r: { fromCode: string; toCode: string }) => `${r.fromCode}-${r.toCode}`;
-
 /**
  * Sayfa en fazla `ms` bekler: o ana kadar bulunanlar döner, kalan aramalar arka planda sürüp önbelleğe yazılır
  * (ilk ziyaretçi birkaç kartta "Fiyatlara bak" görür, sonrakiler fiyatları hemen görür).
@@ -115,11 +113,6 @@ const DEADLINE_MS = 9000;
 export async function getDestinationDeals(from: string[]): Promise<DealMap> {
   const byId = new Map(popularDestinations.map((d) => [d.id as string, d.searchCode]));
   return withDeadline([...byId.keys()], (id) => dealFor(from, byId.get(id)!), DEADLINE_MS);
-}
-
-export async function getRouteDeals(): Promise<DealMap> {
-  const byKey = new Map(popularRoutes.map((r) => [routeKey(r), r]));
-  return withDeadline([...byKey.keys()], (k) => dealFor([byKey.get(k)!.fromCode], byKey.get(k)!.toCode), DEADLINE_MS);
 }
 
 /**
