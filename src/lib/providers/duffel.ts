@@ -32,7 +32,20 @@ export class PriceChangedError extends ProviderError {
 
 export const isDuffelTestMode = () => (process.env.DUFFEL_ACCESS_TOKEN ?? "").startsWith("duffel_test_");
 
-async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
+/** "ratelimit-reset" başlığından beklenecek süre (ms): saniye, Unix zamanı ya da tarih olabilir; en fazla 5 sn. */
+function resetWait(h: string | null): number {
+  const n = Number(h);
+  let ms = 1500;
+  if (h && Number.isFinite(n)) ms = n > 1e9 ? n * 1000 - Date.now() : n * 1000;
+  else if (h && !Number.isNaN(Date.parse(h))) ms = Date.parse(h) - Date.now();
+  return Math.min(5000, Math.max(500, ms));
+}
+
+/**
+ * Duffel isteği. İstek sınırına takılırsa (429) istek işlenmemiştir; kısa bekleyip en fazla iki kez yeniden denenir.
+ * Ana sayfa fırsatları ve tarih şeridi aynı anda çok arama yapabildiği için önemli.
+ */
+async function call<T>(path: string, init: RequestInit = {}, attempt = 0): Promise<T> {
   const res = await fetch(API + path, {
     ...init,
     headers: {
@@ -44,6 +57,10 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
     },
     cache: "no-store",
   });
+  if (res.status === 429 && attempt < 2) {
+    await new Promise((r) => setTimeout(r, resetWait(res.headers.get("ratelimit-reset"))));
+    return call<T>(path, init, attempt + 1);
+  }
   const body = await res.json().catch(() => null);
   if (!res.ok) {
     const msg = body?.errors?.[0]?.message ?? `Duffel isteği başarısız (${res.status})`;
@@ -90,8 +107,13 @@ async function batchSearch(
     }
   } catch (e) {
     console.error("Parça parça arama kesildi, tüm teklifler alınıyor:", e instanceof Error ? e.message : e);
-    const all = await call<DOffer[]>(`/air/offers?offer_request_id=${created.id}&sort=total_amount&limit=200`);
-    return finish(all);
+    try {
+      const all = await call<DOffer[]>(`/air/offers?offer_request_id=${created.id}&sort=total_amount&limit=200`);
+      return finish(all);
+    } catch (e2) {
+      console.error("Teklif listesi alınamadı, tek seferde aranıyor:", e2 instanceof Error ? e2.message : e2);
+      return whole();
+    }
   }
   return finish([...byId.values()]);
 }

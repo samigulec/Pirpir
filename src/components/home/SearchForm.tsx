@@ -132,6 +132,7 @@ export function SearchForm({
         >
           {(close) => (
             <DateRangePicker
+              route={from.length && to.length ? { from: from.map((p) => p.code), to: to.map((p) => p.code), cabin } : undefined}
               mode={trip === "rt" ? "range" : "single"}
               start={date}
               end={trip === "rt" ? returnDate || undefined : undefined}

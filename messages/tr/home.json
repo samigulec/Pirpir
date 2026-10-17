@@ -53,7 +53,8 @@
     "removePlace": "{place} kaldır",
     "addPlace": "Şehir ekle",
     "placePlaceholder": "Şehir veya havalimanı",
-    "allAirports": "Tüm havalimanları"
+    "allAirports": "Tüm havalimanları",
+    "calendarNote": "Fiyatlar kişi başı ve yaklaşıktır: son 24 saatte bulduğumuz en düşük fiyatlar. Kesin fiyatı aramada görürsün."
   },
   "trust": {
     "label": "Neden rotala",

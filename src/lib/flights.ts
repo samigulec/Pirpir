@@ -9,6 +9,7 @@ import { duffelProvider, isDuffelTestMode } from "./providers/duffel";
 import type { FlightProvider, SearchOptions } from "./providers/types";
 import type { MultiQuery } from "./search";
 import { expandCombos } from "./search-server";
+import { recordPrice } from "./price-calendar";
 import type { Offer } from "./providers/types";
 
 export type DataMode = "demo" | "test" | "live";
@@ -73,7 +74,16 @@ function canonical(q: MultiQuery): MultiQuery {
 // unstable_cache anahtarına fonksiyonun kaynak metnini de katar; bu metin sonuç sayfası ile API rotası gibi
 // ayrı paketlerde farklı derlenir ve önbellek paylaşılmaz. `bind` ile oluşan fonksiyonun metni her yerde aynıdır.
 const cachedSearch = unstable_cache(
-  ((q: MultiQuery, mode: DataMode) => searchFlights(q, { onPartial: (offers) => emit(searchKey(q, mode), offers) })).bind(null),
+  ((q: MultiQuery, mode: DataMode) => {
+    // Parça parça arama yalnızca birisi sonuçları canlı izliyorsa (sonuç sayfası): daha çok istek yapar,
+    // ana sayfa fırsatları ve tarih şeridi tek seferlik aramayla Duffel'ın istek sınırını zorlamaz.
+    const key = searchKey(q, mode);
+    return searchFlights(q, listeners.has(key) ? { onPartial: (offers) => emit(key, offers) } : undefined).then(async (offers) => {
+      // Fiyatlı takvim için en düşük fiyat saklanır (yalnızca gerçek aramalar; önbellekten dönenler değil)
+      await recordPrice(q, offers);
+      return offers;
+    });
+  }).bind(null),
   ["search-v1"],
   { revalidate: SEARCH_TTL },
 );
@@ -95,7 +105,9 @@ export function searchFlightsCached(q: MultiQuery): Promise<Offer[]> {
       .then((list) => {
         // Önbellekteki teklif süresi dolmuşsa satın alınamaz: onları gösterme, hepsi dolmuşsa yeniden ara.
         const fresh = list.filter((o) => !o.expiresAt || Date.parse(o.expiresAt) > Date.now() + 60_000);
-        return fresh.length || !list.length ? fresh : searchFlights(c, { onPartial: (offers) => emit(key, offers) });
+        return fresh.length || !list.length
+          ? fresh
+          : searchFlights(c, listeners.has(key) ? { onPartial: (offers) => emit(key, offers) } : undefined);
       })
       .finally(() => inFlight.delete(key));
     inFlight.set(key, p);

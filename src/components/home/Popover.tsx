@@ -28,6 +28,31 @@ export function FieldPopover({
   const id = useId();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+
+  // Masaüstünde panel ekranın altına taşıyorsa sayfa, panel tamamen görünecek kadar kaydırılır
+  // (alanın üstü ekranda kalacak kadar; telefonda panel zaten alttan açılan sayfa).
+  useEffect(() => {
+    if (!open || window.matchMedia("(max-width: 767px)").matches) return;
+    const fit = () => {
+      const box = panel.current?.getBoundingClientRect();
+      const field = ref.current?.getBoundingClientRect();
+      if (!box || !field) return;
+      const overflow = box.bottom + 16 - window.innerHeight;
+      if (overflow > 0) window.scrollBy({ top: Math.min(overflow, field.top - 16), behavior: "smooth" });
+    };
+    // İçerik sonradan uzayabilir (ör. takvim fiyatları gelince); boyut değişince yeniden bakılır
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const observer = new ResizeObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(fit, 120);
+    });
+    if (panel.current) observer.observe(panel.current);
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -67,6 +92,7 @@ export function FieldPopover({
           {/* Telefonda arka plan karartması; panel alttan açılır. */}
           <div aria-hidden="true" className="fixed inset-0 z-40 bg-ink/40 md:hidden" onClick={() => setOpen(false)} />
           <div
+            ref={panel}
             id={`${id}-panel`}
             role="dialog"
             aria-label={label}

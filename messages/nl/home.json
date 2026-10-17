@@ -54,7 +54,8 @@
     "removePlace": "{place} verwijderen",
     "addPlace": "Stad toevoegen",
     "placePlaceholder": "Stad of luchthaven",
-    "allAirports": "Alle luchthavens"
+    "allAirports": "Alle luchthavens",
+    "calendarNote": "Prijzen zijn per persoon en bij benadering: de laagste prijzen die we de afgelopen 24 uur vonden. De exacte prijs zie je bij het zoeken."
   },
   "trust": {
     "label": "Waarom rotala",

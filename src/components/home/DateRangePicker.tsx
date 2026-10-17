@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useCurrency } from "../CurrencyProvider";
 import { useLocale, useTranslations } from "next-intl";
 import { addDays } from "@/lib/search";
 import { formatDayWithWeekday } from "@/lib/dates";
@@ -26,7 +27,10 @@ export function DateRangePicker({
   min,
   onChange,
   onDone,
+  route,
 }: {
+  /** Verilirse günlerin altında bilinen fiyatlar gösterilir (Kiwi'deki gibi) */
+  route?: { from: string[]; to: string[]; cabin: string };
   mode: "range" | "single";
   start: string;
   end?: string;
@@ -41,6 +45,37 @@ export function DateRangePicker({
   // Hangi tarih seçiliyor: gidiş mi dönüş mü
   const [picking, setPicking] = useState<"start" | "end">("start");
   const [hover, setHover] = useState<string | null>(null);
+  const { fmt } = useCurrency();
+  // Gidiş seçilirken gösterilen fiyatlar bu kadar gecelik yolculuk içindir (açılıştaki süre, yoksa bir hafta)
+  const [tripNights] = useState(() => (mode === "range" ? (end ? daysBetween(start, end) : 7) : -1));
+  const [prices, setPrices] = useState<{ key: string; departs: Record<string, number>; returns: Record<string, number> } | null>(null);
+  const showReturns = mode === "range" && picking === "end";
+  const priceKey = route
+    ? new URLSearchParams({
+        from: route.from.join(","),
+        to: route.to.join(","),
+        cabin: route.cabin,
+        first: view,
+        days: "62",
+        nights: String(tripNights),
+        ...(showReturns ? { depart: start } : {}),
+      }).toString()
+    : "";
+
+  useEffect(() => {
+    if (!priceKey) return;
+    const ctrl = new AbortController();
+    fetch(`/api/calendar-prices?${priceKey}`, { signal: ctrl.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((res) => res && setPrices({ key: priceKey, departs: res.departs ?? {}, returns: res.returns ?? {} }))
+      .catch(() => {});
+    return () => ctrl.abort();
+  }, [priceKey]);
+
+  // Görünen günlerin fiyatları; en ucuzu yeşil (yalnızca güncel isteğin sonucu, eskisi yanlış günde kalmasın)
+  const dayPrices = prices && prices.key === priceKey ? (showReturns ? prices.returns : prices.departs) : {};
+  const known = Object.values(dayPrices);
+  const cheapest = known.length > 1 ? Math.min(...known) : null;
 
   const weekdays = useMemo(
     () =>
@@ -88,6 +123,7 @@ export function DateRangePicker({
             const isEnd = mode === "range" && day === rangeEnd;
             const inRange = mode === "range" && rangeEnd !== undefined && day > start && day < rangeEnd;
             const edge = isStart || isEnd;
+            const price = disabled || (showReturns && day <= start) ? undefined : dayPrices[day];
             return (
               <div
                 key={day}
@@ -97,14 +133,22 @@ export function DateRangePicker({
                   type="button"
                   disabled={disabled}
                   aria-pressed={edge}
-                  aria-label={formatDayWithWeekday(day, loc)}
+                  aria-label={formatDayWithWeekday(day, loc) + (price !== undefined ? ` · ${fmt(price)}` : "")}
                   onClick={() => pick(day)}
                   onMouseEnter={() => setHover(day)}
-                  className={`h-10 w-10 cursor-pointer rounded-full border-0 text-[15px] font-bold leading-[normal] disabled:cursor-not-allowed disabled:text-line ${
-                    edge ? "bg-primary text-white" : inRange ? "bg-transparent text-ink" : "bg-transparent text-ink hover:bg-field"
+                  className={`flex h-[50px] w-full max-w-[52px] cursor-pointer flex-col items-center justify-center rounded-[14px] border-0 text-[15px] font-bold leading-tight disabled:cursor-not-allowed disabled:text-line ${
+                    edge ? "bg-primary text-white" : inRange ? "bg-transparent text-ink" : "bg-transparent text-ink enabled:hover:bg-field"
                   }`}
                 >
                   {i + 1}
+                  {price !== undefined && (
+                    <span
+                      aria-hidden="true"
+                      className={`whitespace-nowrap text-[11px] font-extrabold tracking-tight ${edge ? "text-white" : price === cheapest ? "text-green-text" : "text-muted"}`}
+                    >
+                      {fmt(price)}
+                    </span>
+                  )}
                 </button>
               </div>
             );
@@ -120,7 +164,7 @@ export function DateRangePicker({
     `flex flex-1 cursor-pointer flex-col items-start rounded-[16px] border-2 border-solid px-4 py-2 text-left ${active ? "border-primary bg-sky" : "border-line bg-white"}`;
 
   return (
-    <div className="flex flex-col gap-4 md:w-[640px]" onMouseLeave={() => setHover(null)}>
+    <div className="flex flex-col gap-4 md:w-[720px]" onMouseLeave={() => setHover(null)}>
       <div className="flex gap-2">
         <button type="button" onClick={() => setPicking("start")} className={tab(mode === "single" || picking === "start")}>
           <span className="text-[12px] font-extrabold text-muted">{t("departDate")}</span>
@@ -148,6 +192,8 @@ export function DateRangePicker({
           <Month first={addMonths(view, 1)} className="hidden md:flex" />
         </div>
       </div>
+
+      {known.length > 0 && <p className="m-0 text-[13px] font-semibold text-muted">{t("calendarNote")}</p>}
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-0 border-t border-solid border-line pt-3">
         <span className="text-[15px] font-bold text-muted">

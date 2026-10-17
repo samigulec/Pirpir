@@ -54,7 +54,8 @@
     "removePlace": "Remove {place}",
     "addPlace": "Add city",
     "placePlaceholder": "City or airport",
-    "allAirports": "All airports"
+    "allAirports": "All airports",
+    "calendarNote": "Prices are per person and approximate: the lowest fares we found in the last 24 hours. You'll see the exact price when you search."
   },
   "trust": {
     "label": "Why rotala",
