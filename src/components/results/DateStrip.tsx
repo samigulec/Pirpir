@@ -40,13 +40,12 @@ export function DateStrip({ q, current }: { q: MultiQuery; current: number | nul
   const keys = days.map((d) => dayQuery(q, d));
   // Seçili günün fiyatı aşağıdaki sonuçların en ucuzudur; ayrıca istenmez.
   const currentKey = dayQuery(q, { date: q.date, returnDate: q.returnDate });
-  known.set(currentKey, current);
-  const [prices, setPrices] = useState<Record<string, number | null>>(() =>
-    Object.fromEntries(keys.filter((k) => known.has(k)).map((k) => [k, known.get(k)!])),
-  );
+  // İlk çizim sunucuyla aynı olsun: tarayıcıdaki bilinen günler efektte eklenir.
+  const [prices, setPrices] = useState<Record<string, number | null>>(() => ({ [currentKey]: current }));
   const signature = keys.join("|");
 
   useEffect(() => {
+    known.set(currentKey, current);
     const ctrl = new AbortController();
     setPrices(Object.fromEntries(signature.split("|").filter((k) => known.has(k)).map((k) => [k, known.get(k)!])));
     for (const key of signature.split("|")) {
@@ -62,7 +61,7 @@ export function DateStrip({ q, current }: { q: MultiQuery; current: number | nul
         });
     }
     return () => ctrl.abort();
-  }, [signature]);
+  }, [signature, currentKey, current]);
 
   const found = Object.values(prices).filter((p): p is number => typeof p === "number");
   const allDone = keys.every((k) => k in prices);

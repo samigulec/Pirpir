@@ -35,6 +35,7 @@ export function ResultsView({
   tip,
   note,
   cityNames,
+  settled = true,
 }: {
   offers: Offer[];
   oneWay: boolean;
@@ -43,6 +44,8 @@ export function ResultsView({
   note?: string;
   /** Kod → yerel şehir adı */
   cityNames: Record<string, string>;
+  /** Liste kesinleşmediyse (havayolları hâlâ yanıt veriyorsa) rozet verilmez. */
+  settled?: boolean;
 }) {
   const t = useTranslations("results");
   const { fmt } = useCurrency();
@@ -127,7 +130,7 @@ export function ResultsView({
             fareCount={g.fares.length}
             onSelect={() => setSelected(g)}
             cityNames={cityNames}
-            badge={g.key === cheapestKey ? "cheap" : g.key === fastestKey ? "fast" : null}
+            badge={!settled ? null : g.key === cheapestKey ? "cheap" : g.key === fastestKey ? "fast" : null}
           />
         ))}
 
@@ -144,7 +147,7 @@ export function ResultsView({
           </div>
         )}
       </div>
-      <TripModal group={selected} wantBags={filters.bags} cityNames={cityNames} onClose={() => setSelected(null)} />
+      <TripModal group={selected && (groups.find((g) => g.key === selected.key) ?? selected)} wantBags={filters.bags} cityNames={cityNames} onClose={() => setSelected(null)} />
     </div>
   );
 }

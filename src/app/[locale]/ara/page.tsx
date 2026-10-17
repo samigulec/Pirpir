@@ -4,13 +4,13 @@ import { Link } from "@/i18n/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader, SignInLink } from "@/components/SiteHeader";
 import { CurrencySelect } from "@/components/HeaderControls";
-import { ResultsView, type ResultsTip } from "@/components/results/ResultsView";
+import type { ResultsTip } from "@/components/results/ResultsView";
+import { LiveResults, type LiveChunk } from "@/components/results/LiveResults";
 import { cityByCode } from "@/data/airports";
 import { intlLocale } from "@/lib/intl";
 import { formatDayLong, formatRange } from "@/lib/dates";
-import { dataMode, getFlexibleDateTip, searchFlightsCached } from "@/lib/flights";
+import { dataMode, getFlexibleDateTip, watchSearch } from "@/lib/flights";
 import { paxTotal, searchHref, type MultiQuery } from "@/lib/search";
-import { DateStrip } from "@/components/results/DateStrip";
 import { Pirpir } from "@/components/characters";
 import { parseSearch, validateSearchServer } from "@/lib/search-server";
 import type { Offer } from "@/lib/providers/types";
@@ -32,6 +32,9 @@ function cityNamesFor(offers: Offer[], locale: string): Record<string, string> {
       }
   return Object.fromEntries([...codes].map((c) => [c, cityByCode(c, locale)]));
 }
+
+// Parça parça arama havayollarını bekler; varsayılan süre sınırına takılmasın.
+export const maxDuration = 60;
 
 type Query = Record<string, string | string[] | undefined>;
 
@@ -105,38 +108,81 @@ export default async function ResultsPage({
   );
 }
 
-/** Uçuş araması: sayfanın geri kalanı beklemeden görünür. */
+/**
+ * Arama zinciri: ilk halka ilk teklifler (ya da önbellekten tüm sonuç) gelince çözülür, sonrakiler havayolları
+ * yanıt verdikçe. Son halka (`done`) önbelleğe yazılan listenin aynısıdır.
+ */
+function liveChain(q: MultiQuery, locale: string): Promise<LiveChunk> {
+  let resolve!: (c: LiveChunk) => void;
+  let reject!: (e: unknown) => void;
+  const make = () => new Promise<LiveChunk>((res, rej) => ((resolve = res), (reject = rej)));
+  const first = make();
+  let latest: Offer[] | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let lastSent = 0;
+  let done = false;
+  const chunk = (offers: Offer[], last: boolean): LiveChunk => ({ offers, cityNames: cityNamesFor(offers, locale), done: last });
+  // Ara sonuçlar en sık 600 ms'de bir gönderilir (çok havayolu peş peşe yanıt verirse sayfa titremesin)
+  const flush = () => {
+    timer = null;
+    if (done || !latest) return;
+    const offers = latest;
+    latest = null;
+    lastSent = Date.now();
+    const send = resolve;
+    const next = make();
+    send({ ...chunk(offers, false), next });
+  };
+  const { result } = watchSearch(q, (offers) => {
+    latest = offers;
+    timer ??= setTimeout(flush, Math.max(0, 600 - (Date.now() - lastSent)));
+  });
+  result.then(
+    (offers) => {
+      done = true;
+      if (timer) clearTimeout(timer);
+      resolve(chunk(offers, true));
+    },
+    (e) => {
+      done = true;
+      if (timer) clearTimeout(timer);
+      reject(e);
+    },
+  );
+  return first;
+}
+
+/** Uçuş araması: sayfanın geri kalanı beklemeden görünür; uçuşlar geldikçe listeye eklenir. */
 async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
   const t = await getTranslations("results");
   const loc = intlLocale(locale);
-  let offers: Offer[] = [];
+  let first: LiveChunk;
   let tip: ResultsTip = null;
   try {
-    const [list, flex] = await Promise.all([searchFlightsCached(q), getFlexibleDateTip(q)]);
-    offers = list;
+    const [chunk, flex] = await Promise.all([liveChain(q, locale), getFlexibleDateTip(q)]);
+    first = chunk;
     if (flex) {
       tip = { href: searchHref({ ...flex.query, returnDate: flex.query.returnDate ?? "" }), day: formatDayLong(flex.query.date, loc), price: flex.price, save: flex.save };
     }
   } catch (e) {
     console.error("Uçuş araması başarısız:", e);
-    return (
-      <div role="alert" className={panel}>
-        <span className="font-display text-xl font-semibold">{t("failed.title")}</span>
-        <span className="text-muted">{t("failed.text")}</span>
-        <Link href={searchHref({ ...q, returnDate: q.returnDate ?? "" })} className={pill}>{t("failed.retry")}</Link>
-      </div>
-    );
+    return <SearchFailed q={q} />;
   }
   const mode = dataMode();
   const note = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : undefined;
-  // Şerit sonuçlar geldikten sonra çizilir: seçili günün fiyatı doğrudan bu sonuçlardan gelir (iki ayrı arama
-  // farklı fiyat göstermesin) ve komşu günlerin aramaları ana aramayla yarışıp onu yavaşlatmaz.
-  const cheapest = offers.length ? Math.min(...offers.map((o) => o.price)) : null;
   return (
-    <>
-      <DateStrip q={q} current={cheapest} />
-      <ResultsView offers={offers} oneWay={!q.returnDate} tip={tip} note={note} cityNames={cityNamesFor(offers, locale)} />
-    </>
+    <LiveResults first={first} q={q} oneWay={!q.returnDate} tip={tip} note={note} retryHref={searchHref({ ...q, returnDate: q.returnDate ?? "" })} />
+  );
+}
+
+async function SearchFailed({ q }: { q: MultiQuery }) {
+  const t = await getTranslations("results");
+  return (
+    <div role="alert" className={panel}>
+      <span className="font-display text-xl font-semibold">{t("failed.title")}</span>
+      <span className="text-muted">{t("failed.text")}</span>
+      <Link href={searchHref({ ...q, returnDate: q.returnDate ?? "" })} className={pill}>{t("failed.retry")}</Link>
+    </div>
   );
 }
 

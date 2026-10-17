@@ -6,7 +6,7 @@ import { popularDestinations, popularRoutes } from "@/data/mock/home";
 import { routes } from "@/data/mock/routes";
 import { demoFlexibleTip, demoProvider } from "./providers/demo";
 import { duffelProvider, isDuffelTestMode } from "./providers/duffel";
-import type { FlightProvider } from "./providers/types";
+import type { FlightProvider, SearchOptions } from "./providers/types";
 import type { MultiQuery } from "./search";
 import { expandCombos } from "./search-server";
 import type { Offer } from "./providers/types";
@@ -28,18 +28,32 @@ const MAX_RESULTS = 60;
  * Birden fazla kalkış/varış: her ikili paralel aranır, sonuçlar fiyata göre birleştirilir.
  * Bazı ikililer hata verse de diğerleri gösterilir; hepsi başarısızsa hata fırlatılır.
  */
-export async function searchFlights(q: MultiQuery, opts?: { timeoutMs?: number }): Promise<Offer[]> {
+export async function searchFlights(q: MultiQuery, opts?: SearchOptions): Promise<Offer[]> {
   const combos = expandCombos(q);
   const p = provider();
-  const settled = await Promise.allSettled(combos.map((c) => p.search(c, opts)));
+  // Her ikilinin o ana kadarki teklifleri; biri ilerledikçe hepsinin birleşimi bildirilir.
+  const partial: Offer[][] = combos.map(() => []);
+  const onPartial = opts?.onPartial;
+  const settled = await Promise.allSettled(
+    combos.map((c, i) =>
+      p.search(c, {
+        timeoutMs: opts?.timeoutMs,
+        onPartial:
+          onPartial &&
+          ((offers) => {
+            partial[i] = offers;
+            onPartial(merge(partial.flat()));
+          }),
+      }),
+    ),
+  );
   const ok = settled.filter((r): r is PromiseFulfilledResult<Offer[]> => r.status === "fulfilled");
   if (!ok.length && settled.length) throw (settled[0] as PromiseRejectedResult).reason;
   settled.forEach((r, i) => r.status === "rejected" && console.error("Arama ikilisi başarısız:", combos[i].from, combos[i].to, r.reason));
-  return ok
-    .flatMap((r) => r.value)
-    .sort((a, b) => a.price - b.price)
-    .slice(0, MAX_RESULTS);
+  return merge(ok.flatMap((r) => r.value));
 }
+
+const merge = (offers: Offer[]) => [...offers].sort((a, b) => a.price - b.price).slice(0, MAX_RESULTS);
 
 /** Aynı arama bu süre boyunca sağlayıcıya yeniden gitmez (teklifler genelde daha uzun geçerlidir). */
 const SEARCH_TTL = 10 * 60;
@@ -59,7 +73,7 @@ function canonical(q: MultiQuery): MultiQuery {
 // unstable_cache anahtarına fonksiyonun kaynak metnini de katar; bu metin sonuç sayfası ile API rotası gibi
 // ayrı paketlerde farklı derlenir ve önbellek paylaşılmaz. `bind` ile oluşan fonksiyonun metni her yerde aynıdır.
 const cachedSearch = unstable_cache(
-  ((q: MultiQuery, _mode: DataMode) => searchFlights(q)).bind(null),
+  ((q: MultiQuery, mode: DataMode) => searchFlights(q, { onPartial: (offers) => emit(searchKey(q, mode), offers) })).bind(null),
   ["search-v1"],
   { revalidate: SEARCH_TTL },
 );
@@ -74,19 +88,43 @@ export function searchFlightsCached(q: MultiQuery): Promise<Offer[]> {
   const mode = dataMode();
   // Aynı arama aynı anda iki kez istenirse (ör. sonuç sayfası ve tarih şeridi) sağlayıcıya tek istek gider;
   // aksi halde ikisi de önbelleği boş bulur ve test modunda farklı fiyatlar döner.
-  const key = JSON.stringify([c, mode]);
+  const key = searchKey(c, mode);
   let p = inFlight.get(key);
   if (!p) {
     p = cachedSearch(c, mode)
       .then((list) => {
         // Önbellekteki teklif süresi dolmuşsa satın alınamaz: onları gösterme, hepsi dolmuşsa yeniden ara.
         const fresh = list.filter((o) => !o.expiresAt || Date.parse(o.expiresAt) > Date.now() + 60_000);
-        return fresh.length || !list.length ? fresh : searchFlights(c);
+        return fresh.length || !list.length ? fresh : searchFlights(c, { onPartial: (offers) => emit(key, offers) });
       })
       .finally(() => inFlight.delete(key));
     inFlight.set(key, p);
   }
   return p;
+}
+
+const searchKey = (q: MultiQuery, mode: DataMode) => JSON.stringify([canonical(q), mode]);
+
+type Listener = (offers: Offer[]) => void;
+const listeners = new Map<string, Set<Listener>>();
+const emit = (key: string, offers: Offer[]) => listeners.get(key)?.forEach((fn) => fn(offers));
+
+/**
+ * Sonuç sayfası için: aynı önbellekli arama, ek olarak havayolları yanıt verdikçe o ana kadarki teklifler.
+ * Önbellekte varsa ara sonuç olmaz, sonuç hemen gelir. `stop` dinlemeyi bırakır.
+ */
+export function watchSearch(q: MultiQuery, onPartial: Listener): { result: Promise<Offer[]>; stop: () => void } {
+  const key = searchKey(q, dataMode());
+  const set = listeners.get(key) ?? new Set<Listener>();
+  set.add(onPartial);
+  listeners.set(key, set);
+  const stop = () => {
+    set.delete(onPartial);
+    if (!set.size && listeners.get(key) === set) listeners.delete(key);
+  };
+  const result = searchFlightsCached(q);
+  result.then(stop, stop);
+  return { result, stop };
 }
 
 const inFlight = new Map<string, Promise<Offer[]>>();

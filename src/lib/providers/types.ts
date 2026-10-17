@@ -178,9 +178,14 @@ export type Booking = {
   extraBags?: BagChoice[];
 };
 
+export type SearchOptions = { timeoutMs?: number; onPartial?: (offers: Offer[]) => void };
+
 export interface FlightProvider {
-  /** `timeoutMs`: havayollarının yanıtı için en fazla bekleme (hızlı fiyat taraması için kısa tutulur). */
-  search(q: SearchQuery, opts?: { timeoutMs?: number }): Promise<Offer[]>;
+  /**
+   * `timeoutMs`: havayollarının yanıtı için en fazla bekleme. `onPartial`: havayolları yanıt verdikçe o ana kadar
+   * gelen tekliflerin tamamı (sonuncusu dönen listeyle aynı tekliflerdir; ayrı bir arama değildir).
+   */
+  search(q: SearchQuery, opts?: SearchOptions): Promise<Offer[]>;
   getOffer(id: string): Promise<Offer | null>;
   seatMaps(offer: Offer): Promise<SeatMap[]>;
   createOrder(input: OrderInput, offer: Offer, totalTry: number): Promise<Booking>;

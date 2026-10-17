@@ -144,5 +144,9 @@
     "unknown": "Not provided by airline",
     "personalNote": "Must fit under the seat in front of you",
     "note": "Total size: length + width + height. The airline's rules apply; we recommend checking its website before you fly."
+  },
+  "live": {
+    "searching": "Searching for more flights… The list updates as airlines respond.",
+    "incomplete": "The search could not finish; some flights may be missing."
   }
 }

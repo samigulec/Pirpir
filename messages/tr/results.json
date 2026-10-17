@@ -144,5 +144,9 @@
     "unknown": "Havayolu bildirmedi",
     "personalNote": "Önündeki koltuğun altına sığmalı",
     "note": "Toplam ölçü: en + boy + yükseklik. Kesin kurallar havayolunundur; uçmadan önce havayolunun sitesinden kontrol etmeni öneririz."
+  },
+  "live": {
+    "searching": "Daha fazla uçuş aranıyor… Liste havayolları yanıt verdikçe güncellenir.",
+    "incomplete": "Arama tamamlanamadı; bazı uçuşlar listede olmayabilir."
   }
 }

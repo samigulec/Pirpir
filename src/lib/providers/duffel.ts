@@ -52,6 +52,50 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   return body.data as T;
 }
 
+type DBatch = { id: string; total_batches: number; remaining_batches: number; offers?: DOffer[] };
+
+/**
+ * Parça parça arama (batch offer request): havayolları yanıt verdikçe teklifler gelir. Aynı arama isteğinin
+ * teklifleridir; sona eklenenler öncekileri değiştirmez, yalnızca listeye katılır. Bir şey ters giderse aynı
+ * isteğin tüm teklifleri tek seferde alınır, böylece eksik liste son sonuç diye gösterilmez.
+ */
+async function batchSearch(
+  body: string,
+  timeout: number,
+  finish: (offers: DOffer[]) => Offer[],
+  onPartial: (offers: Offer[]) => void,
+  whole: () => Promise<Offer[]>,
+): Promise<Offer[]> {
+  let created: DBatch;
+  try {
+    created = await call<DBatch>(`/air/batch_offer_requests?supplier_timeout=${timeout}`, { method: "POST", body });
+  } catch (e) {
+    console.error("Parça parça arama başlatılamadı, tek seferde aranıyor:", e instanceof Error ? e.message : e);
+    return whole();
+  }
+  const byId = new Map<string, DOffer>();
+  const deadline = Date.now() + timeout + 10_000;
+  let remaining = created.remaining_batches;
+  try {
+    while (remaining > 0) {
+      if (Date.now() > deadline) throw new ProviderError("Parça parça arama zamanında bitmedi.");
+      // Kendi sinyali olan istek Next.js'in aynı adres birleştirmesine takılmaz (her yoklama gerçekten gider)
+      const b = await call<DBatch>(`/air/batch_offer_requests/${created.id}`, { signal: AbortSignal.timeout(Math.max(1000, deadline - Date.now())) });
+      const before = byId.size;
+      for (const o of b.offers ?? []) byId.set(o.id, o);
+      remaining = b.remaining_batches;
+      if (remaining > 0 && byId.size > before) onPartial(finish([...byId.values()]));
+      // Uzun bekleyen (long-poll) uç nokta boş dönerse kısa ara verilir
+      else if (remaining > 0) await new Promise((r) => setTimeout(r, 300));
+    }
+  } catch (e) {
+    console.error("Parça parça arama kesildi, tüm teklifler alınıyor:", e instanceof Error ? e.message : e);
+    const all = await call<DOffer[]>(`/air/offers?offer_request_id=${created.id}&sort=total_amount&limit=200`);
+    return finish(all);
+  }
+  return finish([...byId.values()]);
+}
+
 // --- Duffel yanıt tipleri (kullandığımız alanlar) ---
 type DPlace = { iata_code: string; city_name?: string | null; name: string };
 type DSegment = {
@@ -372,15 +416,19 @@ export const duffelProvider: FlightProvider = {
       ...Array.from({ length: q.pax.children }, () => ({ type: "child" })),
       ...Array.from({ length: q.pax.infants }, () => ({ type: "infant_without_seat" })),
     ];
-    const data = await call<{ offers: DOffer[] }>(`/air/offer_requests?return_offers=true&supplier_timeout=${opts?.timeoutMs ?? 15000}`, {
-      method: "POST",
-      body: JSON.stringify({ data: { slices, passengers, cabin_class: q.cabin ?? "economy", max_connections: 1 } }),
-    });
-    return data.offers
-      .sort((a, b) => Number(a.total_amount) - Number(b.total_amount))
-      // Aynı uçuşun farklı paketleri de gelir; sonuç sayfası bunları tek kartta toplar.
-      .slice(0, 60)
-      .map((o) => mapOffer(o, q));
+    const timeout = opts?.timeoutMs ?? 15000;
+    const body = JSON.stringify({ data: { slices, passengers, cabin_class: q.cabin ?? "economy", max_connections: 1 } });
+    // Aynı uçuşun farklı paketleri de gelir; sonuç sayfası bunları tek kartta toplar.
+    const finish = (offers: DOffer[]) =>
+      offers
+        .sort((a, b) => Number(a.total_amount) - Number(b.total_amount))
+        .slice(0, 60)
+        .map((o) => mapOffer(o, q));
+    const whole = async () => {
+      const data = await call<{ offers: DOffer[] }>(`/air/offer_requests?return_offers=true&supplier_timeout=${timeout}`, { method: "POST", body });
+      return finish(data.offers);
+    };
+    return opts?.onPartial ? batchSearch(body, timeout, finish, opts.onPartial, whole) : whole();
   },
 
   async getOffer(id) {

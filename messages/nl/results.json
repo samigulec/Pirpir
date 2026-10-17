@@ -144,5 +144,9 @@
     "unknown": "Niet opgegeven door maatschappij",
     "personalNote": "Moet onder de stoel voor je passen",
     "note": "Totale afmeting: lengte + breedte + hoogte. De regels van de maatschappij gelden; controleer die voor vertrek op haar website."
+  },
+  "live": {
+    "searching": "Meer vluchten zoeken… De lijst wordt bijgewerkt zodra airlines reageren.",
+    "incomplete": "Het zoeken kon niet worden afgerond; sommige vluchten kunnen ontbreken."
   }
 }
