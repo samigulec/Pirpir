@@ -133,21 +133,39 @@ export function SearchForm({
           );
         })}
         <span aria-hidden="true" className="mx-1 hidden h-6 w-px bg-line sm:block" />
-        <label className="relative inline-flex min-h-[40px] items-center">
-          <span className="sr-only">{t("cabinLabel")}</span>
-          <select
-            value={cabin}
-            onChange={(e) => setCabin(e.target.value as CabinClass)}
-            className="min-h-[40px] cursor-pointer appearance-none rounded-pill border-0 bg-field py-2 pl-4 pr-9 text-[15px] font-extrabold text-ink"
-          >
-            {CABINS.map((c) => (
-              <option key={c} value={c}>{t(`cabins.${c}`)}</option>
-            ))}
-          </select>
-          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" className="pointer-events-none absolute right-4">
-            <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </label>
+        <FieldPopover
+          label={t("cabinLabel")}
+          value={t(`cabins.${cabin}`)}
+          className="min-h-[40px] items-center rounded-pill bg-field px-4 py-2"
+          labelClassName="sr-only"
+          valueClassName="text-[15px] font-extrabold text-ink"
+          panelClassName="md:w-[280px]"
+          closeLabel={t("done")}
+          chevron
+        >
+          {(close) => (
+            <div role="radiogroup" aria-label={t("cabinLabel")} className="flex flex-col gap-1">
+              {CABINS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  role="radio"
+                  aria-checked={cabin === c}
+                  onClick={() => {
+                    setCabin(c);
+                    close();
+                  }}
+                  className={`flex min-h-[48px] cursor-pointer items-center justify-between gap-3 rounded-[14px] border-0 px-4 text-left text-[16px] font-extrabold text-ink ${
+                    cabin === c ? "bg-sky" : "bg-transparent hover:bg-field"
+                  }`}
+                >
+                  {t(`cabins.${c}`)}
+                  {cabin === c && <span aria-hidden="true" className="text-primary">✓</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </FieldPopover>
         <FieldPopover
           label={t("bagsLabel")}
           value={
