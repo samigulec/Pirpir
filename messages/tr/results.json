@@ -184,5 +184,19 @@
     "colDate": "Gidiş",
     "colPrice": "Kişi başı",
     "titleOneWay": "Gidiş gününe göre fiyatlar (tek yön)"
+  },
+  "favorite": {
+    "add": "Favorilere ekle",
+    "remove": "Favorilerden çıkar",
+    "added": "Favorilere eklendi.",
+    "see": "Favorilerim",
+    "signIn": "Favoriler için giriş yap.",
+    "error": "Şu an kaydedilemedi."
+  },
+  "alert": {
+    "create": "Fiyat alarmı kur",
+    "done": "Alarm kuruldu.",
+    "see": "Fiyat alarmlarım",
+    "error": "Alarm şu an kurulamadı."
   }
 }

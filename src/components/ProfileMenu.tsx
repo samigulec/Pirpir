@@ -11,6 +11,17 @@ import { Help, Ticket, User } from "./icons";
  * Başlıktaki profil düğmesi ve açılan menü (Booking/Kiwi'deki gibi tek giriş noktası): giriş, biletler,
  * hesap ve yardım burada. Masaüstünde sağa hizalı açılır kutu, telefonda alttan açılan sayfa.
  */
+const Bell = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9zM10 20a2 2 0 0 0 4 0" />
+  </svg>
+);
+const Heart = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
+  </svg>
+);
+
 export function ProfileMenu() {
   const t = useTranslations("common.menu");
   const { signedIn, openLogin } = useAuthUi();
@@ -57,7 +68,7 @@ export function ProfileMenu() {
           <div aria-hidden="true" className="fixed inset-0 z-40 bg-ink/40 md:hidden" onClick={close} />
           <div
             id={id}
-            className="fixed inset-x-0 bottom-0 z-50 flex flex-col gap-1 rounded-t-[28px] bg-white p-4 pb-8 text-ink shadow-search md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-[calc(100%+8px)] md:w-[320px] md:rounded-[24px] md:p-3"
+            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col gap-1 overflow-y-auto rounded-t-[28px] bg-white p-4 pb-8 md:max-h-none md:overflow-visible text-ink shadow-search md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-[calc(100%+8px)] md:w-[320px] md:rounded-[24px] md:p-3"
           >
             {signedIn ? (
               <div className="px-3 pb-2 pt-1">
@@ -86,6 +97,17 @@ export function ProfileMenu() {
                   <span className="text-[13px] font-semibold text-muted">{t("tripsText")}</span>
                 </span>
               </Link>
+              {signedIn &&
+                ([
+                  ["yolcular", "travellers", <User key="u" />],
+                  ["alarmlar", "alerts", <Bell key="b" />],
+                  ["favoriler", "favorites", <Heart key="h" />],
+                ] as const).map(([hash, key, ico]) => (
+                  <Link key={hash} href={{ pathname: "/hesap", hash }} onClick={close} className={item}>
+                    <span className={icon}>{ico}</span>
+                    <span className="font-extrabold">{t(key)}</span>
+                  </Link>
+                ))}
               {signedIn && (
                 <Link href="/hesap" onClick={close} className={item}>
                   <span className={icon}><User /></span>

@@ -1,5 +1,7 @@
 "use server";
 
+import { clearDemoItems } from "@/lib/user-items";
+
 import { headers } from "next/headers";
 import { redirect as externalRedirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
@@ -84,6 +86,7 @@ export async function signInWithProvider(_prev: LoginState, form: FormData): Pro
 export async function signOut() {
   await clearSession();
   await clearLocalBookings();
+  await clearDemoItems();
   redirect({ href: "/", locale: asLocale(await getLocale()) });
 }
 

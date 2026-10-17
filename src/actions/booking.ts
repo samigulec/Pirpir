@@ -10,6 +10,7 @@ import { asLocale } from "@/lib/intl";
 import { confirmHref } from "@/lib/search";
 import { validateBookingForm, type FieldErrors } from "@/lib/booking-validate";
 import { getOffer } from "@/lib/flights";
+import { saveTraveller } from "./user";
 import { getProviderForOffer } from "@/lib/providers/select";
 import { bagChoiceValid, bagsCost, seatsCost } from "@/lib/extras";
 import type { BagChoice, Bags, Booking, ChangeOption, ChangeRequest } from "@/lib/providers/types";
@@ -51,6 +52,16 @@ export async function placeOrder(offerId: string, form: FormData): Promise<Place
     booking.extraBags = data.bags;
     await saveBooking(booking, user, locale);
     bookingId = booking.id;
+    // "Bu yolcuyu hesabıma kaydet" işaretlenenler (giriş yapmışsa); hata rezervasyonu etkilemez
+    if (user) {
+      await Promise.all(
+        data.passengers.map((p, i) =>
+          form.get(`p${i}_save`) === "on"
+            ? saveTraveller({ givenName: p.givenName, familyName: p.familyName, gender: p.gender, bornOn: p.bornOn, nationality: p.nationality, passport: p.passport })
+            : null,
+        ),
+      ).catch((e) => console.error("Yolcu kaydedilemedi:", e));
+    }
   } catch (e) {
     console.error("Sipariş oluşturulamadı:", e);
     const live = e instanceof Error && e.message.startsWith("Canlı modda");

@@ -68,5 +68,46 @@
     "tripsText": "Je tickets en boekingscodes.",
     "signOut": "Uitloggen",
     "demoNote": "Voorbeeldmodus: je account wordt alleen in deze browser bewaard."
+  },
+  "travellers": {
+    "title": "Opgeslagen reizigers",
+    "text": "Eén keer opslaan, bij het boeken met één klik invullen.",
+    "empty": "Nog geen opgeslagen reizigers. Vink bij het boeken “Bewaar deze reiziger” aan of voeg er hier een toe.",
+    "add": "Reiziger toevoegen",
+    "edit": "Bewerken",
+    "remove": "Verwijderen",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "passportShort": "Paspoort",
+    "privacy": "Deze gegevens staan alleen in jouw account en alleen jij ziet ze. Ze worden gebruikt om boekingsformulieren in te vullen.",
+    "error": "Voornaam, achternaam en een geldige geboortedatum zijn verplicht."
+  },
+  "alerts": {
+    "title": "Mijn prijsalarmen",
+    "text": "Zoekopdrachten die je volgt en hoe de prijs veranderde.",
+    "empty": "Nog geen alarmen. Klik bij een zoekopdracht op “Prijsalarm instellen”.",
+    "then": "Bij instellen {price}",
+    "now": "nu {price}",
+    "nowUnknown": "nog geen actuele prijs",
+    "down": "↓ {price} goedkoper",
+    "up": "↑ {price} duurder",
+    "past": "Deze datum is voorbij",
+    "search": "Zoeken",
+    "remove": "Verwijderen",
+    "note": "De actuele prijs komt uit zoekopdrachten van de afgelopen 24 uur; de exacte prijs zie je bij zoeken. E-mailmeldingen bij een prijsdaling starten zodra de e-maildienst is gekoppeld."
+  },
+  "favorites": {
+    "title": "Mijn favorieten",
+    "text": "Vluchten die je een hartje gaf.",
+    "empty": "Nog geen favorieten. Tik in de resultaten op het hartje van een vlucht.",
+    "savedAt": "{price} per persoon bij opslaan",
+    "past": "De datum van deze vlucht is voorbij",
+    "search": "Bekijk actuele prijs",
+    "remove": "Verwijderen"
+  },
+  "sections": {
+    "travellers": "Opgeslagen reizigers",
+    "alerts": "Mijn prijsalarmen",
+    "favorites": "Mijn favorieten"
   }
 }

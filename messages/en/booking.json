@@ -31,7 +31,9 @@
       "adult": "Adult",
       "child": "Child",
       "infant": "Infant"
-    }
+    },
+    "savedFill": "Saved traveller:",
+    "save": "Save this traveller to my account (fills in with one click next time)"
   },
   "contact": {
     "title": "How can we reach you?",

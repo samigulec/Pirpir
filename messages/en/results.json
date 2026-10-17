@@ -184,5 +184,19 @@
     "colDate": "Departure",
     "colPrice": "Per person",
     "titleOneWay": "Prices by departure day (one way)"
+  },
+  "favorite": {
+    "add": "Add to favourites",
+    "remove": "Remove from favourites",
+    "added": "Added to favourites.",
+    "see": "My favourites",
+    "signIn": "Sign in to save favourites.",
+    "error": "Couldn't save right now."
+  },
+  "alert": {
+    "create": "Set a price alert",
+    "done": "Alert set.",
+    "see": "My price alerts",
+    "error": "Couldn't set the alert right now."
   }
 }

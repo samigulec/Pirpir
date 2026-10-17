@@ -75,6 +75,9 @@
     "account": "Account and profile",
     "accountText": "Name, language and currency",
     "help": "Help and FAQ",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "travellers": "Saved travellers",
+    "alerts": "My price alerts",
+    "favorites": "My favourites"
   }
 }

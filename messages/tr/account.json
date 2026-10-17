@@ -68,5 +68,46 @@
     "tripsText": "Aldığın biletler ve rezervasyon kodların.",
     "signOut": "Çıkış yap",
     "demoNote": "Örnek mod: hesabın yalnızca bu tarayıcıda tutuluyor."
+  },
+  "travellers": {
+    "title": "Kayıtlı yolcular",
+    "text": "Bir kez kaydet, rezervasyonda tek tıkla doldur.",
+    "empty": "Henüz kayıtlı yolcu yok. Rezervasyonda “Bu yolcuyu hesabıma kaydet”i işaretleyebilir ya da buradan ekleyebilirsin.",
+    "add": "Yolcu ekle",
+    "edit": "Düzenle",
+    "remove": "Sil",
+    "save": "Kaydet",
+    "cancel": "Vazgeç",
+    "passportShort": "Pasaport",
+    "privacy": "Bilgiler yalnızca hesabında tutulur ve yalnızca sen görebilirsin. Rezervasyonda alanları doldurmak için kullanılır.",
+    "error": "Ad, soyad ve geçerli bir doğum tarihi gerekli."
+  },
+  "alerts": {
+    "title": "Fiyat alarmlarım",
+    "text": "Takip ettiğin aramalar ve fiyatın nasıl değiştiği.",
+    "empty": "Henüz alarm yok. Bir aramada “Fiyat alarmı kur”a bas.",
+    "then": "Kurulduğunda {price}",
+    "now": "şimdi {price}",
+    "nowUnknown": "güncel fiyat henüz yok",
+    "down": "↓ {price} ucuzladı",
+    "up": "↑ {price} pahalandı",
+    "past": "Bu tarih geçti",
+    "search": "Ara",
+    "remove": "Sil",
+    "note": "Güncel fiyat, son 24 saatte yapılan aramalardan gelir; kesin fiyatı “Ara”da görürsün. Fiyat düşünce e-postayla haber verme, e-posta servisi bağlandığında başlayacak."
+  },
+  "favorites": {
+    "title": "Favorilerim",
+    "text": "Kalbe bastığın uçuşlar.",
+    "empty": "Henüz favori yok. Sonuçlarda bir uçuşun kalbine bas.",
+    "savedAt": "Kaydettiğinde kişi başı {price}",
+    "past": "Bu uçuşun tarihi geçti",
+    "search": "Güncel fiyata bak",
+    "remove": "Sil"
+  },
+  "sections": {
+    "travellers": "Kayıtlı yolcular",
+    "alerts": "Fiyat alarmlarım",
+    "favorites": "Favorilerim"
   }
 }

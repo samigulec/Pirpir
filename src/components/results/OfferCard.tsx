@@ -19,7 +19,12 @@ export function OfferCard({
   bagsAdded,
   fareCount,
   onSelect,
+  favorite,
+  onFavorite,
 }: {
+  /** Favorilerde mi; verilmezse kalp gösterilmez */
+  favorite?: boolean;
+  onFavorite?: () => void;
   offer: Offer;
   badge: Badge;
   cityNames: Record<string, string>;
@@ -77,6 +82,19 @@ export function OfferCard({
             · {t(`cabin.${offer.cabin}`)}
             {offer.fareBrand && ` · ${offer.fareBrand}`}
           </span>
+          {onFavorite && (
+            <button
+              type="button"
+              aria-pressed={!!favorite}
+              aria-label={favorite ? t("favorite.remove") : t("favorite.add")}
+              onClick={onFavorite}
+              className={`ml-auto flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-0 ${favorite ? "bg-coral-soft text-coral-text" : "bg-field text-muted hover:text-ink"}`}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill={favorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
+              </svg>
+            </button>
+          )}
         </div>
 
         <LegRow leg={offer.outbound} label={t("outbound")} date={formatDayWithWeekday(offer.outbound.date, loc)} dur={dur} />

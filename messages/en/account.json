@@ -68,5 +68,46 @@
     "tripsText": "Your tickets and booking references.",
     "signOut": "Sign out",
     "demoNote": "Sample mode: your account is only kept in this browser."
+  },
+  "travellers": {
+    "title": "Saved travellers",
+    "text": "Save once, fill in with one click when booking.",
+    "empty": "No saved travellers yet. Tick “Save this traveller to my account” when booking, or add one here.",
+    "add": "Add traveller",
+    "edit": "Edit",
+    "remove": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "passportShort": "Passport",
+    "privacy": "These details are kept only in your account and only you can see them. They are used to fill in booking forms.",
+    "error": "First name, last name and a valid date of birth are required."
+  },
+  "alerts": {
+    "title": "My price alerts",
+    "text": "Searches you follow and how the price has moved.",
+    "empty": "No alerts yet. Press “Set a price alert” on a search.",
+    "then": "When set {price}",
+    "now": "now {price}",
+    "nowUnknown": "no current price yet",
+    "down": "↓ {price} cheaper",
+    "up": "↑ {price} more",
+    "past": "This date has passed",
+    "search": "Search",
+    "remove": "Delete",
+    "note": "The current price comes from searches in the last 24 hours; you'll see the exact price when you search. Email notifications when the price drops will start once the email service is connected."
+  },
+  "favorites": {
+    "title": "My favourites",
+    "text": "Flights you hearted.",
+    "empty": "No favourites yet. Tap the heart on a flight in the results.",
+    "savedAt": "{price} per person when saved",
+    "past": "This flight's date has passed",
+    "search": "Check current price",
+    "remove": "Delete"
+  },
+  "sections": {
+    "travellers": "Saved travellers",
+    "alerts": "My price alerts",
+    "favorites": "My favourites"
   }
 }

@@ -1,7 +1,10 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useAuthUi } from "../auth/LoginModal";
+import { getFavorites, toggleFavorite } from "@/actions/user";
+import { favoriteKey } from "@/lib/user-types";
 import { useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
 import { Bulut } from "../characters";
@@ -75,6 +78,37 @@ export function ResultsView({
   const [showFilters, setShowFilters] = useState(false);
   const [selected, setSelected] = useState<Group | null>(null);
 
+  // Favoriler (girişliyse): kalbe basınca hesaba eklenir/çıkarılır; girişsizse giriş penceresi açılır
+  const { signedIn, openLogin } = useAuthUi();
+  const [favKeys, setFavKeys] = useState<Set<string>>(new Set());
+  const [favNote, setFavNote] = useState<string | null>(null);
+  useEffect(() => {
+    if (!signedIn) return;
+    getFavorites().then((r) => r.ok && setFavKeys(new Set(r.value.map((f) => f.data.key)))).catch(() => {});
+  }, [signedIn]);
+  const toggleFav = (o: Offer, price: number) => {
+    if (!signedIn) return openLogin();
+    const key = favoriteKey(o);
+    const q = o.query;
+    toggleFavorite({
+      key,
+      airline: o.airline,
+      outbound: o.outbound,
+      inbound: o.inbound,
+      price,
+      query: { from: [q.from], to: [q.to], date: q.date, returnDate: q.returnDate, pax: q.pax, cabin: q.cabin ?? "economy" },
+    }).then((r) => {
+      if (!r.ok) return setFavNote(t(r.error === "signIn" ? "favorite.signIn" : "favorite.error"));
+      setFavKeys((s) => {
+        const n = new Set(s);
+        if (r.value) n.add(key);
+        else n.delete(key);
+        return n;
+      });
+      setFavNote(r.value ? t("favorite.added") : null);
+    });
+  };
+
   const groups = useMemo(() => groupByItinerary(applyFilters(offers, filters)), [offers, filters]);
 
   // Rozetler sıralamadan bağımsız, filtrelenmiş sonuçlar üzerinden hesaplanır.
@@ -144,6 +178,11 @@ export function ResultsView({
           {note && <> · {note}</>}
         </span>
 
+        {favNote && (
+          <p role="status" className="m-0 rounded-[16px] bg-coral-soft px-4 py-2 text-[15px] font-bold">
+            {favNote} <Link href={{ pathname: "/hesap", hash: "favoriler" }} className="font-extrabold">{t("favorite.see")}</Link>
+          </p>
+        )}
         {offers.length === 0 && <p className="m-0 font-bold text-muted">{t("noResults")}</p>}
         {offers.length > 0 && list.length === 0 && <p className="m-0 font-bold text-muted">{t("empty")}</p>}
 
@@ -157,6 +196,8 @@ export function ResultsView({
             onSelect={() => setSelected(g)}
             cityNames={cityNames}
             badge={!settled ? null : g.key === cheapestKey ? "cheap" : g.key === fastestKey ? "fast" : null}
+            favorite={favKeys.has(favoriteKey(g.best.offer))}
+            onFavorite={() => toggleFav(g.best.offer, g.best.price)}
           />
         ))}
 

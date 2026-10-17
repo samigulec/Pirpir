@@ -184,5 +184,19 @@
     "colDate": "Vertrek",
     "colPrice": "Per persoon",
     "titleOneWay": "Prijzen per vertrekdag (enkele reis)"
+  },
+  "favorite": {
+    "add": "Aan favorieten toevoegen",
+    "remove": "Uit favorieten verwijderen",
+    "added": "Aan favorieten toegevoegd.",
+    "see": "Mijn favorieten",
+    "signIn": "Log in om favorieten op te slaan.",
+    "error": "Opslaan lukt nu niet."
+  },
+  "alert": {
+    "create": "Prijsalarm instellen",
+    "done": "Alarm ingesteld.",
+    "see": "Mijn prijsalarmen",
+    "error": "Alarm instellen lukt nu niet."
   }
 }

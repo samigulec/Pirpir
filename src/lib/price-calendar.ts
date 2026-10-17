@@ -151,3 +151,32 @@ async function demoPrices(r: CalendarRoute, first: string, days: number, nights:
   const pick = (list: (number | null)[]) => Object.fromEntries(dates.flatMap((d, i) => (list[i] == null ? [] : [[d, list[i]!]])));
   return { departs: pick(departs), returns: pick(returns) };
 }
+
+/**
+ * Belirli gün (ve yolculuk süresi) için son 24 saatte görülen en düşük kişi başı fiyat; yeni arama yapmaz.
+ * Örnek modda doğrudan hesaplanır.
+ */
+export async function knownDayPrice(q: Pick<MultiQuery, "from" | "to" | "date" | "returnDate" | "cabin">): Promise<number | null> {
+  const mode = dataMode();
+  if (mode === "demo") {
+    const offers = await searchFlights({ ...q, pax: { adults: 1, children: 0, infants: 0 } }).catch(() => []);
+    return offers.length ? Math.min(...offers.map((o) => o.price)) : null;
+  }
+  const admin = supabaseAdmin();
+  if (!admin) return null;
+  const { data, error } = await admin
+    .from("price_calendar")
+    .select("price_try")
+    .eq("route", routeKey(q))
+    .eq("cabin", q.cabin ?? "economy")
+    .eq("mode", mode)
+    .eq("depart", q.date)
+    .eq("nights", nightsOf(q))
+    .gte("seen_at", new Date(Date.now() - MAX_AGE_MS).toISOString())
+    .maybeSingle();
+  if (error) {
+    console.error("Gün fiyatı okunamadı:", error.message);
+    return null;
+  }
+  return data?.price_try ?? null;
+}

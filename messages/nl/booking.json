@@ -31,7 +31,9 @@
       "adult": "Volwassene",
       "child": "Kind",
       "infant": "Baby"
-    }
+    },
+    "savedFill": "Opgeslagen reiziger:",
+    "save": "Bewaar deze reiziger in mijn account (de volgende keer met één klik ingevuld)"
   },
   "contact": {
     "title": "Hoe bereiken we je?",

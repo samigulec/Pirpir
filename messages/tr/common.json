@@ -75,6 +75,9 @@
     "account": "Hesap ve profil",
     "accountText": "Ad, dil ve para birimi tercihleri",
     "help": "Yardım ve sık sorulanlar",
-    "signOut": "Çıkış yap"
+    "signOut": "Çıkış yap",
+    "travellers": "Kayıtlı yolcular",
+    "alerts": "Fiyat alarmlarım",
+    "favorites": "Favorilerim"
   }
 }

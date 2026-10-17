@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { formatDateTime } from "@/lib/dates";
@@ -20,6 +20,9 @@ import {
   TelefonApplePayIcon,
   VisaMark,
 } from "../payment";
+import { useAuthUi } from "../auth/LoginModal";
+import { getTravellers } from "@/actions/user";
+import type { Saved, Traveller } from "@/lib/user-types";
 import { idealBanks, nationalities, paymentMethods, phoneCodes, promoDiscount, type PaymentId } from "@/data/mock/booking";
 import { placeOrder, type PlaceOrderState } from "@/actions/booking";
 import type { PassengerSlot } from "@/lib/booking-validate";
@@ -91,6 +94,29 @@ export function BookingForm({
   const [promoError, setPromoError] = useState(false);
   const [terms, setTerms] = useState(false);
   const [state, setState] = useState<PlaceOrderState>({ errors: {} });
+  // Kayıtlı yolcular (girişliyse): tek tıkla doldurma ve "hesabıma kaydet"
+  const { signedIn } = useAuthUi();
+  const [travellers, setTravellers] = useState<Saved<Traveller>[]>([]);
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (!signedIn) return;
+    getTravellers().then((r) => r.ok && setTravellers(r.value)).catch(() => {});
+  }, [signedIn]);
+  const fillTraveller = (i: number, tr: Traveller) => {
+    const form = formRef.current;
+    if (!form) return;
+    const set = (f: string, v: string) => {
+      const el = form.elements.namedItem(`p${i}_${f}`);
+      if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement) el.value = v;
+    };
+    const [y, m, d] = tr.bornOn.split("-");
+    set("given", tr.givenName);
+    set("family", tr.familyName);
+    set("gender", tr.gender);
+    set("birth", `${d}.${m}.${y}`);
+    if (nationalities.includes(tr.nationality)) set("nationality", tr.nationality);
+    set("passport", tr.passport ?? "");
+  };
   const [pending, startTransition] = useTransition();
 
   const bagTotal = bagsCost(offer.bags, bags);
@@ -140,7 +166,7 @@ export function BookingForm({
   };
 
   return (
-    <form onSubmit={submit} noValidate className="flex flex-col gap-[22px]">
+    <form ref={formRef} onSubmit={submit} noValidate className="flex flex-col gap-[22px]">
       {/* Yolcu */}
       <section className="flex flex-col gap-3">
         <h2 className={h2}>{t("passenger.title")}</h2>
@@ -152,6 +178,21 @@ export function BookingForm({
                 <legend className="mb-1 p-0 font-display text-lg font-semibold text-muted">
                   {t("passenger.slot", { n: i + 1, type: t(`passenger.types.${slot.type}`) })}
                 </legend>
+              )}
+              {travellers.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-extrabold text-muted">{t("passenger.savedFill")}</span>
+                  {travellers.map((tr) => (
+                    <button
+                      key={tr.id}
+                      type="button"
+                      onClick={() => fillTraveller(i, tr.data)}
+                      className="min-h-[40px] cursor-pointer rounded-pill border-2 border-solid border-line bg-white px-4 text-[15px] font-extrabold text-ink hover:border-primary"
+                    >
+                      {tr.data.givenName} {tr.data.familyName}
+                    </button>
+                  ))}
+                </div>
               )}
               <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3">
                 <label className={label}>
@@ -190,6 +231,12 @@ export function BookingForm({
                   {errText(k("passport"))}
                 </label>
               </div>
+              {signedIn && (
+                <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-[15px] font-bold">
+                  <input type="checkbox" name={k("save")} className="h-5 w-5 accent-primary" />
+                  {t("passenger.save")}
+                </label>
+              )}
             </fieldset>
           );
         })}

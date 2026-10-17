@@ -31,7 +31,9 @@
       "adult": "Yetişkin",
       "child": "Çocuk",
       "infant": "Bebek"
-    }
+    },
+    "savedFill": "Kayıtlı yolcu:",
+    "save": "Bu yolcuyu hesabıma kaydet (sonraki rezervasyonda tek tıkla dolar)"
   },
   "contact": {
     "title": "Sana nasıl ulaşalım?",

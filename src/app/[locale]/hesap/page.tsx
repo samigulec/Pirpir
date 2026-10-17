@@ -7,6 +7,11 @@ import { signOut } from "@/actions/auth";
 import { Link, redirect } from "@/i18n/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { asLocale } from "@/lib/intl";
+import { getAlerts, getFavorites, getTravellers } from "@/actions/user";
+import { SavedTravellers } from "@/components/account/SavedTravellers";
+import { SavedAlerts, SavedFavorites } from "@/components/account/SavedLists";
+import { cityByCode } from "@/data/airports";
+import { todayIso } from "@/lib/search";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -21,7 +26,18 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
   if (!user) redirect({ href: { pathname: "/giris", query: { next: "/hesap" } }, locale: asLocale(locale) });
   const u = user!;
   const t = await getTranslations("account.account");
-  const card = "flex flex-col gap-4 rounded-[28px] border-2 border-solid border-line px-6 py-5";
+  const card = "flex scroll-mt-6 flex-col gap-4 rounded-[28px] border-2 border-solid border-line px-6 py-5";
+  const [travellers, alerts, favorites] = await Promise.all([getTravellers(), getAlerts(), getFavorites()]);
+  const alertList = alerts.ok ? alerts.value : [];
+  const favList = favorites.ok ? favorites.value : [];
+  // Alarm ve favorilerdeki yerlerin yerel adları (dünya listesi tarayıcıya gönderilmez)
+  const codes = new Set([
+    ...alertList.flatMap((a) => [...a.data.from, ...a.data.to]),
+    ...favList.flatMap((f) => [f.data.outbound.fromCode, f.data.outbound.toCode]),
+  ]);
+  const names = Object.fromEntries([...codes].map((c) => [c, cityByCode(c, locale)]));
+  const tl = await getTranslations("account");
+  const sub = "m-0 -mt-2 text-[15px] text-muted";
   const h2 = "m-0 font-display text-2xl font-semibold";
 
   return (
@@ -39,6 +55,30 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
         <section className={card}>
           <h2 className={h2}>{t("profile")}</h2>
           <ProfileForm name={u.name} email={u.email} />
+        </section>
+
+        <nav aria-label={t("title")} className="flex flex-wrap gap-2">
+          {[["yolcular", tl("sections.travellers")], ["alarmlar", tl("sections.alerts")], ["favoriler", tl("sections.favorites")]].map(([id, label]) => (
+            <a key={id} href={`#${id}`} className="inline-flex min-h-[44px] items-center rounded-pill bg-field px-5 font-extrabold text-ink no-underline">{label}</a>
+          ))}
+        </nav>
+
+        <section id="yolcular" className={card}>
+          <h2 className={h2}>{tl("travellers.title")}</h2>
+          <p className={sub}>{tl("travellers.text")}</p>
+          <SavedTravellers initial={travellers.ok ? travellers.value : []} />
+        </section>
+
+        <section id="alarmlar" className={card}>
+          <h2 className={h2}>{tl("alerts.title")}</h2>
+          <p className={sub}>{tl("alerts.text")}</p>
+          <SavedAlerts initial={alertList} names={names} />
+        </section>
+
+        <section id="favoriler" className={card}>
+          <h2 className={h2}>{tl("favorites.title")}</h2>
+          <p className={sub}>{tl("favorites.text")}</p>
+          <SavedFavorites initial={favList} names={names} today={todayIso()} />
         </section>
 
         <section className={card}>

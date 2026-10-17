@@ -75,6 +75,9 @@
     "account": "Account en profiel",
     "accountText": "Naam, taal en valuta",
     "help": "Hulp en veelgestelde vragen",
-    "signOut": "Uitloggen"
+    "signOut": "Uitloggen",
+    "travellers": "Opgeslagen reizigers",
+    "alerts": "Mijn prijsalarmen",
+    "favorites": "Mijn favorieten"
   }
 }
