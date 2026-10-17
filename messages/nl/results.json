@@ -163,5 +163,20 @@
   "flexLabel": "± {n} dagen",
   "flexNote": "Flexibele data: vluchten binnen ± {n} dagen samen",
   "paxCount": "{count, plural, one {# reiziger} other {# reizigers}}",
-  "close": "Sluiten"
+  "close": "Sluiten",
+  "trends": {
+    "open": "Prijstrends",
+    "title": "Prijzen per vertrekdag ({nights} nachten)",
+    "cheapest": "Goedkoopst",
+    "unknown": "nog geen prijs",
+    "empty": "Nog niet genoeg prijzen voor deze route. De grafiek vult zich naarmate er gezocht wordt.",
+    "legendCheapest": "Goedkoopste dag",
+    "legendCurrent": "Gekozen dag",
+    "note": "Per persoon, prijzen die we de afgelopen 24 uur vonden; lege dagen zijn nog niet gezocht. Klik op een balk om die dag te zoeken.",
+    "noteBags": "Per persoon, zonder bagage, prijzen die we de afgelopen 24 uur vonden; lege dagen zijn nog niet gezocht. Klik op een balk om die dag te zoeken.",
+    "table": "Als tabel tonen",
+    "colDate": "Vertrek",
+    "colPrice": "Per persoon",
+    "titleOneWay": "Prijzen per vertrekdag (enkele reis)"
+  }
 }

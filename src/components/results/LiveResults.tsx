@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { DateStrip } from "./DateStrip";
+import { PriceTrends } from "./PriceTrends";
 import { ResultsView, type ResultsTip } from "./ResultsView";
 import type { Offer } from "@/lib/providers/types";
 import type { MultiQuery, searchHref } from "@/lib/search";
@@ -69,6 +70,7 @@ export function LiveResults({
   return (
     <>
       {chunk.done && <DateStrip q={q} current={cheapest} />}
+      {chunk.done && <PriceTrends q={q} />}
       {!chunk.done && !failed && (
         <p role="status" className="m-0 flex items-center gap-3 rounded-[20px] bg-sky px-5 py-3 font-bold">
           <span aria-hidden="true" className="h-4 w-4 flex-none animate-spin rounded-full border-[3px] border-solid border-primary border-t-transparent" />

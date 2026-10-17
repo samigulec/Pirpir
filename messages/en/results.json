@@ -163,5 +163,20 @@
   "flexLabel": "± {n} days",
   "flexNote": "Flexible dates: flights within ± {n} days together",
   "paxCount": "{count, plural, one {# traveller} other {# travellers}}",
-  "close": "Close"
+  "close": "Close",
+  "trends": {
+    "open": "Price trends",
+    "title": "Prices by departure day ({nights} nights)",
+    "cheapest": "Cheapest",
+    "unknown": "no price yet",
+    "empty": "Not enough prices for this route yet. The chart fills up as people search.",
+    "legendCheapest": "Cheapest day",
+    "legendCurrent": "Selected day",
+    "note": "Per person, prices we found in the last 24 hours; empty days haven't been searched yet. Click a bar to search that day.",
+    "noteBags": "Per person, without bags, prices we found in the last 24 hours; empty days haven't been searched yet. Click a bar to search that day.",
+    "table": "Show as table",
+    "colDate": "Departure",
+    "colPrice": "Per person",
+    "titleOneWay": "Prices by departure day (one way)"
+  }
 }

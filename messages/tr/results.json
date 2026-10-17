@@ -163,5 +163,20 @@
   "flexLabel": "± {n} gün",
   "flexNote": "Tarihler esnek: ± {n} gün içindeki uçuşlar birlikte",
   "paxCount": "{count} kişi",
-  "close": "Kapat"
+  "close": "Kapat",
+  "trends": {
+    "open": "Fiyat trendleri",
+    "title": "Gidiş gününe göre fiyatlar ({nights} gece)",
+    "cheapest": "En ucuz",
+    "unknown": "henüz fiyat yok",
+    "empty": "Bu rota için henüz yeterli fiyat yok. Arama yapıldıkça grafik dolar.",
+    "legendCheapest": "En ucuz gün",
+    "legendCurrent": "Seçili gün",
+    "note": "Kişi başı, son 24 saatte bulduğumuz fiyatlar; boş günler henüz aranmadı. Bir sütuna tıklayınca o gün aranır.",
+    "noteBags": "Kişi başı, bagaj hariç, son 24 saatte bulduğumuz fiyatlar; boş günler henüz aranmadı. Bir sütuna tıklayınca o gün aranır.",
+    "table": "Tablo olarak göster",
+    "colDate": "Gidiş",
+    "colPrice": "Kişi başı",
+    "titleOneWay": "Gidiş gününe göre fiyatlar (tek yön)"
+  }
 }
