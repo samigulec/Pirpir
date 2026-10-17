@@ -8,7 +8,18 @@ import { intlLocale } from "@/lib/intl";
 import { useCurrency } from "../CurrencyProvider";
 import { Valiz } from "../characters";
 import { Lock } from "../icons";
-import { BankaIdealIcon, CuzdanGooglePayIcon, KartIcon, TelefonApplePayIcon } from "../payment";
+import {
+  AmexMark,
+  ApplePayMark,
+  BankaIdealIcon,
+  CuzdanGooglePayIcon,
+  GooglePayMark,
+  IdealMark,
+  KartIcon,
+  MastercardMark,
+  TelefonApplePayIcon,
+  VisaMark,
+} from "../payment";
 import { idealBanks, nationalities, paymentMethods, phoneCodes, promoDiscount, type PaymentId } from "@/data/mock/booking";
 import { placeOrder, type PlaceOrderState } from "@/actions/booking";
 import type { PassengerSlot } from "@/lib/booking-validate";
@@ -30,6 +41,16 @@ const PAY_ICON: Record<PaymentId, React.ComponentType<React.SVGProps<SVGSVGEleme
   apple: TelefonApplePayIcon,
   google: CuzdanGooglePayIcon,
 };
+
+type Mark = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+/** Yöntemin kabul ettiği markalar (resmi işaretler, yükseklikleri görsel olarak dengelenmiş). */
+const PAY_MARKS: Record<PaymentId, { Mark: Mark; h: number }[]> = {
+  card: [{ Mark: VisaMark, h: 12 }, { Mark: MastercardMark, h: 20 }, { Mark: AmexMark, h: 20 }],
+  ideal: [{ Mark: IdealMark, h: 22 }],
+  apple: [{ Mark: ApplePayMark, h: 20 }],
+  google: [{ Mark: GooglePayMark, h: 20 }],
+};
+const CARD_MARK: Record<NonNullable<ReturnType<typeof detectCardBrand>>, Mark> = { Visa: VisaMark, Mastercard: MastercardMark, Amex: AmexMark };
 
 export function BookingForm({
   offer,
@@ -290,7 +311,13 @@ export function BookingForm({
                     <Icon width={56} height={40} />
                   </span>
                   <span className="font-display text-lg font-semibold">{t(`payment.methods.${p}.label`)}</span>
-                  <span className="text-[13px] font-bold text-muted">{t(`payment.methods.${p}.sub`)}</span>
+                  <span className="flex flex-wrap items-center gap-2">
+                    {PAY_MARKS[p].map(({ Mark, h }, i) => (
+                      <Mark key={i} height={h} className="w-auto flex-none" />
+                    ))}
+                  </span>
+                  {/* Kartta markalar zaten görünüyor; yazı yalnızca ekran okuyucu için */}
+                  <span className={`text-[13px] font-bold text-muted ${p === "card" ? "sr-only" : ""}`}>{t(`payment.methods.${p}.sub`)}</span>
                 </button>
               );
             })}
@@ -323,7 +350,7 @@ export function BookingForm({
                         : "border-[1.5px] border-dashed border-[#B9C4DA] bg-field text-muted"
                     }`}
                   >
-                    {brand ? `${brand} ✓` : t("payment.cardType")}
+                    {brand ? <CardMark brand={brand} /> : t("payment.cardType")}
                   </span>
                 </span>
               </label>
@@ -548,5 +575,15 @@ function BagPicker({ title, bags, value, onChange }: { title?: string; bags: Off
         )}
       </div>
     </fieldset>
+  );
+}
+
+/** Kart numarasından tanınan markanın işareti */
+function CardMark({ brand }: { brand: NonNullable<ReturnType<typeof detectCardBrand>> }) {
+  const M = CARD_MARK[brand];
+  return (
+    <span className="flex items-center gap-1">
+      <M height={brand === "Visa" ? 12 : 20} className="w-auto" />✓
+    </span>
   );
 }
