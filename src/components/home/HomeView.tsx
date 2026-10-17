@@ -17,20 +17,18 @@ export function HomeView({
   live,
   defaults,
   defaultFrom: DEFAULT_FROM,
-  defaultTo,
 }: {
   destinations: PopularDestination[];
   /** `defaultFrom` çıkışlı fırsatlar (sunucuda hesaplanır) */
   deals: DealMap;
   live: boolean;
   defaults: { date: string; returnDate: string; today: string };
-  /** Ziyaretçinin ülkesine göre kalkış ve önerilen varış */
+  /** Ziyaretçinin ülkesine göre kalkış yeri; varış boş başlar (herkese aynı şehri önermeyelim) */
   defaultFrom: string;
-  defaultTo: string;
 }) {
   const locale = useLocale();
   const [from, setFrom] = useState<AirportValue>([{ code: DEFAULT_FROM, label: coreCityByCode(DEFAULT_FROM, locale) }]);
-  const [to, setTo] = useState<AirportValue>([{ code: defaultTo, label: coreCityByCode(defaultTo, locale) }]);
+  const [to, setTo] = useState<AirportValue>([]);
   const fromCodes = from.length ? from.map((p) => p.code) : [DEFAULT_FROM];
   const key = fromCodes.join(",");
   const [loaded, setLoaded] = useState({ key: DEFAULT_FROM, deals: initialDeals });

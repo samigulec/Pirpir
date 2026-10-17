@@ -68,7 +68,7 @@ export function SearchForm({
     <form
       onSubmit={submit}
       noValidate
-      className="relative box-border flex w-full max-w-[920px] flex-col gap-2 rounded-[24px] bg-white p-[10px] md:gap-3 md:rounded-[28px] md:p-[14px] md:shadow-search"
+      className="relative box-border flex w-full max-w-[1040px] flex-col gap-2 rounded-[24px] bg-white p-[10px] md:gap-3 md:rounded-[28px] md:p-[14px] md:shadow-search"
     >
       <div className="flex gap-[6px] px-[6px] pt-1">
         {(["rt", "ow"] as const).map((id) => {
@@ -89,8 +89,9 @@ export function SearchForm({
         })}
       </div>
 
-      <div className="grid grid-cols-2 gap-[6px] md:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] md:gap-2">
-        <div className="relative col-span-2 flex flex-col gap-[6px] md:flex-row md:gap-2">
+      {/* Masaüstünde Kiwi'deki gibi uzun tek satır: nereden-nereye en geniş, alanlar şehir ekledikçe büyümez */}
+      <div className="grid grid-cols-2 gap-[6px] md:grid-cols-[minmax(0,3fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(130px,0.7fr)] md:gap-2">
+        <div className="relative col-span-2 flex flex-col gap-[6px] md:col-span-1 md:flex-row md:gap-2">
           <AirportField
             label={t("from")}
             value={from}

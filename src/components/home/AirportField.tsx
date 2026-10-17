@@ -10,9 +10,13 @@ export type AirportValue = Place[];
 
 export const MAX_PLACES = 3;
 
+/** Etikette kısa kod: "city:IST" → "IST" */
+const shortCode = (code: string) => code.replace(/^city:/, "");
+
 /**
- * Kiwi tarzı şehir alanı: yazdıkça dünya genelinde öneriler, birden fazla yer seçilebilir (etiket olarak).
- * Tek seçim varken ve alan odakta değilken tasarımdaki gibi düz metin görünür.
+ * Kiwi tarzı şehir alanı: yazdıkça dünya genelinde öneriler, birden fazla yer seçilebilir.
+ * Alan hep tek satırdır (şehir ekledikçe büyümez): odakta değilken "Amsterdam +2" gibi özet,
+ * odaktayken seçilenler kısa kodlarla (AMS, RTM) yan yana ve hemen ardından yazmaya devam edilir.
  */
 export function AirportField({
   label,
@@ -42,6 +46,12 @@ export function AirportField({
   const [items, setItems] = useState<PlaceSuggestion[]>([]);
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  // Tek satırda yazma yeri hep görünsün: şehir eklenince ya da alana girilince sona kaydır
+  useEffect(() => {
+    if (focused && rowRef.current) rowRef.current.scrollLeft = rowRef.current.scrollWidth;
+  }, [focused, value.length]);
 
   // Öneriler sunucudan (dünya listesi), kısa gecikmeyle
   useEffect(() => {
@@ -74,7 +84,8 @@ export function AirportField({
   };
   const remove = (code: string) => onChange(value.filter((v) => v.code !== code));
 
-  const showChips = focused || value.length > 1;
+  const showChips = focused;
+  const summary = value.length ? value[0].label + (value.length > 1 ? ` +${value.length - 1}` : "") : "";
   const chip =
     tone === "primary" ? "bg-primary text-white" : "bg-coral text-ink";
 
@@ -86,11 +97,15 @@ export function AirportField({
       <label htmlFor={`${id}-input`} className={labelClassName}>
         {label}
       </label>
-      <div className="flex min-w-0 flex-wrap items-center gap-1">
+      <div ref={rowRef} className="flex min-w-0 flex-nowrap items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {showChips &&
           value.map((v) => (
-            <span key={v.code} className={`inline-flex max-w-full items-center gap-1 rounded-pill py-[2px] pl-3 pr-1 text-[15px] font-extrabold ${chip}`}>
-              <span className="truncate">{v.label}</span>
+            <span
+              key={v.code}
+              title={v.label}
+              className={`inline-flex flex-none items-center gap-1 rounded-pill py-[2px] pl-[10px] pr-1 text-[15px] font-extrabold ${chip}`}
+            >
+              <span>{shortCode(v.code)}</span>
               <button
                 type="button"
                 aria-label={t("removePlace", { place: v.label })}
@@ -118,8 +133,8 @@ export function AirportField({
           aria-invalid={invalid || undefined}
           aria-activedescendant={items.length ? `${id}-${active}` : undefined}
           autoComplete="off"
-          placeholder={showChips ? (value.length ? t("addPlace") : t("placePlaceholder")) : undefined}
-          value={showChips ? text : (value[0]?.label ?? "")}
+          placeholder={value.length ? (showChips ? t("addPlace") : undefined) : t("placePlaceholder")}
+          value={showChips ? text : summary}
           onChange={(e) => setText(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 150)}
@@ -146,7 +161,7 @@ export function AirportField({
             if (e.key === "Enter") { e.preventDefault(); add(items[active]); }
             if (e.key === "Escape") setItems([]);
           }}
-          className={`${inputClassName} ${showChips ? "min-w-[80px] flex-1" : "w-full"}`}
+          className={`${inputClassName} ${showChips ? "min-w-[90px] flex-1" : "w-full"} placeholder:font-semibold placeholder:text-muted`}
         />
       </div>
       {items.length > 0 && (

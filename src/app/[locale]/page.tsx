@@ -32,7 +32,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         live={live}
         defaults={{ ...defaultDates(), today: todayIso() }}
         defaultFrom={market.from}
-        defaultTo={market.to}
       />
       <CharacterTips deals={deals} from={market.from} />
       <PopularRoutes routes={market.routes} dates={routeDates} />

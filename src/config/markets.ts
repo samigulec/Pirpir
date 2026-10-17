@@ -11,8 +11,6 @@ export type Market = {
   currency: Currency;
   /** Ana sayfadaki "Nereden" ve popüler uçuş fiyatlarının kalkış yeri ("city:" önekli şehir ya da havalimanı) */
   from: string;
-  /** Arama kutusunda önerilen varış */
-  to: string;
   /** "Popüler rotalar" listesi: [kalkış, varış]; "city:" önekli kodlar şehrin tüm havalimanlarını arar */
   routes: [string, string][];
 };
@@ -22,42 +20,36 @@ export const MARKETS: Market[] = [
     id: "NL",
     currency: "EUR",
     from: "AMS",
-    to: "ADB",
     routes: [["AMS", "city:IST"], ["AMS", "city:LON"], ["AMS", "BCN"], ["AMS", "city:ROM"], ["AMS", "LIS"], ["AMS", "AYT"], ["EIN", "ADB"], ["AMS", "DXB"], ["AMS", "city:NYC"]],
   },
   {
     id: "BE",
     currency: "EUR",
     from: "city:BRU",
-    to: "IST",
     routes: [["city:BRU", "city:IST"], ["city:BRU", "BCN"], ["city:BRU", "city:ROM"], ["city:BRU", "LIS"], ["city:BRU", "AYT"], ["city:BRU", "ATH"], ["city:BRU", "MAD"], ["city:BRU", "DXB"], ["city:BRU", "city:NYC"]],
   },
   {
     id: "DE",
     currency: "EUR",
     from: "FRA",
-    to: "IST",
     routes: [["FRA", "city:IST"], ["BER", "city:LON"], ["MUC", "BCN"], ["DUS", "AYT"], ["FRA", "city:ROM"], ["FRA", "LIS"], ["MUC", "ATH"], ["FRA", "DXB"], ["FRA", "city:NYC"]],
   },
   {
     id: "TR",
     currency: "TRY",
     from: "city:IST",
-    to: "AYT",
     routes: [["city:IST", "AYT"], ["city:IST", "ADB"], ["city:IST", "AMS"], ["city:IST", "city:LON"], ["city:IST", "city:PAR"], ["city:IST", "city:ROM"], ["city:IST", "BCN"], ["city:IST", "DXB"], ["city:IST", "city:NYC"]],
   },
   {
     id: "GB",
     currency: "GBP",
     from: "city:LON",
-    to: "IST",
     routes: [["city:LON", "city:IST"], ["city:LON", "BCN"], ["city:LON", "city:ROM"], ["city:LON", "LIS"], ["city:LON", "AMS"], ["city:LON", "AYT"], ["city:LON", "DLM"], ["city:LON", "DXB"], ["city:LON", "city:NYC"]],
   },
   {
     id: "US",
     currency: "USD",
     from: "city:NYC",
-    to: "IST",
     routes: [["city:NYC", "city:LON"], ["city:NYC", "city:PAR"], ["city:NYC", "city:ROM"], ["city:NYC", "BCN"], ["city:NYC", "LIS"], ["city:NYC", "AMS"], ["city:NYC", "city:IST"], ["city:NYC", "ATH"], ["city:NYC", "DXB"]],
   },
 ];
