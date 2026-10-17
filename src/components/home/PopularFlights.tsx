@@ -66,6 +66,12 @@ export function PopularFlights({
   const hidden = inCategory.length - shown.length;
   const badges = computedBadges(deals, available.map((d) => d.id));
 
+  // Fiyat takviminden gelen fiyatın ne zaman bulunduğu: "2 saat önce"
+  const ago = (iso: string) => {
+    const mins = Math.max(1, Math.round((Date.now() - Date.parse(iso)) / 60000));
+    const rtf = new Intl.RelativeTimeFormat(intlLocale(locale), { numeric: "auto" });
+    return mins < 60 ? rtf.format(-mins, "minute") : rtf.format(-Math.round(mins / 60), "hour");
+  };
   const stopsLabel = (n: number) => (n === 0 ? tc("direct") : n === 1 ? tc("oneStop") : tc("stops", { n }));
 
   return (
@@ -130,6 +136,7 @@ export function PopularFlights({
                     <>
                       <span className="text-[13px] font-bold text-muted">{tc("roundTrip")}</span>
                       <span className="font-display text-[26px] font-bold leading-[1.15]">{fmt(deal.price)}</span>
+                      {deal.seenAt && <span suppressHydrationWarning className="text-[12px] font-bold text-muted">{t("seen", { time: ago(deal.seenAt) })}</span>}
                     </>
                   ) : (
                     <span className="font-display text-lg font-semibold text-primary">{t("seePrices")}</span>

@@ -1,12 +1,15 @@
-// Ana sayfadaki fırsatlar: popüler uçuş kartları ve karakter ipuçları.
-// Fiyatlar uydurulmaz; arama sonuçlarıyla aynı sağlayıcıdan (canlı Duffel ya da örnek veri)
-// önümüzdeki hafta sonları için aranır; arama sonuçlarıyla aynı önbelleği paylaşır.
+// Ana sayfadaki fırsatlar: popüler uçuş kartları, karakter ipuçları ve popüler rota tarihleri.
+// Fiyatlar uydurulmaz; arama sonuçlarıyla aynı sağlayıcıdan (canlı Duffel ya da örnek veri) aranır.
+// Amaç her şehir için en ucuz tarihi göstermek: önümüzdeki haftalardaki hafta sonu ve bir haftalık geziler
+// sırayla (her 10 dakikada başka bir tarih) aranır; bulunan fiyatlar fiyat takvimine yazılır ve kartta
+// son saatlerde görülen en ucuz tarih gösterilir. Örnek veri modunda tüm tarihler bir kerede taranır.
 import "server-only";
 import { after } from "next/server";
 import { popularDestinations } from "@/data/mock/home";
 import { dataMode, searchFlightsCached } from "./flights";
 import { addDays, todayIso, type MultiQuery } from "./search";
 import type { Offer } from "./providers/types";
+import { bestKnownPrices, routeKey, type KnownPrice } from "./price-calendar";
 
 export type Deal = {
   /** Kişi başı en düşük gidiş-dönüş fiyatı (TRY). */
@@ -20,23 +23,35 @@ export type Deal = {
   airlines: string[];
   /** Bulunan varış havalimanları (en fazla 3) */
   airports: string[];
+  /** Fiyat takviminden geldiyse ne zaman bulunduğu (ISO) */
+  seenAt?: string;
 };
 
 export type DealMap = Record<string, Deal | null>;
 
-/** Önümüzdeki hafta sonu kaçamakları: Cuma gidiş, Pazartesi dönüş; ilk Cuma en az iki hafta sonra. */
-export function weekendTrips(count: number, now = new Date()): [string, string][] {
+/**
+ * Taranan gezi tarihleri: ilk Cuma en az iki hafta sonra; 8 hafta sonu (Cuma → Pazartesi) ve
+ * araya serpiştirilmiş 4 bir haftalık gezi (Cumartesi → Cumartesi).
+ */
+export function candidateTrips(now = new Date()): [string, string][] {
   const today = todayIso(now);
   const dow = new Date(`${today}T00:00:00Z`).getUTCDay();
   const firstFriday = addDays(today, ((5 - dow + 7) % 7) + 14);
-  return Array.from({ length: count }, (_, i) => {
-    const d = addDays(firstFriday, i * 7);
-    return [d, addDays(d, 3)];
-  });
+  const out: [string, string][] = [];
+  for (let i = 0; i < 8; i++) {
+    const fri = addDays(firstFriday, i * 7);
+    out.push([fri, addDays(fri, 3)]);
+    if (i % 2 === 1) out.push([addDays(fri, 1), addDays(fri, 8)]);
+  }
+  return out;
 }
 
-// Canlı API'de her arama gerçek istek ve sayfa üretimi uzamasın diye tek hafta sonu aranır.
-const tripCount = () => (dataMode() === "demo" ? 4 : 1);
+/** Canlıda her şehir için bu 10 dakikalık dilimde aranacak tek tarih (şehirler farklı tarihlerden başlar). */
+function rotatingTrip(index: number, now = Date.now()): [string, string] {
+  const trips = candidateTrips(new Date(now));
+  const slot = Math.floor(now / (10 * 60 * 1000));
+  return trips[(slot + index * 5) % trips.length];
+}
 
 async function findDeal(from: string[], to: string, trips: [string, string][]): Promise<Deal | null> {
   const settled = await Promise.allSettled(
@@ -79,13 +94,31 @@ const concurrency = () => (dataMode() === "demo" ? 16 : 6);
 
 // Ayrı bir fırsat önbelleği yok: kart fiyatı her seferinde sonuç sayfasının kullandığı arama önbelleğinden
 // hesaplanır. Böylece karta tıklayınca açılan aramadaki en ucuz fiyat, kartta yazanla aynıdır.
-async function dealFor(from: string[], to: string): Promise<Deal | null> {
+/** Örnek modda tüm tarihler, canlıda bu dilimin tek tarihi aranır. */
+async function dealFor(from: string[], to: string, index: number): Promise<Deal | null> {
   try {
-    return await findDeal(from, to, weekendTrips(tripCount()));
+    return await findDeal(from, to, dataMode() === "demo" ? candidateTrips() : [rotatingTrip(index)]);
   } catch (e) {
     console.error("Fırsat hesaplanamadı:", from.join(","), to, e instanceof Error ? e.message : e);
     return null;
   }
+}
+
+/** Fiyat takviminde bilinen daha ucuz bir tarih varsa onu kullanır. */
+function cheaper(found: Deal | null, known: KnownPrice | undefined): Deal | null {
+  if (!known || (found && found.price <= known.price)) return found;
+  if (!known.details && !found) return null;
+  const d = known.details ?? found!;
+  return {
+    price: known.price,
+    date: known.depart,
+    returnDate: addDays(known.depart, known.nights),
+    stops: d.stops,
+    mins: d.mins,
+    airlines: d.airlines,
+    airports: d.airports,
+    seenAt: known.seenAt,
+  };
 }
 
 /**
@@ -111,8 +144,34 @@ const DEADLINE_MS = 9000;
 
 /** Popüler uçuş kartları için seçilen kalkış yerlerinden fırsatlar. */
 export async function getDestinationDeals(from: string[], deadlineMs = DEADLINE_MS): Promise<DealMap> {
-  const byId = new Map(popularDestinations.map((d) => [d.id as string, d.searchCode]));
-  return withDeadline([...byId.keys()], (id) => dealFor(from, byId.get(id)!), deadlineMs);
+  const list = popularDestinations.map((d, i) => ({ id: d.id as string, to: d.searchCode, index: i }));
+  const byId = new Map(list.map((d) => [d.id, d]));
+  const [found, known] = await Promise.all([
+    withDeadline([...byId.keys()], (id) => dealFor(from, byId.get(id)!.to, byId.get(id)!.index), deadlineMs),
+    bestKnownPrices(list.map((d) => ({ from, to: [d.to] }))).catch(() => ({}) as Record<string, KnownPrice>),
+  ]);
+  return Object.fromEntries(list.map((d) => [d.id, cheaper(found[d.id] ?? null, known[routeKey({ from, to: [d.to] })])]));
+}
+
+/**
+ * Popüler rota bağlantılarının tarihleri: fiyat takviminde bilinen en ucuz tarih; bilinmiyorsa ilk aday hafta sonu.
+ * Canlıda yeni arama yapılmaz (rotalarda fiyat gösterilmiyor). Örnek modda en ucuz tarih hesaplanır.
+ */
+export async function getRouteDates(routes: [string, string][]): Promise<Record<string, { date: string; returnDate: string }>> {
+  const key = ([f, t]: [string, string]) => `${f}>${t}`;
+  const first = candidateTrips()[0];
+  const fallback = { date: first[0], returnDate: first[1] };
+  if (dataMode() === "demo") {
+    const deals = await Promise.all(routes.map(([f, t], i) => dealFor([f], t, i)));
+    return Object.fromEntries(routes.map((r, i) => [key(r), deals[i] ? { date: deals[i]!.date, returnDate: deals[i]!.returnDate } : fallback]));
+  }
+  const known = await bestKnownPrices(routes.map(([f, t]) => ({ from: [f], to: [t] }))).catch(() => ({}) as Record<string, KnownPrice>);
+  return Object.fromEntries(
+    routes.map(([f, t]) => {
+      const k = known[routeKey({ from: [f], to: [t] })];
+      return [key([f, t]), k ? { date: k.depart, returnDate: addDays(k.depart, k.nights) } : fallback];
+    }),
+  );
 }
 
 /**

@@ -9,7 +9,7 @@ import { searchHref } from "@/lib/search";
 import type { Deal } from "@/lib/deals";
 
 /** Yalnızca telefonda: Mobile.dc.html'deki Bulut fırsat kartı. Fiyat, varsayılan kalkıştan Roma fırsatı. */
-export function MobileDeal({ deal }: { deal: Deal | null }) {
+export function MobileDeal({ deal, from }: { deal: Deal | null; from: string[] }) {
   const t = useTranslations("home.mobileDeal");
   const tc = useTranslations("common.characters");
   const { fmt } = useCurrency();
@@ -21,7 +21,7 @@ export function MobileDeal({ deal }: { deal: Deal | null }) {
         <span className="text-sm font-bold text-muted">{deal ? t.rich("price", { price: () => fmt(deal.price) }) : t("noPrice")}</span>
       </div>
       <Link
-        href={searchHref({ to: "city:ROM", ...(deal && { date: deal.date, returnDate: deal.returnDate }) })}
+        href={searchHref({ from, to: "city:ROM", ...(deal && { date: deal.date, returnDate: deal.returnDate }) })}
         aria-label={t("cta")}
         className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-white text-ink"
       >

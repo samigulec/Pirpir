@@ -160,10 +160,11 @@
       "fastest": "Shortest flight"
     },
     "seePrices": "See prices",
-    "noteLive": "Prices are per person, return; the lowest fares we found for an upcoming weekend (out Friday, back Monday). Refreshed about every 10 minutes and may change as seats sell.",
-    "noteSample": "Sample data: prices and airlines are not real. Per person, return, for the coming weekends (out Friday, back Monday).",
+    "noteLive": "Prices are per person, return: the cheapest of the weekend and one-week trips we scan over the next two months, so each city can have different dates. The card says when the price was found; clicking searches the current price, which can change as seats sell.",
+    "noteSample": "Sample data: prices and airlines are not real. Per person, return; the cheapest weekend or one-week trip in the next two months.",
     "showMore": "More cities ({n})",
-    "showLess": "Show less"
+    "showLess": "Show less",
+    "seen": "found {time}"
   },
   "tips": {
     "title": "Tips from our team",
@@ -171,28 +172,34 @@
     "bulut": {
       "name": "Bulut · deal hunter",
       "quote": "“Weekend getaway to Rome? From <price></price>.”",
-      "quoteNoPrice": "“Weekend escape to Rome?”"
+      "quoteNoPrice": "“Weekend escape to Rome?”",
+      "cta": "See flights to Rome"
     },
     "valiz": {
       "name": "Valiz · baggage expert",
-      "quote": "“Add your bags now, it costs more at the airport.”"
+      "quote": "“Add your bags now, it costs more at the airport.”",
+      "cta": "Read the baggage rules"
     },
     "pirpir": {
       "name": "Pırpır · price watcher",
-      "quote": "“I'll tell you when the price drops, promise!”"
+      "quote": "“I'll tell you when the price drops, promise!”",
+      "cta": "Set a price alert"
     },
     "pasi": {
       "name": "Pasi · document buddy",
-      "quote": "“Check your passport's expiry date so there are no surprises.”"
+      "quote": "“Check your passport's expiry date so there are no surprises.”",
+      "cta": "About travel documents"
     },
     "biletcik": {
       "name": "Biletçik · check-in guide",
-      "quote": "“I'll nudge you the moment online check-in opens.”"
+      "quote": "“I'll nudge you the moment online check-in opens.”",
+      "cta": "Go to my trips"
     },
     "gunes": {
       "name": "Güneş · holiday lover",
       "quote": "“The sea in Antalya is waiting, from <price></price>.”",
-      "quoteNoPrice": "“The sea in Antalya is waiting for you.”"
+      "quoteNoPrice": "“The sea in Antalya is waiting for you.”",
+      "cta": "See flights to Antalya"
     }
   },
   "routes": {
@@ -232,7 +239,7 @@
       },
       "bags": {
         "q": "Is baggage included in the price?",
-        "a": "We show what's included on every result card. You can add extra baggage with one tap while booking."
+        "a": "For every flight we show whether a personal item, cabin bag and checked bag are included, with weights and sizes, on the flight card and when you choose a fare. You can add extra bags (several, or a heavier one if offered) when booking or later with “Add bags”; we also show the airline's maximum there."
       },
       "transfer": {
         "q": "Do I need to check in my bags again on a connecting flight?",
@@ -241,6 +248,14 @@
       "payment": {
         "q": "Which payment methods do you accept?",
         "a": "Credit and debit cards, iDEAL, Apple Pay and Google Pay."
+      },
+      "change": {
+        "q": "Can I change my flight?",
+        "a": "If your fare allows it, yes: pick a new day in the “Change flight” section of your booking page. The airline's change fee and any fare difference are shown before you confirm. Some low fares can't be changed; we say so when you choose a fare."
+      },
+      "docs": {
+        "q": "Which documents do I need?",
+        "a": "Your passport or ID card must be valid for the whole trip; some countries require a few more months of validity after you return. Whether you need a visa depends on your nationality and destination; check the destination's official source before you fly."
       }
     }
   }

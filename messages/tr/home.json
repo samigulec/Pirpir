@@ -159,10 +159,11 @@
       "fastest": "En kısa uçuş"
     },
     "seePrices": "Fiyatlara bak",
-    "noteLive": "Fiyatlar kişi başı ve gidiş-dönüştür; yaklaşan bir hafta sonu (Cuma gidiş, Pazartesi dönüş) için bulduğumuz en düşük fiyatlardır. Yaklaşık 10 dakikada bir yenilenir; koltuklar satıldıkça değişebilir.",
-    "noteSample": "Örnek veri: fiyatlar ve havayolları gerçek değildir. Kişi başı, gidiş-dönüş, önümüzdeki hafta sonları (Cuma gidiş, Pazartesi dönüş) için.",
+    "noteLive": "Fiyatlar kişi başı ve gidiş-dönüştür: önümüzdeki iki ayda taradığımız hafta sonu ve bir haftalık gezilerin en ucuzu; her şehrin tarihi farklı olabilir. Kartta fiyatın ne zaman bulunduğu yazar; tıklayınca güncel fiyat aranır ve koltuklar satıldıkça değişebilir.",
+    "noteSample": "Örnek veri: fiyatlar ve havayolları gerçek değildir. Kişi başı, gidiş-dönüş; önümüzdeki iki aydaki hafta sonu ve bir haftalık gezilerin en ucuzu.",
     "showMore": "Daha fazla şehir ({n})",
-    "showLess": "Daha az göster"
+    "showLess": "Daha az göster",
+    "seen": "{time} bulundu"
   },
   "tips": {
     "title": "Ekibimizden ipuçları",
@@ -170,28 +171,34 @@
     "bulut": {
       "name": "Bulut · fırsat avcısı",
       "quote": "“Hafta sonu Roma'ya kaçalım mı? <price></price>'dan.”",
-      "quoteNoPrice": "“Hafta sonu Roma'ya kaçalım mı?”"
+      "quoteNoPrice": "“Hafta sonu Roma'ya kaçalım mı?”",
+      "cta": "Roma uçuşlarına bak"
     },
     "valiz": {
       "name": "Valiz · bagaj uzmanı",
-      "quote": "“Bagajını şimdi ekle, havalimanında daha pahalı.”"
+      "quote": "“Bagajını şimdi ekle, havalimanında daha pahalı.”",
+      "cta": "Bagaj kurallarını oku"
     },
     "pirpir": {
       "name": "Pırpır · fiyat bekçisi",
-      "quote": "“Fiyat düşünce sana haber veririm, söz!”"
+      "quote": "“Fiyat düşünce sana haber veririm, söz!”",
+      "cta": "Fiyat alarmı kur"
     },
     "pasi": {
       "name": "Pasi · belge dostu",
-      "quote": "“Pasaportunun son tarihine bir bak, sonra sorun çıkmasın.”"
+      "quote": "“Pasaportunun son tarihine bir bak, sonra sorun çıkmasın.”",
+      "cta": "Belgeler hakkında"
     },
     "biletcik": {
       "name": "Biletçik · check-in rehberi",
-      "quote": "“Online check-in açılınca seni ilk ben dürterim.”"
+      "quote": "“Online check-in açılınca seni ilk ben dürterim.”",
+      "cta": "Biletlerime git"
     },
     "gunes": {
       "name": "Güneş · tatil sever",
       "quote": "“Antalya'da deniz seni bekliyor, <price></price>'dan.”",
-      "quoteNoPrice": "“Antalya'da deniz seni bekliyor.”"
+      "quoteNoPrice": "“Antalya'da deniz seni bekliyor.”",
+      "cta": "Antalya uçuşlarına bak"
     }
   },
   "routes": {
@@ -231,7 +238,7 @@
       },
       "bags": {
         "q": "Bagaj fiyata dahil mi?",
-        "a": "Her uçuşta neyin dahil olduğunu sonuç kartında yazıyoruz. Ek bagajı rezervasyon sırasında tek tıkla ekleyebilirsin."
+        "a": "Her uçuşta kişisel eşya, kabin ve kontrol edilen bagajın fiyata dahil olup olmadığını, kilo ve ölçüleriyle birlikte uçuş kartında ve paket seçerken gösteriyoruz. Ek bagajı (gerekirse birden fazla ya da ağır bagaj) rezervasyonda ya da sonradan “Bagaj ekle” ile alabilirsin; havayolunun izin verdiği en fazla adedi de orada yazıyoruz."
       },
       "transfer": {
         "q": "Aktarmalı uçuşta bagajımı tekrar vermem gerekir mi?",
@@ -240,6 +247,14 @@
       "payment": {
         "q": "Hangi ödeme yöntemlerini kabul ediyorsunuz?",
         "a": "Kredi ve banka kartı, iDEAL, Apple Pay ve Google Pay."
+      },
+      "change": {
+        "q": "Uçuşumu değiştirebilir miyim?",
+        "a": "Biletin kuralı izin veriyorsa evet: rezervasyon sayfasındaki “Uçuşu değiştir” bölümünden yeni günü seçersin. Havayolunun değişiklik ücreti ve varsa fiyat farkı, onaylamadan önce gösterilir. Bazı ucuz paketler değiştirilemez; bunu paket seçerken yazıyoruz."
+      },
+      "docs": {
+        "q": "Hangi belgelere ihtiyacım var?",
+        "a": "Pasaportun ya da kimlik kartın yolculuk boyunca geçerli olmalı; bazı ülkeler dönüşten sonra birkaç ay daha geçerlilik ister. Vize gerekip gerekmediği vatandaşlığına ve gideceğin ülkeye bağlıdır; uçmadan önce o ülkenin resmi kaynağından kontrol et."
       }
     }
   },

@@ -160,10 +160,11 @@
       "fastest": "Kortste vlucht"
     },
     "seePrices": "Bekijk prijzen",
-    "noteLive": "Prijzen zijn per persoon, retour; de laagste prijzen die we vonden voor een komend weekend (vrijdag heen, maandag terug). Ze worden ongeveer elke 10 minuten ververst en kunnen veranderen als stoelen verkocht worden.",
-    "noteSample": "Voorbeelddata: prijzen en luchtvaartmaatschappijen zijn niet echt. Per persoon, retour, voor de komende weekenden (vrijdag heen, maandag terug).",
+    "noteLive": "Prijzen zijn per persoon, retour: de goedkoopste van de weekend- en weekreizen die we de komende twee maanden doorzoeken, dus elke stad kan andere data hebben. Op de kaart staat wanneer de prijs is gevonden; klikken zoekt de actuele prijs, die kan veranderen als stoelen verkocht worden.",
+    "noteSample": "Voorbeelddata: prijzen en luchtvaartmaatschappijen zijn niet echt. Per persoon, retour; de goedkoopste weekend- of weekreis in de komende twee maanden.",
     "showMore": "Meer steden ({n})",
-    "showLess": "Minder tonen"
+    "showLess": "Minder tonen",
+    "seen": "{time} gevonden"
   },
   "tips": {
     "title": "Tips van ons team",
@@ -171,28 +172,34 @@
     "bulut": {
       "name": "Bulut · dealjager",
       "quote": "“Weekendje Rome? Vanaf <price></price>.”",
-      "quoteNoPrice": "“Weekendje Rome?”"
+      "quoteNoPrice": "“Weekendje Rome?”",
+      "cta": "Bekijk vluchten naar Rome"
     },
     "valiz": {
       "name": "Valiz · bagage-expert",
-      "quote": "“Voeg je bagage nu toe, op het vliegveld is het duurder.”"
+      "quote": "“Voeg je bagage nu toe, op het vliegveld is het duurder.”",
+      "cta": "Lees de bagageregels"
     },
     "pirpir": {
       "name": "Pırpır · prijswaker",
-      "quote": "“Ik laat het je weten als de prijs daalt, beloofd!”"
+      "quote": "“Ik laat het je weten als de prijs daalt, beloofd!”",
+      "cta": "Zet een prijsalarm"
     },
     "pasi": {
       "name": "Pasi · documentenmaatje",
-      "quote": "“Check de vervaldatum van je paspoort, dan heb je geen verrassingen.”"
+      "quote": "“Check de vervaldatum van je paspoort, dan heb je geen verrassingen.”",
+      "cta": "Over reisdocumenten"
     },
     "biletcik": {
       "name": "Biletçik · inchecken",
-      "quote": "“Ik por je meteen zodra online inchecken opengaat.”"
+      "quote": "“Ik por je meteen zodra online inchecken opengaat.”",
+      "cta": "Naar mijn reizen"
     },
     "gunes": {
       "name": "Güneş · vakantieliefhebber",
       "quote": "“De zee in Antalya wacht op je, vanaf <price></price>.”",
-      "quoteNoPrice": "“De zee in Antalya wacht op je.”"
+      "quoteNoPrice": "“De zee in Antalya wacht op je.”",
+      "cta": "Bekijk vluchten naar Antalya"
     }
   },
   "routes": {
@@ -232,7 +239,7 @@
       },
       "bags": {
         "q": "Is bagage inbegrepen in de prijs?",
-        "a": "Op elke resultaatkaart staat wat er inbegrepen is. Extra bagage voeg je tijdens het boeken met één tik toe."
+        "a": "Bij elke vlucht tonen we of een persoonlijk item, handbagage en ruimbagage inbegrepen zijn, met gewicht en afmetingen, op de vluchtkaart en bij het kiezen van een tarief. Extra bagage (meerdere stuks of een zwaardere als die er is) voeg je toe bij het boeken of later via “Bagage toevoegen”; daar staat ook het maximum van de airline."
       },
       "transfer": {
         "q": "Moet ik mijn bagage bij een overstap opnieuw inchecken?",
@@ -241,6 +248,14 @@
       "payment": {
         "q": "Welke betaalmethoden accepteren jullie?",
         "a": "Creditcard en betaalpas, iDEAL, Apple Pay en Google Pay."
+      },
+      "change": {
+        "q": "Kan ik mijn vlucht wijzigen?",
+        "a": "Als je tarief het toestaat wel: kies een nieuwe dag bij “Vlucht wijzigen” op je boekingspagina. De wijzigingskosten van de airline en een eventueel prijsverschil zie je vóór je bevestigt. Sommige goedkope tarieven zijn niet te wijzigen; dat staat erbij als je een tarief kiest."
+      },
+      "docs": {
+        "q": "Welke documenten heb ik nodig?",
+        "a": "Je paspoort of ID-kaart moet de hele reis geldig zijn; sommige landen eisen nog een paar maanden geldigheid na terugkeer. Of je een visum nodig hebt, hangt af van je nationaliteit en bestemming; check vóór vertrek de officiële bron van dat land."
       }
     }
   }

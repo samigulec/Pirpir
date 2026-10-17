@@ -10,7 +10,7 @@ import { MobileNav } from "@/components/home/MobileNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { dataMode, getPopularDestinations } from "@/lib/flights";
 import { getMarket } from "@/lib/market-server";
-import { getDestinationDeals } from "@/lib/deals";
+import { getDestinationDeals, getRouteDates } from "@/lib/deals";
 import { defaultDates, todayIso } from "@/lib/search";
 
 
@@ -20,7 +20,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   // Kalkış yeri ziyaretçinin ülkesine göre (Kiwi'deki gibi); sayfa bu yüzden her istekte çizilir.
   // Fiyatlar paylaşılan arama önbelleğinden gelir; hazır olmayanları tarayıcı tamamlar.
   const market = await getMarket(locale);
-  const deals = await getDestinationDeals([market.from], 2500);
+  const [deals, routeDates] = await Promise.all([getDestinationDeals([market.from], 2500), getRouteDates(market.routes)]);
   const live = dataMode() === "live";
   return (
     <div className="min-h-screen w-full bg-white pb-[84px] md:pb-0">
@@ -34,8 +34,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         defaultFrom={market.from}
         defaultTo={market.to}
       />
-      <CharacterTips deals={deals} />
-      <PopularRoutes routes={market.routes} />
+      <CharacterTips deals={deals} from={market.from} />
+      <PopularRoutes routes={market.routes} dates={routeDates} />
       <Steps />
       <PriceAlert />
       <Faq />

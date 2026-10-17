@@ -66,7 +66,7 @@ export function HomeView({
 
   return (
     <>
-      <HomeHero from={from} to={to} onFrom={setFrom} onTo={setTo} defaults={defaults} afterHero={<MobileDeal deal={initialDeals.fco ?? null} />} />
+      <HomeHero from={from} to={to} onFrom={setFrom} onTo={setTo} defaults={defaults} afterHero={<MobileDeal deal={initialDeals.fco ?? null} from={fromCodes} />} />
       <PopularFlights
         fromLabel={from.map((p) => p.label).join(", ") || coreCityByCode(DEFAULT_FROM, locale)}
         fromCodes={fromCodes}

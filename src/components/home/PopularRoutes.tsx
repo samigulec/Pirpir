@@ -4,8 +4,8 @@ import { cityByCode } from "@/data/airports";
 import { ArrowRight } from "../icons";
 import { searchHref } from "@/lib/search";
 
-/** Yalnızca rota bağlantıları: tıklayınca o rota varsayılan tarihlerle aranır. */
-export async function PopularRoutes({ routes }: { routes: [string, string][] }) {
+/** Yalnızca rota bağlantıları: tıklayınca o rota bilinen en ucuz tarihle (yoksa iki hafta sonraki hafta sonu) aranır. */
+export async function PopularRoutes({ routes, dates }: { routes: [string, string][]; dates: Record<string, { date: string; returnDate: string }> }) {
   const t = await getTranslations("home.routes");
   const locale = await getLocale();
   return (
@@ -15,7 +15,7 @@ export async function PopularRoutes({ routes }: { routes: [string, string][] }) 
         {routes.map(([from, to]) => (
           <Link
             key={`${from}-${to}`}
-            href={searchHref({ from, to })}
+            href={searchHref({ from, to, ...dates[`${from}>${to}`] })}
             className="box-border flex min-h-[64px] items-center justify-between gap-3 rounded-[20px] bg-field px-[18px] py-[14px] text-ink no-underline"
           >
             <span className="font-extrabold">{cityByCode(from, locale)} → {cityByCode(to, locale)}</span>

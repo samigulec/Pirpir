@@ -12,7 +12,7 @@ const MAX_AGE_MS = 24 * 3600 * 1000;
 
 export type CalendarRoute = { from: string[]; to: string[]; cabin: string };
 
-const routeKey = (r: CalendarRoute) => `${[...r.from].sort().join(",")}>${[...r.to].sort().join(",")}`;
+export const routeKey = (r: Pick<CalendarRoute, "from" | "to">) => `${[...r.from].sort().join(",")}>${[...r.to].sort().join(",")}`;
 const nightsOf = (q: { date: string; returnDate?: string }) =>
   q.returnDate ? Math.round((Date.parse(q.returnDate) - Date.parse(q.date)) / 86400000) : -1;
 
@@ -22,20 +22,79 @@ export async function recordPrice(q: MultiQuery, offers: Offer[]): Promise<void>
   if (mode === "demo" || !offers.length || q.pax.children || q.pax.infants) return;
   const admin = supabaseAdmin();
   if (!admin) return;
+  const row = {
+    route: routeKey({ from: q.from, to: q.to }),
+    cabin: q.cabin ?? "economy",
+    mode,
+    depart: q.date,
+    nights: nightsOf(q),
+    price_try: Math.min(...offers.map((o) => o.price)),
+    seen_at: new Date().toISOString(),
+  };
   try {
-    const { error } = await admin.from("price_calendar").upsert({
-      route: routeKey({ from: q.from, to: q.to, cabin: q.cabin ?? "economy" }),
-      cabin: q.cabin ?? "economy",
-      mode,
-      depart: q.date,
-      nights: nightsOf(q),
-      price_try: Math.min(...offers.map((o) => o.price)),
-      seen_at: new Date().toISOString(),
-    });
+    let { error } = await admin.from("price_calendar").upsert({ ...row, details: detailsOf(offers) });
+    // 0003 göçü çalıştırılmadıysa "details" sütunu yoktur: fiyat yine de kaydedilsin
+    if (error && /details/.test(error.message)) ({ error } = await admin.from("price_calendar").upsert(row));
     if (error) console.error("Takvim fiyatı kaydedilemedi:", error.message);
   } catch (e) {
     console.error("Takvim fiyatı kaydedilemedi:", e instanceof Error ? e.message : e);
   }
+}
+
+/** Kartlarda gösterilen özet: en ucuz teklifin gidiş bacağı, bulunan havayolları ve varış havalimanları. */
+export type PriceDetails = { stops: number; mins: number; airlines: string[]; airports: string[] };
+
+function detailsOf(offers: Offer[]): PriceDetails {
+  const sorted = [...offers].sort((a, b) => a.price - b.price);
+  const distinct = (list: string[]) => [...new Set(list)].slice(0, 3);
+  return {
+    stops: sorted[0].outbound.stops,
+    mins: sorted[0].outbound.mins,
+    airlines: distinct(sorted.flatMap((o) => o.airline.split(" + "))),
+    airports: distinct(sorted.map((o) => o.outbound.toCode)),
+  };
+}
+
+export type KnownPrice = { depart: string; nights: number; price: number; seenAt: string; details?: PriceDetails };
+
+/**
+ * Rotaların son `maxAgeH` saatte görülen en ucuz gidiş-dönüş fiyatı (yalnızca yetişkinli aramalardan, ekonomi).
+ * Tablo yoksa ya da Supabase bağlı değilse boş döner.
+ */
+export async function bestKnownPrices(routes: Pick<CalendarRoute, "from" | "to">[], maxAgeH = 6): Promise<Record<string, KnownPrice>> {
+  const mode = dataMode();
+  const admin = mode === "demo" ? null : supabaseAdmin();
+  if (!admin || !routes.length) return {};
+  const keys = [...new Set(routes.map(routeKey))];
+  const since = new Date(Date.now() - maxAgeH * 3600 * 1000).toISOString();
+  // En az iki gün sonrası: yarının uçuşu "fırsat" diye gösterilmez
+  const fromDay = addDays(new Date().toISOString().slice(0, 10), 2);
+  const query = (cols: string) =>
+    admin
+      .from("price_calendar")
+      .select(cols)
+      .in("route", keys)
+      .eq("cabin", "economy")
+      .eq("mode", mode)
+      .gte("nights", 0)
+      .gte("depart", fromDay)
+      .gte("seen_at", since)
+      .order("price_try", { ascending: true })
+      .limit(500)
+      .returns<{ route: string; depart: string; nights: number; price_try: number; seen_at: string; details?: PriceDetails | null }[]>();
+  let { data, error } = await query("route, depart, nights, price_try, seen_at, details");
+  // 0003 göçü yoksa özetsiz okunur
+  if (error && /details/.test(error.message)) ({ data, error } = await query("route, depart, nights, price_try, seen_at"));
+  if (error) {
+    console.error("Bilinen fiyatlar okunamadı:", error.message);
+    return {};
+  }
+  const out: Record<string, KnownPrice> = {};
+  for (const r of data ?? []) {
+    if (out[r.route]) continue; // fiyata göre sıralı: ilk görülen en ucuzu
+    out[r.route] = { depart: r.depart, nights: r.nights, price: r.price_try, seenAt: r.seen_at, details: r.details ?? undefined };
+  }
+  return out;
 }
 
 export type CalendarPrices = {
