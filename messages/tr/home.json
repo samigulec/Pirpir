@@ -35,6 +35,13 @@
       "past": "Gidiş tarihi geçmişte olamaz.",
       "return": "Dönüş tarihi gidişten önce olamaz.",
       "pax": "Yolcu sayısını kontrol et."
+    },
+    "cabinLabel": "Kabin sınıfı",
+    "cabins": {
+      "economy": "Ekonomi",
+      "premium_economy": "Premium ekonomi",
+      "business": "Business",
+      "first": "First"
     }
   },
   "trust": {

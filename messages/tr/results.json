@@ -15,8 +15,6 @@
     "cheap": "En ucuz",
     "fast": "En hızlı"
   },
-  "returnInfo": "Dönüş {date}, {time}",
-  "transfer": "Aktarma: {via}, {wait} bekleme",
   "select": "Seç",
   "tip": {
     "title": "İki gün sonra uçarsan <price></price> daha ucuz!",
@@ -38,10 +36,30 @@
   },
   "noResults": "Bu tarihlerde uçuş bulamadık. Başka bir tarih dene.",
   "loading": "Pırpır en uygun uçuşları arıyor…",
-  "bagInfo": {
-    "small": "Küçük çanta dahil",
-    "cabin": "Kabin bavulu dahil",
-    "checked": "Kabin bavulu + bagaj dahil",
-    "checkedKg": "Kabin bavulu + {kg} kg dahil"
+  "outbound": "Gidiş",
+  "inbound": "Dönüş",
+  "perPerson": "kişi başı",
+  "totalFor": "{count} kişi toplam {total}",
+  "details": "Uçuş ayrıntıları",
+  "hideDetails": "Ayrıntıları gizle",
+  "layover": "{city} ({code}) aktarma · {wait} bekleme",
+  "bags": {
+    "personal": "Kişisel eşya",
+    "cabin": "Kabin bagajı",
+    "checked": "Bagaj",
+    "included": "Fiyata dahil",
+    "notIncluded": "Fiyata dahil değil, rezervasyonda eklenebilir"
+  },
+  "cabin": {
+    "economy": "Ekonomi",
+    "premium_economy": "Premium ekonomi",
+    "business": "Business",
+    "first": "First"
+  },
+  "conditions": {
+    "refundable": "İade edilebilir",
+    "nonRefundable": "İade edilmez",
+    "changeable": "Değişiklik yapılabilir",
+    "notChangeable": "Değişiklik yapılamaz"
   }
 }

@@ -9,7 +9,7 @@ import { AirportField, type AirportValue } from "./AirportField";
 import { Counter, FieldPopover } from "./Popover";
 import { resolveAirport } from "@/data/airports";
 import { formatRangeShort } from "@/lib/dates";
-import { MAX_PASSENGERS, addDays, paxTotal, searchHref, validateSearch, type Passengers, type SearchError } from "@/lib/search";
+import { CABINS, MAX_PASSENGERS, addDays, paxTotal, searchHref, validateSearch, type CabinClass, type Passengers, type SearchError } from "@/lib/search";
 
 type Trip = "rt" | "ow";
 
@@ -42,6 +42,7 @@ export function SearchForm({
   const [date, setDate] = useState(defaults.date);
   const [returnDate, setReturnDate] = useState(defaults.returnDate);
   const [pax, setPax] = useState<Passengers>({ adults: 1, children: 0, infants: 0 });
+  const [cabin, setCabin] = useState<CabinClass>("economy");
   const [error, setError] = useState<SearchError | null>(null);
 
   const swap = () => {
@@ -55,13 +56,13 @@ export function SearchForm({
     pax.infants ? t("paxInfants", { n: pax.infants }) : null,
   ]
     .filter(Boolean)
-    .join(", ");
+    .join(", ") + (cabin !== "economy" ? ` · ${t(`cabins.${cabin}`)}` : "");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const a = from.code ?? resolveAirport(from.text)?.code ?? "";
     const b = to.code ?? resolveAirport(to.text)?.code ?? "";
-    const q = { from: a, to: b, date, returnDate: trip === "rt" ? returnDate : undefined, pax };
+    const q = { from: a, to: b, date, returnDate: trip === "rt" ? returnDate : undefined, pax, cabin };
     const err = validateSearch(q);
     setError(err);
     if (err) return;
@@ -188,6 +189,24 @@ export function SearchForm({
               <Counter label={t("infants")} hint={t("infantsHint")} value={pax.infants} min={0} max={Math.min(pax.adults, MAX_PASSENGERS - pax.adults - pax.children)}
                 onChange={(n) => setPax({ ...pax, infants: n })} />
               <span className="text-[13px] font-semibold text-muted">{t("paxNote", { max: MAX_PASSENGERS, total })}</span>
+              <fieldset className="m-0 flex flex-col gap-2 border-0 border-t border-solid border-line p-0 pt-3">
+                <legend className="p-0 pb-2 font-extrabold">{t("cabinLabel")}</legend>
+                <div className="grid grid-cols-2 gap-2">
+                  {CABINS.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      aria-pressed={cabin === c}
+                      onClick={() => setCabin(c)}
+                      className={`min-h-[44px] cursor-pointer rounded-[14px] border-2 border-solid px-3 text-[15px] font-extrabold ${
+                        cabin === c ? "border-primary bg-sky text-ink" : "border-line bg-white text-ink"
+                      }`}
+                    >
+                      {t(`cabins.${c}`)}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
               <button type="button" onClick={close} className="min-h-[44px] cursor-pointer rounded-pill border-0 bg-ink px-5 font-display text-base font-semibold text-white">
                 {t("done")}
               </button>

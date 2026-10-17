@@ -75,6 +75,7 @@ export default async function ResultsPage({
             {!error && (
               <span className="font-semibold text-muted">
                 {t("summaryMeta", { dates: formatRange(q.date, q.returnDate, loc), count: paxTotal(q.pax) })}
+                {q.cabin && q.cabin !== "economy" && ` · ${t(`cabin.${q.cabin}`)}`}
               </span>
             )}
           </div>

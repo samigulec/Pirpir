@@ -2,17 +2,18 @@
 
 import { Link } from "@/i18n/navigation";
 import { useMemo, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
 import { Bulut } from "../characters";
-import { cityByCode } from "@/data/airports";
-import type { BagInfo, Leg, Offer } from "@/lib/providers/types";
-import { bookingHref, searchHref } from "@/lib/search";
-import { intlLocale } from "@/lib/intl";
-import { formatDayShort, minsParts } from "@/lib/dates";
+import { OfferCard } from "./OfferCard";
+import type { Offer } from "@/lib/providers/types";
+import type { searchHref } from "@/lib/search";
 
 type Sort = "cheap" | "fast" | "direct";
 const SORTS: Sort[] = ["cheap", "fast", "direct"];
+
+/** Gidiş + dönüş toplam yolculuk süresi */
+const totalMins = (o: Offer) => o.outbound.mins + (o.inbound?.mins ?? 0);
 
 export type ResultsTip = { href: ReturnType<typeof searchHref>; day: string; price: number; save: number } | null;
 
@@ -29,28 +30,21 @@ export function ResultsView({
   note?: string;
 }) {
   const t = useTranslations("results");
-  const tc = useTranslations("common");
   const { fmt } = useCurrency();
-  const locale = useLocale();
-  const loc = intlLocale(locale);
   const [sort, setSort] = useState<Sort>("cheap");
 
   // Rozetler sıralamadan bağımsız, tüm sonuçlar üzerinden hesaplanır.
   const cheapestId = useMemo(() => [...offers].sort((a, b) => a.price - b.price)[0]?.id, [offers]);
-  const fastestId = useMemo(() => [...offers].sort((a, b) => a.outbound.mins - b.outbound.mins)[0]?.id, [offers]);
+  const fastestId = useMemo(() => [...offers].sort((a, b) => totalMins(a) - totalMins(b))[0]?.id, [offers]);
 
   const list = useMemo(() => {
     let l = [...offers];
     if (sort === "cheap") l.sort((a, b) => a.price - b.price);
-    if (sort === "fast") l.sort((a, b) => a.outbound.mins - b.outbound.mins);
+    if (sort === "fast") l.sort((a, b) => totalMins(a) - totalMins(b));
     if (sort === "direct") l = l.filter((o) => o.outbound.stops === 0 && (o.inbound?.stops ?? 0) === 0).sort((a, b) => a.price - b.price);
     return l;
   }, [offers, sort]);
 
-  const bagText = (b: BagInfo) =>
-    b.checked ? (b.checkedKg ? t("bagInfo.checkedKg", { kg: b.checkedKg }) : t("bagInfo.checked")) : b.cabin ? t("bagInfo.cabin") : t("bagInfo.small");
-  const dur = (m: number) => tc("duration", minsParts(m));
-  const stopsLabel = (leg: Leg) => (leg.stops === 0 ? tc("direct") : leg.stops === 1 ? tc("oneStop") : tc("stops", { n: leg.stops }));
 
   return (
     <>
@@ -81,65 +75,9 @@ export function ResultsView({
       {offers.length === 0 && <p className="m-0 font-bold text-muted">{t("noResults")}</p>}
       {offers.length > 0 && list.length === 0 && <p className="m-0 font-bold text-muted">{t("empty")}</p>}
 
-      {list.map((o) => {
-        const badge = o.id === cheapestId ? "cheap" : o.id === fastestId ? "fast" : null;
-        const via = o.outbound.via;
-        return (
-          <article
-            key={o.id}
-            className="flex flex-wrap items-center gap-x-7 gap-y-4 rounded-[28px] border-2 border-solid border-line bg-white px-6 py-5"
-          >
-            <div className="flex min-w-0 flex-[999_1_380px] flex-col gap-[10px]">
-              {badge && (
-                <span
-                  className={`self-start rounded-pill px-3 py-1 font-display text-sm font-semibold text-ink ${
-                    badge === "cheap" ? "bg-sun" : "bg-blue-soft-light"
-                  }`}
-                >
-                  {t(`badge.${badge}`)}
-                </span>
-              )}
-              <div className="flex items-center gap-4">
-                <span className="font-display text-[28px] font-semibold leading-none">{o.outbound.dep}</span>
-                <div className="flex min-w-[80px] flex-1 flex-col items-center gap-[2px]">
-                  <span className="text-[13px] font-bold text-muted">{dur(o.outbound.mins)}</span>
-                  <span className="w-full border-0 border-t-[3px] border-dotted border-blue-soft" />
-                  <span className="text-[13px] font-extrabold text-ink">{stopsLabel(o.outbound)}</span>
-                </div>
-                <span className="relative font-display text-[28px] font-semibold leading-none">
-                  {o.outbound.arr}
-                  {o.outbound.arrDayOffset > 0 && (
-                    <sup className="absolute -right-1 -top-3 text-[12px] font-extrabold text-coral-text">
-                      {t("nextDay", { n: o.outbound.arrDayOffset })}
-                    </sup>
-                  )}
-                </span>
-              </div>
-              <span className="text-[15px] font-semibold text-muted">
-                {o.airline}
-                {o.inbound && <> · {t("returnInfo", { date: formatDayShort(o.inbound.date, loc), time: o.inbound.dep })}</>}
-              </span>
-              <span className="flex flex-wrap gap-[6px]">
-                <span className="rounded-pill bg-field px-[10px] py-[3px] text-[13px] font-extrabold text-ink">{bagText(o.bagInfo)}</span>
-                {via && (
-                  <span className="rounded-pill bg-coral-soft px-[10px] py-[3px] text-[13px] font-extrabold text-ink">
-                    {t("transfer", { via: `${cityByCode(via.code, locale, via.city)} (${via.code})`, wait: dur(via.waitMins) })}
-                  </span>
-                )}
-              </span>
-            </div>
-            <div className="flex flex-[1_1_160px] items-center justify-between gap-4">
-              <span className="font-display text-[30px] font-bold">{fmt(o.price)}</span>
-              <Link
-                href={bookingHref(o.id)}
-                className="box-border inline-flex min-h-[48px] items-center rounded-pill bg-primary px-[26px] py-3 font-display text-[19px] font-semibold text-white no-underline"
-              >
-                {t("select")}
-              </Link>
-            </div>
-          </article>
-        );
-      })}
+      {list.map((o) => (
+        <OfferCard key={o.id} offer={o} badge={o.id === cheapestId ? "cheap" : o.id === fastestId ? "fast" : null} />
+      ))}
 
       {tip && (
         <div className="flex flex-wrap items-center gap-[18px] rounded-[28px] bg-sun-soft px-6 py-5 md:flex-nowrap">

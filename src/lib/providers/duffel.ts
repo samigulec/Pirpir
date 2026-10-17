@@ -5,7 +5,7 @@ import "server-only";
 import { findAirport } from "@/data/airports";
 import { toTry } from "../currency";
 import type { SearchQuery } from "../search";
-import type { BagInfo, BagKind, BagOption, Booking, FlightProvider, Leg, Offer, OrderInput } from "./types";
+import type { BagInfo, BagKind, BagOption, CabinClass, Segment, Booking, FlightProvider, Leg, Offer, OrderInput } from "./types";
 
 const API = "https://api.duffel.com";
 
@@ -48,12 +48,24 @@ type DPlace = { iata_code: string; city_name?: string | null; name: string };
 type DSegment = {
   departing_at: string;
   arriving_at: string;
+  duration?: string | null;
   origin: DPlace;
   destination: DPlace;
-  marketing_carrier: { name: string };
-  passengers?: { passenger_id: string; baggages?: { type: "checked" | "carry_on"; quantity: number }[] }[];
+  marketing_carrier: { name: string; iata_code?: string | null };
+  marketing_carrier_flight_number?: string | null;
+  aircraft?: { name?: string | null } | null;
+  passengers?: {
+    passenger_id: string;
+    cabin_class?: string | null;
+    cabin_class_marketing_name?: string | null;
+    baggages?: { type: "checked" | "carry_on"; quantity: number }[];
+  }[];
 };
-type DSlice = { duration: string | null; origin: DPlace; destination: DPlace; segments: DSegment[] };
+type DSlice = { duration: string | null; origin: DPlace; destination: DPlace; segments: DSegment[]; fare_brand_name?: string | null };
+type DConditions = {
+  refund_before_departure?: { allowed: boolean } | null;
+  change_before_departure?: { allowed: boolean } | null;
+} | null;
 type DService = {
   id: string;
   type: string;
@@ -73,6 +85,7 @@ type DOffer = {
   passengers: { id: string; type: string }[];
   passenger_identity_documents_required?: boolean;
   available_services?: DService[] | null;
+  conditions?: DConditions;
 };
 
 const cityOf = (p: DPlace) => findAirport(p.iata_code)?.city ?? p.city_name ?? p.name;
@@ -89,6 +102,24 @@ const minsBetween = (a: string, b: string) => Math.round((Date.parse(b + "Z") - 
 const localDate = (s: string) => s.slice(0, 10);
 const localTime = (s: string) => s.slice(11, 16);
 const dayDiff = (a: string, b: string) => Math.round((Date.parse(localDate(b)) - Date.parse(localDate(a))) / 86400000);
+
+function mapSegment(x: DSegment, next?: DSegment): Segment {
+  return {
+    fromCode: x.origin.iata_code,
+    toCode: x.destination.iata_code,
+    date: localDate(x.departing_at),
+    dep: localTime(x.departing_at),
+    arr: localTime(x.arriving_at),
+    arrDayOffset: dayDiff(x.departing_at, x.arriving_at),
+    mins: isoMins(x.duration ?? null, minsBetween(x.departing_at, x.arriving_at)),
+    carrier: x.marketing_carrier.name,
+    flightNumber: x.marketing_carrier_flight_number
+      ? `${x.marketing_carrier.iata_code ?? ""} ${x.marketing_carrier_flight_number}`.trim()
+      : undefined,
+    aircraft: x.aircraft?.name ?? undefined,
+    layoverMins: next ? minsBetween(x.arriving_at, next.departing_at) : undefined,
+  };
+}
 
 function mapLeg(s: DSlice): Leg {
   const first = s.segments[0];
@@ -110,6 +141,7 @@ function mapLeg(s: DSlice): Leg {
     mins: isoMins(s.duration, minsBetween(first.departing_at, last.arriving_at)),
     via,
     stops: s.segments.length - 1,
+    segments: s.segments.map((x, i) => mapSegment(x, s.segments[i + 1])),
   };
 }
 
@@ -121,7 +153,14 @@ function includedBags(o: DOffer) {
 
 function bagInfo(o: DOffer): BagInfo {
   const { checked, carryOn } = includedBags(o);
-  return { cabin: carryOn > 0, checked: checked > 0 };
+  return { cabin: carryOn > 0, checked: checked > 0, checkedCount: checked || undefined };
+}
+
+const CABIN_VALUES: CabinClass[] = ["economy", "premium_economy", "business", "first"];
+
+function cabinOf(o: DOffer, q: SearchQuery): CabinClass {
+  const c = o.slices[0]?.segments[0]?.passengers?.[0]?.cabin_class;
+  return CABIN_VALUES.includes(c as CabinClass) ? (c as CabinClass) : (q.cabin ?? "economy");
 }
 
 function bagOptions(o: DOffer): BagOption[] {
@@ -163,6 +202,12 @@ function mapOffer(o: DOffer, q: SearchQuery): Offer {
     raw: { amount: o.total_amount, currency: o.total_currency },
     bagInfo: bagInfo(o),
     bagOptions: bagOptions(o),
+    cabin: cabinOf(o, q),
+    fareBrand: o.slices[0]?.fare_brand_name ?? undefined,
+    conditions: {
+      refundable: o.conditions?.refund_before_departure?.allowed,
+      changeable: o.conditions?.change_before_departure?.allowed,
+    },
     passportRequired: !!o.passenger_identity_documents_required,
     expiresAt: o.expires_at,
   };
@@ -176,6 +221,7 @@ function queryFromOffer(o: DOffer): SearchQuery {
     date: localDate(o.slices[0].segments[0].departing_at),
     returnDate: o.slices[1] ? localDate(o.slices[1].segments[0].departing_at) : undefined,
     pax: { adults: Math.max(1, n("adult")), children: n("child"), infants: n("infant_without_seat") },
+    cabin: cabinOf(o, { cabin: "economy" } as SearchQuery),
   };
 }
 
@@ -190,7 +236,7 @@ export const duffelProvider: FlightProvider = {
     ];
     const data = await call<{ offers: DOffer[] }>("/air/offer_requests?return_offers=true&supplier_timeout=20000", {
       method: "POST",
-      body: JSON.stringify({ data: { slices, passengers, cabin_class: "economy", max_connections: 1 } }),
+      body: JSON.stringify({ data: { slices, passengers, cabin_class: q.cabin ?? "economy", max_connections: 1 } }),
     });
     return data.offers
       .sort((a, b) => Number(a.total_amount) - Number(b.total_amount))

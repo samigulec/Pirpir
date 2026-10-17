@@ -3,13 +3,18 @@
   "summaryMeta": "{dates} · {count, plural, one {# traveller} other {# travellers}}",
   "change": "Change",
   "sortLabel": "Sort by",
-  "sort": { "cheap": "Cheapest", "fast": "Fastest", "direct": "Direct only" },
+  "sort": {
+    "cheap": "Cheapest",
+    "fast": "Fastest",
+    "direct": "Direct only"
+  },
   "count": "{count, plural, one {# flight found} other {# flights found}}",
   "countNote": "prices per person, return, taxes included",
   "countNoteOneWay": "prices per person, one way, taxes included",
-  "badge": { "cheap": "Cheapest", "fast": "Fastest" },
-  "returnInfo": "Return {date}, {time}",
-  "transfer": "Stop: {via}, {wait} layover",
+  "badge": {
+    "cheap": "Cheapest",
+    "fast": "Fastest"
+  },
   "select": "Select",
   "tip": {
     "title": "Fly two days later and save <price></price>!",
@@ -20,14 +25,41 @@
   "demoNote": "sample data",
   "testNote": "test mode",
   "nextDay": "+{n}",
-  "invalid": { "title": "We couldn't run this search", "back": "Fix search" },
-  "failed": { "title": "We can't load flights right now", "text": "Please try again in a moment. If the problem persists, let us know.", "retry": "Try again" },
+  "invalid": {
+    "title": "We couldn't run this search",
+    "back": "Fix search"
+  },
+  "failed": {
+    "title": "We can't load flights right now",
+    "text": "Please try again in a moment. If the problem persists, let us know.",
+    "retry": "Try again"
+  },
   "noResults": "No flights found for these dates. Try another date.",
   "loading": "Pırpır is looking for the best flights…",
-  "bagInfo": {
-    "small": "Small bag included",
-    "cabin": "Cabin bag included",
-    "checked": "Cabin bag + checked bag included",
-    "checkedKg": "Cabin bag + {kg} kg included"
+  "outbound": "Outbound",
+  "inbound": "Return",
+  "perPerson": "per person",
+  "totalFor": "{total} total for {count}",
+  "details": "Flight details",
+  "hideDetails": "Hide details",
+  "layover": "Stop in {city} ({code}) · {wait} layover",
+  "bags": {
+    "personal": "Personal item",
+    "cabin": "Cabin bag",
+    "checked": "Checked bag",
+    "included": "Included in the price",
+    "notIncluded": "Not included, can be added when booking"
+  },
+  "cabin": {
+    "economy": "Economy",
+    "premium_economy": "Premium economy",
+    "business": "Business",
+    "first": "First"
+  },
+  "conditions": {
+    "refundable": "Refundable",
+    "nonRefundable": "Non-refundable",
+    "changeable": "Changes allowed",
+    "notChangeable": "No changes"
   }
 }

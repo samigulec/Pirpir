@@ -28,6 +28,7 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
   const offer = await getOffer(decodeURIComponent(teklifId));
   const t = await getTranslations("booking");
   const tc = await getTranslations("common");
+  const tr = await getTranslations("results");
 
   const header = (
     <SiteHeader width="form">
@@ -88,7 +89,10 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
             <span className="font-display text-[22px] font-semibold">
               {cityByCode(q.from, locale, offer.fromCity)} → {cityByCode(q.to, locale, offer.toCity)}
             </span>
-            <span className="font-bold text-muted">{offer.airline}</span>
+            <span className="font-bold text-muted">
+              {offer.airline} · {tr(`cabin.${offer.cabin}`)}
+              {offer.fareBrand && ` · ${offer.fareBrand}`}
+            </span>
           </div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[10px]">
             {legs.map(({ title, leg }) => (

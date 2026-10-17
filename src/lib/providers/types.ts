@@ -16,12 +16,36 @@ export type Leg = {
   /** İlk aktarma (yoksa direkt). */
   via?: { city: string; code: string; waitMins: number };
   stops: number;
+  /** Uçuş bacakları (ayrıntı görünümü için; eski kayıtlarda olmayabilir). */
+  segments?: Segment[];
 };
+
+export type Segment = {
+  fromCode: string;
+  toCode: string;
+  date: string; // kalkış YYYY-MM-DD
+  dep: string;
+  arr: string;
+  arrDayOffset: number;
+  mins: number;
+  carrier: string;
+  /** Ör. "PC 1254" */
+  flightNumber?: string;
+  aircraft?: string;
+  /** Bu bacaktan sonraki aktarmada bekleme (dakika). */
+  layoverMins?: number;
+};
+
+export type { CabinClass } from "../search";
+import type { CabinClass } from "../search";
+
+/** Havayolu bildirdiyse iade / değişiklik koşulları (bilinmiyorsa undefined). */
+export type FareConditions = { refundable?: boolean; changeable?: boolean };
 
 export type BagKind = "small" | "cabin" | "big";
 
-/** Fiyata dahil bagaj (metni dile göre çevrilir). */
-export type BagInfo = { cabin: boolean; checkedKg?: number; checked?: boolean };
+/** Fiyata dahil bagaj (yolcu başı). Kişisel eşya (koltuk altı çanta) her bilete dahildir. */
+export type BagInfo = { cabin: boolean; checkedKg?: number; checked?: boolean; checkedCount?: number };
 
 export type BagOption = {
   kind: BagKind;
@@ -50,6 +74,10 @@ export type Offer = {
   raw: { amount: string; currency: string };
   bagInfo: BagInfo;
   bagOptions: BagOption[];
+  cabin: CabinClass;
+  /** Havayolunun paket adı (ör. "Basic", "Standard"). */
+  fareBrand?: string;
+  conditions: FareConditions;
   passportRequired: boolean;
   expiresAt?: string;
 };

@@ -3,13 +3,18 @@
   "summaryMeta": "{dates} · {count, plural, one {# reiziger} other {# reizigers}}",
   "change": "Wijzigen",
   "sortLabel": "Sorteren",
-  "sort": { "cheap": "Goedkoopst", "fast": "Snelst", "direct": "Alleen direct" },
+  "sort": {
+    "cheap": "Goedkoopst",
+    "fast": "Snelst",
+    "direct": "Alleen direct"
+  },
   "count": "{count, plural, one {# vlucht gevonden} other {# vluchten gevonden}}",
   "countNote": "prijzen per persoon, retour, inclusief belastingen",
   "countNoteOneWay": "prijzen per persoon, enkele reis, inclusief belastingen",
-  "badge": { "cheap": "Goedkoopst", "fast": "Snelst" },
-  "returnInfo": "Terug {date}, {time}",
-  "transfer": "Overstap: {via}, {wait} wachttijd",
+  "badge": {
+    "cheap": "Goedkoopst",
+    "fast": "Snelst"
+  },
   "select": "Kies",
   "tip": {
     "title": "Vlieg twee dagen later en bespaar <price></price>!",
@@ -20,14 +25,41 @@
   "demoNote": "voorbeeldgegevens",
   "testNote": "testmodus",
   "nextDay": "+{n}",
-  "invalid": { "title": "Deze zoekopdracht lukte niet", "back": "Zoekopdracht aanpassen" },
-  "failed": { "title": "We kunnen de vluchten nu niet laden", "text": "Probeer het zo opnieuw. Blijft het probleem, laat het ons weten.", "retry": "Opnieuw proberen" },
+  "invalid": {
+    "title": "Deze zoekopdracht lukte niet",
+    "back": "Zoekopdracht aanpassen"
+  },
+  "failed": {
+    "title": "We kunnen de vluchten nu niet laden",
+    "text": "Probeer het zo opnieuw. Blijft het probleem, laat het ons weten.",
+    "retry": "Opnieuw proberen"
+  },
   "noResults": "Geen vluchten gevonden op deze data. Probeer een andere datum.",
   "loading": "Pırpır zoekt de beste vluchten…",
-  "bagInfo": {
-    "small": "Kleine tas inbegrepen",
-    "cabin": "Handbagage inbegrepen",
-    "checked": "Handbagage + ruimbagage inbegrepen",
-    "checkedKg": "Handbagage + {kg} kg inbegrepen"
+  "outbound": "Heen",
+  "inbound": "Terug",
+  "perPerson": "per persoon",
+  "totalFor": "{total} totaal voor {count}",
+  "details": "Vluchtdetails",
+  "hideDetails": "Details verbergen",
+  "layover": "Overstap in {city} ({code}) · {wait} wachttijd",
+  "bags": {
+    "personal": "Persoonlijk item",
+    "cabin": "Handbagage",
+    "checked": "Ruimbagage",
+    "included": "Inbegrepen in de prijs",
+    "notIncluded": "Niet inbegrepen, toe te voegen bij het boeken"
+  },
+  "cabin": {
+    "economy": "Economy",
+    "premium_economy": "Premium economy",
+    "business": "Business",
+    "first": "First"
+  },
+  "conditions": {
+    "refundable": "Terugbetaalbaar",
+    "nonRefundable": "Niet terugbetaalbaar",
+    "changeable": "Wijzigen mogelijk",
+    "notChangeable": "Niet te wijzigen"
   }
 }

@@ -3,12 +3,18 @@ import { findAirport, resolveAirport, type Airport } from "@/data/airports";
 
 export type Passengers = { adults: number; children: number; infants: number };
 
+export type CabinClass = "economy" | "premium_economy" | "business" | "first";
+export const CABINS: CabinClass[] = ["economy", "premium_economy", "business", "first"];
+export const isCabin = (v: unknown): v is CabinClass => typeof v === "string" && (CABINS as string[]).includes(v);
+
 export type SearchQuery = {
   from: string; // IATA
   to: string; // IATA
   date: string; // YYYY-MM-DD
   returnDate?: string;
   pax: Passengers;
+  /** Yoksa ekonomi. */
+  cabin?: CabinClass;
 };
 
 export type SearchError = "from" | "to" | "same" | "date" | "past" | "return" | "pax";
@@ -86,7 +92,8 @@ export function parseSearch(raw: Raw, now = new Date()): SearchQuery {
     children: int(one(raw.children), 0),
     infants: int(one(raw.infants), 0),
   };
-  return { from, to, date, returnDate, pax };
+  const cabinRaw = one(raw.cabin);
+  return { from, to, date, returnDate, pax, cabin: isCabin(cabinRaw) ? cabinRaw : "economy" };
 }
 
 /** Arama sonuçları bağlantısı (dil farkında Link/router için kanonik yol + sorgu). */
@@ -103,6 +110,7 @@ export function searchHref(q: Partial<SearchQuery> = {}, now = new Date()) {
   query.adults = String(pax.adults);
   if (pax.children) query.children = String(pax.children);
   if (pax.infants) query.infants = String(pax.infants);
+  if (q.cabin && q.cabin !== "economy") query.cabin = q.cabin;
   return { pathname: "/ara" as const, query };
 }
 
