@@ -1,7 +1,13 @@
 {
   "metaTitle": "Booking",
   "back": "← Back to flights",
-  "steps": { "label": "Steps", "passenger": "Traveller", "bags": "Baggage", "payment": "Payment" },
+  "steps": {
+    "label": "Steps",
+    "passenger": "Traveller",
+    "bags": "Baggage",
+    "seats": "Seat",
+    "payment": "Payment"
+  },
   "title": "Almost there!",
   "outbound": "Outbound · {date}",
   "inbound": "Return · {date}",
@@ -21,7 +27,11 @@
     "passport": "Passport number",
     "note": "Airlines ask for passport details on international flights. Your passport must be valid for at least 6 months after your return.",
     "slot": "Traveller {n} · {type}",
-    "types": { "adult": "Adult", "child": "Child", "infant": "Infant" }
+    "types": {
+      "adult": "Adult",
+      "child": "Child",
+      "infant": "Infant"
+    }
   },
   "contact": {
     "title": "How can we reach you?",
@@ -34,22 +44,54 @@
     "valiz": "Valiz: “Adding it now is cheaper than at the airport!”",
     "label": "Baggage",
     "free": "Free",
-    "options": {
-      "small": { "title": "Small bag", "desc": "Fits under the seat" },
-      "cabin": { "title": "Cabin bag", "desc": "10 kg, overhead bin" },
-      "big": { "title": "Checked bag", "desc": "20 kg, in the hold" }
-    },
-    "transferNote": "On a connecting route you may need to collect your bags in {city} and check them in again."
+    "transferNote": "On a connecting route you may need to collect your bags in {city} and check them in again.",
+    "cabinTitle": "Cabin or hand luggage",
+    "personal": "Personal item",
+    "personalDesc": "Fits under the seat",
+    "cabinPack": "Hand luggage bundle",
+    "cabinPackDesc": "Personal item + {kg} kg cabin bag",
+    "cabinPackDescNoKg": "Personal item + cabin bag",
+    "checkedTitle": "Checked baggage",
+    "checkedDesc": "Up to {kg} kg, in the hold",
+    "checkedDescNoKg": "In the hold",
+    "included": "Included",
+    "includedCount": "{n} included",
+    "perBag": "{price} per bag",
+    "unavailable": "Can't be added to this ticket right now.",
+    "add": "Add {label}",
+    "remove": "Remove {label}",
+    "roundTripNote": "Baggage prices cover both the outbound and return flights.",
+    "paxTitle": "Passenger {n} · {type}",
+    "noChecked": "I don't need checked baggage"
   },
   "payment": {
     "title": "How would you like to pay?",
     "secure": "Encrypted, secure connection",
     "label": "Payment method",
     "methods": {
-      "card": { "label": "Card", "sub": "Visa, Mastercard, Amex", "pay": "Pay by card" },
-      "ideal": { "label": "iDEAL", "sub": "Dutch banks", "pay": "Pay with iDEAL", "note": "Choose your bank; when you press Pay you'll be sent to your banking app." },
-      "apple": { "label": "Apple Pay", "sub": "iPhone, Mac", "pay": "Pay with Apple Pay", "note": "Apple Pay opens when you press Pay; confirm with Face ID or Touch ID." },
-      "google": { "label": "Google Pay", "sub": "Android, Chrome", "pay": "Pay with Google Pay", "note": "Google Pay opens when you press Pay; confirm on your phone." }
+      "card": {
+        "label": "Card",
+        "sub": "Visa, Mastercard, Amex",
+        "pay": "Pay by card"
+      },
+      "ideal": {
+        "label": "iDEAL",
+        "sub": "Dutch banks",
+        "pay": "Pay with iDEAL",
+        "note": "Choose your bank; when you press Pay you'll be sent to your banking app."
+      },
+      "apple": {
+        "label": "Apple Pay",
+        "sub": "iPhone, Mac",
+        "pay": "Pay with Apple Pay",
+        "note": "Apple Pay opens when you press Pay; confirm with Face ID or Touch ID."
+      },
+      "google": {
+        "label": "Google Pay",
+        "sub": "Android, Chrome",
+        "pay": "Pay with Google Pay",
+        "note": "Google Pay opens when you press Pay; confirm on your phone."
+      }
     },
     "cardName": "Name on card",
     "cardNamePlaceholder": "AYSE YILMAZ",
@@ -79,10 +121,15 @@
     "included": "Included",
     "total": "Total",
     "terms": "I have read and accept the <terms>terms of use</terms>, the airline rules and the <privacy>privacy policy</privacy>.",
-    "needTerms": "Please accept the terms to continue."
+    "needTerms": "Please accept the terms to continue.",
+    "bags": "Extra baggage",
+    "seats": "Seat selection"
   },
   "footnote": "Free cancellation within 24 hours of booking. [İPTAL KOŞULLARI] · Help: [DESTEK TELEFONU]",
-  "trip": { "rt": "return", "ow": "one way" },
+  "trip": {
+    "rt": "return",
+    "ow": "one way"
+  },
   "errors": {
     "summary": "Some details are missing or incorrect. Please check the highlighted fields.",
     "name": "Enter it as in your passport (letters only).",
@@ -93,13 +140,38 @@
     "passport": "Check the passport number.",
     "email": "Enter a valid email address.",
     "phone": "Check the phone number.",
-    "bag": "Choose a baggage option.",
+    "bag": "The baggage you chose can't be added to this ticket.",
     "terms": "Please accept the terms to continue.",
     "expired": "This offer has expired. Search again for current prices.",
     "failed": "We couldn't complete the booking right now. You haven't been charged; please try again shortly.",
-    "live": "Payments aren't connected yet, so tickets can't be issued for now."
+    "live": "Payments aren't connected yet, so tickets can't be issued for now.",
+    "seats": "One of your seats is no longer available. Please choose again."
   },
   "testNotice": "Test mode: no payment is taken and your card details are not sent anywhere.",
   "processing": "Booking…",
-  "expiredPage": { "title": "This offer has expired", "text": "Prices change often. Search again to see current flights.", "cta": "Search again" }
+  "expiredPage": {
+    "title": "This offer has expired",
+    "text": "Prices change often. Search again to see current flights.",
+    "cta": "Search again"
+  },
+  "seats": {
+    "title": "Choose your seat",
+    "subtitle": "Optional. If you skip it, the airline assigns a seat at check-in.",
+    "flight": "{from} → {to}",
+    "forPax": "Passenger {n}",
+    "legendFree": "Free",
+    "legendPaid": "Paid",
+    "legendLegroom": "Extra legroom",
+    "legendTaken": "Taken",
+    "legendSelected": "Your pick",
+    "seat": "Seat {seat}, {price}",
+    "seatTaken": "Seat {seat}, taken",
+    "exit": "Exit",
+    "none": "Seat selection isn't offered for this flight right now; you can choose at check-in.",
+    "clear": "Remove seat",
+    "picked": "{pax}: {seat}",
+    "notPicked": "{pax}: not chosen",
+    "free": "Free",
+    "front": "Front"
+  }
 }

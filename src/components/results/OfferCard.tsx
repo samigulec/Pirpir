@@ -2,17 +2,33 @@
 
 import { useId, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { useCurrency } from "../CurrencyProvider";
 import { CabinBagIcon, CheckedBagIcon, PersonalItemIcon } from "./BagIcons";
 import { formatDayWithWeekday, minsParts } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 import type { Leg, Offer } from "@/lib/providers/types";
-import { bookingHref } from "@/lib/search";
 
 type Badge = "cheap" | "fast" | null;
 
-export function OfferCard({ offer, badge, cityNames }: { offer: Offer; badge: Badge; cityNames: Record<string, string> }) {
+export function OfferCard({
+  offer,
+  badge,
+  cityNames,
+  price,
+  bagsAdded,
+  fareCount,
+  onSelect,
+}: {
+  offer: Offer;
+  badge: Badge;
+  cityNames: Record<string, string>;
+  /** Yolcu başı fiyat (filtrede seçilen bagaj eklenmiş) */
+  price: number;
+  bagsAdded: boolean;
+  /** Aynı uçuş için kaç paket var */
+  fareCount: number;
+  onSelect: () => void;
+}) {
   const cityByCode = (code: string) => cityNames[code] ?? code;
   const t = useTranslations("results");
   const tc = useTranslations("common");
@@ -149,16 +165,19 @@ export function OfferCard({ offer, badge, cityNames }: { offer: Offer; badge: Ba
 
       <div className="flex items-center justify-between gap-4 border-0 border-t-2 border-solid border-line bg-field px-5 py-4 md:w-[210px] md:flex-col md:items-stretch md:justify-center md:border-l-2 md:border-t-0 md:px-5">
         <div className="flex flex-col md:items-center">
-          <span className="font-display text-[30px] font-bold leading-[1.1]">{fmt(offer.price)}</span>
+          <span className="font-display text-[30px] font-bold leading-[1.1]">{fmt(price)}</span>
           <span className="text-[13px] font-bold text-muted">{t("perPerson")}</span>
-          {paxCount > 1 && <span className="text-[13px] font-bold text-muted">{t("totalFor", { count: paxCount, total: fmt(offer.total) })}</span>}
+          {bagsAdded && <span className="text-[13px] font-bold text-green-text">{t("withBags")}</span>}
+          {paxCount > 1 && !bagsAdded && <span className="text-[13px] font-bold text-muted">{t("totalFor", { count: paxCount, total: fmt(offer.total) })}</span>}
+          {fareCount > 1 && <span className="text-[13px] font-bold text-primary">{t("fareOptions", { n: fareCount })}</span>}
         </div>
-        <Link
-          href={bookingHref(offer.id)}
-          className="box-border inline-flex min-h-[48px] items-center justify-center rounded-pill bg-primary px-[26px] py-3 font-display text-[19px] font-semibold text-white no-underline"
+        <button
+          type="button"
+          onClick={onSelect}
+          className="box-border inline-flex min-h-[48px] cursor-pointer items-center justify-center rounded-pill border-0 bg-primary px-[26px] py-3 font-display text-[19px] font-semibold leading-[normal] text-white"
         >
           {t("select")}
-        </Link>
+        </button>
       </div>
     </article>
   );

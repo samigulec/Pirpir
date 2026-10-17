@@ -8,7 +8,8 @@ import { passengerSlots } from "@/lib/booking-validate";
 import { formatDayWithWeekday, minsParts } from "@/lib/dates";
 import { dataMode, getOffer } from "@/lib/flights";
 import type { Leg } from "@/lib/providers/types";
-import { searchHref } from "@/lib/search";
+import { int, one, searchHref } from "@/lib/search";
+import { getProviderForOffer } from "@/lib/providers/select";
 import { cityByCode } from "@/data/airports";
 import { intlLocale } from "@/lib/intl";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -20,8 +21,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return { title: t("metaTitle"), robots: { index: false } };
 }
 
-export default async function BookingPage({ params }: { params: Promise<{ locale: string; teklifId: string }> }) {
+export default async function BookingPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string; teklifId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { locale, teklifId } = await params;
+  const sp = await searchParams;
   setRequestLocale(locale);
   const loc = intlLocale(locale);
   const user = await getCurrentUser();
@@ -63,6 +71,16 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
     ...(offer.inbound ? [{ title: t("inbound", { date: formatDayWithWeekday(offer.inbound.date, loc) }), leg: offer.inbound }] : []),
   ];
   const q = offer.query;
+  // Koltuk haritası alınamazsa (havayolu sunmuyorsa) koltuk seçimi gösterilmez, rezervasyon sürer.
+  const seatMaps = await getProviderForOffer(offer)
+    .seatMaps(offer)
+    .catch((e) => {
+      console.error("Koltuk haritası alınamadı:", e);
+      return [];
+    });
+  const wantBags = { cabin: Math.min(1, Math.max(0, int(one(sp.cabin), 0))), checked: Math.min(3, Math.max(0, int(one(sp.checked), 0))) };
+  const codes = new Set(seatMaps.flatMap((m) => [m.fromCode, m.toCode]));
+  const cityNames = Object.fromEntries([...codes].map((c) => [c, cityByCode(c, locale)]));
 
   return (
     <div className="min-h-screen w-full bg-white">
@@ -74,7 +92,7 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
         </Link>
 
         <ol aria-label={t("steps.label")} className="m-0 flex list-none gap-2 p-0 text-sm font-extrabold">
-          {(["passenger", "bags", "payment"] as const).map((s) => (
+          {(["passenger", "bags", "seats", "payment"] as const).map((s) => (
             <li key={s} className="flex flex-1 flex-col gap-[6px]">
               <span className="h-[6px] rounded-[3px] bg-primary" />
               {t(`steps.${s}`)}
@@ -113,6 +131,9 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
 
         <BookingForm offer={offer} slots={passengerSlots(offer)} testMode={dataMode() !== "live"} defaultEmail={user?.email}
           viaCity={offer.outbound.via ? cityByCode(offer.outbound.via.code, locale, offer.outbound.via.city) : undefined}
+          seatMaps={seatMaps}
+          wantBags={wantBags}
+          cityNames={cityNames}
         />
 
         <span className="text-center text-sm text-muted">{t("footnote")}</span>

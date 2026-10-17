@@ -110,8 +110,12 @@ export function routeHref(slug: { from: string; to: string }) {
   return { pathname: "/ucuslar/[nereden]/[nereye]" as const, params: { nereden: slug.from, nereye: slug.to } };
 }
 
-export function bookingHref(offerId: string) {
-  return { pathname: "/rezervasyon/[teklifId]" as const, params: { teklifId: offerId } };
+/** Rezervasyon sayfası; sonuçlarda bagaj filtresi seçildiyse her yolcuya önceden eklenir. */
+export function bookingHref(offerId: string, bags?: { cabin: number; checked: number }) {
+  const query: Record<string, string> = {};
+  if (bags?.cabin) query.cabin = String(bags.cabin);
+  if (bags?.checked) query.checked = String(bags.checked);
+  return { pathname: "/rezervasyon/[teklifId]" as const, params: { teklifId: offerId }, ...(Object.keys(query).length && { query }) };
 }
 
 export function confirmHref(bookingId: string) {

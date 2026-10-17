@@ -42,20 +42,50 @@ import type { CabinClass } from "../search";
 /** Havayolu bildirdiyse iade / değişiklik koşulları (bilinmiyorsa undefined). */
 export type FareConditions = { refundable?: boolean; changeable?: boolean };
 
-export type BagKind = "small" | "cabin" | "big";
-
 /** Fiyata dahil bagaj (yolcu başı). Kişisel eşya (koltuk altı çanta) her bilete dahildir. */
 export type BagInfo = { cabin: boolean; checkedKg?: number; checked?: boolean; checkedCount?: number };
 
-export type BagOption = {
-  kind: BagKind;
-  /** Yolcu başı ek ücret (TRY); 0 = dahil. */
-  price: number;
-  /** Sağlayıcı ek hizmet kimlikleri (yolcu başına bir tane). */
-  serviceIds?: string[];
-  /** Sağlayıcı para biriminde yolcu başı tutar (sipariş ödemesi için). */
+/** Bir bagaj türü için (yolcu başı, tüm yolculuk): dahil adet ve satın alınabilen ek adet. */
+export type BagOffer = {
+  included: number;
+  /** Ek bagaj alınabiliyorsa adet başı fiyat (TRY, gidiş + dönüş birlikte). */
+  price?: number;
+  /** Sağlayıcı para biriminde adet başı tutar (sipariş ödemesi için). */
   rawAmount?: number;
+  /** En fazla kaç ek adet alınabilir (0 = alınamaz). */
+  max: number;
+  kg?: number;
+  /** Sağlayıcı hizmet kimlikleri: ödeyen yolcu sırasına göre, her bacak için bir kimlik. */
+  serviceIds?: string[][];
 };
+
+export type Bags = { cabin: BagOffer; checked: BagOffer };
+
+/** Yolcunun seçtiği ek bagaj (dahil olanların üstüne). */
+export type BagChoice = { cabin: number; checked: number };
+
+/** Koltuk haritası (bir uçuş bacağı). */
+export type SeatMap = {
+  segment: number;
+  fromCode: string;
+  toCode: string;
+  /** Sütun harfleri; null = koridor */
+  columns: (string | null)[];
+  rows: SeatRow[];
+};
+export type SeatRow = { number: number; exit?: boolean; seats: (Seat | null)[] };
+export type Seat = {
+  designator: string;
+  available: boolean;
+  /** TRY; 0 = ücretsiz */
+  price: number;
+  rawAmount?: number;
+  legroom?: boolean;
+  /** Ödeyen yolcu sırasına göre sağlayıcı hizmet kimliği */
+  serviceIds?: (string | null)[];
+};
+/** Seçilen koltuk: bacak sırası, ödeyen yolcu sırası, koltuk. */
+export type SeatChoice = { segment: number; pax: number; designator: string };
 
 export type Offer = {
   id: string;
@@ -75,7 +105,7 @@ export type Offer = {
   /** Sağlayıcının kendi para birimindeki toplam (sipariş ödemesi bununla yapılır). */
   raw: { amount: string; currency: string };
   bagInfo: BagInfo;
-  bagOptions: BagOption[];
+  bags: Bags;
   cabin: CabinClass;
   /** Havayolunun paket adı (ör. "Basic", "Standard"). */
   fareBrand?: string;
@@ -99,7 +129,9 @@ export type OrderInput = {
   passengers: PassengerInput[];
   email: string;
   phone: string;
-  bag: BagKind;
+  /** Ödeyen yolcu sırasına göre (bebekler hariç) */
+  bags: BagChoice[];
+  seats: SeatChoice[];
   promo?: string;
 };
 
@@ -117,6 +149,7 @@ export type Booking = {
 export interface FlightProvider {
   search(q: SearchQuery): Promise<Offer[]>;
   getOffer(id: string): Promise<Offer | null>;
+  seatMaps(offer: Offer): Promise<SeatMap[]>;
   createOrder(input: OrderInput, offer: Offer, totalTry: number): Promise<Booking>;
 }
 

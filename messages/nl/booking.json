@@ -1,7 +1,13 @@
 {
   "metaTitle": "Boeking",
   "back": "← Terug naar vluchten",
-  "steps": { "label": "Stappen", "passenger": "Reiziger", "bags": "Bagage", "payment": "Betaling" },
+  "steps": {
+    "label": "Stappen",
+    "passenger": "Reiziger",
+    "bags": "Bagage",
+    "seats": "Stoel",
+    "payment": "Betaling"
+  },
   "title": "Bijna klaar!",
   "outbound": "Heen · {date}",
   "inbound": "Terug · {date}",
@@ -21,7 +27,11 @@
     "passport": "Paspoortnummer",
     "note": "Voor internationale vluchten vraagt de maatschappij je paspoortgegevens. Je paspoort moet na terugkomst nog minstens 6 maanden geldig zijn.",
     "slot": "Reiziger {n} · {type}",
-    "types": { "adult": "Volwassene", "child": "Kind", "infant": "Baby" }
+    "types": {
+      "adult": "Volwassene",
+      "child": "Kind",
+      "infant": "Baby"
+    }
   },
   "contact": {
     "title": "Hoe bereiken we je?",
@@ -34,22 +44,54 @@
     "valiz": "Valiz: “Nu toevoegen is goedkoper dan op het vliegveld!”",
     "label": "Bagage",
     "free": "Gratis",
-    "options": {
-      "small": { "title": "Kleine tas", "desc": "Past onder de stoel" },
-      "cabin": { "title": "Handbagage", "desc": "10 kg, in het bagagevak" },
-      "big": { "title": "Grote koffer", "desc": "20 kg, in het ruim" }
-    },
-    "transferNote": "Bij een overstap moet je je bagage in {city} mogelijk ophalen en opnieuw inchecken."
+    "transferNote": "Bij een overstap moet je je bagage in {city} mogelijk ophalen en opnieuw inchecken.",
+    "cabinTitle": "Cabine- of handbagage",
+    "personal": "Persoonlijk item",
+    "personalDesc": "Past onder de stoel",
+    "cabinPack": "Handbagagepakket",
+    "cabinPackDesc": "Persoonlijk item + {kg} kg cabinekoffer",
+    "cabinPackDescNoKg": "Persoonlijk item + cabinekoffer",
+    "checkedTitle": "Ruimbagage",
+    "checkedDesc": "Tot {kg} kg, in het ruim",
+    "checkedDescNoKg": "In het ruim",
+    "included": "Inbegrepen",
+    "includedCount": "{n} inbegrepen",
+    "perBag": "{price} per stuk",
+    "unavailable": "Kan nu niet aan dit ticket worden toegevoegd.",
+    "add": "{label} toevoegen",
+    "remove": "{label} verwijderen",
+    "roundTripNote": "Bagageprijzen gelden voor heen- en terugvlucht samen.",
+    "paxTitle": "Passagier {n} · {type}",
+    "noChecked": "Ik heb geen ruimbagage nodig"
   },
   "payment": {
     "title": "Hoe wil je betalen?",
     "secure": "Versleutelde, veilige verbinding",
     "label": "Betaalmethode",
     "methods": {
-      "card": { "label": "Kaart", "sub": "Visa, Mastercard, Amex", "pay": "Betaal met kaart" },
-      "ideal": { "label": "iDEAL", "sub": "Nederlandse banken", "pay": "Betaal met iDEAL", "note": "Kies je bank; als je op Betalen drukt, ga je naar je bankapp." },
-      "apple": { "label": "Apple Pay", "sub": "iPhone, Mac", "pay": "Betaal met Apple Pay", "note": "Als je op Betalen drukt, opent Apple Pay; bevestig met Face ID of Touch ID." },
-      "google": { "label": "Google Pay", "sub": "Android, Chrome", "pay": "Betaal met Google Pay", "note": "Als je op Betalen drukt, opent Google Pay; bevestig op je telefoon." }
+      "card": {
+        "label": "Kaart",
+        "sub": "Visa, Mastercard, Amex",
+        "pay": "Betaal met kaart"
+      },
+      "ideal": {
+        "label": "iDEAL",
+        "sub": "Nederlandse banken",
+        "pay": "Betaal met iDEAL",
+        "note": "Kies je bank; als je op Betalen drukt, ga je naar je bankapp."
+      },
+      "apple": {
+        "label": "Apple Pay",
+        "sub": "iPhone, Mac",
+        "pay": "Betaal met Apple Pay",
+        "note": "Als je op Betalen drukt, opent Apple Pay; bevestig met Face ID of Touch ID."
+      },
+      "google": {
+        "label": "Google Pay",
+        "sub": "Android, Chrome",
+        "pay": "Betaal met Google Pay",
+        "note": "Als je op Betalen drukt, opent Google Pay; bevestig op je telefoon."
+      }
     },
     "cardName": "Naam op de kaart",
     "cardNamePlaceholder": "AYSE YILMAZ",
@@ -79,10 +121,15 @@
     "included": "Inbegrepen",
     "total": "Totaal",
     "terms": "Ik heb de <terms>gebruiksvoorwaarden</terms>, de regels van de maatschappij en het <privacy>privacybeleid</privacy> gelezen en ga ermee akkoord.",
-    "needTerms": "Ga akkoord met de voorwaarden om verder te gaan."
+    "needTerms": "Ga akkoord met de voorwaarden om verder te gaan.",
+    "bags": "Extra bagage",
+    "seats": "Stoelkeuze"
   },
   "footnote": "Gratis annuleren binnen 24 uur na boeking. [İPTAL KOŞULLARI] · Hulp: [DESTEK TELEFONU]",
-  "trip": { "rt": "retour", "ow": "enkele reis" },
+  "trip": {
+    "rt": "retour",
+    "ow": "enkele reis"
+  },
   "errors": {
     "summary": "Sommige gegevens ontbreken of kloppen niet. Bekijk de gemarkeerde velden.",
     "name": "Vul in zoals in je paspoort (alleen letters).",
@@ -93,13 +140,38 @@
     "passport": "Controleer het paspoortnummer.",
     "email": "Vul een geldig e-mailadres in.",
     "phone": "Controleer het telefoonnummer.",
-    "bag": "Kies een bagageoptie.",
+    "bag": "De gekozen bagage kan niet aan dit ticket worden toegevoegd.",
     "terms": "Ga akkoord met de voorwaarden om verder te gaan.",
     "expired": "Deze aanbieding is verlopen. Zoek opnieuw voor actuele prijzen.",
     "failed": "We konden de boeking nu niet afronden. Er is niets afgeschreven; probeer het zo opnieuw.",
-    "live": "Betalingen zijn nog niet gekoppeld, dus tickets kunnen nu nog niet worden uitgegeven."
+    "live": "Betalingen zijn nog niet gekoppeld, dus tickets kunnen nu nog niet worden uitgegeven.",
+    "seats": "Een van je stoelen is niet meer beschikbaar. Kies opnieuw."
   },
   "testNotice": "Testmodus: er wordt niet betaald en je kaartgegevens worden nergens naartoe gestuurd.",
   "processing": "Bezig met boeken…",
-  "expiredPage": { "title": "Deze aanbieding is verlopen", "text": "Prijzen veranderen vaak. Zoek opnieuw om actuele vluchten te zien.", "cta": "Opnieuw zoeken" }
+  "expiredPage": {
+    "title": "Deze aanbieding is verlopen",
+    "text": "Prijzen veranderen vaak. Zoek opnieuw om actuele vluchten te zien.",
+    "cta": "Opnieuw zoeken"
+  },
+  "seats": {
+    "title": "Kies je stoel",
+    "subtitle": "Optioneel. Sla je het over, dan wijst de luchtvaartmaatschappij bij het inchecken een stoel toe.",
+    "flight": "{from} → {to}",
+    "forPax": "Passagier {n}",
+    "legendFree": "Gratis",
+    "legendPaid": "Betaald",
+    "legendLegroom": "Extra beenruimte",
+    "legendTaken": "Bezet",
+    "legendSelected": "Jouw keuze",
+    "seat": "Stoel {seat}, {price}",
+    "seatTaken": "Stoel {seat}, bezet",
+    "exit": "Uitgang",
+    "none": "Stoelkeuze wordt voor deze vlucht nu niet aangeboden; je kunt kiezen bij het inchecken.",
+    "clear": "Stoel verwijderen",
+    "picked": "{pax}: {seat}",
+    "notPicked": "{pax}: niet gekozen",
+    "free": "Gratis",
+    "front": "Voor"
+  }
 }

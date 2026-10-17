@@ -5,7 +5,7 @@ import "server-only";
 import { findAirport } from "@/data/airports";
 import { toTry } from "../currency";
 import type { SearchQuery } from "../search";
-import type { BagInfo, BagKind, BagOption, CabinClass, Segment, Booking, FlightProvider, Leg, Offer, OrderInput } from "./types";
+import type { BagInfo, BagOffer, Bags, CabinClass, Segment, Booking, FlightProvider, Leg, Offer, OrderInput, SeatMap, SeatRow } from "./types";
 
 const API = "https://api.duffel.com";
 
@@ -46,6 +46,7 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
 // --- Duffel yanıt tipleri (kullandığımız alanlar) ---
 type DPlace = { iata_code: string; city_name?: string | null; name: string };
 type DSegment = {
+  id: string;
   departing_at: string;
   arriving_at: string;
   duration?: string | null;
@@ -72,6 +73,7 @@ type DService = {
   total_amount: string;
   total_currency: string;
   passenger_ids: string[];
+  segment_ids?: string[];
   maximum_quantity: number;
   metadata?: { type?: "checked" | "carry_on"; maximum_weight_kg?: number | null };
 };
@@ -163,26 +165,41 @@ function cabinOf(o: DOffer, q: SearchQuery): CabinClass {
   return CABIN_VALUES.includes(c as CabinClass) ? (c as CabinClass) : (q.cabin ?? "economy");
 }
 
-function bagOptions(o: DOffer): BagOption[] {
-  const { checked, carryOn } = includedBags(o);
-  const opts: BagOption[] = [{ kind: "small", price: 0 }];
-  const paying = o.passengers.filter((p) => !p.type.startsWith("infant"));
-  const services = (o.available_services ?? []).filter((s) => s.type === "baggage");
-  const fromServices = (kind: BagKind, t: "carry_on" | "checked"): BagOption | null => {
-    const perPax = paying.map((p) =>
-      services
-        .filter((s) => s.metadata?.type === t && s.passenger_ids.includes(p.id))
-        .sort((a, b) => Number(a.total_amount) - Number(b.total_amount))[0],
-    );
-    if (!perPax.length || perPax.some((s) => !s)) return null;
-    const amount = Number(perPax[0]!.total_amount);
-    return { kind, price: toTry(amount, perPax[0]!.total_currency), rawAmount: amount, serviceIds: perPax.map((s) => s!.id) };
+const payingPassengers = (o: DOffer) => o.passengers.filter((p) => !p.type.startsWith("infant"));
+
+/**
+ * Ek bagaj: her ödeyen yolcu için her bacakta (gidiş, dönüş) en ucuz uygun hizmet seçilir.
+ * Bir bacakta bile hizmet yoksa o bagaj türü bu teklifte satın alınamaz.
+ */
+function bagOffer(o: DOffer, t: "carry_on" | "checked", included: number): BagOffer {
+  const services = (o.available_services ?? []).filter((s) => s.type === "baggage" && s.metadata?.type === t);
+  const perPax = payingPassengers(o).map((p) => {
+    const picked = o.slices.map((sl) => {
+      const ids = sl.segments.map((x) => x.id);
+      return services
+        .filter((s) => s.passenger_ids.includes(p.id) && (s.segment_ids ?? []).some((id) => ids.includes(id)))
+        .sort((a, b) => Number(a.total_amount) - Number(b.total_amount))[0];
+    });
+    // Aynı hizmet iki bacağı birden kapsıyorsa bir kez sayılır
+    return picked.every(Boolean) ? [...new Map(picked.map((s) => [s!.id, s!])).values()] : null;
+  });
+  if (!perPax.length || perPax.some((l) => !l)) return { included, max: 0 };
+  const lists = perPax as DService[][];
+  const amount = lists[0].reduce((n, s) => n + Number(s.total_amount), 0);
+  const cap = t === "carry_on" ? Math.max(0, 1 - included) : 3;
+  return {
+    included,
+    price: toTry(amount, lists[0][0].total_currency),
+    rawAmount: amount,
+    max: Math.min(cap, ...lists.flat().map((s) => s.maximum_quantity)),
+    kg: lists[0][0].metadata?.maximum_weight_kg ?? undefined,
+    serviceIds: lists.map((l) => l.map((s) => s.id)),
   };
-  const cabin = carryOn > 0 ? { kind: "cabin" as const, price: 0 } : fromServices("cabin", "carry_on");
-  const big = checked > 0 ? { kind: "big" as const, price: 0 } : fromServices("big", "checked");
-  if (cabin) opts.push(cabin);
-  if (big) opts.push(big);
-  return opts;
+}
+
+function bags(o: DOffer): Bags {
+  const { checked, carryOn } = includedBags(o);
+  return { cabin: bagOffer(o, "carry_on", carryOn > 0 ? 1 : 0), checked: bagOffer(o, "checked", checked) };
 }
 
 // Yalnızca Duffel'ın kendi logo sunucusundan gelen adresler gösterilir.
@@ -205,7 +222,7 @@ function mapOffer(o: DOffer, q: SearchQuery): Offer {
     total,
     raw: { amount: o.total_amount, currency: o.total_currency },
     bagInfo: bagInfo(o),
-    bagOptions: bagOptions(o),
+    bags: bags(o),
     cabin: cabinOf(o, q),
     fareBrand: o.slices[0]?.fare_brand_name ?? undefined,
     conditions: {
@@ -229,6 +246,53 @@ function queryFromOffer(o: DOffer): SearchQuery {
   };
 }
 
+// --- Koltuk haritaları ---
+type DSeatService = { id: string; passenger_id: string; total_amount: string; total_currency: string };
+type DSeatElement = { type: string; designator?: string; disclosures?: string[]; available_services?: DSeatService[] };
+type DSeatMap = { segment_id: string; cabins: { rows: { sections: { elements: DSeatElement[] }[] }[] }[] };
+
+async function seatMapsFor(o: DOffer): Promise<SeatMap[]> {
+  const data = await call<DSeatMap[]>(`/air/seat_maps?offer_id=${o.id}`);
+  const segIds = o.slices.flatMap((s) => s.segments.map((x) => x.id));
+  const segs = o.slices.flatMap((s) => s.segments);
+  const paying = payingPassengers(o);
+  return data.flatMap((m) => {
+    const index = segIds.indexOf(m.segment_id);
+    if (index < 0) return [];
+    const rows = m.cabins.flatMap((c) => c.rows);
+    // Her bölümün sütun harfleri; bölümler arası koridor
+    const sectionCount = Math.max(...rows.map((r) => r.sections.length));
+    const letters = Array.from({ length: sectionCount }, (_, k) =>
+      [...new Set(rows.flatMap((r) => (r.sections[k]?.elements ?? []).map((e) => e.designator?.replace(/^\d+/, "")).filter((x): x is string => !!x)))].sort(),
+    );
+    const columns = letters.flatMap((l, k) => (k === 0 ? l : [null, ...l]));
+    const out: SeatRow[] = [];
+    for (const r of rows) {
+      const elements = r.sections.flatMap((s) => s.elements);
+      const seatsHere = elements.filter((e) => e.type === "seat" && e.designator);
+      if (!seatsHere.length) continue;
+      const number = Number(seatsHere[0].designator!.match(/^\d+/)?.[0]);
+      const seats = columns.map((col) => {
+        if (!col) return null;
+        const e = seatsHere.find((x) => x.designator === `${number}${col}`);
+        if (!e) return null;
+        const svc = e.available_services ?? [];
+        const first = svc.find((s) => s.passenger_id === paying[0]?.id) ?? svc[0];
+        const amount = first ? Number(first.total_amount) : 0;
+        return {
+          designator: e.designator!,
+          available: svc.length > 0,
+          price: first ? toTry(amount, first.total_currency) : 0,
+          rawAmount: amount,
+          serviceIds: paying.map((p) => svc.find((s) => s.passenger_id === p.id)?.id ?? null),
+        };
+      });
+      out.push({ number, exit: elements.some((e) => e.type === "exit_row"), seats });
+    }
+    return [{ segment: index, fromCode: segs[index].origin.iata_code, toCode: segs[index].destination.iata_code, columns, rows: out }];
+  });
+}
+
 export const duffelProvider: FlightProvider = {
   async search(q) {
     const slices = [{ origin: q.from, destination: q.to, departure_date: q.date }];
@@ -244,7 +308,8 @@ export const duffelProvider: FlightProvider = {
     });
     return data.offers
       .sort((a, b) => Number(a.total_amount) - Number(b.total_amount))
-      .slice(0, 30)
+      // Aynı uçuşun farklı paketleri de gelir; sonuç sayfası bunları tek kartta toplar.
+      .slice(0, 60)
       .map((o) => mapOffer(o, q));
   },
 
@@ -257,6 +322,12 @@ export const duffelProvider: FlightProvider = {
       if (e instanceof ProviderError && (e.status === 404 || e.status === 422)) return null;
       throw e;
     }
+  },
+
+  async seatMaps(offer) {
+    if (!/^off_[A-Za-z0-9]+$/.test(offer.id)) return [];
+    const o = await call<DOffer>(`/air/offers/${offer.id}`);
+    return seatMapsFor(o);
   },
 
   async createOrder(input: OrderInput, offer: Offer, totalTry: number): Promise<Booking> {
@@ -290,9 +361,33 @@ export const duffelProvider: FlightProvider = {
       };
     });
 
-    const bag = mapOffer(o, offer.query).bagOptions.find((b) => b.kind === input.bag);
-    const services = bag?.serviceIds?.map((id) => ({ id, quantity: 1 })) ?? [];
-    const extra = (bag?.rawAmount ?? 0) * (bag?.serviceIds?.length ?? 0);
+    // Ek hizmetler: bagaj (adetli) ve koltuk. Tutar Duffel'ın hizmet fiyatlarından hesaplanır.
+    const byId = new Map((o.available_services ?? []).map((s) => [s.id, s]));
+    const services: { id: string; quantity: number }[] = [];
+    let extra = 0;
+    const add = (id: string, quantity: number, amount: number) => {
+      services.push({ id, quantity });
+      extra += amount * quantity;
+    };
+    const fresh = bags(o);
+    input.bags.forEach((choice, i) => {
+      for (const kind of ["cabin", "checked"] as const) {
+        const n = choice[kind];
+        if (!n) continue;
+        const ids = fresh[kind].serviceIds?.[i];
+        if (!ids || n > fresh[kind].max) throw new ProviderError("Seçilen bagaj artık alınamıyor.");
+        for (const id of ids) add(id, n, Number(byId.get(id)?.total_amount ?? 0));
+      }
+    });
+    if (input.seats.length) {
+      const maps = await seatMapsFor(o);
+      for (const s of input.seats) {
+        const seat = maps.find((m) => m.segment === s.segment)?.rows.flatMap((r) => r.seats).find((x) => x?.designator === s.designator);
+        const id = seat?.serviceIds?.[s.pax];
+        if (!seat?.available || !id) throw new ProviderError("Seçilen koltuk artık müsait değil.");
+        add(id, 1, seat.rawAmount ?? 0);
+      }
+    }
     const amount = (Number(o.total_amount) + extra).toFixed(2);
 
     const order = await call<{ id: string; booking_reference: string }>("/air/orders", {

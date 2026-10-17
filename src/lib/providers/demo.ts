@@ -2,7 +2,7 @@
 // tutarlı (aynı aramada hep aynı) teklifler üretir. Fiyatlar ve saatler ÖRNEKTİR.
 import { distanceKm, findAirport, type Airport } from "@/data/airports";
 import { addDays, todayIso, type SearchQuery } from "../search";
-import type { BagInfo, BagOption, Booking, CabinClass, FareConditions, FlightProvider, Leg, Offer, OrderInput, Segment } from "./types";
+import type { BagInfo, Bags, Booking, CabinClass, FareConditions, FlightProvider, Leg, Offer, OrderInput, SeatMap, SeatRow, Segment } from "./types";
 
 function hash(s: string): number {
   let h = 2166136261;
@@ -101,24 +101,42 @@ function bagInfo(airline: string, cabin: CabinClass): BagInfo {
   return { cabin: false };
 }
 
-/** Örnek paket adı ve koşulları. */
-function fareFor(airline: string, cabin: CabinClass): { brand: string; conditions: FareConditions } {
-  if (cabin === "business" || cabin === "first") return { brand: "Flex", conditions: { refundable: true, changeable: true } };
-  if (cabin === "premium_economy") return { brand: "Comfort", conditions: { refundable: false, changeable: true } };
-  if (FULL_SERVICE.has(airline.split(" + ")[0])) return { brand: "Standard", conditions: { refundable: false, changeable: true } };
-  return { brand: "Basic", conditions: { refundable: false, changeable: false } };
+type Fare = { brand: string; factor: number; info: BagInfo; conditions: FareConditions };
+
+/**
+ * Örnek paketler: aynı uçuş için havayolunun sattığı tarifeler (ör. Light / Standard / Flex).
+ * İlk paket en ucuzudur.
+ */
+function faresFor(airline: string, cabin: CabinClass): Fare[] {
+  const main = airline.split(" + ")[0];
+  const base = bagInfo(airline, cabin);
+  if (cabin === "business" || cabin === "first") return [{ brand: "Flex", factor: 1, info: base, conditions: { refundable: true, changeable: true } }];
+  if (cabin === "premium_economy") return [{ brand: "Comfort", factor: 1, info: base, conditions: { refundable: false, changeable: true } }];
+  const flex = (factor: number, kg: number): Fare => ({
+    brand: "Flex", factor, info: { cabin: true, checked: true, checkedKg: kg, checkedCount: 1 }, conditions: { refundable: true, changeable: true },
+  });
+  if (FULL_SERVICE.has(main)) {
+    return [
+      { brand: "Light", factor: 0.88, info: { cabin: true }, conditions: { refundable: false, changeable: false } },
+      { brand: "Standard", factor: 1, info: base, conditions: { refundable: false, changeable: true } },
+      flex(1.35, 23),
+    ];
+  }
+  if (HOLIDAY.has(main)) return [{ brand: "Basic", factor: 1, info: base, conditions: { refundable: false, changeable: false } }, flex(1.3, 20)];
+  return [
+    { brand: "Basic", factor: 1, info: base, conditions: { refundable: false, changeable: false } },
+    { brand: "Plus", factor: 1.28, info: { cabin: true, checked: true, checkedKg: 20, checkedCount: 1 }, conditions: { refundable: false, changeable: true } },
+  ];
 }
 
-function bagOptions(info: BagInfo, km: number): BagOption[] {
-  const scale = Math.max(0.6, Math.min(1.4, km / 2200));
-  if (info.checked) {
-    return [{ kind: "small", price: 0 }, { kind: "cabin", price: 0 }, { kind: "big", price: 0 }];
-  }
-  return [
-    { kind: "small", price: 0 },
-    { kind: "cabin", price: round10(640 * scale) },
-    { kind: "big", price: round10(1380 * scale) },
-  ];
+/** Ek bagaj fiyatları (yolcu başı, adet başı; dönüşlü yolculukta iki yön). */
+function bagsFor(info: BagInfo, km: number, roundTrip: boolean): Bags {
+  const scale = Math.max(0.6, Math.min(1.4, km / 2200)) * (roundTrip ? 2 : 1);
+  const included = info.checked ? (info.checkedCount ?? 1) : 0;
+  return {
+    cabin: info.cabin ? { included: 1, max: 0 } : { included: 0, price: round10(640 * scale), max: 1, kg: 8 },
+    checked: { included, price: round10(1380 * scale), max: 2, kg: info.checkedKg ?? 20 },
+  };
 }
 
 const hhmm = (mins: number) => `${String(Math.floor(mins / 60) % 24).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
@@ -243,34 +261,67 @@ function generate(q: SearchQuery): Offer[] {
   }
 
   const pax = q.pax;
-  return plans.map((p, i) => {
+  const offers: Omit<Offer, "id">[] = plans.flatMap((p) => {
     const outbound = makeLeg(r, a, b, q.date, p.airline, p.via);
     const inbound = q.returnDate ? makeLeg(r, b, a, q.returnDate, p.airline, p.via) : undefined;
-    const price = round10(base * p.factor);
-    // Çocuk %75, bebek %10 ödenir (örnek kural).
-    const total = round10(price * (pax.adults + pax.children * 0.75 + pax.infants * 0.1));
-    const info = bagInfo(p.airline, cabin);
-    const fare = fareFor(p.airline, cabin);
+    return faresFor(p.airline, cabin).map((fare) => {
+      const price = round10(base * p.factor * fare.factor);
+      // Çocuk %75, bebek %10 ödenir (örnek kural).
+      const total = round10(price * (pax.adults + pax.children * 0.75 + pax.infants * 0.1));
+      return {
+        provider: "demo" as const,
+        query: q,
+        fromCity: a.city,
+        toCity: b.city,
+        airline: p.airline,
+        outbound,
+        inbound,
+        price,
+        total,
+        raw: { amount: String(total), currency: "TRY" },
+        bagInfo: fare.info,
+        bags: bagsFor(fare.info, km, !!q.returnDate),
+        cabin,
+        fareBrand: fare.brand,
+        conditions: fare.conditions,
+        passportRequired: a.country !== b.country,
+      };
+    });
+  });
+  return offers.map((o, i) => ({ ...o, id: encodeId(q, i) }));
+}
+
+/** Örnek koltuk haritası: aynı teklif ve bacak için hep aynı dolu koltuklar ve fiyatlar. */
+function demoSeatMap(offer: Offer, segment: number, seg: Segment): SeatMap {
+  const wide = /A350|777|787/.test(seg.aircraft ?? "");
+  const columns: (string | null)[] = wide ? ["A", "B", "C", null, "D", "E", "F", "G", null, "H", "J", "K"] : ["A", "B", "C", null, "D", "E", "F"];
+  const rowCount = wide ? 40 : 30;
+  const exitRows = wide ? [20] : [12, 13];
+  const r = rng(hash(`${offer.id}-${segment}`));
+  const fullService = FULL_SERVICE.has(seg.carrier) && offer.fareBrand !== "Light";
+  const freeAll = offer.fareBrand === "Flex" || offer.cabin === "business" || offer.cabin === "first";
+  const km = seg.mins * 13;
+  const unit = Math.max(0.7, Math.min(1.8, km / 2600));
+  const rows: SeatRow[] = Array.from({ length: rowCount }, (_, k) => {
+    const number = k + 1;
+    const exit = exitRows.includes(number);
+    const front = number <= 3;
     return {
-      id: encodeId(q, i),
-      provider: "demo" as const,
-      query: q,
-      fromCity: a.city,
-      toCity: b.city,
-      airline: p.airline,
-      outbound,
-      inbound,
-      price,
-      total,
-      raw: { amount: String(total), currency: "TRY" },
-      bagInfo: info,
-      bagOptions: bagOptions(info, km),
-      cabin,
-      fareBrand: fare.brand,
-      conditions: fare.conditions,
-      passportRequired: a.country !== b.country,
+      number,
+      exit,
+      seats: columns.map((col) => {
+        if (!col) return null;
+        const window = col === "A" || col === columns[columns.length - 1];
+        const aisle = columns[columns.indexOf(col) - 1] === null || columns[columns.indexOf(col) + 1] === null;
+        let price = front ? 2000 : exit ? 1800 : number > rowCount - 8 ? 1100 : 1300;
+        if (window || aisle) price += 40;
+        price = round10(price * unit);
+        if (freeAll || (fullService && !front && !exit)) price = 0;
+        return { designator: `${number}${col}`, available: r() > 0.38, price, legroom: exit };
+      }),
     };
   });
+  return { segment, fromCode: seg.fromCode, toCode: seg.toCode, columns, rows };
 }
 
 function encodeId(q: SearchQuery, i: number): string {
@@ -296,6 +347,10 @@ export const demoProvider: FlightProvider = {
     const d = decodeId(id);
     if (!d || d.q.date < todayIso()) return null;
     return generate(d.q)[d.i] ?? null;
+  },
+  async seatMaps(offer) {
+    const segs = [...(offer.outbound.segments ?? []), ...(offer.inbound?.segments ?? [])];
+    return segs.map((seg, i) => demoSeatMap(offer, i, seg));
   },
   async createOrder(input: OrderInput, offer: Offer, totalTry: number): Promise<Booking> {
     return {

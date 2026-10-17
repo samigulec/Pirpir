@@ -72,14 +72,14 @@ export default async function ResultsPage({
 
   return (
     <div className="min-h-screen w-full bg-white">
-      <SiteHeader width="results">
+      <SiteHeader width="page">
         <div className="flex items-center gap-2">
           <CurrencySelect />
           <SignInLink />
         </div>
       </SiteHeader>
 
-      <main className="mx-auto flex max-w-results flex-col gap-5 px-6 pb-20 pt-2">
+      <main className="mx-auto flex max-w-page flex-col gap-5 px-6 pb-20 pt-2">
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-[28px] bg-sky px-[22px] py-[18px]">
           <div className="flex flex-col">
             <span className="font-display text-[26px] font-semibold">

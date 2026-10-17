@@ -1,5 +1,6 @@
 // Rezervasyon formu doğrulaması (sunucuda çalışır; istemci de aynı kuralları gösterir).
-import type { BagKind, Offer, PassengerInput } from "./providers/types";
+import type { BagChoice, Offer, PassengerInput, SeatChoice } from "./providers/types";
+import { bagChoiceValid, NO_BAGS } from "./extras";
 
 export type FieldErrors = Record<string, string>;
 
@@ -37,7 +38,8 @@ export type ParsedBooking = {
   passengers: PassengerInput[];
   email: string;
   phone: string;
-  bag: BagKind;
+  bags: BagChoice[];
+  seats: SeatChoice[];
   promo?: string;
 };
 
@@ -82,13 +84,33 @@ export function validateBookingForm(form: FormData, offer: Offer): { data?: Pars
   const phoneDigits = get("phone").replace(/\D/g, "");
   const code = get("phoneCode").replace(/[^\d+]/g, "") || "+31";
   if (phoneDigits.length < 6 || phoneDigits.length > 14) errors.phone = "phone";
-  const bag = get("bag") as BagKind;
-  if (!offer.bagOptions.some((b) => b.kind === bag)) errors.bag = "bag";
+  const paying = passengers.filter((p) => p.type !== "infant").length;
+  const bags = parseJsonList(get("bags"), paying, (v): v is BagChoice => !!v && typeof v === "object" && "cabin" in v && "checked" in v)
+    ?.map((b) => ({ cabin: Number(b.cabin), checked: Number(b.checked) }));
+  const finalBags = bags ?? Array.from({ length: paying }, () => NO_BAGS);
+  if (finalBags.length !== paying || !finalBags.every((b) => bagChoiceValid(offer.bags, b))) errors.bag = "bag";
+  const seats =
+    parseJsonList(get("seats"), 64, (v): v is SeatChoice => !!v && typeof v === "object" && "segment" in v && "pax" in v && "designator" in v)?.map((s) => ({
+      segment: Number(s.segment),
+      pax: Number(s.pax),
+      designator: String(s.designator).slice(0, 4),
+    })) ?? [];
   if (form.get("terms") !== "on") errors.terms = "terms";
 
   if (Object.keys(errors).length) return { errors };
   return {
     errors,
-    data: { passengers, email, phone: code + phoneDigits.replace(/^0/, ""), bag, promo: get("promo") || undefined },
+    data: { passengers, email, phone: code + phoneDigits.replace(/^0/, ""), bags: finalBags, seats, promo: get("promo") || undefined },
   };
+}
+
+/** Formdaki JSON listesi; boşsa undefined, bozuksa ya da çok uzunsa boş liste. */
+function parseJsonList<T>(raw: string, max: number, is: (v: unknown) => v is T): T[] | undefined {
+  if (!raw) return undefined;
+  try {
+    const v: unknown = JSON.parse(raw);
+    return Array.isArray(v) && v.length <= max && v.every(is) ? v : [];
+  } catch {
+    return [];
+  }
 }

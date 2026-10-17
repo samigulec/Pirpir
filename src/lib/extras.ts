@@ -1,0 +1,45 @@
+// Ek bagaj ve koltuk ücretleri: istemcide gösterim, sunucuda yeniden hesap için ortak.
+import type { BagChoice, Bags, SeatChoice, SeatMap } from "./providers/types";
+
+export const NO_BAGS: BagChoice = { cabin: 0, checked: 0 };
+
+/** Seçim geçerli mi (alınabilir türde ve adet sınırında)? */
+export function bagChoiceValid(bags: Bags, c: BagChoice): boolean {
+  const ok = (n: number, b: Bags["cabin"]) => Number.isInteger(n) && n >= 0 && n <= b.max && (n === 0 || b.price !== undefined);
+  return ok(c.cabin, bags.cabin) && ok(c.checked, bags.checked);
+}
+
+/** Bir yolcunun ek bagaj ücreti (TRY). */
+export const bagCost = (bags: Bags, c: BagChoice) => c.cabin * (bags.cabin.price ?? 0) + c.checked * (bags.checked.price ?? 0);
+
+export const bagsCost = (bags: Bags, choices: BagChoice[]) => choices.reduce((n, c) => n + bagCost(bags, c), 0);
+
+/**
+ * Arama filtresindeki "kabin bagajı / kontrol edilen bagaj" isteği için yolcu başı ek ücret.
+ * Teklifte bu bagaj alınamıyorsa null.
+ */
+export function wantedBagsExtra(bags: Bags, want: BagChoice): { choice: BagChoice; extra: number } | null {
+  const choice = { cabin: Math.max(0, want.cabin - bags.cabin.included), checked: Math.max(0, want.checked - bags.checked.included) };
+  if (!bagChoiceValid(bags, choice)) return null;
+  return { choice, extra: bagCost(bags, choice) };
+}
+
+export function findSeat(maps: SeatMap[], segment: number, designator: string) {
+  return maps.find((m) => m.segment === segment)?.rows.flatMap((r) => r.seats).find((s) => s?.designator === designator) ?? null;
+}
+
+/** Koltuk seçimlerinin toplamı; geçersiz (dolu, yok, aynı koltuk iki kez) seçim varsa null. */
+export function seatsCost(maps: SeatMap[], seats: SeatChoice[], paying: number): number | null {
+  const seen = new Set<string>();
+  let total = 0;
+  for (const s of seats) {
+    const key = `${s.segment}:${s.designator}`;
+    const paxKey = `${s.segment}#${s.pax}`;
+    const seat = findSeat(maps, s.segment, s.designator);
+    if (!seat?.available || seen.has(key) || seen.has(paxKey) || s.pax < 0 || s.pax >= paying) return null;
+    seen.add(key);
+    seen.add(paxKey);
+    total += seat.price;
+  }
+  return total;
+}

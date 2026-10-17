@@ -10,6 +10,7 @@ import { confirmHref } from "@/lib/search";
 import { validateBookingForm, type FieldErrors } from "@/lib/booking-validate";
 import { getOffer } from "@/lib/flights";
 import { getProviderForOffer } from "@/lib/providers/select";
+import { bagsCost, seatsCost } from "@/lib/extras";
 
 export type PlaceOrderState = { errors: FieldErrors; message?: "expired" | "failed" | "live" };
 
@@ -20,16 +21,23 @@ export async function placeOrder(offerId: string, form: FormData): Promise<Place
   const { data, errors } = validateBookingForm(form, offer);
   if (!data) return { errors };
 
-  // Fiyat istemciden alınmaz; sunucuda tekliften yeniden hesaplanır.
-  const bag = offer.bagOptions.find((b) => b.kind === data.bag)!;
+  // Fiyat istemciden alınmaz; sunucuda teklif, bagaj ve koltuk haritasından yeniden hesaplanır.
+  const provider = getProviderForOffer(offer);
   const paying = data.passengers.filter((p) => p.type !== "infant").length;
-  const total = Math.max(0, offer.total + bag.price * paying - promoDiscount(data.promo));
+  let seatTotal = 0;
+  if (data.seats.length) {
+    const maps = await provider.seatMaps(offer).catch(() => []);
+    const cost = seatsCost(maps, data.seats, paying);
+    if (cost === null) return { errors: { seats: "seats" } };
+    seatTotal = cost;
+  }
+  const total = Math.max(0, offer.total + bagsCost(offer.bags, data.bags) + seatTotal - promoDiscount(data.promo));
 
   const locale = asLocale(await getLocale());
   const user = await getCurrentUser();
   let bookingId: string;
   try {
-    const booking = await getProviderForOffer(offer).createOrder({ ...data, offerId }, offer, total);
+    const booking = await provider.createOrder({ ...data, offerId }, offer, total);
     await saveBooking(booking, user, locale);
     bookingId = booking.id;
   } catch (e) {

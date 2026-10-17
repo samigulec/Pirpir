@@ -10,7 +10,10 @@ import { BankaIdealIcon, CuzdanGooglePayIcon, KartIcon, TelefonApplePayIcon } fr
 import { idealBanks, nationalities, paymentMethods, phoneCodes, promoDiscount, type PaymentId } from "@/data/mock/booking";
 import { placeOrder, type PlaceOrderState } from "@/actions/booking";
 import type { PassengerSlot } from "@/lib/booking-validate";
-import type { BagKind, Offer } from "@/lib/providers/types";
+import type { BagChoice, BagOffer, Offer, SeatChoice, SeatMap } from "@/lib/providers/types";
+import { bagsCost, NO_BAGS, seatsCost, wantedBagsExtra } from "@/lib/extras";
+import { CabinBagIcon, CheckedBagIcon, PersonalItemIcon } from "../results/BagIcons";
+import { SeatPicker } from "./SeatPicker";
 import { detectCardBrand, formatCardNumber } from "@/lib/card";
 import { locative } from "@/lib/tr-suffix";
 
@@ -32,6 +35,9 @@ export function BookingForm({
   testMode,
   defaultEmail,
   viaCity,
+  seatMaps,
+  wantBags,
+  cityNames,
 }: {
   offer: Offer;
   slots: PassengerSlot[];
@@ -41,10 +47,18 @@ export function BookingForm({
   defaultEmail?: string;
   /** Gidişteki aktarma şehrinin yerel adı (bagaj notu için) */
   viaCity?: string;
+  seatMaps: SeatMap[];
+  /** Sonuçlardaki bagaj filtresi: her yolcu için önceden seçilir. */
+  wantBags: BagChoice;
+  cityNames: Record<string, string>;
 }) {
   const t = useTranslations("booking");
   const { fmt } = useCurrency();
-  const [bag, setBag] = useState<BagKind>("small");
+  const payingSlots = slots.filter((s) => s.type !== "infant");
+  const [bags, setBags] = useState<BagChoice[]>(() =>
+    payingSlots.map(() => wantedBagsExtra(offer.bags, wantBags)?.choice ?? NO_BAGS),
+  );
+  const [seats, setSeats] = useState<SeatChoice[]>([]);
   const [pay, setPay] = useState<PaymentId>("card");
   const [card, setCard] = useState("");
   const [promoCode, setPromoCode] = useState("");
@@ -54,10 +68,13 @@ export function BookingForm({
   const [state, setState] = useState<PlaceOrderState>({ errors: {} });
   const [pending, startTransition] = useTransition();
 
-  const paying = slots.filter((s) => s.type !== "infant").length;
-  const bagPrice = offer.bagOptions.find((b) => b.kind === bag)?.price ?? 0;
+  const bagTotal = bagsCost(offer.bags, bags);
+  const seatTotal = seatsCost(seatMaps, seats, payingSlots.length) ?? 0;
   const discount = promo?.amount ?? 0;
-  const total = Math.max(0, offer.total + bagPrice * paying - discount);
+  const total = Math.max(0, offer.total + bagTotal + seatTotal - discount);
+  const paxLabel = (i: number) =>
+    payingSlots.length > 1 ? t("bags.paxTitle", { n: i + 1, type: t(`passenger.types.${payingSlots[i].type}`) }) : t(`passenger.types.${payingSlots[i].type}`);
+  const setBag = (i: number, patch: Partial<BagChoice>) => setBags((l) => l.map((b, k) => (k === i ? { ...b, ...patch } : b)));
   const brand = detectCardBrand(card);
   const payLabel = `${t(`payment.methods.${pay}.pay`)} · ${fmt(total)}`;
   const err = (name: string) => state.errors[name];
@@ -81,7 +98,8 @@ export function BookingForm({
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    fd.set("bag", bag);
+    fd.set("bags", JSON.stringify(bags));
+    fd.set("seats", JSON.stringify(seats));
     if (promo) fd.set("promo", promo.code);
     startTransition(async () => {
       const res = await placeOrder(offer.id, fd);
@@ -181,30 +199,28 @@ export function BookingForm({
             <span className="text-[15px] text-muted">{t("bags.valiz")}</span>
           </div>
         </div>
-        <div role="radiogroup" aria-label={t("bags.label")} className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-[10px]">
-          {offer.bagOptions.map((b) => {
-            const on = bag === b.kind;
-            return (
-              <button
-                key={b.kind}
-                type="button"
-                role="radio"
-                aria-checked={on}
-                onClick={() => setBag(b.kind)}
-                className={`flex min-h-[120px] cursor-pointer flex-col items-start rounded-[22px] border-[3px] border-solid px-5 py-[18px] text-left text-ink ${
-                  on ? "border-coral bg-coral-soft" : "border-line bg-white"
-                }`}
-              >
-                <span className="font-display text-[19px] font-semibold">{t(`bags.options.${b.kind}.title`)}</span>
-                <span className="text-sm font-semibold">{t(`bags.options.${b.kind}.desc`)}</span>
-                <span className="mt-[6px] font-extrabold">{b.price === 0 ? t("bags.free") : `+ ${fmt(b.price)}`}</span>
-              </button>
-            );
-          })}
-        </div>
+        {payingSlots.map((_, i) => (
+          <BagPicker key={i} title={payingSlots.length > 1 ? paxLabel(i) : undefined} bags={offer.bags} value={bags[i]} onChange={(patch) => setBag(i, patch)} />
+        ))}
+        {offer.inbound && <span className="text-sm text-muted">{t("bags.roundTripNote")}</span>}
+        {errText("bag")}
         {viaCity && (
           <span className="text-sm text-muted">{t("bags.transferNote", { place: locative(viaCity!), city: viaCity! })}</span>
         )}
+      </section>
+
+      {/* Koltuk */}
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-col">
+          <h2 className={h2}>{t("seats.title")}</h2>
+          <span className="text-[15px] text-muted">{t("seats.subtitle")}</span>
+        </div>
+        {seatMaps.length ? (
+          <SeatPicker maps={seatMaps} passengers={payingSlots.map((_, i) => paxLabel(i))} cityNames={cityNames} value={seats} onChange={setSeats} />
+        ) : (
+          <span className="rounded-[20px] bg-field px-5 py-4 font-bold text-muted">{t("seats.none")}</span>
+        )}
+        {errText("seats")}
       </section>
 
       {/* Ödeme */}
@@ -353,7 +369,10 @@ export function BookingForm({
       <div className="flex flex-col gap-4 rounded-[28px] bg-ink px-6 py-[22px] text-white">
         <div className="flex flex-col gap-[6px] border-0 border-b border-solid border-ink-soft pb-[14px] font-bold">
           <div className="flex justify-between gap-3"><span className="text-on-ink">{t("total.ticket", { pax: paxText, trip: t(offer.inbound ? "trip.rt" : "trip.ow") })}</span><span>{fmt(offer.total)}</span></div>
-          <div className="flex justify-between gap-3"><span className="text-on-ink">{paying > 1 ? t("total.bagPerPax", { n: paying }) : t("total.bag")}</span><span>{bagPrice === 0 ? t("bags.free") : fmt(bagPrice * paying)}</span></div>
+          <div className="flex justify-between gap-3"><span className="text-on-ink">{t("total.bags")}</span><span>{bagTotal === 0 ? "—" : fmt(bagTotal)}</span></div>
+          {seats.length > 0 && (
+            <div className="flex justify-between gap-3"><span className="text-on-ink">{t("total.seats")}</span><span>{seatTotal === 0 ? t("bags.free") : fmt(seatTotal)}</span></div>
+          )}
           {promo && (
             <div className="flex justify-between gap-3"><span className="text-on-ink">{t("total.promo")}</span><span className="text-green-light">− {fmt(discount)}</span></div>
           )}
@@ -397,5 +416,90 @@ export function BookingForm({
         {testMode && <span className="text-center text-sm text-on-ink">{t("testNotice")}</span>}
       </div>
     </form>
+  );
+}
+
+/** Bir yolcunun bagajı: kabin (kişisel eşya ya da el bagajı paketi) ve kontrol edilen bagaj adedi. */
+function BagPicker({ title, bags, value, onChange }: { title?: string; bags: Offer["bags"]; value: BagChoice; onChange: (p: Partial<BagChoice>) => void }) {
+  const t = useTranslations("booking.bags");
+  const { fmt } = useCurrency();
+  const card = (on: boolean) =>
+    `flex min-h-[120px] flex-col items-start gap-1 rounded-[22px] border-[3px] border-solid px-5 py-4 text-left text-ink ${on ? "border-coral bg-coral-soft" : "border-line bg-white"}`;
+  const priceText = (b: BagOffer) => (b.price === undefined ? t("unavailable") : `+ ${fmt(b.price)}`);
+  const cabinIncluded = bags.cabin.included > 0;
+  const cabinBuyable = bags.cabin.max > 0 && bags.cabin.price !== undefined;
+  const checkedBuyable = bags.checked.max > 0 && bags.checked.price !== undefined;
+  const checkedLabel = t("checkedTitle");
+
+  return (
+    <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
+      {title && <legend className="mb-1 p-0 font-display text-lg font-semibold text-muted">{title}</legend>}
+      <span className="text-[15px] font-extrabold">{t("cabinTitle")}</span>
+      <div role="radiogroup" aria-label={t("cabinTitle")} className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[10px]">
+        {!cabinIncluded && (
+          <button type="button" role="radio" aria-checked={value.cabin === 0} onClick={() => onChange({ cabin: 0 })} className={`${card(value.cabin === 0)} cursor-pointer`}>
+            <PersonalItemIcon />
+            <span className="font-display text-[19px] font-semibold">{t("personal")}</span>
+            <span className="text-sm font-semibold">{t("personalDesc")}</span>
+            <span className="mt-auto font-extrabold">{t("included")}</span>
+          </button>
+        )}
+        <button
+          type="button"
+          role="radio"
+          aria-checked={cabinIncluded || value.cabin === 1}
+          disabled={!cabinIncluded && !cabinBuyable}
+          onClick={() => !cabinIncluded && onChange({ cabin: 1 })}
+          className={`${card(cabinIncluded || value.cabin === 1)} cursor-pointer disabled:cursor-not-allowed disabled:opacity-60`}
+        >
+          <span className="flex gap-1"><PersonalItemIcon /><CabinBagIcon /></span>
+          <span className="font-display text-[19px] font-semibold">{t("cabinPack")}</span>
+          <span className="text-sm font-semibold">{bags.cabin.kg ? t("cabinPackDesc", { kg: bags.cabin.kg }) : t("cabinPackDescNoKg")}</span>
+          <span className="mt-auto font-extrabold">{cabinIncluded ? t("included") : priceText(bags.cabin)}</span>
+        </button>
+      </div>
+
+      <span className="text-[15px] font-extrabold">{checkedLabel}</span>
+      <div
+        className={`flex flex-wrap items-center gap-3 rounded-[22px] border-[3px] border-solid px-5 py-4 text-ink ${
+          value.checked > 0 || bags.checked.included > 0 ? "border-coral bg-coral-soft" : "border-line bg-white"
+        }`}
+      >
+        <CheckedBagIcon />
+        <span className="flex min-w-[160px] flex-1 flex-col">
+          <span className="font-display text-[19px] font-semibold">
+            {bags.checked.kg ? t("checkedDesc", { kg: bags.checked.kg }) : t("checkedDescNoKg")}
+          </span>
+          <span className="text-sm font-semibold">
+            {[bags.checked.included > 0 && t("includedCount", { n: bags.checked.included }), checkedBuyable && t("perBag", { price: fmt(bags.checked.price!) })]
+              .filter(Boolean)
+              .join(" · ") || t("unavailable")}
+          </span>
+        </span>
+        {checkedBuyable && (
+          <span className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label={t("remove", { label: checkedLabel })}
+              disabled={value.checked === 0}
+              onClick={() => onChange({ checked: value.checked - 1 })}
+              className="h-11 w-11 cursor-pointer rounded-full border-2 border-solid border-primary bg-white text-xl font-extrabold leading-none text-primary disabled:cursor-not-allowed disabled:border-line disabled:text-muted"
+            >
+              −
+            </button>
+            <span aria-live="polite" className="w-6 text-center font-display text-xl font-semibold">{value.checked}</span>
+            <button
+              type="button"
+              aria-label={t("add", { label: checkedLabel })}
+              disabled={value.checked >= bags.checked.max}
+              onClick={() => onChange({ checked: value.checked + 1 })}
+              className="h-11 w-11 cursor-pointer rounded-full border-2 border-solid border-primary bg-white text-xl font-extrabold leading-none text-primary disabled:cursor-not-allowed disabled:border-line disabled:text-muted"
+            >
+              +
+            </button>
+          </span>
+        )}
+      </div>
+    </fieldset>
   );
 }
