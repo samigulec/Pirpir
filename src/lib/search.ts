@@ -48,9 +48,14 @@ export function addDays(iso: string, days: number): string {
 const isIsoDate = (s?: string) => !!s && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s + "T00:00:00Z"));
 
 /** Tasarımdaki örnek tarihler (24 – 31 Ekim); geçmişte kaldıysa bir hafta sonrası. */
+/**
+ * Tarih verilmemiş bağlantılar için (ör. eski adresler): en az iki hafta sonraki Cuma, bir hafta.
+ * Arama kutusu tarihi boş başlatır; bu yalnızca adreste tarih yoksa kullanılır.
+ */
 export function defaultDates(now = new Date()) {
   const today = todayIso(now);
-  const date = "2026-10-24" > addDays(today, 1) ? "2026-10-24" : addDays(today, 7);
+  const dow = new Date(`${today}T00:00:00Z`).getUTCDay();
+  const date = addDays(today, ((5 - dow + 7) % 7) + 14);
   return { date, returnDate: addDays(date, 7) };
 }
 

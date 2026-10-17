@@ -11,7 +11,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { dataMode, getPopularDestinations } from "@/lib/flights";
 import { getMarket } from "@/lib/market-server";
 import { getDestinationDeals, getRouteDates } from "@/lib/deals";
-import { defaultDates, todayIso } from "@/lib/search";
+import { todayIso } from "@/lib/search";
 
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
@@ -30,7 +30,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         destinations={getPopularDestinations()}
         deals={deals}
         live={live}
-        defaults={{ ...defaultDates(), today: todayIso() }}
+        defaults={{ today: todayIso() }}
         defaultFrom={market.from}
       />
       <CharacterTips deals={deals} from={market.from} />

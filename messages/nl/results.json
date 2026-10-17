@@ -161,5 +161,7 @@
   },
   "bestHint": "Prijs, reisduur en overstappen samen",
   "flexLabel": "± {n} dagen",
-  "flexNote": "Flexibele data: vluchten binnen ± {n} dagen samen"
+  "flexNote": "Flexibele data: vluchten binnen ± {n} dagen samen",
+  "paxCount": "{count, plural, one {# reiziger} other {# reizigers}}",
+  "close": "Sluiten"
 }

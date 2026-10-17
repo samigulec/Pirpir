@@ -46,13 +46,13 @@ export function DateRangePicker({
   const t = useTranslations("home.search");
   const locale = useLocale();
   const loc = intlLocale(locale);
-  const [view, setView] = useState(monthStart(start));
+  const [view, setView] = useState(monthStart(start || min));
   // Hangi tarih seçiliyor: gidiş mi dönüş mü
   const [picking, setPicking] = useState<"start" | "end">("start");
   const [hover, setHover] = useState<string | null>(null);
   const { fmt } = useCurrency();
   // Gidiş seçilirken gösterilen fiyatlar bu kadar gecelik yolculuk içindir (açılıştaki süre, yoksa bir hafta)
-  const [tripNights] = useState(() => (mode === "range" ? (end ? daysBetween(start, end) : 7) : -1));
+  const [tripNights] = useState(() => (mode === "range" ? (start && end ? daysBetween(start, end) : 7) : -1));
   const [prices, setPrices] = useState<{ key: string; departs: Record<string, number>; returns: Record<string, number> } | null>(null);
   const showReturns = mode === "range" && picking === "end";
   const priceKey = route
@@ -106,7 +106,7 @@ export function DateRangePicker({
   };
 
   const rangeEnd = mode === "range" ? (end ?? (picking === "end" && hover && hover >= start ? hover : undefined)) : undefined;
-  const nights = mode === "range" && end ? daysBetween(start, end) : null;
+  const nights = mode === "range" && start && end ? daysBetween(start, end) : null;
   const canPrev = view > monthStart(min);
 
   const Month = ({ first, className }: { first: string; className?: string }) => {
@@ -173,7 +173,7 @@ export function DateRangePicker({
       <div className="flex gap-2">
         <button type="button" onClick={() => setPicking("start")} className={tab(mode === "single" || picking === "start")}>
           <span className="text-[12px] font-extrabold text-muted">{t("departDate")}</span>
-          <span className="font-extrabold">{formatDayWithWeekday(start, loc)}</span>
+          <span className="font-extrabold">{start ? formatDayWithWeekday(start, loc) : t("pickDate")}</span>
         </button>
         {mode === "range" && (
           <button type="button" onClick={() => setPicking("end")} className={tab(picking === "end")}>
@@ -226,7 +226,7 @@ export function DateRangePicker({
         <button
           type="button"
           onClick={onDone}
-          disabled={mode === "range" && !end}
+          disabled={!start || (mode === "range" && !end)}
           className="min-h-[48px] cursor-pointer rounded-pill border-0 bg-primary px-7 font-display text-[17px] font-semibold leading-[normal] text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t("done")}

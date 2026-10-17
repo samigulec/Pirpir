@@ -161,5 +161,7 @@
   },
   "bestHint": "Price, duration and stops together",
   "flexLabel": "± {n} days",
-  "flexNote": "Flexible dates: flights within ± {n} days together"
+  "flexNote": "Flexible dates: flights within ± {n} days together",
+  "paxCount": "{count, plural, one {# traveller} other {# travellers}}",
+  "close": "Close"
 }

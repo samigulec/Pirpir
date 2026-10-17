@@ -18,7 +18,7 @@ export function HomeHero({
   to: AirportValue;
   onFrom: (v: AirportValue) => void;
   onTo: (v: AirportValue) => void;
-  defaults: { date: string; returnDate: string; today: string };
+  defaults: { today: string };
   /** Hero kutusunun hemen altına (telefonda fırsat kartı). */
   afterHero?: React.ReactNode;
 }) {

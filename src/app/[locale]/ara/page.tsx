@@ -10,7 +10,8 @@ import { cityByCode } from "@/data/airports";
 import { intlLocale } from "@/lib/intl";
 import { formatDayLong, formatRange } from "@/lib/dates";
 import { dataMode, getFlexibleDateTip, searchFlightsCached, watchSearch } from "@/lib/flights";
-import { paxTotal, searchHref, type MultiQuery } from "@/lib/search";
+import { paxTotal, searchHref, todayIso, type MultiQuery } from "@/lib/search";
+import { ResultsSearchBar } from "@/components/results/ResultsSearchBar";
 import { Pirpir } from "@/components/characters";
 import { flexQueries, parseSearch, validateSearchServer } from "@/lib/search-server";
 import type { Offer } from "@/lib/providers/types";
@@ -69,26 +70,25 @@ export default async function ResultsPage({
       </SiteHeader>
 
       <main className="mx-auto flex max-w-page flex-col gap-5 px-6 pb-20 pt-2">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[28px] bg-sky px-[22px] py-[18px]">
-          <div className="flex flex-col">
-            <span className="font-display text-[26px] font-semibold">
-              {fromCity} → {toCity}
-            </span>
-            {!error && (
-              <span className="font-semibold text-muted">
-                {t("summaryMeta", { dates: formatRange(q.date, q.returnDate, loc), count: paxTotal(q.pax) })}
-                {q.cabin && q.cabin !== "economy" && ` · ${t(`cabin.${q.cabin}`)}`}
-                {q.flex ? ` · ${t("flexLabel", { n: q.flex })}` : ""}
-              </span>
-            )}
-          </div>
-          <Link
-            href="/"
-            className="box-border inline-flex min-h-[44px] items-center rounded-pill bg-white px-5 py-[10px] font-extrabold text-ink no-underline"
-          >
-            {t("change")}
-          </Link>
-        </div>
+        <h1 className="sr-only">
+          {fromCity} → {toCity}
+          {!error && ` · ${t("summaryMeta", { dates: formatRange(q.date, q.returnDate, loc), count: paxTotal(q.pax) })}`}
+        </h1>
+        {/* Arama her değişince yeniden kurulur: tarih şeridinden gelince de alanlar güncel olsun */}
+        <ResultsSearchBar
+          key={JSON.stringify(q)}
+          from={q.from.map((code) => ({ code, label: cityByCode(code, locale) }))}
+          to={q.to.map((code) => ({ code, label: cityByCode(code, locale) }))}
+          initial={{
+            trip: q.returnDate ? "rt" : "ow",
+            date: q.date,
+            returnDate: q.returnDate ?? "",
+            pax: q.pax,
+            cabin: q.cabin ?? "economy",
+            flex: q.flex ?? 0,
+          }}
+          today={todayIso()}
+        />
 
         {error ? (
           <div role="alert" className={panel}>

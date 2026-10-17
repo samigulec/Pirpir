@@ -22,7 +22,7 @@ export function HomeView({
   /** `defaultFrom` çıkışlı fırsatlar (sunucuda hesaplanır) */
   deals: DealMap;
   live: boolean;
-  defaults: { date: string; returnDate: string; today: string };
+  defaults: { today: string };
   /** Ziyaretçinin ülkesine göre kalkış yeri; varış boş başlar (herkese aynı şehri önermeyelim) */
   defaultFrom: string;
 }) {

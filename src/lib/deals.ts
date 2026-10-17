@@ -187,3 +187,17 @@ export async function getDayPrice(q: MultiQuery): Promise<number | null> {
     return null;
   }
 }
+
+/**
+ * Arama kutusu için: bu rotanın bilinen en ucuz gidiş-dönüş tarihi (fiyat takviminden; örnek modda taranır).
+ * Bilinmiyorsa null: kutu tarihi boş bırakır, kullanıcı seçer.
+ */
+export async function getBestDates(from: string[], to: string[]): Promise<{ date: string; returnDate: string; price: number } | null> {
+  if (dataMode() === "demo") {
+    const deal = await findDeal(from, to[0], candidateTrips()).catch(() => null);
+    return deal ? { date: deal.date, returnDate: deal.returnDate, price: deal.price } : null;
+  }
+  const known = await bestKnownPrices([{ from, to }]).catch(() => ({}) as Record<string, KnownPrice>);
+  const k = known[routeKey({ from, to })];
+  return k ? { date: k.depart, returnDate: addDays(k.depart, k.nights), price: k.price } : null;
+}

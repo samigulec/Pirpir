@@ -58,7 +58,10 @@
     "calendarNote": "Prijzen zijn per persoon en bij benadering: de laagste prijzen die we de afgelopen 24 uur vonden. De exacte prijs zie je bij het zoeken.",
     "flexLabel": "Flexibele data",
     "flexExact": "Exacte datum",
-    "flexDays": "± {n} dagen"
+    "flexDays": "± {n} dagen",
+    "whenCheapest": "Wanneer · goedkoopst",
+    "pickDates": "Kies data",
+    "pickDate": "Kies een dag"
   },
   "trust": {
     "label": "Waarom rotala",

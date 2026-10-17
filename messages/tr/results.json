@@ -161,5 +161,7 @@
   },
   "bestHint": "Fiyat, süre ve aktarma birlikte",
   "flexLabel": "± {n} gün",
-  "flexNote": "Tarihler esnek: ± {n} gün içindeki uçuşlar birlikte"
+  "flexNote": "Tarihler esnek: ± {n} gün içindeki uçuşlar birlikte",
+  "paxCount": "{count} kişi",
+  "close": "Kapat"
 }

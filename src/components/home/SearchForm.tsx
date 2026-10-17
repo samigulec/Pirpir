@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { intlLocale } from "@/lib/intl";
@@ -19,29 +19,63 @@ const fieldLabel = "text-[12px] font-extrabold text-muted md:text-[13px]";
 const fieldInput =
   "min-w-0 border-0 bg-transparent p-0 font-extrabold text-ink outline-none md:text-[19px]";
 
+export type SearchInitial = { trip: Trip; date: string; returnDate: string; pax: Passengers; cabin: CabinClass; flex: Flex };
+
+/**
+ * Arama kutusu (ana sayfa ve sonuç sayfasının üstü). Ana sayfada tarih boş başlar; rota seçilince o rotanın
+ * bilinen en ucuz tarihi önerilir (kullanıcı kendisi tarih seçtiyse dokunulmaz). Sonuç sayfasında yapılan
+ * aramayla dolu gelir ve sayfadan çıkmadan değiştirilir.
+ */
 export function SearchForm({
   from,
   to,
   onFrom,
   onTo,
   defaults,
+  initial,
+  compact = false,
 }: {
   from: AirportValue;
   to: AirportValue;
   onFrom: (v: AirportValue) => void;
   onTo: (v: AirportValue) => void;
-  defaults: { date: string; returnDate: string; today: string };
+  defaults: { today: string };
+  initial?: SearchInitial;
+  /** Sonuç sayfasının üstünde: gölgesiz, daha sıkı */
+  compact?: boolean;
 }) {
   const t = useTranslations("home.search");
   const router = useRouter();
   const loc = intlLocale(useLocale());
-  const [trip, setTrip] = useState<Trip>("rt");
-  const [date, setDate] = useState(defaults.date);
-  const [returnDate, setReturnDate] = useState(defaults.returnDate);
-  const [pax, setPax] = useState<Passengers>({ adults: 1, children: 0, infants: 0 });
-  const [cabin, setCabin] = useState<CabinClass>("economy");
-  const [flex, setFlex] = useState<Flex>(0);
+  const [trip, setTrip] = useState<Trip>(initial?.trip ?? "rt");
+  const [date, setDate] = useState(initial?.date ?? "");
+  const [returnDate, setReturnDate] = useState(initial?.returnDate ?? "");
+  const [pax, setPax] = useState<Passengers>(initial?.pax ?? { adults: 1, children: 0, infants: 0 });
+  const [cabin, setCabin] = useState<CabinClass>(initial?.cabin ?? "economy");
+  const [flex, setFlex] = useState<Flex>(initial?.flex ?? 0);
   const [error, setError] = useState<SearchError | null>(null);
+  // Kullanıcı tarihi kendisi seçtiyse öneri yapılmaz; öneri yapıldıysa alanda "en ucuz" yazar
+  const [datesTouched, setDatesTouched] = useState(!!initial);
+  const [suggested, setSuggested] = useState(false);
+
+  const routeKey = `${from.map((p) => p.code).join(",")}>${to.map((p) => p.code).join(",")}`;
+  useEffect(() => {
+    if (datesTouched || !from.length || !to.length) return;
+    const ctrl = new AbortController();
+    const q = new URLSearchParams({ from: from.map((p) => p.code).join(","), to: to.map((p) => p.code).join(",") });
+    fetch(`/api/best-dates?${q}`, { signal: ctrl.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((res: { best: { date: string; returnDate: string } | null } | null) => {
+        if (!res?.best || res.best.date < defaults.today) return;
+        setDate(res.best.date);
+        setReturnDate(res.best.returnDate);
+        setSuggested(true);
+        setError(null);
+      })
+      .catch(() => {});
+    return () => ctrl.abort();
+    // Rota değişince yeniden önerilir (from/to dizileri her çizimde yenidir; anahtar yeterli)
+  }, [routeKey, datesTouched]);
 
   const swap = () => {
     onFrom(to);
@@ -55,7 +89,7 @@ export function SearchForm({
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const q = { from: from.map((p) => p.code), to: to.map((p) => p.code), date, returnDate: trip === "rt" ? returnDate || addDays(date, 7) : undefined, pax, cabin, flex };
+    const q = { from: from.map((p) => p.code), to: to.map((p) => p.code), date, returnDate: trip === "rt" && date ? returnDate || addDays(date, 7) : undefined, pax, cabin, flex };
     const err = validateSearch(q);
     setError(err);
     if (err) return;
@@ -68,7 +102,9 @@ export function SearchForm({
     <form
       onSubmit={submit}
       noValidate
-      className="relative box-border flex w-full max-w-[1040px] flex-col gap-2 rounded-[24px] bg-white p-[10px] md:gap-3 md:rounded-[28px] md:p-[14px] md:shadow-search"
+      className={`relative box-border flex w-full flex-col gap-2 rounded-[24px] bg-white p-[10px] md:gap-3 md:rounded-[28px] md:p-[14px] ${
+        compact ? "border-2 border-solid border-line" : "max-w-[1040px] md:shadow-search"
+      }`}
     >
       <div className="flex gap-[6px] px-[6px] pt-1">
         {(["rt", "ow"] as const).map((id) => {
@@ -124,8 +160,8 @@ export function SearchForm({
         </div>
 
         <FieldPopover
-          label={t("when")}
-          value={formatRangeShort(date, trip === "rt" && returnDate ? returnDate : undefined, loc) + (flex ? ` ±${flex}` : "")}
+          label={suggested ? t("whenCheapest") : t("when")}
+          value={date ? formatRangeShort(date, trip === "rt" && returnDate ? returnDate : undefined, loc) + (flex ? ` ±${flex}` : "") : t("pickDates")}
           panelClassName="md:left-1/2 md:-translate-x-1/2"
           closeLabel={t("done")}
           className={fieldBox}
@@ -145,9 +181,11 @@ export function SearchForm({
                 setDate(s);
                 setReturnDate(e ?? "");
                 setError(null);
+                setDatesTouched(true);
+                setSuggested(false);
               }}
               onDone={() => {
-                if (trip === "rt" && !returnDate) setReturnDate(addDays(date, 7));
+                if (trip === "rt" && date && !returnDate) setReturnDate(addDays(date, 7));
                 close();
               }}
             />

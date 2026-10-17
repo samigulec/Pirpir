@@ -58,7 +58,10 @@
     "calendarNote": "Prices are per person and approximate: the lowest fares we found in the last 24 hours. You'll see the exact price when you search.",
     "flexLabel": "Date flexibility",
     "flexExact": "Exact date",
-    "flexDays": "± {n} days"
+    "flexDays": "± {n} days",
+    "whenCheapest": "When · cheapest",
+    "pickDates": "Pick dates",
+    "pickDate": "Pick a day"
   },
   "trust": {
     "label": "Why rotala",

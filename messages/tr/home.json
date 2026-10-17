@@ -57,7 +57,10 @@
     "calendarNote": "Fiyatlar kişi başı ve yaklaşıktır: son 24 saatte bulduğumuz en düşük fiyatlar. Kesin fiyatı aramada görürsün.",
     "flexLabel": "Tarih esnekliği",
     "flexExact": "Tam tarih",
-    "flexDays": "± {n} gün"
+    "flexDays": "± {n} gün",
+    "whenCheapest": "Ne zaman · en ucuz",
+    "pickDates": "Tarih seç",
+    "pickDate": "Gün seç"
   },
   "trust": {
     "label": "Neden rotala",
