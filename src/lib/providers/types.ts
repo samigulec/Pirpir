@@ -45,6 +45,10 @@ export type FareConditions = { refundable?: boolean; changeable?: boolean };
 /** Fiyata dahil bagaj (yolcu başı). Kişisel eşya (koltuk altı çanta) her bilete dahildir. */
 export type BagInfo = { cabin: boolean; checkedKg?: number; checked?: boolean; checkedCount?: number };
 
+/** Bagaj ölçüsü: en fazla ağırlık, boyutlar (cm) ya da en+boy+yükseklik toplamı. Bilinmeyen alan yoktur. */
+export type BagSpec = { kg?: number; dims?: [number, number, number]; linearCm?: number };
+export type BagSpecs = { personal?: BagSpec; cabin?: BagSpec; checked?: BagSpec };
+
 /** Bir bagaj türü için (yolcu başı, tüm yolculuk): dahil adet ve satın alınabilen ek adet. */
 export type BagOffer = {
   included: number;
@@ -106,6 +110,8 @@ export type Offer = {
   raw: { amount: string; currency: string };
   bagInfo: BagInfo;
   bags: Bags;
+  /** Bagaj ölçüleri ve ağırlıkları (havayolu bildirdiyse) */
+  bagSpecs?: BagSpecs;
   cabin: CabinClass;
   /** Havayolunun paket adı (ör. "Basic", "Standard"). */
   fareBrand?: string;

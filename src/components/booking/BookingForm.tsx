@@ -27,6 +27,7 @@ import type { BagChoice, BagOffer, Offer, SeatChoice, SeatMap } from "@/lib/prov
 import { bagsCost, NO_BAGS, seatsCost, wantedBagsExtra } from "@/lib/extras";
 import { CabinBagIcon, CheckedBagIcon, PersonalItemIcon } from "../results/BagIcons";
 import { SeatPicker } from "./SeatPicker";
+import { useBagSpecText } from "../results/BagRules";
 import { detectCardBrand, formatCardNumber } from "@/lib/card";
 import { locative } from "@/lib/tr-suffix";
 
@@ -227,7 +228,7 @@ export function BookingForm({
           </div>
         </div>
         {payingSlots.map((_, i) => (
-          <BagPicker key={i} title={payingSlots.length > 1 ? paxLabel(i) : undefined} bags={offer.bags} value={bags[i]} onChange={(patch) => setBag(i, patch)} />
+          <BagPicker key={i} title={payingSlots.length > 1 ? paxLabel(i) : undefined} bags={offer.bags} specs={offer.bagSpecs} value={bags[i]} onChange={(patch) => setBag(i, patch)} />
         ))}
         {offer.inbound && <span className="text-sm text-muted">{t("bags.roundTripNote")}</span>}
         {errText("bag")}
@@ -494,8 +495,21 @@ export function BookingForm({
 }
 
 /** Bir yolcunun bagajı: kabin (kişisel eşya ya da el bagajı paketi) ve kontrol edilen bagaj adedi. */
-export function BagPicker({ title, bags, value, onChange }: { title?: string; bags: Offer["bags"]; value: BagChoice; onChange: (p: Partial<BagChoice>) => void }) {
+export function BagPicker({
+  title,
+  bags,
+  specs,
+  value,
+  onChange,
+}: {
+  title?: string;
+  bags: Offer["bags"];
+  specs?: Offer["bagSpecs"];
+  value: BagChoice;
+  onChange: (p: Partial<BagChoice>) => void;
+}) {
   const t = useTranslations("booking.bags");
+  const spec = useBagSpecText();
   const { fmt } = useCurrency();
   const card = (on: boolean) =>
     `flex min-h-[120px] flex-col items-start gap-1 rounded-[22px] border-[3px] border-solid px-5 py-4 text-left text-ink ${on ? "border-coral bg-coral-soft" : "border-line bg-white"}`;
@@ -515,6 +529,7 @@ export function BagPicker({ title, bags, value, onChange }: { title?: string; ba
             <PersonalItemIcon />
             <span className="font-display text-[19px] font-semibold">{t("personal")}</span>
             <span className="text-sm font-semibold">{t("personalDesc")}</span>
+            {specs?.personal?.dims && <span className="text-[13px] font-bold text-muted">{spec.size(specs.personal)}</span>}
             <span className="mt-auto font-extrabold">{t("included")}</span>
           </button>
         )}
@@ -529,6 +544,7 @@ export function BagPicker({ title, bags, value, onChange }: { title?: string; ba
           <span className="flex gap-1"><PersonalItemIcon /><CabinBagIcon /></span>
           <span className="font-display text-[19px] font-semibold">{t("cabinPack")}</span>
           <span className="text-sm font-semibold">{bags.cabin.kg ? t("cabinPackDesc", { kg: bags.cabin.kg }) : t("cabinPackDescNoKg")}</span>
+          {specs?.cabin?.dims && <span className="text-[13px] font-bold text-muted">{spec.size(specs.cabin)}</span>}
           <span className="mt-auto font-extrabold">{cabinIncluded ? t("included") : priceText(bags.cabin)}</span>
         </button>
       </div>
@@ -544,6 +560,7 @@ export function BagPicker({ title, bags, value, onChange }: { title?: string; ba
           <span className="font-display text-[19px] font-semibold">
             {bags.checked.kg ? t("checkedDesc", { kg: bags.checked.kg }) : t("checkedDescNoKg")}
           </span>
+          {spec.size(specs?.checked) && <span className="text-[13px] font-bold text-muted">{spec.size(specs?.checked)}</span>}
           <span className="text-sm font-semibold">
             {[bags.checked.included > 0 && t("includedCount", { n: bags.checked.included }), checkedBuyable && t("perBag", { price: fmt(bags.checked.price!) })]
               .filter(Boolean)

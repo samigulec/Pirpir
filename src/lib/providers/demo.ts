@@ -3,7 +3,7 @@
 import { distanceKm, findAirport, type Airport } from "@/data/airports";
 import { addDays, todayIso, type SearchQuery } from "../search";
 import { bagsCost, mergeBags } from "../extras";
-import type { BagInfo, Bags, Booking, CabinClass, FareConditions, FlightProvider, Leg, Offer, OrderInput, SeatMap, SeatRow, Segment } from "./types";
+import type { BagInfo, Bags, BagSpecs, Booking, CabinClass, FareConditions, FlightProvider, Leg, Offer, OrderInput, SeatMap, SeatRow, Segment } from "./types";
 
 function hash(s: string): number {
   let h = 2166136261;
@@ -94,11 +94,44 @@ function hasDirect(a: Airport, b: Airport): boolean {
 
 const CABIN_FACTOR: Record<CabinClass, number> = { economy: 1, premium_economy: 1.6, business: 3.2, first: 5 };
 
+/**
+ * Örnek bagaj kuralları (havayollarının yaygın ölçülerine yakın; kesin değildir, örnek veridir).
+ * Kişisel eşya ve kabin bavulu: en×boy×yükseklik cm; kontrol edilen bagaj: kg ve toplam ölçü.
+ */
+type Policy = { personal: [number, number, number]; cabin: [number, number, number]; cabinKg: number; checkedKg: number };
+const DEFAULT_POLICY: Policy = { personal: [40, 30, 15], cabin: [55, 40, 20], cabinKg: 8, checkedKg: 23 };
+const POLICY: Record<string, Partial<Policy>> = {
+  KLM: { personal: [40, 30, 15], cabin: [55, 35, 25], cabinKg: 12 },
+  "Air France": { cabin: [55, 35, 25], cabinKg: 12 },
+  Lufthansa: { cabin: [55, 40, 23] },
+  "Turkish Airlines": { cabin: [55, 40, 23] },
+  "British Airways": { cabin: [56, 45, 25], cabinKg: 23 },
+  Pegasus: { checkedKg: 20 },
+  AJet: { checkedKg: 20 },
+  SunExpress: { cabin: [55, 40, 23], checkedKg: 20 },
+  Corendon: { checkedKg: 20 },
+  Transavia: { personal: [40, 30, 20], cabin: [55, 40, 25], cabinKg: 10, checkedKg: 20 },
+  easyJet: { personal: [45, 36, 20], cabin: [56, 45, 25], cabinKg: 15 },
+  Vueling: { personal: [40, 30, 20], cabinKg: 10 },
+  Emirates: { cabin: [55, 38, 20], cabinKg: 7, checkedKg: 30 },
+  "Qatar Airways": { cabin: [50, 37, 25], cabinKg: 7, checkedKg: 25 },
+};
+const policyOf = (airline: string): Policy => ({ ...DEFAULT_POLICY, ...POLICY[airline.split(" + ")[0]] });
+
+function specsFor(airline: string, info: BagInfo): BagSpecs {
+  const p = policyOf(airline);
+  return {
+    personal: { dims: p.personal },
+    cabin: { kg: p.cabinKg, dims: p.cabin },
+    checked: { kg: info.checkedKg ?? p.checkedKg, linearCm: 158 },
+  };
+}
+
 function bagInfo(airline: string, cabin: CabinClass): BagInfo {
   const main = airline.split(" + ")[0];
   if (cabin === "business" || cabin === "first") return { cabin: true, checked: true, checkedKg: 32, checkedCount: 2 };
-  if (FULL_SERVICE.has(main)) return { cabin: true, checked: true, checkedKg: 23, checkedCount: 1 };
-  if (HOLIDAY.has(main)) return { cabin: true, checked: true, checkedKg: 20, checkedCount: 1 };
+  if (FULL_SERVICE.has(main)) return { cabin: true, checked: true, checkedKg: policyOf(airline).checkedKg, checkedCount: 1 };
+  if (HOLIDAY.has(main)) return { cabin: true, checked: true, checkedKg: policyOf(airline).checkedKg, checkedCount: 1 };
   return { cabin: false };
 }
 
@@ -131,12 +164,13 @@ function faresFor(airline: string, cabin: CabinClass): Fare[] {
 }
 
 /** Ek bagaj fiyatları (yolcu başı, adet başı; dönüşlü yolculukta iki yön). */
-function bagsFor(info: BagInfo, km: number, roundTrip: boolean): Bags {
+function bagsFor(info: BagInfo, km: number, roundTrip: boolean, airline = ""): Bags {
   const scale = Math.max(0.6, Math.min(1.4, km / 2200)) * (roundTrip ? 2 : 1);
   const included = info.checked ? (info.checkedCount ?? 1) : 0;
+  const p = policyOf(airline);
   return {
-    cabin: info.cabin ? { included: 1, max: 0 } : { included: 0, price: round10(640 * scale), max: 1, kg: 8 },
-    checked: { included, price: round10(1380 * scale), max: 2, kg: info.checkedKg ?? 20 },
+    cabin: info.cabin ? { included: 1, max: 0, kg: p.cabinKg } : { included: 0, price: round10(640 * scale), max: 1, kg: p.cabinKg },
+    checked: { included, price: round10(1380 * scale), max: 2, kg: info.checkedKg ?? p.checkedKg },
   };
 }
 
@@ -281,7 +315,8 @@ function generate(q: SearchQuery): Offer[] {
         total,
         raw: { amount: String(total), currency: "TRY" },
         bagInfo: fare.info,
-        bags: bagsFor(fare.info, km, !!q.returnDate),
+        bags: bagsFor(fare.info, km, !!q.returnDate, p.airline),
+        bagSpecs: specsFor(p.airline, fare.info),
         cabin,
         fareBrand: fare.brand,
         conditions: fare.conditions,
@@ -394,7 +429,7 @@ export const demoProvider: FlightProvider = {
     const inc = booking.includedBags ?? { cabin: 0, checked: 0 };
     const extra = booking.extraBags ?? [];
     const hasCabin = inc.cabin > 0 || extra.some((x) => x.cabin > 0);
-    const bags = bagsFor({ cabin: hasCabin, checked: inc.checked > 0, checkedCount: inc.checked || undefined, checkedKg: inc.kg }, distanceKm(a, b), !!booking.offer.inbound);
+    const bags = bagsFor({ cabin: hasCabin, checked: inc.checked > 0, checkedCount: inc.checked || undefined, checkedKg: inc.kg }, distanceKm(a, b), !!booking.offer.inbound, booking.offer.airline);
     const boughtChecked = Math.max(0, ...extra.map((x) => x.checked));
     return { cabin: bags.cabin, checked: { ...bags.checked, max: Math.max(0, bags.checked.max - boughtChecked) } };
   },

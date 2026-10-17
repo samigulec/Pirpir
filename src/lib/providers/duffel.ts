@@ -6,7 +6,7 @@ import { findAirport } from "@/data/airports";
 import { toTry } from "../currency";
 import { mergeBags } from "../extras";
 import type { SearchQuery } from "../search";
-import type { BagInfo, BagOffer, Bags, CabinClass, Segment, Booking, FlightProvider, Leg, Offer, OrderInput, SeatMap, SeatRow } from "./types";
+import type { BagInfo, BagOffer, Bags, BagSpec, CabinClass, Segment, Booking, FlightProvider, Leg, Offer, OrderInput, SeatMap, SeatRow } from "./types";
 
 const API = "https://api.duffel.com";
 
@@ -83,7 +83,13 @@ type DService = {
   passenger_ids: string[];
   segment_ids?: string[];
   maximum_quantity: number;
-  metadata?: { type?: "checked" | "carry_on"; maximum_weight_kg?: number | null };
+  metadata?: {
+    type?: "checked" | "carry_on";
+    maximum_weight_kg?: number | null;
+    maximum_length_cm?: number | null;
+    maximum_height_cm?: number | null;
+    maximum_depth_cm?: number | null;
+  };
 };
 type DOffer = {
   id: string;
@@ -243,6 +249,17 @@ function bagOffer(o: DOffer, t: "carry_on" | "checked", included: number): BagOf
   };
 }
 
+/** Havayolunun ek bagaj hizmetinde bildirdiği ölçüler (dahil bagajın ölçüsünü Duffel vermez). */
+function specOf(o: DOffer, t: "carry_on" | "checked"): BagSpec | undefined {
+  const m = (o.available_services ?? []).find((s) => s.type === "baggage" && s.metadata?.type === t)?.metadata;
+  if (!m) return undefined;
+  const dims = m.maximum_length_cm && m.maximum_height_cm && m.maximum_depth_cm
+    ? ([m.maximum_length_cm, m.maximum_height_cm, m.maximum_depth_cm] as [number, number, number])
+    : undefined;
+  const spec: BagSpec = { kg: m.maximum_weight_kg ?? undefined, dims };
+  return spec.kg || spec.dims ? spec : undefined;
+}
+
 function bags(o: DOffer): Bags {
   const { checked, carryOn } = includedBags(o);
   return { cabin: bagOffer(o, "carry_on", carryOn > 0 ? 1 : 0), checked: bagOffer(o, "checked", checked) };
@@ -269,6 +286,11 @@ function mapOffer(o: DOffer, q: SearchQuery): Offer {
     raw: { amount: o.total_amount, currency: o.total_currency },
     bagInfo: bagInfo(o),
     bags: bags(o),
+    // Ek bagaj hizmetinin ölçüsü yalnızca o tür bilete dahil değilse gösterilir (dahil olanınki farklı olabilir).
+    bagSpecs: (() => {
+      const inc = includedBags(o);
+      return { cabin: inc.carryOn ? undefined : specOf(o, "carry_on"), checked: inc.checked ? undefined : specOf(o, "checked") };
+    })(),
     cabin: cabinOf(o, q),
     fareBrand: o.slices[0]?.fare_brand_name ?? undefined,
     conditions: {

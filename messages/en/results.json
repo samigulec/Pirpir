@@ -40,7 +40,7 @@
   "inbound": "Return",
   "perPerson": "per person",
   "totalFor": "{total} total for {count}",
-  "details": "Flight details",
+  "details": "Flight and baggage details",
   "hideDetails": "Hide details",
   "layover": "Stop in {city} ({code}) · {wait} layover",
   "bags": {
@@ -127,5 +127,22 @@
   "dates": {
     "label": "Flexible dates",
     "cheapest": "Cheapest"
+  },
+  "bagRules": {
+    "title": "Baggage rules (per passenger)",
+    "type": "Type",
+    "status": "Status",
+    "weight": "Weight",
+    "size": "Size",
+    "kg": "up to {kg} kg",
+    "dims": "{dims} cm",
+    "linear": "up to {cm} cm in total",
+    "included": "Included",
+    "includedN": "{n} included",
+    "addable": "Can be added · {price}",
+    "notAvailable": "Can't be added",
+    "unknown": "Not provided by airline",
+    "personalNote": "Must fit under the seat in front of you",
+    "note": "Total size: length + width + height. The airline's rules apply; we recommend checking its website before you fly."
   }
 }

@@ -40,7 +40,7 @@
   "inbound": "Terug",
   "perPerson": "per persoon",
   "totalFor": "{total} totaal voor {count}",
-  "details": "Vluchtdetails",
+  "details": "Vlucht- en bagagedetails",
   "hideDetails": "Details verbergen",
   "layover": "Overstap in {city} ({code}) · {wait} wachttijd",
   "bags": {
@@ -127,5 +127,22 @@
   "dates": {
     "label": "Flexibele data",
     "cheapest": "Goedkoopst"
+  },
+  "bagRules": {
+    "title": "Bagageregels (per passagier)",
+    "type": "Soort",
+    "status": "Status",
+    "weight": "Gewicht",
+    "size": "Afmetingen",
+    "kg": "max. {kg} kg",
+    "dims": "{dims} cm",
+    "linear": "in totaal max. {cm} cm",
+    "included": "Inbegrepen",
+    "includedN": "{n} inbegrepen",
+    "addable": "Bij te boeken · {price}",
+    "notAvailable": "Niet mogelijk",
+    "unknown": "Niet opgegeven door maatschappij",
+    "personalNote": "Moet onder de stoel voor je passen",
+    "note": "Totale afmeting: lengte + breedte + hoogte. De regels van de maatschappij gelden; controleer die voor vertrek op haar website."
   }
 }

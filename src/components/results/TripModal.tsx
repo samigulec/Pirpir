@@ -11,6 +11,7 @@ import { bookingHref } from "@/lib/search";
 import type { Leg } from "@/lib/providers/types";
 import type { BagChoice } from "@/lib/providers/types";
 import type { Group } from "@/lib/results-filter";
+import { useBagSpecText } from "./BagRules";
 
 const dayDiff = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
 
@@ -38,6 +39,11 @@ export function TripModal({
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const city = (code: string) => cityNames[code] ?? code;
+  const spec = useBagSpecText();
+  const detail = (...parts: (string | undefined)[]) => {
+    const p = parts.filter(Boolean);
+    return p.length ? ` · ${p.join(" · ")}` : "";
+  };
   const dur = (m: number) => tc("duration", minsParts(m));
 
   useEffect(() => {
@@ -136,14 +142,14 @@ export function TripModal({
               const b = o.bags;
               const kg = b.checked.kg ? ` · ${b.checked.kg} kg` : "";
               const features: { ok: boolean; text: string }[] = [
-                { ok: true, text: t("personal") },
+                { ok: true, text: t("personal") + detail(spec.size(o.bagSpecs?.personal)) },
                 b.cabin.included
-                  ? { ok: true, text: t("cabinIncluded") }
+                  ? { ok: true, text: t("cabinIncluded") + detail(spec.weight(o.bagSpecs?.cabin), spec.size(o.bagSpecs?.cabin)) }
                   : b.cabin.price !== undefined && b.cabin.max > 0
                     ? { ok: false, text: t("cabinAdd", { price: fmt(b.cabin.price) }) }
                     : { ok: false, text: t("cabinNo") },
                 b.checked.included
-                  ? { ok: true, text: t("checkedIncluded", { n: b.checked.included, kg }) }
+                  ? { ok: true, text: t("checkedIncluded", { n: b.checked.included, kg }) + detail(spec.size(o.bagSpecs?.checked)) }
                   : b.checked.price !== undefined && b.checked.max > 0
                     ? { ok: false, text: t("checkedAdd", { price: fmt(b.checked.price) }) }
                     : { ok: false, text: t("checkedNo") },

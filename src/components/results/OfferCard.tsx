@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
 import { CabinBagIcon, CheckedBagIcon, PersonalItemIcon } from "./BagIcons";
+import { BagRules } from "./BagRules";
 import { formatDayWithWeekday, minsParts } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 import type { Leg, Offer } from "@/lib/providers/types";
@@ -45,7 +46,7 @@ export function OfferCard({
 
   const bags = [
     { key: "personal", icon: <PersonalItemIcon />, label: t("bags.personal"), on: true, note: undefined },
-    { key: "cabin", icon: <CabinBagIcon />, label: t("bags.cabin"), on: bag.cabin, note: undefined },
+    { key: "cabin", icon: <CabinBagIcon />, label: t("bags.cabin"), on: bag.cabin, note: bag.cabin && offer.bagSpecs?.cabin?.kg ? `${offer.bagSpecs.cabin.kg} kg` : undefined },
     {
       key: "checked",
       icon: <CheckedBagIcon />,
@@ -128,6 +129,7 @@ export function OfferCard({
         </button>
         {open && (
           <div id={detailsId} className="flex flex-col gap-4 rounded-[20px] bg-field px-4 py-4">
+            <BagRules offer={offer} />
             {[
               { leg: offer.outbound, label: t("outbound") },
               ...(offer.inbound ? [{ leg: offer.inbound, label: t("inbound") }] : []),

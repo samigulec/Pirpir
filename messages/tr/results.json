@@ -40,7 +40,7 @@
   "inbound": "Dönüş",
   "perPerson": "kişi başı",
   "totalFor": "{count} kişi toplam {total}",
-  "details": "Uçuş ayrıntıları",
+  "details": "Uçuş ve bagaj ayrıntıları",
   "hideDetails": "Ayrıntıları gizle",
   "layover": "{city} ({code}) aktarma · {wait} bekleme",
   "bags": {
@@ -127,5 +127,22 @@
   "dates": {
     "label": "Esnek tarihler",
     "cheapest": "En ucuz"
+  },
+  "bagRules": {
+    "title": "Bagaj kuralları (yolcu başı)",
+    "type": "Tür",
+    "status": "Durum",
+    "weight": "Ağırlık",
+    "size": "Ölçü",
+    "kg": "en fazla {kg} kg",
+    "dims": "{dims} cm",
+    "linear": "toplam en fazla {cm} cm",
+    "included": "Dahil",
+    "includedN": "{n} adet dahil",
+    "addable": "Eklenebilir · {price}",
+    "notAvailable": "Eklenemez",
+    "unknown": "Havayolu bildirmedi",
+    "personalNote": "Önündeki koltuğun altına sığmalı",
+    "note": "Toplam ölçü: en + boy + yükseklik. Kesin kurallar havayolunundur; uçmadan önce havayolunun sitesinden kontrol etmeni öneririz."
   }
 }
