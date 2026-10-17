@@ -55,7 +55,10 @@
     "addPlace": "Add city",
     "placePlaceholder": "City or airport",
     "allAirports": "All airports",
-    "calendarNote": "Prices are per person and approximate: the lowest fares we found in the last 24 hours. You'll see the exact price when you search."
+    "calendarNote": "Prices are per person and approximate: the lowest fares we found in the last 24 hours. You'll see the exact price when you search.",
+    "flexLabel": "Date flexibility",
+    "flexExact": "Exact date",
+    "flexDays": "± {n} days"
   },
   "trust": {
     "label": "Why rotala",

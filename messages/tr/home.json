@@ -54,7 +54,10 @@
     "addPlace": "Şehir ekle",
     "placePlaceholder": "Şehir veya havalimanı",
     "allAirports": "Tüm havalimanları",
-    "calendarNote": "Fiyatlar kişi başı ve yaklaşıktır: son 24 saatte bulduğumuz en düşük fiyatlar. Kesin fiyatı aramada görürsün."
+    "calendarNote": "Fiyatlar kişi başı ve yaklaşıktır: son 24 saatte bulduğumuz en düşük fiyatlar. Kesin fiyatı aramada görürsün.",
+    "flexLabel": "Tarih esnekliği",
+    "flexExact": "Tam tarih",
+    "flexDays": "± {n} gün"
   },
   "trust": {
     "label": "Neden rotala",

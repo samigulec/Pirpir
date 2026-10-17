@@ -9,7 +9,7 @@ import { AirportField, type AirportValue } from "./AirportField";
 import { Counter, FieldPopover } from "./Popover";
 import { DateRangePicker } from "./DateRangePicker";
 import { formatRangeShort } from "@/lib/dates";
-import { CABINS, MAX_PASSENGERS, addDays, paxTotal, searchHref, validateSearch, type CabinClass, type Passengers, type SearchError } from "@/lib/search";
+import { CABINS, MAX_PASSENGERS, addDays, paxTotal, searchHref, validateSearch, type CabinClass, type Flex, type Passengers, type SearchError } from "@/lib/search";
 
 type Trip = "rt" | "ow";
 
@@ -40,6 +40,7 @@ export function SearchForm({
   const [returnDate, setReturnDate] = useState(defaults.returnDate);
   const [pax, setPax] = useState<Passengers>({ adults: 1, children: 0, infants: 0 });
   const [cabin, setCabin] = useState<CabinClass>("economy");
+  const [flex, setFlex] = useState<Flex>(0);
   const [error, setError] = useState<SearchError | null>(null);
 
   const swap = () => {
@@ -54,7 +55,7 @@ export function SearchForm({
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const q = { from: from.map((p) => p.code), to: to.map((p) => p.code), date, returnDate: trip === "rt" ? returnDate || addDays(date, 7) : undefined, pax, cabin };
+    const q = { from: from.map((p) => p.code), to: to.map((p) => p.code), date, returnDate: trip === "rt" ? returnDate || addDays(date, 7) : undefined, pax, cabin, flex };
     const err = validateSearch(q);
     setError(err);
     if (err) return;
@@ -123,7 +124,7 @@ export function SearchForm({
 
         <FieldPopover
           label={t("when")}
-          value={formatRangeShort(date, trip === "rt" && returnDate ? returnDate : undefined, loc)}
+          value={formatRangeShort(date, trip === "rt" && returnDate ? returnDate : undefined, loc) + (flex ? ` ±${flex}` : "")}
           panelClassName="md:left-1/2 md:-translate-x-1/2"
           closeLabel={t("done")}
           className={fieldBox}
@@ -134,6 +135,8 @@ export function SearchForm({
             <DateRangePicker
               route={from.length && to.length ? { from: from.map((p) => p.code), to: to.map((p) => p.code), cabin } : undefined}
               mode={trip === "rt" ? "range" : "single"}
+              flex={flex}
+              onFlex={setFlex}
               start={date}
               end={trip === "rt" ? returnDate || undefined : undefined}
               min={defaults.today}

@@ -159,5 +159,7 @@
     "searching": "Searching for more flights… The list updates as airlines respond.",
     "incomplete": "The search could not finish; some flights may be missing."
   },
-  "bestHint": "Price, duration and stops together"
+  "bestHint": "Price, duration and stops together",
+  "flexLabel": "± {n} days",
+  "flexNote": "Flexible dates: flights within ± {n} days together"
 }

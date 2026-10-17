@@ -31,15 +31,15 @@ export function FieldPopover({
   const panel = useRef<HTMLDivElement>(null);
 
   // Masaüstünde panel ekranın altına taşıyorsa sayfa, panel tamamen görünecek kadar kaydırılır
-  // (alanın üstü ekranda kalacak kadar; telefonda panel zaten alttan açılan sayfa).
+  // (telefonda panel zaten alttan açılan sayfa).
   useEffect(() => {
     if (!open || window.matchMedia("(max-width: 767px)").matches) return;
     const fit = () => {
       const box = panel.current?.getBoundingClientRect();
-      const field = ref.current?.getBoundingClientRect();
-      if (!box || !field) return;
+      if (!box) return;
       const overflow = box.bottom + 16 - window.innerHeight;
-      if (overflow > 0) window.scrollBy({ top: Math.min(overflow, field.top - 16), behavior: "smooth" });
+      // Yalnızca taşan kadar; panel ekrandan uzunsa üstü ekranda kalır
+      if (overflow > 0) window.scrollBy({ top: Math.min(overflow, box.top - 16), behavior: "smooth" });
     };
     // İçerik sonradan uzayabilir (ör. takvim fiyatları gelince); boyut değişince yeniden bakılır
     let timer: ReturnType<typeof setTimeout> | undefined;

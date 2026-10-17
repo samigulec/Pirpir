@@ -159,5 +159,7 @@
     "searching": "Daha fazla uçuş aranıyor… Liste havayolları yanıt verdikçe güncellenir.",
     "incomplete": "Arama tamamlanamadı; bazı uçuşlar listede olmayabilir."
   },
-  "bestHint": "Fiyat, süre ve aktarma birlikte"
+  "bestHint": "Fiyat, süre ve aktarma birlikte",
+  "flexLabel": "± {n} gün",
+  "flexNote": "Tarihler esnek: ± {n} gün içindeki uçuşlar birlikte"
 }

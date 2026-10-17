@@ -159,5 +159,7 @@
     "searching": "Meer vluchten zoeken… De lijst wordt bijgewerkt zodra airlines reageren.",
     "incomplete": "Het zoeken kon niet worden afgerond; sommige vluchten kunnen ontbreken."
   },
-  "bestHint": "Prijs, reisduur en overstappen samen"
+  "bestHint": "Prijs, reisduur en overstappen samen",
+  "flexLabel": "± {n} dagen",
+  "flexNote": "Flexibele data: vluchten binnen ± {n} dagen samen"
 }

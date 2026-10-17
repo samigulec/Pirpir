@@ -15,7 +15,13 @@ export type SearchQuery = {
   pax: Passengers;
   /** Yoksa ekonomi. */
   cabin?: CabinClass;
+  /** Esnek tarih (Kiwi'deki "± 3 gün"): seçilen günün bu kadar öncesi ve sonrası da aranır. */
+  flex?: Flex;
 };
+
+export const FLEX_DAYS = [1, 3, 5] as const;
+export type Flex = 0 | (typeof FLEX_DAYS)[number];
+export const isFlex = (v: number): v is Flex => v === 0 || (FLEX_DAYS as readonly number[]).includes(v);
 
 /**
  * Kullanıcının araması: birden fazla kalkış ve varış seçilebilir (havalimanı kodu ya da "city:LON").
@@ -103,6 +109,7 @@ export function searchHref(
   if (pax.children) query.children = String(pax.children);
   if (pax.infants) query.infants = String(pax.infants);
   if (q.cabin && q.cabin !== "economy") query.cabin = q.cabin;
+  if (q.flex) query.flex = String(q.flex);
   return { pathname: "/ara" as const, query };
 }
 

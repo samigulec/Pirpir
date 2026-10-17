@@ -1,7 +1,7 @@
 // Arama sorgusunun sunucu tarafı: URL'yi dünya havalimanı listesiyle çözer ve doğrular.
 import "server-only";
 import { expandCode, findAirport, isKnownPlace, resolvePlace } from "@/data/airports";
-import { LEGACY_PAX, defaultDates, int, isCabin, one, validateSearch, type MultiQuery, type Raw, type SearchQuery } from "./search";
+import { LEGACY_PAX, addDays, defaultDates, int, isCabin, isFlex, one, todayIso, validateSearch, type Flex, type MultiQuery, type Raw, type SearchQuery } from "./search";
 
 const splitPlaces = (v: string | undefined, dflt: string) =>
   (v ?? dflt)
@@ -26,6 +26,8 @@ export function parseSearch(raw: Raw, now = new Date()): MultiQuery {
     infants: int(one(raw.infants), 0),
   };
   const cabinRaw = one(raw.cabin);
+  const flexRaw = Number(one(raw.flex) ?? 0);
+  const flex: Flex = isFlex(flexRaw) ? flexRaw : 0;
   return {
     from: splitPlaces(one(raw.from), "AMS"),
     to: splitPlaces(one(raw.to), "ADB"),
@@ -33,7 +35,22 @@ export function parseSearch(raw: Raw, now = new Date()): MultiQuery {
     returnDate,
     pax,
     cabin: isCabin(cabinRaw) ? cabinRaw : "economy",
+    ...(flex ? { flex } : {}),
   };
+}
+
+/** Esnek aramada seçilen gün dışında aranacak günler (yolculuk süresi aynı; geçmiş günler hariç). */
+export function flexQueries(q: MultiQuery, now = new Date()): MultiQuery[] {
+  if (!q.flex) return [];
+  const today = todayIso(now);
+  const out: MultiQuery[] = [];
+  for (let k = -q.flex; k <= q.flex; k++) {
+    if (k === 0) continue;
+    const date = addDays(q.date, k);
+    if (date < today) continue;
+    out.push({ ...q, date, returnDate: q.returnDate ? addDays(q.returnDate, k) : undefined });
+  }
+  return out;
 }
 
 export function validateSearchServer(q: MultiQuery, now = new Date()) {

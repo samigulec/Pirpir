@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useCurrency } from "../CurrencyProvider";
 import { useLocale, useTranslations } from "next-intl";
-import { addDays } from "@/lib/search";
+import { addDays, FLEX_DAYS, type Flex } from "@/lib/search";
 import { formatDayWithWeekday } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 
@@ -28,7 +28,12 @@ export function DateRangePicker({
   onChange,
   onDone,
   route,
+  flex = 0,
+  onFlex,
 }: {
+  /** Kiwi'deki "± 1 / 3 / 5 gün": seçilen günün öncesi ve sonrası da aranır */
+  flex?: Flex;
+  onFlex?: (f: Flex) => void;
   /** Verilirse günlerin altında bilinen fiyatlar gösterilir (Kiwi'deki gibi) */
   route?: { from: string[]; to: string[]; cabin: string };
   mode: "range" | "single";
@@ -177,6 +182,25 @@ export function DateRangePicker({
           </button>
         )}
       </div>
+
+      {onFlex && (
+        <div role="radiogroup" aria-label={t("flexLabel")} className="flex flex-wrap gap-2">
+          {([0, ...FLEX_DAYS] as Flex[]).map((f) => (
+            <button
+              key={f}
+              type="button"
+              role="radio"
+              aria-checked={flex === f}
+              onClick={() => onFlex(f)}
+              className={`min-h-[40px] cursor-pointer rounded-pill border-0 px-4 text-[15px] font-extrabold leading-[normal] ${
+                flex === f ? "bg-ink text-white" : "bg-field text-ink"
+              }`}
+            >
+              {f === 0 ? t("flexExact") : t("flexDays", { n: f })}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="relative">
         <div className="absolute left-0 right-0 top-0 flex justify-between">

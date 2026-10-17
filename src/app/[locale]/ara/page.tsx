@@ -9,10 +9,10 @@ import { LiveResults, type LiveChunk } from "@/components/results/LiveResults";
 import { cityByCode } from "@/data/airports";
 import { intlLocale } from "@/lib/intl";
 import { formatDayLong, formatRange } from "@/lib/dates";
-import { dataMode, getFlexibleDateTip, watchSearch } from "@/lib/flights";
+import { dataMode, getFlexibleDateTip, searchFlightsCached, watchSearch } from "@/lib/flights";
 import { paxTotal, searchHref, type MultiQuery } from "@/lib/search";
 import { Pirpir } from "@/components/characters";
-import { parseSearch, validateSearchServer } from "@/lib/search-server";
+import { flexQueries, parseSearch, validateSearchServer } from "@/lib/search-server";
 import type { Offer } from "@/lib/providers/types";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -78,6 +78,7 @@ export default async function ResultsPage({
               <span className="font-semibold text-muted">
                 {t("summaryMeta", { dates: formatRange(q.date, q.returnDate, loc), count: paxTotal(q.pax) })}
                 {q.cabin && q.cabin !== "economy" && ` · ${t(`cabin.${q.cabin}`)}`}
+                {q.flex ? ` · ${t("flexLabel", { n: q.flex })}` : ""}
               </span>
             )}
           </div>
@@ -108,40 +109,68 @@ export default async function ResultsPage({
   );
 }
 
+/** Esnek aramada birleştirilen listede en fazla bu kadar teklif (en ucuzlar). */
+const MAX_FLEX_RESULTS = 120;
+
 /**
  * Arama zinciri: ilk halka ilk teklifler (ya da önbellekten tüm sonuç) gelince çözülür, sonrakiler havayolları
- * yanıt verdikçe. Son halka (`done`) önbelleğe yazılan listenin aynısıdır.
+ * yanıt verdikçe. Esnek aramada komşu günlerin sonuçları da (`extras`) geldikçe eklenir.
+ * Son halka (`done`) her günün önbelleğe yazılan listelerinin birleşimidir.
  */
-function liveChain(q: MultiQuery, locale: string): Promise<LiveChunk> {
+function liveChain(q: MultiQuery, locale: string, extras: Promise<Offer[]>[]): Promise<LiveChunk> {
   let resolve!: (c: LiveChunk) => void;
   let reject!: (e: unknown) => void;
   const make = () => new Promise<LiveChunk>((res, rej) => ((resolve = res), (reject = rej)));
   const first = make();
-  let latest: Offer[] | null = null;
+  let main: Offer[] = [];
+  let mainDone = false;
+  const extra: Offer[][] = extras.map(() => []);
+  let extrasLeft = extras.length;
+  let dirty = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let lastSent = 0;
   let done = false;
-  const chunk = (offers: Offer[], last: boolean): LiveChunk => ({ offers, cityNames: cityNamesFor(offers, locale), done: last });
+  const merged = () =>
+    extras.length ? [...main, ...extra.flat()].sort((a, b) => a.price - b.price).slice(0, MAX_FLEX_RESULTS) : main;
+  const chunk = (last: boolean): LiveChunk => {
+    const offers = merged();
+    return {
+      offers,
+      cityNames: cityNamesFor(offers, locale),
+      done: last,
+      // Tarih şeridindeki seçili gün: yalnızca seçilen günün en ucuzu
+      dayPrice: mainDone ? (main.length ? Math.min(...main.map((o) => o.price)) : null) : undefined,
+    };
+  };
   // Ara sonuçlar en sık 600 ms'de bir gönderilir (çok havayolu peş peşe yanıt verirse sayfa titremesin)
   const flush = () => {
     timer = null;
-    if (done || !latest) return;
-    const offers = latest;
-    latest = null;
+    if (done || !dirty) return;
+    dirty = false;
     lastSent = Date.now();
     const send = resolve;
     const next = make();
-    send({ ...chunk(offers, false), next });
+    send({ ...chunk(false), next });
+  };
+  const changed = () => {
+    if (mainDone && extrasLeft === 0) {
+      done = true;
+      if (timer) clearTimeout(timer);
+      resolve(chunk(true));
+      return;
+    }
+    dirty = true;
+    timer ??= setTimeout(flush, Math.max(0, 600 - (Date.now() - lastSent)));
   };
   const { result } = watchSearch(q, (offers) => {
-    latest = offers;
-    timer ??= setTimeout(flush, Math.max(0, 600 - (Date.now() - lastSent)));
+    main = offers;
+    changed();
   });
   result.then(
     (offers) => {
-      done = true;
-      if (timer) clearTimeout(timer);
-      resolve(chunk(offers, true));
+      main = offers;
+      mainDone = true;
+      changed();
     },
     (e) => {
       done = true;
@@ -149,7 +178,37 @@ function liveChain(q: MultiQuery, locale: string): Promise<LiveChunk> {
       reject(e);
     },
   );
+  extras.forEach((p, i) =>
+    p.then((offers) => {
+      extra[i] = offers;
+      extrasLeft--;
+      if (!done) changed();
+    }),
+  );
   return first;
+}
+
+/** Komşu günler en fazla 3'er 3'er aranır (sağlayıcının istek sınırı); hata olan gün boş sayılır. */
+function flexSearches(q: MultiQuery): Promise<Offer[]>[] {
+  const days = flexQueries(q);
+  let running = 0;
+  const queue: (() => void)[] = [];
+  const slot = () => new Promise<void>((r) => (running < 3 ? (running++, r()) : queue.push(() => (running++, r()))));
+  const release = () => {
+    running--;
+    queue.shift()?.();
+  };
+  return days.map(async (d) => {
+    await slot();
+    try {
+      return await searchFlightsCached(d);
+    } catch (e) {
+      console.error("Esnek gün araması başarısız:", d.date, e instanceof Error ? e.message : e);
+      return [];
+    } finally {
+      release();
+    }
+  });
 }
 
 /** Uçuş araması: sayfanın geri kalanı beklemeden görünür; uçuşlar geldikçe listeye eklenir. */
@@ -159,7 +218,7 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
   let first: LiveChunk;
   let tip: ResultsTip = null;
   try {
-    const [chunk, flex] = await Promise.all([liveChain(q, locale), getFlexibleDateTip(q)]);
+    const [chunk, flex] = await Promise.all([liveChain(q, locale, flexSearches(q)), q.flex ? null : getFlexibleDateTip(q)]);
     first = chunk;
     if (flex) {
       tip = { href: searchHref({ ...flex.query, returnDate: flex.query.returnDate ?? "" }), day: formatDayLong(flex.query.date, loc), price: flex.price, save: flex.save };
@@ -169,7 +228,8 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
     return <SearchFailed q={q} />;
   }
   const mode = dataMode();
-  const note = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : undefined;
+  const modeNote = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : undefined;
+  const note = [q.flex ? t("flexNote", { n: q.flex }) : undefined, modeNote].filter(Boolean).join(" · ") || undefined;
   return (
     <LiveResults first={first} q={q} oneWay={!q.returnDate} tip={tip} note={note} retryHref={searchHref({ ...q, returnDate: q.returnDate ?? "" })} />
   );

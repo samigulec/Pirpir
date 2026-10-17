@@ -13,6 +13,8 @@ export type LiveChunk = {
   cityNames: Record<string, string>;
   /** Son halka: tüm havayolları yanıt verdi, liste kesinleşti. */
   done: boolean;
+  /** Seçilen günün en ucuz kişi başı fiyatı (esnek aramada liste başka günleri de içerir) */
+  dayPrice?: number | null;
   next?: Promise<LiveChunk>;
 };
 
@@ -60,7 +62,7 @@ export function LiveResults({
     };
   }, [first]);
 
-  const cheapest = chunk.offers.length ? Math.min(...chunk.offers.map((o) => o.price)) : null;
+  const cheapest = chunk.dayPrice !== undefined ? chunk.dayPrice : (chunk.offers.length ? Math.min(...chunk.offers.map((o) => o.price)) : null);
   return (
     <>
       {chunk.done && <DateStrip q={q} current={cheapest} />}
