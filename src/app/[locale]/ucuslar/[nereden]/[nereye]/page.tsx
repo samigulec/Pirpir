@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { SiteHeader, SignInLink } from "@/components/SiteHeader";
-import { RegionSettings } from "@/components/HeaderControls";
+import { SiteHeader } from "@/components/SiteHeader";
 import { SimpleFooter } from "@/components/SiteFooter";
 import { Price } from "@/components/Price";
 import { IstanbulHero } from "@/components/cities";
@@ -54,12 +53,7 @@ export default async function RoutePage({ params }: { params: Promise<Params> })
 
   return (
     <div className="min-h-screen w-full bg-white">
-      <SiteHeader>
-        <div className="flex items-center gap-2">
-          <RegionSettings />
-          <SignInLink />
-        </div>
-      </SiteHeader>
+      <SiteHeader />
 
       <main className="mx-auto flex max-w-page flex-col gap-14 px-6 pb-20">
         <div className="flex flex-col gap-[14px]">

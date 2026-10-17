@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Link } from "@/i18n/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { SiteHeader, SignInLink } from "@/components/SiteHeader";
-import { RegionSettings } from "@/components/HeaderControls";
+import { SiteHeader } from "@/components/SiteHeader";
 import type { ResultsTip } from "@/components/results/ResultsView";
 import { LiveResults, type LiveChunk } from "@/components/results/LiveResults";
 import { cityByCode } from "@/data/airports";
@@ -63,12 +62,7 @@ export default async function ResultsPage({
 
   return (
     <div className="min-h-screen w-full bg-white">
-      <SiteHeader width="page">
-        <div className="flex items-center gap-2">
-          <RegionSettings />
-          <SignInLink />
-        </div>
-      </SiteHeader>
+      <SiteHeader width="page" />
 
       <main className="mx-auto flex max-w-page flex-col gap-5 px-6 pb-20 pt-2">
         <h1 className="sr-only">

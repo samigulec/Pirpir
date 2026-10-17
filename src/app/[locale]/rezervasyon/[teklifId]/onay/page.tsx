@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
-import { TicketsLink } from "@/components/AccountLinks";
 import { Bulut, Pirpir, Valiz } from "@/components/characters";
 import { RemindToggle } from "@/components/booking/RemindToggle";
 import { SAMPLE_BOOKING_ID } from "@/data/mock/booking";
@@ -75,9 +74,7 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
 
   return (
     <div className="min-h-screen w-full bg-white">
-      <SiteHeader width="form">
-        <TicketsLink variant="pill" />
-      </SiteHeader>
+      <SiteHeader width="form" />
 
       <main className="mx-auto flex max-w-form flex-col gap-[22px] px-6 pb-20 pt-2">
         <div className="flex flex-col items-center gap-[14px] rounded-[40px] bg-sky px-7 py-9 text-center">

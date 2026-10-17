@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
-import { RegionSettings } from "@/components/HeaderControls";
 import { LoginPageClient } from "@/components/auth/LoginPage";
 import { isSupabaseConfigured } from "@/lib/auth/config";
 import { getPathname } from "@/i18n/navigation";
@@ -32,9 +31,7 @@ export default async function LoginPage({ params, searchParams }: { params: Prom
 
   return (
     <div className="min-h-screen w-full bg-white">
-      <SiteHeader width="form">
-        <RegionSettings />
-      </SiteHeader>
+      <SiteHeader width="form" />
       <main className="mx-auto flex max-w-[508px] flex-col gap-5 px-6 pb-20 pt-2">
         <div className="rounded-[32px] border-2 border-solid border-line px-6 pb-7 pt-8 sm:px-9">
           <LoginPageClient next={next} initialError={error} />

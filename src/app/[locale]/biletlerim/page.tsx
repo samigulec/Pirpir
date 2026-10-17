@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
-import { RegionSettings } from "@/components/HeaderControls";
-import { AccountPill, LoginButton } from "@/components/AccountLinks";
+import { LoginButton } from "@/components/AccountLinks";
 import { Biletcik } from "@/components/characters";
 import { TripCard } from "@/components/account/TripCard";
 import { Link } from "@/i18n/navigation";
@@ -27,12 +26,7 @@ export default async function TripsPage({ params }: { params: Promise<{ locale: 
 
   return (
     <div className="min-h-screen w-full bg-white">
-      <SiteHeader width="results">
-        <div className="flex items-center gap-2">
-          <RegionSettings />
-          <AccountPill />
-        </div>
-      </SiteHeader>
+      <SiteHeader width="results" />
       <main className="mx-auto flex max-w-results flex-col gap-5 px-6 pb-20 pt-2">
         <h1 className="m-0 font-display text-[44px] font-bold leading-[1.1]">{t("title")}</h1>
 

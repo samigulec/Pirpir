@@ -63,5 +63,18 @@
     "currency": "Currency",
     "save": "Save",
     "cancel": "Cancel"
+  },
+  "menu": {
+    "label": "Account menu",
+    "profile": "Profile",
+    "signIn": "Sign in",
+    "signInText": "Sign in to see your trips on every device and book faster.",
+    "hello": "Your account",
+    "trips": "My trips",
+    "tripsText": "Bookings, changes and cancellations",
+    "account": "Account and profile",
+    "accountText": "Name, language and currency",
+    "help": "Help and FAQ",
+    "signOut": "Sign out"
   }
 }

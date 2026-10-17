@@ -63,5 +63,18 @@
     "currency": "Valuta",
     "save": "Opslaan",
     "cancel": "Annuleren"
+  },
+  "menu": {
+    "label": "Accountmenu",
+    "profile": "Profiel",
+    "signIn": "Inloggen",
+    "signInText": "Log in om je reizen op elk apparaat te zien en sneller te boeken.",
+    "hello": "Je account",
+    "trips": "Mijn reizen",
+    "tripsText": "Boekingen, wijzigen en annuleren",
+    "account": "Account en profiel",
+    "accountText": "Naam, taal en valuta",
+    "help": "Hulp en veelgestelde vragen",
+    "signOut": "Uitloggen"
   }
 }

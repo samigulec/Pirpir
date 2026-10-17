@@ -63,5 +63,18 @@
     "currency": "Para birimi",
     "save": "Kaydet",
     "cancel": "Vazgeç"
+  },
+  "menu": {
+    "label": "Hesap menüsü",
+    "profile": "Profil",
+    "signIn": "Giriş yap",
+    "signInText": "Biletlerini her cihazda görmek ve hızlı rezervasyon için giriş yap.",
+    "hello": "Hesabın",
+    "trips": "Biletlerim",
+    "tripsText": "Rezervasyonlar, değişiklik ve iptal",
+    "account": "Hesap ve profil",
+    "accountText": "Ad, dil ve para birimi tercihleri",
+    "help": "Yardım ve sık sorulanlar",
+    "signOut": "Çıkış yap"
   }
 }

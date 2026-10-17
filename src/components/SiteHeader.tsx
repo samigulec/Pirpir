@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 import { Link } from "@/i18n/navigation";
 import { Logo } from "./Logo";
-import { AccountPill } from "./AccountLinks";
+import { HeaderActions } from "./HeaderActions";
 
 const widths = {
   page: "max-w-page",
@@ -9,7 +9,10 @@ const widths = {
   form: "max-w-form",
 } as const;
 
-/** Sayfa başlığı: solda logo, sağda sayfaya özel kontroller. Dar ekranda kontroller alt satıra geçer. */
+/**
+ * Sayfa başlığı: solda logo, sağda ülke · dil · para birimi ve profil menüsü (her sayfada aynı).
+ * `children` gerekirse bunların soluna eklenir.
+ */
 export function SiteHeader({
   width = "page",
   children,
@@ -20,7 +23,10 @@ export function SiteHeader({
   return (
     <header className={`mx-auto flex ${widths[width]} flex-wrap items-center justify-between gap-4 px-6 py-[22px]`}>
       <Logo />
-      {children}
+      <div className="flex items-center gap-2">
+        {children}
+        <HeaderActions />
+      </div>
     </header>
   );
 }
@@ -36,7 +42,4 @@ export function PillLink({ href, children }: { href: ComponentProps<typeof Link>
   );
 }
 
-/** Tasarımdaki "Giriş yap" butonu; girişliyse "Hesabım". */
-export function SignInLink() {
-  return <AccountPill />;
-}
+

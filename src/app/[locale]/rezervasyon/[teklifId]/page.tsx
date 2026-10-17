@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
-import { RegionSettings } from "@/components/HeaderControls";
 import { BookingForm } from "@/components/booking/BookingForm";
 import { passengerSlots } from "@/lib/booking-validate";
 import { formatDayWithWeekday, minsParts } from "@/lib/dates";
@@ -39,9 +38,7 @@ export default async function BookingPage({
   const tr = await getTranslations("results");
 
   const header = (
-    <SiteHeader width="form">
-      <RegionSettings />
-    </SiteHeader>
+    <SiteHeader width="form" />
   );
 
   if (!offer) {
