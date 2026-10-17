@@ -1,5 +1,5 @@
 import path from "node:path";
-import { Circle, Document, Font, Page, Path, StyleSheet, Svg, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import { Circle, Document, Font, Image, Page, Path, StyleSheet, Svg, Text, View, renderToBuffer } from "@react-pdf/renderer";
 
 // PDF'te tarayıcı yazı tipleri yok: Türkçe harfleri ve ₺ simgesini içeren Nunito dosyaları gömülür.
 // (Fredoka'nın dosyasında ğ, ş, İ ve ₺ olmadığı için başlıklarda da Nunito kullanılır.)
@@ -56,6 +56,8 @@ export type PlanSegment = { flight: string; route: string; times: string; aircra
 export type PlanLeg = {
   title: string;
   airline: string;
+  /** Havayolu logosu: sayfada adres, PDF'te PNG veri adresi (SVG PDF'e doğrudan konamaz) */
+  logo?: string;
   dep: string;
   arr: string;
   nextDay?: string;
@@ -82,6 +84,7 @@ export type PlanData = {
   passengerCol: string;
   bagsCol: string;
   passengers: { name: string; bags: string }[];
+  bagNotes: string[];
   rulesTitle: string;
   rules: string[];
   infoTitle: string;
@@ -203,7 +206,10 @@ export function TripPlanPdf({ d }: { d: PlanData }) {
           <View key={leg.title} style={s.leg} wrap={false}>
             <View style={s.legHead}>
               <Text style={s.legTitle}>{up(leg.title)}</Text>
-              <Text style={s.legAirline}>{leg.airline}</Text>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+                {leg.logo?.startsWith("data:image/png") && <Image src={leg.logo} style={{ width: 13, height: 13 }} />}
+                <Text style={s.legAirline}>{leg.airline}</Text>
+              </View>
             </View>
             <View style={s.legMain}>
               <View style={s.end}>
@@ -251,6 +257,9 @@ export function TripPlanPdf({ d }: { d: PlanData }) {
                 <Text style={{ flex: 1, fontWeight: 700 }}>{p.name}</Text>
                 <Text style={{ flex: 1.3 }}>{p.bags}</Text>
               </View>
+            ))}
+            {d.bagNotes.map((n) => (
+              <Text key={n} style={{ marginTop: 4, fontSize: 8.5, color: C.muted }}>{n}</Text>
             ))}
           </View>
         )}

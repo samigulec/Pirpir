@@ -3,19 +3,18 @@ import { cityByCode } from "@/data/airports";
 import { brand } from "@/config/brand";
 import { getBookingOrSample } from "@/lib/sample-booking";
 import { isLocale } from "@/i18n/config";
-import { addDays } from "@/lib/search";
+import { ALARM_CHOICES, legEnd, legStart, type AlarmChoice } from "@/lib/calendar";
 import type { Leg } from "@/lib/providers/types";
 
 // Takvime ekle: rezervasyonun uçuşlarını .ics dosyası olarak verir.
 // Saatler havalimanının yerel saatidir; saat dilimi bilinmediği için "yüzen" saat olarak yazılır.
 const T = {
-  tr: { flight: "Uçuş", pnr: "Rezervasyon kodu", local: "Saatler yerel saattir." },
-  en: { flight: "Flight", pnr: "Booking reference", local: "Times are local times." },
-  nl: { flight: "Vlucht", pnr: "Boekingscode", local: "Tijden zijn lokale tijden." },
+  tr: { flight: "Uçuş", pnr: "Rezervasyon kodu", local: "Saatler yerel saattir.", day: "Yarın uçuşun var: online check-in'i kontrol et", hours: (h: number) => `${h} saat sonra uçuşun var` },
+  en: { flight: "Flight", pnr: "Booking reference", local: "Times are local times.", day: "Your flight is tomorrow: check online check-in", hours: (h: number) => `Your flight leaves in ${h} hours` },
+  nl: { flight: "Vlucht", pnr: "Boekingscode", local: "Tijden zijn lokale tijden.", day: "Morgen vlieg je: check online inchecken", hours: (h: number) => `Over ${h} uur vertrekt je vlucht` },
 };
 
 const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/([,;])/g, "\\$1").replace(/\n/g, "\\n");
-const stamp = (date: string, hhmm: string) => `${date.replace(/-/g, "")}T${hhmm.replace(":", "")}00`;
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -25,16 +24,29 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const lang = isLocale(langParam) ? langParam : "tr";
   const t = T[lang];
   const city = (c: string) => cityByCode(c, lang);
+  // ?alarms=1440,180 → takvim uygulaması kalkıştan o kadar önce hatırlatır
+  const alarms = (req.nextUrl.searchParams.get("alarms") ?? "")
+    .split(",")
+    .map(Number)
+    .filter((m): m is AlarmChoice => (ALARM_CHOICES as readonly number[]).includes(m));
+  const alarm = (m: number) => [
+    "BEGIN:VALARM",
+    "ACTION:DISPLAY",
+    `DESCRIPTION:${esc(m >= 1440 ? t.day : t.hours(m / 60))}`,
+    `TRIGGER:-PT${m}M`,
+    "END:VALARM",
+  ];
 
   const event = (leg: Leg, i: number) => [
     "BEGIN:VEVENT",
     `UID:${booking.id}-${i}@${brand.name}`,
     `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").slice(0, 15)}Z`,
-    `DTSTART:${stamp(leg.date, leg.dep)}`,
-    `DTEND:${stamp(addDays(leg.date, leg.arrDayOffset), leg.arr)}`,
+    `DTSTART:${legStart(leg)}`,
+    `DTEND:${legEnd(leg)}`,
     `SUMMARY:${esc(`${t.flight} ${city(leg.fromCode)} → ${city(leg.toCode)} · ${leg.airline}`)}`,
     `LOCATION:${esc(`${city(leg.fromCode)} (${leg.fromCode})`)}`,
     `DESCRIPTION:${esc(`${leg.fromCode} ${leg.dep} → ${leg.toCode} ${leg.arr}\n${booking.pnr ? `${t.pnr}: ${booking.pnr}\n` : ""}${t.local}`)}`,
+    ...[...new Set(alarms)].flatMap(alarm),
     "END:VEVENT",
   ];
   const legs = [booking.offer.outbound, ...(booking.offer.inbound ? [booking.offer.inbound] : [])];

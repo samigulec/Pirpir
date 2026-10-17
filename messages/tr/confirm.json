@@ -11,10 +11,17 @@
   "calendar": "Takvime ekle",
   "share": "Paylaş",
   "remind": {
-    "title": "Valiz hatırlatsın mı?",
-    "text": "Online check-in açılınca ve uçuştan 3 saat önce sana bildirim gönderelim.",
-    "off": "Evet, hatırlat",
-    "on": "Hatırlatma açık ✓"
+    "title": "Takvimine ekle, Valiz hatırlatsın",
+    "text": "Uçuşların takvimine eklenir; seçtiğin zamanlarda telefonun ya da bilgisayarın hatırlatır.",
+    "when": "Ne zaman hatırlatsın?",
+    "a1440": "1 gün önce · check-in",
+    "a180": "3 saat önce",
+    "a60": "1 saat önce",
+    "ics": "Takvime ekle",
+    "icsHint": "Apple Takvim, Outlook ve diğerleri (.ics)",
+    "google": "Google Takvim",
+    "googleLeg": "Google Takvim · {leg}",
+    "googleNote": "Google Takvim'de hatırlatma, Google'ın kendi bildirim ayarına göre yapılır."
   },
   "home": "Ana sayfaya dön",
   "held": {
@@ -88,7 +95,6 @@
     "passengersTitle": "Yolcular ve bagaj",
     "passenger": "Yolcu",
     "bags": "Bagaj",
-    "bagsLine": "{cabin} kabin · {checked} kontrol{kg, select, none {} other { ({kg} kg)}}{heavy, plural, =0 {} other { · # ağır}}",
     "noBags": "Bagaj bilgisi yok",
     "infant": "bebek",
     "rulesTitle": "Bilet kuralları",
@@ -165,5 +171,51 @@
     "changed": "Uçuş {date} tarihinde değiştirildi.",
     "changedPaid": "Uçuş {date} tarihinde değiştirildi; ödenen fark <price></price>."
   },
-  "printView": "Yazdırılabilir görünüm"
+  "printView": "Yazdırılabilir görünüm",
+  "bagsText": {
+    "items": {
+      "personal": "Kişisel eşya",
+      "cabin": "{n, plural, one {Kabin bagajı} other {#× kabin bagajı}}",
+      "checked": "{n, plural, one {Kontrol edilen bagaj} other {#× kontrol edilen bagaj}}",
+      "heavy": "{n, plural, one {Ağır bagaj} other {#× ağır bagaj}}"
+    },
+    "withKg": "{item} ({kg} kg)",
+    "infant": "Kucakta seyahat eder",
+    "noKgNote": "Ağırlığı yazmayan bagajlar için havayolunun bagaj kuralı geçerlidir.",
+    "extraHint": "Dahil bagajın ağırlık sınırını havayolu bildirmedi; bu uçuşta satılan ek bagaj {kg} kg'a kadar."
+  },
+  "shareSheet": {
+    "title": "Uçuşunu paylaş",
+    "noCode": "Rezervasyon kodu paylaşılmaz; uçuş bu kodla yönetilebildiği için.",
+    "apps": "Uygulamayla paylaş",
+    "pdf": "PDF'i paylaş",
+    "pdfLoading": "PDF hazırlanıyor…",
+    "whatsapp": "WhatsApp",
+    "email": "E-posta",
+    "copy": "Metni kopyala",
+    "copied": "Kopyalandı ✓",
+    "close": "Kapat",
+    "subject": "Uçuş planım: {route}",
+    "pax": "{n} yolcu",
+    "leg": "{label} · {date} · {dep} {from} → {arr} {to} · {airline} · {stops}"
+  },
+  "details": {
+    "title": "Uçuş ayrıntıları",
+    "layover": "{city} aktarma · {time} bekleme",
+    "passengersTitle": "Yolcular ve bagaj",
+    "rulesTitle": "Bilet kuralları",
+    "noRules": "Havayolu bu bilet için değişiklik ve iade kuralı bildirmedi.",
+    "paymentTitle": "Ödeme özeti",
+    "fare": "Bilet",
+    "bags": "Ek bagaj",
+    "seats": "Koltuk seçimi",
+    "discount": "İndirim",
+    "later": "Sonradan eklenenler (bagaj, değişiklik)",
+    "total": "Toplam",
+    "bookedOn": "Rezervasyon tarihi",
+    "email": "E-posta",
+    "status": "Durum",
+    "infant": "bebek",
+    "cabin": "Kabin"
+  }
 }

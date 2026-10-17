@@ -11,10 +11,17 @@
   "calendar": "Toevoegen aan agenda",
   "share": "Delen",
   "remind": {
-    "title": "Zal Valiz je eraan herinneren?",
-    "text": "We sturen je een melding zodra online inchecken opengaat en 3 uur voor je vlucht.",
-    "off": "Ja, herinner me",
-    "on": "Herinnering aan ✓"
+    "title": "Zet het in je agenda, Valiz herinnert je",
+    "text": "Je vluchten komen in je agenda en je telefoon of computer herinnert je op de momenten die je kiest.",
+    "when": "Wanneer herinneren?",
+    "a1440": "1 dag vooraf · inchecken",
+    "a180": "3 uur vooraf",
+    "a60": "1 uur vooraf",
+    "ics": "Aan agenda toevoegen",
+    "icsHint": "Apple Agenda, Outlook en andere (.ics)",
+    "google": "Google Agenda",
+    "googleLeg": "Google Agenda · {leg}",
+    "googleNote": "Google Agenda herinnert je volgens de eigen meldingsinstellingen."
   },
   "home": "Terug naar home",
   "held": {
@@ -88,7 +95,6 @@
     "passengersTitle": "Passagiers en bagage",
     "passenger": "Passagier",
     "bags": "Bagage",
-    "bagsLine": "{cabin} handbagage · {checked} ruimbagage{kg, select, none {} other { ({kg} kg)}}{heavy, plural, =0 {} other { · # zwaar}}",
     "noBags": "Geen bagage-informatie",
     "infant": "baby",
     "rulesTitle": "Ticketregels",
@@ -165,5 +171,51 @@
     "changed": "Vlucht gewijzigd op {date}.",
     "changedPaid": "Vlucht gewijzigd op {date}; je betaalde <price></price>."
   },
-  "printView": "Afdrukweergave"
+  "printView": "Afdrukweergave",
+  "bagsText": {
+    "items": {
+      "personal": "Persoonlijk item",
+      "cabin": "{n, plural, one {Handbagage} other {#× handbagage}}",
+      "checked": "{n, plural, one {Ruimbagage} other {#× ruimbagage}}",
+      "heavy": "{n, plural, one {Zware koffer} other {#× zware koffer}}"
+    },
+    "withKg": "{item} ({kg} kg)",
+    "infant": "Reist op schoot",
+    "noKgNote": "Waar geen gewicht staat, gelden de bagageregels van de maatschappij.",
+    "extraHint": "De maatschappij gaf geen gewichtslimiet voor de inbegrepen bagage; extra bagage op deze vlucht mag tot {kg} kg."
+  },
+  "shareSheet": {
+    "title": "Deel je vlucht",
+    "noCode": "De boekingscode wordt niet gedeeld, omdat je de boeking daarmee kunt beheren.",
+    "apps": "Delen via app",
+    "pdf": "Pdf delen",
+    "pdfLoading": "Pdf wordt gemaakt…",
+    "whatsapp": "WhatsApp",
+    "email": "E-mail",
+    "copy": "Tekst kopiëren",
+    "copied": "Gekopieerd ✓",
+    "close": "Sluiten",
+    "subject": "Mijn vluchtplan: {route}",
+    "pax": "{n, plural, one {# passagier} other {# passagiers}}",
+    "leg": "{label} · {date} · {dep} {from} → {arr} {to} · {airline} · {stops}"
+  },
+  "details": {
+    "title": "Vluchtgegevens",
+    "layover": "Overstap in {city} · {time} wachten",
+    "passengersTitle": "Passagiers en bagage",
+    "rulesTitle": "Ticketregels",
+    "noRules": "De maatschappij gaf geen wijzigings- of terugbetalingsregels voor dit ticket.",
+    "paymentTitle": "Betaaloverzicht",
+    "fare": "Ticket",
+    "bags": "Extra bagage",
+    "seats": "Stoelkeuze",
+    "discount": "Korting",
+    "later": "Later toegevoegd (bagage, wijzigingen)",
+    "total": "Totaal",
+    "bookedOn": "Geboekt op",
+    "email": "E-mail",
+    "status": "Status",
+    "infant": "baby",
+    "cabin": "Klasse"
+  }
 }

@@ -1,10 +1,11 @@
 import { type NextRequest } from "next/server";
-import { brand } from "@/config/brand";
 import { isLocale } from "@/i18n/config";
 import { getBookingOrSample } from "@/lib/sample-booking";
 import { serverCurrency } from "@/lib/currency-server";
+import { logoPng } from "@/lib/pdf/logo";
 import { planData } from "@/lib/pdf/plan-data";
 import { renderPlanPdf } from "@/lib/pdf/TripPlanPdf";
+import { planFileName } from "@/lib/trips";
 
 export const runtime = "nodejs";
 
@@ -20,8 +21,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   // Sayfadaki seçimle aynı para birimi
   const cur = await serverCurrency(sp.get("cur"));
 
-  const pdf = await renderPlanPdf(await planData(booking, locale, cur));
-  const name = `${brand.name}-${booking.pnr ?? booking.offer.outbound.fromCode + "-" + booking.offer.outbound.toCode + "-" + booking.offer.outbound.date}.pdf`;
+  const data = await planData(booking, locale, cur);
+  // Aynı logo bir kez çevrilir
+  const logos = new Map<string, Promise<string | undefined>>();
+  const png = (u?: string) => (u ? (logos.get(u) ?? logos.set(u, logoPng(u)).get(u)!) : Promise.resolve(undefined));
+  data.legs = await Promise.all(data.legs.map(async (l) => ({ ...l, logo: await png(l.logo) })));
+  const pdf = await renderPlanPdf(data);
+  const name = planFileName(booking);
   return new Response(new Uint8Array(pdf), {
     headers: {
       "Content-Type": "application/pdf",

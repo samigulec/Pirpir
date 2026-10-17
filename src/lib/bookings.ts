@@ -6,13 +6,14 @@ import { cookies } from "next/headers";
 import { supabaseAdmin, supabaseServer } from "./auth/supabase-server";
 import { isSupabaseConfigured } from "./auth/config";
 import type { CurrentUser } from "./auth/session";
-import type { Booking, Leg } from "./providers/types";
+import type { Booking, Leg, Segment } from "./providers/types";
 
 const COOKIE = "rotala_bookings";
 const MAX_IN_COOKIE = 4;
 
 // Çerez 4 KB ile sınırlı: bacaklar kısa anahtarlarla saklanır, şehir adları koddan türetilir.
-type CompactLeg = [string, string, string, number, string, string, string, number, string?, number?];
+type CompactSeg = [string, string, string, string, string, number, number, string, string?, string?, number?];
+type CompactLeg = [string, string, string, number, string, string, string, number, string?, number?, CompactSeg[]?];
 type CompactBooking = {
   i: string; p: Booking["provider"]; r?: string; e: string; t: number; c: string; a: string; o: CompactLeg; b?: CompactLeg;
   /** Ayrılmış: [son ödeme, fiyat garantisi] ve sağlayıcı tutarı */
@@ -23,30 +24,50 @@ type CompactBooking = {
   pc?: number; ib?: [number, number, number?]; eb?: [number, number, number?][];
   /** Değiştirilebilir, değişiklik ücreti, son değişiklik [zaman, ödenen] */
   cg?: boolean; cf?: number; ch?: [string, number];
+  /** Havayolu logosu, kabin, paket adı, bagaj ağırlıkları [kabin, kontrol, ek kabin, ek kontrol, ağır], fiyat dökümü */
+  l?: string; cb?: Booking["offer"]["cabin"]; fb?: string; bk?: (number | null)[]; pb?: [number, number, number, number];
 };
 
-const packLeg = (l: Leg): CompactLeg => [l.date, l.dep, l.arr, l.arrDayOffset, l.fromCode, l.toCode, l.airline, l.stops, l.via?.code, l.mins];
+const packSeg = (g: Segment): CompactSeg => [g.fromCode, g.toCode, g.date, g.dep, g.arr, g.arrDayOffset, g.mins, g.carrier, g.flightNumber, g.aircraft, g.layoverMins];
+const unpackSeg = (c: CompactSeg): Segment => ({
+  fromCode: c[0], toCode: c[1], date: c[2], dep: c[3], arr: c[4], arrDayOffset: c[5], mins: c[6], carrier: c[7],
+  flightNumber: c[8] ?? undefined, aircraft: c[9] ?? undefined, layoverMins: c[10] ?? undefined,
+});
+
+const packLeg = (l: Leg, segs = true): CompactLeg => {
+  const c: CompactLeg = [l.date, l.dep, l.arr, l.arrDayOffset, l.fromCode, l.toCode, l.airline, l.stops, l.via?.code, l.mins];
+  if (segs && l.segments?.length) c[10] = l.segments.map(packSeg);
+  return c;
+};
 const unpackLeg = (c: CompactLeg): Leg => ({
   date: c[0], dep: c[1], arr: c[2], arrDayOffset: c[3], fromCode: c[4], toCode: c[5], fromCity: c[4], toCity: c[5],
-  airline: c[6], stops: c[7], via: c[8] ? { code: c[8], city: c[8], waitMins: 0 } : undefined, mins: c[9] ?? 0,
+  airline: c[6], stops: c[7], mins: c[9] ?? 0,
+  via: c[8] ? { code: c[8], city: c[8], waitMins: c[10]?.[0]?.[10] ?? 0 } : undefined,
+  segments: c[10]?.map(unpackSeg),
 });
-const pack = (b: Booking): CompactBooking => ({
+const num = (v: number | null | undefined) => (v === null ? undefined : v);
+const pack = (b: Booking, segs = true): CompactBooking => ({
   i: b.id, p: b.provider, r: b.pnr, e: b.email, t: b.total, c: b.createdAt, a: b.offer.airline,
-  o: packLeg(b.offer.outbound), b: b.offer.inbound ? packLeg(b.offer.inbound) : undefined,
+  o: packLeg(b.offer.outbound, segs), b: b.offer.inbound ? packLeg(b.offer.inbound, segs) : undefined,
   h: b.held ? [b.held.payBy, b.held.priceGuaranteedUntil] : undefined, pt: b.providerTotal,
   n: b.passengers, x: b.refundable, k: b.cancelled ? [b.cancelled.at, b.cancelled.refund] : undefined,
   pc: b.payingCount, ib: b.includedBags ? [b.includedBags.cabin, b.includedBags.checked, b.includedBags.kg] : undefined,
   eb: b.extraBags?.map((x) => (x.heavy ? [x.cabin, x.checked, x.heavy] : [x.cabin, x.checked])),
   cg: b.changeable, cf: b.changeFee, ch: b.changed ? [b.changed.at, b.changed.paid] : undefined,
+  l: b.offer.airlineLogo, cb: b.offer.cabin, fb: b.offer.fareBrand,
+  bk: b.bagKg ? [b.bagKg.cabin, b.bagKg.checked, b.bagKg.extraCabin, b.bagKg.extraChecked, b.bagKg.heavy].map((v) => v ?? null) : undefined,
+  pb: b.breakdown ? [b.breakdown.fare, b.breakdown.bags, b.breakdown.seats, b.breakdown.discount] : undefined,
 });
 const unpack = (c: CompactBooking): Booking => ({
   id: c.i, provider: c.p, pnr: c.r, email: c.e, total: c.t, createdAt: c.c,
-  offer: { airline: c.a, outbound: unpackLeg(c.o), inbound: c.b ? unpackLeg(c.b) : undefined },
+  offer: { airline: c.a, airlineLogo: c.l, cabin: c.cb, fareBrand: c.fb, outbound: unpackLeg(c.o), inbound: c.b ? unpackLeg(c.b) : undefined },
   held: c.h ? { payBy: c.h[0], priceGuaranteedUntil: c.h[1] } : undefined, providerTotal: c.pt,
   passengers: c.n, refundable: c.x, cancelled: c.k ? { at: c.k[0], refund: c.k[1] } : undefined,
   payingCount: c.pc, includedBags: c.ib ? { cabin: c.ib[0], checked: c.ib[1], kg: c.ib[2] } : undefined,
   extraBags: c.eb?.map(([cabin, checked, heavy]) => ({ cabin, checked, ...(heavy ? { heavy } : {}) })),
   changeable: c.cg, changeFee: c.cf, changed: c.ch ? { at: c.ch[0], paid: c.ch[1] } : undefined,
+  bagKg: c.bk ? { cabin: num(c.bk[0]), checked: num(c.bk[1]), extraCabin: num(c.bk[2]), extraChecked: num(c.bk[3]), heavy: num(c.bk[4]) } : undefined,
+  breakdown: c.pb ? { fare: c.pb[0], bags: c.pb[1], seats: c.pb[2], discount: c.pb[3] } : undefined,
 });
 
 async function readCookieList(): Promise<Booking[]> {
@@ -63,8 +84,21 @@ type Row = { id: string; email: string; provider: string; pnr: string | null; to
 
 const fromRow = (r: Row): Booking => ({ ...r.summary, id: r.id, pnr: r.pnr ?? undefined, email: r.email, total: r.total_try, createdAt: r.created_at });
 
+const COOKIE_BUDGET = 3800;
+
+/** Uçuş bacaklarının ayrıntısı (uçuş no, uçak) sığdığı kadar saklanır: önce en eski rezervasyonunki düşer. */
+function encodeList(list: Booking[]): string {
+  const items = list.slice(0, MAX_IN_COOKIE);
+  const withSegs = items.map(() => true);
+  for (let drop = items.length - 1; ; drop--) {
+    const value = Buffer.from(JSON.stringify(items.map((b, i) => pack(b, withSegs[i])))).toString("base64url");
+    if (value.length <= COOKIE_BUDGET || drop < 0) return value;
+    withSegs[drop] = false;
+  }
+}
+
 async function writeCookieList(list: Booking[]) {
-  (await cookies()).set(COOKIE, Buffer.from(JSON.stringify(list.slice(0, MAX_IN_COOKIE).map(pack))).toString("base64url"), {
+  (await cookies()).set(COOKIE, encodeList(list), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -112,7 +146,13 @@ export async function clearLocalBookings() {
 
 export async function getBooking(id: string): Promise<Booking | null> {
   const local = (await readCookieList()).find((b) => b.id === id);
-  if (local) return local;
+  if (local) {
+    // Çerez bu tarayıcının rezervasyonu olduğunu gösterir; tam kayıt (uçuş ayrıntıları) veritabanından okunur
+    const admin = supabaseAdmin();
+    if (!admin) return local;
+    const { data } = await admin.from("bookings").select("*").eq("id", id).maybeSingle<Row>();
+    return data ? fromRow(data) : local;
+  }
   if (!isSupabaseConfigured()) return null;
   const supabase = await supabaseServer();
   const { data } = await supabase.from("bookings").select("*").eq("id", id).maybeSingle<Row>();

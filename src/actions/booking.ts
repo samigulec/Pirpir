@@ -48,7 +48,17 @@ export async function placeOrder(offerId: string, form: FormData): Promise<Place
     booking.changeable = offer.conditions.changeable;
     booking.changeFee = offer.conditions.changeFee;
     booking.payingCount = paying;
-    booking.includedBags = { cabin: offer.bags.cabin.included, checked: offer.bags.checked.included, kg: offer.bags.checked.kg };
+    booking.includedBags = { cabin: offer.bags.cabin.included, checked: offer.bags.checked.included };
+    // Ağırlıklar yalnızca havayolu bildirdiyse (dahil bagajınkini Duffel çoğu zaman vermez; uydurulmaz)
+    booking.bagKg = {
+      cabin: offer.bagSpecs?.cabin?.kg,
+      checked: offer.bagSpecs?.checked?.kg,
+      extraCabin: offer.bags.cabin.kg ?? offer.bagSpecs?.cabin?.kg,
+      extraChecked: offer.bags.checked.kg ?? offer.bagSpecs?.checked?.kg,
+      heavy: offer.bags.heavy?.kg,
+    };
+    booking.breakdown = { fare: offer.total, bags: bagsCost(offer.bags, data.bags), seats: seatTotal, discount: quoted - total };
+    booking.offer = { ...booking.offer, airlineLogo: offer.airlineLogo, cabin: offer.cabin, fareBrand: offer.fareBrand };
     booking.extraBags = data.bags;
     await saveBooking(booking, user, locale);
     bookingId = booking.id;

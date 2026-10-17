@@ -32,6 +32,8 @@ export type Segment = {
   /** Ör. "PC 1254" */
   flightNumber?: string;
   aircraft?: string;
+  /** Uçuşu satan havayolunun resmi simge logosu (Duffel varlık sunucusu) */
+  carrierLogo?: string;
   /** Bu bacaktan sonraki aktarmada bekleme (dakika). */
   layoverMins?: number;
 };
@@ -167,7 +169,7 @@ export type Booking = {
   /** Havayolu rezervasyon kodu (örnek modda yok). */
   pnr?: string;
   email: string;
-  offer: Pick<Offer, "airline" | "outbound" | "inbound">;
+  offer: Pick<Offer, "airline" | "outbound" | "inbound"> & Partial<Pick<Offer, "airlineLogo" | "cabin" | "fareBrand">>;
   total: number;
   createdAt: string;
   /** Ayrıldı, ödeme bekliyor (yoksa ödenmiş, bilet kesilmiş) */
@@ -182,8 +184,12 @@ export type Booking = {
   cancelled?: { at: string; refund: number };
   /** Ödeyen (bebek olmayan) yolcu sayısı; `passengers` listesinin ilk bu kadarı */
   payingCount?: number;
-  /** Bilete dahil bagaj (yolcu başı) */
+  /** Bilete dahil bagaj (yolcu başı); kg eski kayıtlarda kontrol edilen bagajın ağırlığıdır */
   includedBags?: { cabin: number; checked: number; kg?: number };
+  /** Havayolunun bildirdiği en fazla ağırlıklar (kg): dahil kabin/kontrol ve satın alınan kabin/kontrol/ağır */
+  bagKg?: { cabin?: number; checked?: number; extraCabin?: number; extraChecked?: number; heavy?: number };
+  /** Rezervasyondaki fiyat dökümü (TRY): bilet, bagaj, koltuk, indirim */
+  breakdown?: { fare: number; bags: number; seats: number; discount: number };
   /** Satın alınan ek bagaj (ödeyen yolcu sırasıyla; rezervasyonda ve sonradan) */
   extraBags?: BagChoice[];
   /** Bilet değiştirilebilir mi ve havayolunun bildirdiği değişiklik ücreti (biliniyorsa) */

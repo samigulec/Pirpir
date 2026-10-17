@@ -3,12 +3,17 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Bulut, Pirpir, Valiz } from "@/components/characters";
-import { RemindToggle } from "@/components/booking/RemindToggle";
+import { CalendarReminder } from "@/components/booking/CalendarReminder";
+import { BookingFacts, Itinerary } from "@/components/booking/TripDetails";
+import { googleCalendarUrl } from "@/lib/calendar";
+import { serverCurrency } from "@/lib/currency-server";
+import { planData } from "@/lib/pdf/plan-data";
+import { planFileName } from "@/lib/trips";
 import { SAMPLE_BOOKING_ID } from "@/data/mock/booking";
 import { cityByCode } from "@/data/airports";
 import { Link } from "@/i18n/navigation";
 import { getBookingOrSample } from "@/lib/sample-booking";
-import { formatDateTime, formatDayWithWeekday, formatRange } from "@/lib/dates";
+import { formatDateTime, formatDayWithWeekday } from "@/lib/dates";
 import { PayHeldButton } from "@/components/booking/PayHeldButton";
 import { todayIso } from "@/lib/search";
 import { AddBags, CancelBooking, ChangeFlight, TripActions } from "@/components/booking/TripActions";
@@ -36,28 +41,43 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
   const { offer } = booking;
   const city = (code: string) => cityByCode(code, locale);
 
-  const legs = [
-    { title: t("outbound", { date: formatDayWithWeekday(offer.outbound.date, loc) }), leg: offer.outbound },
-    ...(offer.inbound ? [{ title: t("inbound", { date: formatDayWithWeekday(offer.inbound.date, loc) }), leg: offer.inbound }] : []),
-  ];
-  const legNote = (leg: Leg) =>
-    `${leg.airline} · ${leg.via ? t("transferVia", { city: cityByCode(leg.via.code, locale, leg.via.city) }) : t("direct")}`;
-
+  const ts = await getTranslations("confirm.shareSheet");
   const th = await getTranslations("confirm.held");
   const cancelled = booking.cancelled;
-  const ta = await getTranslations("confirm.addBags");
-  const bought = (booking.extraBags ?? [])
-    .map((x, i) => ({ ...x, name: booking.passengers?.[i] ?? ta("pax", { n: i + 1 }) }))
-    .filter((x) => x.cabin > 0 || x.checked > 0 || (x.heavy ?? 0) > 0)
-    .map((x) => ta("boughtItem", { name: x.name, cabin: x.cabin, checked: x.checked, heavy: x.heavy ?? 0 }));
   const held = cancelled ? undefined : booking.held;
   const tx = await getTranslations("confirm.cancelled");
+  // Paylaşılan metin: güzergâh, iki bacağın saatleri ve yolcu sayısı (rezervasyon kodu yok)
   const shareTitle = `${city(offer.outbound.fromCode)} → ${city(offer.outbound.toCode)}`;
-  const shareText = t("shareText", {
-    route: shareTitle,
-    dates: formatRange(offer.outbound.date, offer.inbound?.date, loc),
-    airline: offer.airline,
-  });
+  const legLine = (label: string, leg: Leg) =>
+    ts("leg", {
+      label,
+      date: formatDayWithWeekday(leg.date, loc),
+      dep: leg.dep,
+      from: leg.fromCode,
+      arr: leg.arr + (leg.arrDayOffset > 0 ? ` (+${leg.arrDayOffset})` : ""),
+      to: leg.toCode,
+      airline: leg.airline,
+      stops: leg.via ? t("transferVia", { city: cityByCode(leg.via.code, locale, leg.via.city) }) : t("direct"),
+    });
+  const tt = await getTranslations("account.trips");
+  const shareText = [
+    legLine(tt("outbound"), offer.outbound),
+    ...(offer.inbound ? [legLine(tt("inbound"), offer.inbound)] : []),
+    ts("pax", { n: booking.passengers?.length || 1 }),
+  ].join("\n");
+  const google = [
+    { label: tt("outbound"), leg: offer.outbound },
+    ...(offer.inbound ? [{ label: tt("inbound"), leg: offer.inbound }] : []),
+  ].map(({ label, leg }) => ({
+    label,
+    url: googleCalendarUrl(
+      leg,
+      `${city(leg.fromCode)} → ${city(leg.toCode)} · ${leg.airline}`,
+      `${leg.fromCode} ${leg.dep} → ${leg.toCode} ${leg.arr}${booking.pnr ? ` · ${t("pnrLabel")}: ${booking.pnr}` : ""}`,
+      `${city(leg.fromCode)} (${leg.fromCode})`,
+    ),
+  }));
+  const plan = await planData(booking, locale, await serverCurrency());
   const expired = !!held && Date.parse(held.payBy) < Date.now();
   const payBy = held ? formatDateTime(held.payBy, loc) : "";
 
@@ -107,20 +127,9 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
           )}
         </div>
 
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 rounded-[28px] border-2 border-solid border-line px-6 py-5">
-          {legs.map(({ title, leg }) => (
-            <div key={title} className="flex flex-col">
-              <span className="text-[13px] font-extrabold text-muted">{title}</span>
-              <span className="font-display text-[22px] font-semibold" title={`${city(leg.fromCode)} → ${city(leg.toCode)}`}>
-                {leg.dep} {leg.fromCode} → {leg.arr}
-                {leg.arrDayOffset > 0 && <sup className="ml-[2px] text-[12px] font-extrabold text-coral-text">+{leg.arrDayOffset}</sup>}{" "}
-                {leg.toCode}
-              </span>
-              <span className="text-[15px] font-semibold text-muted">{legNote(leg)}</span>
-            </div>
-          ))}
-        </div>
+        {!held && !cancelled && <TripActions bookingId={booking.id} share={{ title: shareTitle, text: shareText, fileName: planFileName(booking) }} />}
 
+        <Itinerary booking={booking} />
         {booking.changed && (
           <p className="-mt-2 mb-0 text-[15px] font-semibold text-muted">
             {t.rich(booking.changed.paid > 0 ? "change.changedPaid" : "change.changed", {
@@ -129,20 +138,10 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
             })}
           </p>
         )}
-        {bought.length > 0 && (
-          <p className="-mt-2 mb-0 text-[15px] font-semibold text-muted">{ta("bought", { list: bought.join(" · ") })}</p>
-        )}
-        {!held && !cancelled && <TripActions bookingId={booking.id} shareTitle={shareTitle} shareText={shareText} />}
 
-        {!cancelled && (
-          <div className="flex flex-wrap items-center gap-x-[18px] gap-y-[14px] rounded-[28px] bg-coral-soft px-6 py-5">
-            <div className="flex flex-[1_1_300px] flex-col">
-              <span className="font-display text-xl font-semibold">{t("remind.title")}</span>
-              <span className="text-[15px] text-muted">{t("remind.text")}</span>
-            </div>
-            <RemindToggle />
-          </div>
-        )}
+        {!cancelled && !expired && <CalendarReminder bookingId={booking.id} google={google} />}
+
+        <BookingFacts booking={booking} plan={plan} />
 
         {!cancelled && !held && booking.id !== SAMPLE_BOOKING_ID && (
           <ChangeFlight

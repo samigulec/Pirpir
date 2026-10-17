@@ -5,7 +5,8 @@ import { formatDateTime, formatDayWithYear, minsParts } from "@/lib/dates";
 import { formatPrice, type Currency } from "@/lib/currency";
 import { intlLocale } from "@/lib/intl";
 import type { Booking, Leg, Segment } from "@/lib/providers/types";
-import { passengerBags, tripStatus } from "@/lib/trips";
+import { bagItemText } from "@/lib/bag-text";
+import { passengerBags, tripStatus, unknownIncludedKgHint } from "@/lib/trips";
 import type { PlanData, PlanLeg, PlanSegment } from "./TripPlanPdf";
 
 const minutes = (date: string, hhmm: string, dayOffset = 0) => {
@@ -27,6 +28,9 @@ export async function planData(booking: Booking, locale: string, cur: Currency):
   const statusText =
     status === "cancelled" ? tp("statuses.cancelled") : status === "held" || status === "expired" ? tp("statuses.held") : tp("statuses.confirmed");
 
+  const tr = await getTranslations({ locale, namespace: "results" });
+  const cabinText = booking.offer.cabin ? tr(`cabin.${booking.offer.cabin}`) : undefined;
+
   const segRows = (leg: Leg): PlanSegment[] =>
     (leg.segments ?? []).map((g: Segment, i, all) => {
       const next = all[i + 1];
@@ -45,7 +49,8 @@ export async function planData(booking: Booking, locale: string, cur: Currency):
     ...(booking.offer.inbound ? [{ title: t("inbound", { date: formatDayWithYear(booking.offer.inbound.date, loc) }), leg: booking.offer.inbound }] : []),
   ].map(({ title, leg }) => ({
     title,
-    airline: leg.airline,
+    airline: [leg.airline, cabinText, booking.offer.fareBrand].filter(Boolean).join(" · "),
+    logo: booking.offer.airlineLogo,
     dep: leg.dep,
     arr: leg.arr,
     nextDay: leg.arrDayOffset > 0 ? tp("arrivesNextDay", { n: leg.arrDayOffset }) : undefined,
@@ -58,16 +63,17 @@ export async function planData(booking: Booking, locale: string, cur: Currency):
     segments: segRows(leg),
   }));
 
-  const paying = booking.payingCount ?? booking.passengers?.length ?? 0;
-  const passengers = passengerBags(booking).map((p, i) => ({
-    name: i >= paying ? `${p.name} (${tp("infant")})` : p.name,
-    bags:
-      i >= paying
-        ? "—"
-        : !booking.includedBags && !booking.extraBags
-        ? tp("noBags")
-        : tp("bagsLine", { cabin: p.cabin, checked: p.checked, kg: p.checked && p.kg ? String(p.kg) : "none", heavy: p.heavy }),
+  const tb = await getTranslations({ locale, namespace: "confirm.bagsText" });
+  const known = !!booking.includedBags || !!booking.extraBags;
+  const paxBags = passengerBags(booking);
+  const passengers = paxBags.map((p) => ({
+    name: p.infant ? `${p.name} (${tp("infant")})` : p.name,
+    bags: p.infant ? tb("infant") : !known ? tp("noBags") : p.items.map((x) => bagItemText(tb, x)).join(" · "),
   }));
+  const bagNotes: string[] = [];
+  const hint = unknownIncludedKgHint(booking);
+  if (hint) bagNotes.push(tb("extraHint", { kg: hint }));
+  if (known && paxBags.some((p) => p.items.some((x) => x.kind !== "personal" && !x.kg))) bagNotes.push(tb("noKgNote"));
 
   const rules: string[] = [];
   if (booking.changeable === false) rules.push(tp("changeNo"));
@@ -107,6 +113,7 @@ export async function planData(booking: Booking, locale: string, cur: Currency):
     passengerCol: tp("passenger"),
     bagsCol: tp("bags"),
     passengers,
+    bagNotes,
     rulesTitle: tp("rulesTitle"),
     rules,
     infoTitle: tp("infoTitle"),

@@ -6,7 +6,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCurrency } from "../CurrencyProvider";
 import { PdfLink } from "../account/PdfLink";
-import { Calendar, Download, Share } from "../icons";
+import { Download } from "../icons";
+import { ShareTrip } from "./ShareTrip";
 import {
   addBagsToBooking,
   confirmCancel,
@@ -26,31 +27,9 @@ import type { BagChoice, ChangeOption, ChangeRequest, Leg } from "@/lib/provider
 
 const action = "flex min-h-[56px] items-center justify-center gap-2 rounded-[18px] border-0 font-display text-lg font-semibold leading-[normal] no-underline";
 
-/** Onay sayfasındaki eylemler: seyahat planı, takvim, paylaş. */
-export function TripActions({ bookingId, shareTitle, shareText }: { bookingId: string; shareTitle: string; shareText: string }) {
+/** Onay sayfasındaki eylemler: seyahat planı PDF'i ve paylaş. */
+export function TripActions({ bookingId, share }: { bookingId: string; share: { title: string; text: string; fileName: string } }) {
   const t = useTranslations("confirm");
-  const locale = useLocale();
-  const [copied, setCopied] = useState(false);
-
-  // Paylaşılan metinde rezervasyon kodu yoktur (kodla rezervasyon yönetilebilir).
-  const share = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: shareTitle, text: shareText });
-        return;
-      } catch {
-        // Kullanıcı vazgeçti ya da desteklenmiyor: panoya kopyala
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(`${shareTitle}\n${shareText}`);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    } catch {
-      setCopied(false);
-    }
-  };
-
   return (
     <div className="flex flex-col gap-2">
       <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[10px]">
@@ -58,14 +37,7 @@ export function TripActions({ bookingId, shareTitle, shareText }: { bookingId: s
           <Download />
           {t("download")}
         </PdfLink>
-        <a href={`/api/takvim/${encodeURIComponent(bookingId)}?lang=${locale}`} download className={`${action} bg-field text-ink`}>
-          <Calendar />
-          {t("calendar")}
-        </a>
-        <button type="button" onClick={share} className={`${action} cursor-pointer bg-field text-ink`}>
-          <Share />
-          <span aria-live="polite">{copied ? t("copied") : t("share")}</span>
-        </button>
+        <ShareTrip bookingId={bookingId} {...share} className={`${action} cursor-pointer bg-field text-ink`} />
       </div>
       <Link href={{ pathname: "/rezervasyon/[teklifId]/plan", params: { teklifId: bookingId } }} className="self-center py-2 text-[15px] font-extrabold">
         {t("printView")}

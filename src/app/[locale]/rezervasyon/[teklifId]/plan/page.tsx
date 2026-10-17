@@ -82,7 +82,11 @@ export default async function TripPlanPage({ params, searchParams }: { params: P
         <section key={leg.title} className="overflow-hidden rounded-[20px] border-2 border-solid border-line print:break-inside-avoid">
           <div className="flex flex-wrap justify-between gap-2 bg-field px-5 py-2">
             <h2 className="m-0 text-[13px] font-extrabold uppercase tracking-[0.06em]">{leg.title}</h2>
-            <span className="text-[13px] font-bold text-muted">{leg.airline}</span>
+            <span className="flex items-center gap-[6px] text-[13px] font-bold text-muted">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {leg.logo && <img src={leg.logo} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />}
+              {leg.airline}
+            </span>
           </div>
           <div className="flex items-center gap-3 px-5 py-4 print:py-2">
             <span className="flex w-[110px] flex-none flex-col">
@@ -143,6 +147,9 @@ export default async function TripPlanPage({ params, searchParams }: { params: P
               ))}
             </tbody>
           </table>
+          {d.bagNotes.map((n) => (
+            <p key={n} className="m-0 mt-1 text-[13px] text-muted">{n}</p>
+          ))}
         </section>
       )}
 

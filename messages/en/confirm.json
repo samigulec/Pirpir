@@ -11,10 +11,17 @@
   "calendar": "Add to calendar",
   "share": "Share",
   "remind": {
-    "title": "Want Valiz to remind you?",
-    "text": "We'll notify you when online check-in opens and 3 hours before your flight.",
-    "off": "Yes, remind me",
-    "on": "Reminder on ✓"
+    "title": "Add to your calendar, Valiz will remind you",
+    "text": "Your flights go into your calendar and your phone or computer reminds you at the times you pick.",
+    "when": "When should it remind you?",
+    "a1440": "1 day before · check-in",
+    "a180": "3 hours before",
+    "a60": "1 hour before",
+    "ics": "Add to calendar",
+    "icsHint": "Apple Calendar, Outlook and others (.ics)",
+    "google": "Google Calendar",
+    "googleLeg": "Google Calendar · {leg}",
+    "googleNote": "Google Calendar reminds you according to its own notification settings."
   },
   "home": "Back to home",
   "held": {
@@ -88,7 +95,6 @@
     "passengersTitle": "Passengers and bags",
     "passenger": "Passenger",
     "bags": "Bags",
-    "bagsLine": "{cabin} cabin · {checked} checked{kg, select, none {} other { ({kg} kg)}}{heavy, plural, =0 {} other { · # heavy}}",
     "noBags": "No bag information",
     "infant": "infant",
     "rulesTitle": "Ticket rules",
@@ -165,5 +171,51 @@
     "changed": "Flight changed on {date}.",
     "changedPaid": "Flight changed on {date}; you paid <price></price>."
   },
-  "printView": "Printable view"
+  "printView": "Printable view",
+  "bagsText": {
+    "items": {
+      "personal": "Personal item",
+      "cabin": "{n, plural, one {Cabin bag} other {#× cabin bag}}",
+      "checked": "{n, plural, one {Checked bag} other {#× checked bag}}",
+      "heavy": "{n, plural, one {Heavy bag} other {#× heavy bag}}"
+    },
+    "withKg": "{item} ({kg} kg)",
+    "infant": "Travels on lap",
+    "noKgNote": "Where no weight is shown, the airline's baggage rules apply.",
+    "extraHint": "The airline didn't state the weight limit of the included bag; extra bags sold on this flight are up to {kg} kg."
+  },
+  "shareSheet": {
+    "title": "Share your flight",
+    "noCode": "The booking reference isn't shared, since the booking can be managed with it.",
+    "apps": "Share with an app",
+    "pdf": "Share the PDF",
+    "pdfLoading": "Preparing PDF…",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "copy": "Copy text",
+    "copied": "Copied ✓",
+    "close": "Close",
+    "subject": "My flight plan: {route}",
+    "pax": "{n, plural, one {# passenger} other {# passengers}}",
+    "leg": "{label} · {date} · {dep} {from} → {arr} {to} · {airline} · {stops}"
+  },
+  "details": {
+    "title": "Flight details",
+    "layover": "Change in {city} · {time} wait",
+    "passengersTitle": "Passengers and bags",
+    "rulesTitle": "Ticket rules",
+    "noRules": "The airline didn't state change or refund rules for this ticket.",
+    "paymentTitle": "Payment summary",
+    "fare": "Ticket",
+    "bags": "Extra bags",
+    "seats": "Seat selection",
+    "discount": "Discount",
+    "later": "Added later (bags, changes)",
+    "total": "Total",
+    "bookedOn": "Booked on",
+    "email": "Email",
+    "status": "Status",
+    "infant": "infant",
+    "cabin": "Cabin"
+  }
 }

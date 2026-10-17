@@ -128,7 +128,7 @@ type DSegment = {
   duration?: string | null;
   origin: DPlace;
   destination: DPlace;
-  marketing_carrier: { name: string; iata_code?: string | null };
+  marketing_carrier: { name: string; iata_code?: string | null; logo_symbol_url?: string | null };
   marketing_carrier_flight_number?: string | null;
   aircraft?: { name?: string | null } | null;
   passengers?: {
@@ -244,6 +244,7 @@ function mapSegment(x: DSegment, next?: DSegment): Segment {
       ? `${x.marketing_carrier.iata_code ?? ""} ${x.marketing_carrier_flight_number}`.trim()
       : undefined,
     aircraft: x.aircraft?.name ?? undefined,
+    carrierLogo: logoUrl(x.marketing_carrier.logo_symbol_url),
     layoverMins: next ? minsBetween(x.arriving_at, next.departing_at) : undefined,
   };
 }

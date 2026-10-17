@@ -1,3 +1,4 @@
+import { brand } from "@/config/brand";
 import type { Booking, Leg } from "./providers/types";
 import { todayIso } from "./search";
 
@@ -39,20 +40,46 @@ export function sortTrips(list: Booking[], tab: TripTab, now = new Date()): Book
   return out.sort((a, b) => lastLeg(b).date.localeCompare(lastLeg(a).date) || b.createdAt.localeCompare(a.createdAt));
 }
 
-/** Yolcu başı bagaj: biletle gelen + sonradan alınan (bebekler hariç, ödeyen yolcu sırasıyla). */
-export function passengerBags(b: Booking): { name: string; cabin: number; checked: number; heavy: number; kg?: number }[] {
+export type BagKind = "personal" | "cabin" | "checked" | "heavy";
+export type BagItem = { kind: BagKind; count: number; kg?: number };
+
+/**
+ * Yolcu başı bagaj kalemleri: biletle gelen + sonradan alınan (ödeyen yolcu sırasıyla; bebeklerin bagajı yok).
+ * Ağırlık yalnızca havayolu bildirdiyse yazılır; aynı tür ve ağırlıktaki kalemler birleştirilir.
+ */
+export function passengerBags(b: Booking): { name: string; infant: boolean; items: BagItem[] }[] {
   const names = b.passengers ?? [];
   const paying = b.payingCount ?? names.length;
   const inc = b.includedBags ?? { cabin: 0, checked: 0 };
+  const kg = b.bagKg ?? { checked: inc.kg, extraChecked: inc.kg };
   return names.map((name, i) => {
-    const extra = i < paying ? b.extraBags?.[i] : undefined;
-    const own = i < paying;
-    return {
-      name,
-      cabin: (own ? inc.cabin : 0) + (extra?.cabin ?? 0),
-      checked: (own ? inc.checked : 0) + (extra?.checked ?? 0),
-      heavy: extra?.heavy ?? 0,
-      kg: inc.kg,
+    if (i >= paying) return { name, infant: true, items: [] };
+    const extra = b.extraBags?.[i];
+    const items: BagItem[] = [{ kind: "personal", count: 1 }];
+    const add = (kind: BagKind, count: number, w?: number) => {
+      if (count <= 0) return;
+      const same = items.find((x) => x.kind === kind && x.kg === w);
+      if (same) same.count += count;
+      else items.push({ kind, count, kg: w });
     };
+    add("cabin", inc.cabin, kg.cabin);
+    add("cabin", extra?.cabin ?? 0, kg.extraCabin);
+    add("checked", inc.checked, kg.checked);
+    add("checked", extra?.checked ?? 0, kg.extraChecked);
+    add("heavy", extra?.heavy ?? 0, kg.heavy);
+    return { name, infant: false, items };
   });
+}
+
+/** Dahil kontrol edilen bagajın ağırlığı bilinmiyor ama bu uçuşta satılan ek bagajınki biliniyorsa o (bilgi notu için). */
+export function unknownIncludedKgHint(b: Booking): number | undefined {
+  const inc = b.includedBags;
+  if (!inc?.checked || b.bagKg?.checked || inc.kg) return undefined;
+  return b.bagKg?.extraChecked;
+}
+
+/** İndirilen PDF'in adı: rotala-PNR.pdf ya da rotala-AMS-IST-2026-11-07.pdf */
+export function planFileName(b: Booking): string {
+  const o = b.offer.outbound;
+  return `${brand.name}-${b.pnr ?? `${o.fromCode}-${o.toCode}-${o.date}`}.pdf`;
 }
