@@ -1,7 +1,18 @@
 // Supabase ayarları. İkisi de tanımlı değilse giriş "örnek mod"da çalışır
 // (e-posta doğrulaması yok, veriler yalnızca bu tarayıcıda tutulur).
-export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+/** Yalnızca kök adres kullanılır: panelden "…supabase.co/rest/v1/" gibi yollu kopyalansa da çalışsın. */
+function originOf(raw: string | undefined): string {
+  if (!raw) return "";
+  try {
+    const v = raw.trim();
+    return new URL(/^https?:\/\//.test(v) ? v : `https://${v}`).origin;
+  } catch {
+    return "";
+  }
+}
+
+export const SUPABASE_URL = originOf(process.env.NEXT_PUBLIC_SUPABASE_URL);
+export const SUPABASE_ANON_KEY = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "").trim();
 
 export const isSupabaseConfigured = () => !!(SUPABASE_URL && SUPABASE_ANON_KEY);
 

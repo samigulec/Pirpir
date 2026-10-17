@@ -13,7 +13,9 @@
       "email": "Enter a valid email address.",
       "failed": "Sign-in failed or the link has expired. Please try again.",
       "provider": "Sign-in with this method isn't working right now. Try again or continue with email.",
-      "notConfigured": "This sign-in method isn't available yet. You can continue with email for now."
+      "notConfigured": "This sign-in method isn't available yet. You can continue with email for now.",
+      "rateLimit": "Too many attempts in a short time. Please try again in a few minutes.",
+      "signupDisabled": "Email sign-in is currently unavailable. Please try again later."
     },
     "newHere": "No account yet? One is created on your first sign-in, no password needed.",
     "providers": {

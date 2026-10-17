@@ -13,7 +13,9 @@
       "email": "Vul een geldig e-mailadres in.",
       "failed": "Inloggen mislukt of de link is verlopen. Probeer het opnieuw.",
       "provider": "Inloggen met deze methode lukt nu niet. Probeer opnieuw of ga verder met e-mail.",
-      "notConfigured": "Deze inlogmethode is nog niet beschikbaar. Je kunt voorlopig met e-mail verder."
+      "notConfigured": "Deze inlogmethode is nog niet beschikbaar. Je kunt voorlopig met e-mail verder.",
+      "rateLimit": "Te veel pogingen in korte tijd. Probeer het over een paar minuten opnieuw.",
+      "signupDisabled": "Inloggen met e-mail is nu niet beschikbaar. Probeer het later opnieuw."
     },
     "newHere": "Nog geen account? Die wordt bij je eerste keer inloggen aangemaakt, zonder wachtwoord.",
     "providers": {

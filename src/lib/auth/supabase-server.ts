@@ -23,7 +23,7 @@ export async function supabaseServer() {
 
 /** Yalnızca sunucuda, rezervasyon kaydı için (RLS'yi aşar). Anahtar yoksa null. */
 export function supabaseAdmin() {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (!SUPABASE_URL || !key) return null;
   return createAdminClient(SUPABASE_URL, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }

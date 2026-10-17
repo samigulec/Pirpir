@@ -16,7 +16,7 @@ const OAUTH: OAuthProvider[] = ["google", "facebook", "apple"];
 
 export type LoginState = {
   status: "idle" | "sent" | "signedIn" | "error";
-  error?: "email" | "failed" | "provider" | "notConfigured";
+  error?: "email" | "failed" | "provider" | "notConfigured" | "rateLimit" | "signupDisabled";
   email?: string;
 };
 
@@ -53,7 +53,11 @@ export async function requestLogin(_prev: LoginState, form: FormData): Promise<L
     options: { emailRedirectTo: callback.toString(), shouldCreateUser: true },
   });
   if (error) {
-    console.error("Giriş bağlantısı gönderilemedi:", error.message);
+    console.error("Giriş bağlantısı gönderilemedi:", error.code ?? error.status, error.message);
+    const code = error.code ?? "";
+    if (error.status === 429 || code.includes("rate_limit")) return { status: "error", error: "rateLimit", email };
+    if (code === "signup_disabled" || code === "email_provider_disabled") return { status: "error", error: "signupDisabled", email };
+    if (code === "email_address_invalid") return { status: "error", error: "email", email };
     return { status: "error", error: "failed", email };
   }
   return { status: "sent", email };

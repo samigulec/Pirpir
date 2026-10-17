@@ -13,7 +13,9 @@
       "email": "Geçerli bir e-posta adresi yaz.",
       "failed": "Giriş yapılamadı ya da bağlantının süresi doldu. Tekrar dene.",
       "provider": "Bu yöntemle şu an giriş yapılamadı. Tekrar dene ya da e-postayla devam et.",
-      "notConfigured": "Bu giriş yöntemi henüz açık değil. Şimdilik e-postayla devam edebilirsin."
+      "notConfigured": "Bu giriş yöntemi henüz açık değil. Şimdilik e-postayla devam edebilirsin.",
+      "rateLimit": "Kısa sürede çok fazla deneme yapıldı. Birkaç dakika sonra tekrar dene.",
+      "signupDisabled": "E-postayla giriş şu an kapalı. Lütfen daha sonra tekrar dene."
     },
     "newHere": "Hesabın yok mu? İlk girişte otomatik oluşturulur, şifre gerekmez.",
     "providers": {
