@@ -1,109 +1,88 @@
-// Havalimanı listesi (IATA kodları ve yaklaşık koordinatlar). Arama kutusu önerileri,
-// adres çözümleme ve örnek veri modundaki uçuş süreleri buradan gelir.
+// Dünya havalimanı listesi (sunucu tarafı). Kaynak: OurAirports (kamu malı), `npm run airports` ile üretilir.
+// Çekirdek listedeki şehirlerin Türkçe adları ve rota sayfası adresleri ./airports-core.ts'ten gelir.
+import "server-only";
+import world from "./world-airports.json";
+import {
+  CITY_PREFIX,
+  METROS,
+  cityName,
+  coreAirports,
+  countryName,
+  isCityCode,
+  metroOf,
+  type Airport,
+  type PlaceSuggestion,
+} from "./airports-core";
 
-export type Airport = {
-  code: string;
-  city: string;
-  name: string;
-  country: string;
-  /** Rota sayfası adresinde kullanılan şehir adı (ör. "istanbul"). */
-  slug: string;
-  lat: number;
-  lon: number;
-  /** 3: büyük aktarma merkezi, 2: çok direkt uçuşu olan, 1: bölgesel. */
-  size: 1 | 2 | 3;
-  aliases?: string[];
-  /** Türkçeden farklıysa İngilizce / Hollandaca şehir adı. */
-  i18n?: { en?: string; nl?: string };
-};
+export * from "./airports-core";
 
-type Lang = "tr" | "en" | "nl";
+type Row = [string, string, string, string, number, number, 1 | 2 | 3];
 
-const COUNTRIES: Record<string, { en: string; nl: string }> = {
-  Hollanda: { en: "Netherlands", nl: "Nederland" },
-  Belçika: { en: "Belgium", nl: "België" },
-  Almanya: { en: "Germany", nl: "Duitsland" },
-  Türkiye: { en: "Türkiye", nl: "Turkije" },
-  "Birleşik Krallık": { en: "United Kingdom", nl: "Verenigd Koninkrijk" },
-  Fransa: { en: "France", nl: "Frankrijk" },
-  İtalya: { en: "Italy", nl: "Italië" },
-  İspanya: { en: "Spain", nl: "Spanje" },
-  Portekiz: { en: "Portugal", nl: "Portugal" },
-  Yunanistan: { en: "Greece", nl: "Griekenland" },
-  Avusturya: { en: "Austria", nl: "Oostenrijk" },
-  Çekya: { en: "Czechia", nl: "Tsjechië" },
-  Danimarka: { en: "Denmark", nl: "Denemarken" },
-  İsviçre: { en: "Switzerland", nl: "Zwitserland" },
-};
+const slugify = (s: string) =>
+  s
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ı/g, "i")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 
-export const airports: Airport[] = [
-  // Hollanda
-  { code: "AMS", city: "Amsterdam", name: "Schiphol", country: "Hollanda", slug: "amsterdam", lat: 52.31, lon: 4.76, size: 3 },
-  { code: "EIN", city: "Eindhoven", name: "Eindhoven", country: "Hollanda", slug: "eindhoven", lat: 51.45, lon: 5.37, size: 2 },
-  { code: "RTM", city: "Rotterdam", name: "Rotterdam The Hague", country: "Hollanda", slug: "rotterdam", lat: 51.96, lon: 4.44, size: 2, aliases: ["Lahey", "Den Haag"] },
-  { code: "GRQ", city: "Groningen", name: "Groningen Eelde", country: "Hollanda", slug: "groningen", lat: 53.12, lon: 6.58, size: 1 },
-  { code: "MST", city: "Maastricht", name: "Maastricht Aachen", country: "Hollanda", slug: "maastricht", lat: 50.92, lon: 5.78, size: 1 },
-  // Belçika, Almanya
-  { code: "BRU", city: "Brüksel", name: "Brussels Airport", country: "Belçika", slug: "bruksel", lat: 50.9, lon: 4.48, size: 3, aliases: ["Brussels"], i18n: { en: "Brussels", nl: "Brussel" } },
-  { code: "CRL", city: "Charleroi", name: "Brussels South Charleroi", country: "Belçika", slug: "charleroi", lat: 50.46, lon: 4.45, size: 2 },
-  { code: "DUS", city: "Düsseldorf", name: "Düsseldorf", country: "Almanya", slug: "dusseldorf", lat: 51.29, lon: 6.77, size: 2 },
-  { code: "CGN", city: "Köln", name: "Köln/Bonn", country: "Almanya", slug: "koln", lat: 50.87, lon: 7.14, size: 2, aliases: ["Cologne", "Bonn"], i18n: { en: "Cologne", nl: "Keulen" } },
-  { code: "FRA", city: "Frankfurt", name: "Frankfurt am Main", country: "Almanya", slug: "frankfurt", lat: 50.04, lon: 8.56, size: 3 },
-  { code: "MUC", city: "Münih", name: "Franz Josef Strauss", country: "Almanya", slug: "munih", lat: 48.35, lon: 11.79, size: 3, aliases: ["München", "Munich"], i18n: { en: "Munich", nl: "München" } },
-  { code: "BER", city: "Berlin", name: "Berlin Brandenburg", country: "Almanya", slug: "berlin", lat: 52.37, lon: 13.5, size: 2 },
-  // Türkiye
-  { code: "IST", city: "İstanbul", name: "İstanbul Havalimanı", country: "Türkiye", slug: "istanbul", lat: 41.26, lon: 28.74, size: 3, i18n: { en: "Istanbul", nl: "Istanbul" } },
-  { code: "SAW", city: "İstanbul", name: "Sabiha Gökçen", country: "Türkiye", slug: "istanbul", lat: 40.9, lon: 29.31, size: 3, i18n: { en: "Istanbul", nl: "Istanbul" } },
-  { code: "ADB", city: "İzmir", name: "Adnan Menderes", country: "Türkiye", slug: "izmir", lat: 38.29, lon: 27.16, size: 2, i18n: { en: "Izmir", nl: "Izmir" } },
-  { code: "AYT", city: "Antalya", name: "Antalya", country: "Türkiye", slug: "antalya", lat: 36.9, lon: 30.8, size: 2 },
-  { code: "ESB", city: "Ankara", name: "Esenboğa", country: "Türkiye", slug: "ankara", lat: 40.13, lon: 32.99, size: 2 },
-  { code: "DLM", city: "Dalaman", name: "Dalaman", country: "Türkiye", slug: "dalaman", lat: 36.71, lon: 28.79, size: 2, aliases: ["Fethiye", "Marmaris"] },
-  { code: "BJV", city: "Bodrum", name: "Milas-Bodrum", country: "Türkiye", slug: "bodrum", lat: 37.25, lon: 27.66, size: 2 },
-  { code: "ASR", city: "Kayseri", name: "Erkilet", country: "Türkiye", slug: "kayseri", lat: 38.77, lon: 35.5, size: 1, aliases: ["Kapadokya"] },
-  { code: "GZT", city: "Gaziantep", name: "Gaziantep", country: "Türkiye", slug: "gaziantep", lat: 36.95, lon: 37.48, size: 1 },
-  { code: "TZX", city: "Trabzon", name: "Trabzon", country: "Türkiye", slug: "trabzon", lat: 40.99, lon: 39.79, size: 1 },
-  { code: "ADA", city: "Adana", name: "Şakirpaşa", country: "Türkiye", slug: "adana", lat: 36.98, lon: 35.28, size: 1 },
-  { code: "KYA", city: "Konya", name: "Konya", country: "Türkiye", slug: "konya", lat: 37.98, lon: 32.56, size: 1 },
-  { code: "SZF", city: "Samsun", name: "Çarşamba", country: "Türkiye", slug: "samsun", lat: 41.25, lon: 36.57, size: 1 },
-  { code: "DIY", city: "Diyarbakır", name: "Diyarbakır", country: "Türkiye", slug: "diyarbakir", lat: 37.89, lon: 40.2, size: 1, i18n: { en: "Diyarbakir", nl: "Diyarbakir" } },
-  { code: "EZS", city: "Elazığ", name: "Elazığ", country: "Türkiye", slug: "elazig", lat: 38.61, lon: 39.29, size: 1, i18n: { en: "Elazig", nl: "Elazig" } },
-  { code: "MLX", city: "Malatya", name: "Malatya", country: "Türkiye", slug: "malatya", lat: 38.44, lon: 38.09, size: 1 },
-  { code: "ERZ", city: "Erzurum", name: "Erzurum", country: "Türkiye", slug: "erzurum", lat: 39.96, lon: 41.17, size: 1 },
-  { code: "VAN", city: "Van", name: "Ferit Melen", country: "Türkiye", slug: "van", lat: 38.47, lon: 43.33, size: 1 },
-  { code: "HTY", city: "Hatay", name: "Hatay", country: "Türkiye", slug: "hatay", lat: 36.36, lon: 36.28, size: 1, aliases: ["Antakya"] },
-  { code: "DNZ", city: "Denizli", name: "Çardak", country: "Türkiye", slug: "denizli", lat: 37.79, lon: 29.7, size: 1 },
-  // Avrupa
-  { code: "LHR", city: "Londra", name: "Heathrow", country: "Birleşik Krallık", slug: "londra", lat: 51.47, lon: -0.45, size: 3, aliases: ["London"], i18n: { en: "London", nl: "Londen" } },
-  { code: "LGW", city: "Londra", name: "Gatwick", country: "Birleşik Krallık", slug: "londra", lat: 51.15, lon: -0.18, size: 2, aliases: ["London"], i18n: { en: "London", nl: "Londen" } },
-  { code: "CDG", city: "Paris", name: "Charles de Gaulle", country: "Fransa", slug: "paris", lat: 49.01, lon: 2.55, size: 3 },
-  { code: "ORY", city: "Paris", name: "Orly", country: "Fransa", slug: "paris", lat: 48.73, lon: 2.36, size: 2 },
-  { code: "FCO", city: "Roma", name: "Fiumicino", country: "İtalya", slug: "roma", lat: 41.8, lon: 12.25, size: 3, aliases: ["Rome"], i18n: { en: "Rome", nl: "Rome" } },
-  { code: "MXP", city: "Milano", name: "Malpensa", country: "İtalya", slug: "milano", lat: 45.63, lon: 8.72, size: 2, aliases: ["Milan"], i18n: { en: "Milan", nl: "Milaan" } },
-  { code: "BCN", city: "Barselona", name: "El Prat", country: "İspanya", slug: "barselona", lat: 41.3, lon: 2.08, size: 3, aliases: ["Barcelona"], i18n: { en: "Barcelona", nl: "Barcelona" } },
-  { code: "MAD", city: "Madrid", name: "Barajas", country: "İspanya", slug: "madrid", lat: 40.47, lon: -3.56, size: 3 },
-  { code: "LIS", city: "Lizbon", name: "Humberto Delgado", country: "Portekiz", slug: "lizbon", lat: 38.77, lon: -9.13, size: 2, aliases: ["Lisbon", "Lisboa"], i18n: { en: "Lisbon", nl: "Lissabon" } },
-  { code: "ATH", city: "Atina", name: "Eleftherios Venizelos", country: "Yunanistan", slug: "atina", lat: 37.94, lon: 23.94, size: 2, aliases: ["Athens"], i18n: { en: "Athens", nl: "Athene" } },
-  { code: "VIE", city: "Viyana", name: "Schwechat", country: "Avusturya", slug: "viyana", lat: 48.11, lon: 16.57, size: 3, aliases: ["Vienna", "Wien"], i18n: { en: "Vienna", nl: "Wenen" } },
-  { code: "PRG", city: "Prag", name: "Václav Havel", country: "Çekya", slug: "prag", lat: 50.1, lon: 14.26, size: 2, aliases: ["Prague"], i18n: { en: "Prague", nl: "Praag" } },
-  { code: "CPH", city: "Kopenhag", name: "Kastrup", country: "Danimarka", slug: "kopenhag", lat: 55.62, lon: 12.65, size: 2, aliases: ["Copenhagen"], i18n: { en: "Copenhagen", nl: "Kopenhagen" } },
-  { code: "ZRH", city: "Zürih", name: "Zürih", country: "İsviçre", slug: "zurih", lat: 47.46, lon: 8.55, size: 3, aliases: ["Zurich"], i18n: { en: "Zurich", nl: "Zürich" } },
-];
+const core = new Map(coreAirports.map((a) => [a.code, a]));
 
-export function cityName(a: Airport, lang: string = "tr"): string {
-  return (lang !== "tr" && a.i18n?.[lang as Exclude<Lang, "tr">]) || a.city;
+// Öneri sıralaması için yolcu trafiği yüksek merkezler (yaklaşık, kabaca büyükten küçüğe).
+// Yalnızca listeleme sırasını etkiler; kullanıcıya gösterilmez.
+const POPULAR = (
+  "IST AMS LHR CDG FRA DXB AYT SAW MAD BCN FCO MUC ESB ADB JFK ATL LAX ORD DFW DEN HND NRT ICN SIN BKK HKG PEK PVG CAN DEL BOM DOH AUH " +
+  "LGW STN MAN DUB ZRH VIE BRU CPH ARN OSL HEL LIS ATH WAW PRG BUD OTP SOF BEG ZAG DUS HAM BER STR CGN EIN RTM GVA MXP LIN VCE NAP " +
+  "PMI AGP ALC TFS LPA NCE ORY BJV DLM TZX GZT ASR TLV CAI JED RUH KWI BAH MCT AMM BEY TBS GYD EVN ALA NQZ TAS SVO DME LED " +
+  "YYZ YVR YUL EWR LGA BOS MIA MCO SFO SEA LAS PHX IAH MSP DTW PHL IAD DCA CLT SAN MEX CUN GRU GIG EZE SCL LIM BOG PTY " +
+  "SYD MEL BNE AKL KUL CGK DPS MNL SGN HAN TPE KIX CTU SZX JNB CPT ADD NBO LOS CMN TUN ALG KHI ISB LHE DAC CMB MLE KTM"
+).split(" ");
+const popularRank = new Map(POPULAR.map((c, i) => [c, i]));
+const rankOf = (code: string) => popularRank.get(code) ?? (core.has(code) ? 150 : 1000);
+
+// Şehir grubundaki havalimanları aynı şehir adını taşısın (ör. LCY → Londra).
+const metroByAirport = new Map<string, (typeof METROS)[string]>();
+for (const m of Object.values(METROS)) for (const c of m.airports) metroByAirport.set(c, m);
+
+export const airports: Airport[] = (world as Row[]).map(([code, name, city, country, lat, lon, size]) => {
+  const c = core.get(code);
+  if (c) return { ...c, name: c.name || name, size: Math.max(c.size, size) as Airport["size"] };
+  const m = metroByAirport.get(code);
+  // "Segrate (MI)", "Guangzhou (Huadu)" → parantez içi il/ilçe bilgisi şehir adından atılır.
+  const cityName_ = m ? m.city : city.replace(/\s*\(.*\)\s*$/, "") || city;
+  return { code, name, city: cityName_, i18n: m?.i18n, country, lat, lon, size, slug: slugify(m?.i18n?.en ?? cityName_) };
+});
+// Dünya listesinde olmayan çekirdek kayıtlar (olmamalı ama güvenli tarafta kalalım)
+for (const c of coreAirports) if (!airports.some((a) => a.code === c.code)) airports.push(c);
+
+const byCode = new Map(airports.map((a) => [a.code, a]));
+
+export function findAirport(code: string): Airport | undefined {
+  return byCode.get(code.toUpperCase());
 }
 
-export function countryName(country: string, lang: string = "tr"): string {
-  return lang === "tr" ? country : (COUNTRIES[country]?.[lang as Exclude<Lang, "tr">] ?? country);
-}
-
-/** Kod → yerel şehir adı (bilinmiyorsa yedek değer). */
+/** Kod (havalimanı ya da city:XXX) → yerel şehir adı. */
 export function cityByCode(code: string, lang: string = "tr", fallback?: string): string {
+  const m = metroOf(code);
+  if (m) return cityName(m, lang);
   const a = findAirport(code);
   return a ? cityName(a, lang) : (fallback ?? code);
 }
 
-const searchNames = (a: Airport) => [a.city, ...(a.aliases ?? []), ...Object.values(a.i18n ?? {})];
+/** Şehir grubunu (city:LON) havalimanlarına açar; en büyük `limit` tanesi. */
+export function expandCode(code: string, limit = 3): string[] {
+  const m = metroOf(code);
+  if (!m) return [code.toUpperCase()];
+  return m.airports
+    .map((c) => findAirport(c))
+    .filter((a): a is Airport => !!a)
+    .sort((a, b) => b.size - a.size)
+    .slice(0, limit)
+    .map((a) => a.code);
+}
+
+export const isKnownPlace = (code: string) => (isCityCode(code) ? !!metroOf(code) : byCode.has(code.toUpperCase()));
 
 const norm = (s: string) =>
   s
@@ -113,41 +92,71 @@ const norm = (s: string) =>
     .replace(/[̀-ͯ]/g, "")
     .trim();
 
-export function findAirport(code: string): Airport | undefined {
-  const c = code.toUpperCase();
-  return airports.find((a) => a.code === c);
-}
+const namesOf = (a: Pick<Airport, "city" | "aliases" | "i18n">) => [a.city, ...(a.aliases ?? []), ...Object.values(a.i18n ?? {})];
 
-/** Yazılan metne uyan havalimanları: önce kod, sonra şehir başı, sonra içerik eşleşmesi. */
-export function suggestAirports(query: string, limit = 6): Airport[] {
+// Arama için önceden normalize edilmiş dizin
+const index = airports.map((a) => ({
+  a,
+  names: namesOf(a).map(norm),
+  words: norm(a.name).split(/[\s\-/]+/),
+}));
+
+
+/** Yazılan metne uyan yerler: önce kod, sonra şehir, havalimanı adı, ülke. Büyük havalimanları öne. */
+export function suggestPlaces(query: string, lang: string = "tr", limit = 8): PlaceSuggestion[] {
   const q = norm(query);
   if (!q) return [];
-  const score = (a: Airport) => {
-    if (a.code.toLowerCase() === q) return 0;
-    const names = searchNames(a).map(norm);
-    if (names.some((n) => n === q)) return 1;
-    if (names.some((n) => n.startsWith(q))) return 2;
-    if (norm(a.name).startsWith(q)) return 3;
-    const countries = [a.country, ...Object.values(COUNTRIES[a.country] ?? {})].map(norm);
-    if ([...names, norm(a.name), ...countries].some((n) => n.includes(q))) return 4;
-    return 99;
-  };
-  return airports
-    .map((a) => [a, score(a)] as const)
-    .filter(([, s]) => s < 99)
-    .sort((x, y) => x[1] - y[1] || y[0].size - x[0].size)
-    .slice(0, limit)
-    .map(([a]) => a);
+  const scored: { a: Airport; s: number; rank: number }[] = [];
+  for (const it of index) {
+    let s = 99;
+    if (it.a.code.toLowerCase() === q) s = 0;
+    else if (it.names.some((n) => n === q)) s = 1;
+    else if (it.names.some((n) => n.startsWith(q))) s = 2;
+    else if (q.length >= 2 && it.words.some((w) => w.startsWith(q))) s = 3;
+    else if (q.length >= 3 && norm(countryName(it.a.country, lang)).startsWith(q)) s = 4;
+    else if (q.length >= 3 && norm(countryName(it.a.country, "en")).startsWith(q)) s = 4;
+    if (s < 99) scored.push({ a: it.a, s, rank: rankOf(it.a.code) });
+  }
+  scored.sort((x, y) => x.s - y.s || x.rank - y.rank || y.a.size - x.a.size || x.a.city.localeCompare(y.a.city));
+
+  const out: PlaceSuggestion[] = [];
+  const seenMetro = new Set<string>();
+  for (const { a } of scored) {
+    if (out.length >= limit) break;
+    // Şehrin birden fazla havalimanı varsa önce "Tüm havalimanları" seçeneği
+    const metroKey = Object.keys(METROS).find((k) => METROS[k].airports.includes(a.code));
+    // Grup yalnızca şehir adı yazılana uyuyorsa (ör. "s" → Bergamo'nun ilçesi Milano grubunu getirmesin)
+    if (metroKey && !seenMetro.has(metroKey) && namesOf(METROS[metroKey]).some((n) => norm(n).startsWith(q))) {
+      seenMetro.add(metroKey);
+      const m = METROS[metroKey];
+      const codes = m.airports.filter((c) => byCode.has(c));
+      if (codes.length > 1) {
+        out.push({ code: CITY_PREFIX + metroKey, kind: "city", city: cityName(m, lang), detail: codes.join(", "), country: countryName(a.country, lang) });
+        if (out.length >= limit) break;
+      }
+    }
+    out.push({ code: a.code, kind: "airport", city: cityName(a, lang), detail: a.name, country: countryName(a.country, lang) });
+  }
+  return out;
 }
 
-/** "İzmir", "ADB" veya "izmir" → havalimanı. Aynı şehirde birden fazlaysa en büyüğü. */
+/** "İzmir", "ADB", "london" → en iyi eşleşen yer kodu. Birden çok havalimanlı şehirde şehir grubu. */
+export function resolvePlace(input: string): string | undefined {
+  const v = input.trim();
+  if (!v) return undefined;
+  if (isCityCode(v)) return metroOf(v) ? v : undefined;
+  if (/^[a-z]{3}$/i.test(v) && byCode.has(v.toUpperCase())) return v.toUpperCase();
+  const q = norm(v);
+  const metro = Object.entries(METROS).find(([, m]) => namesOf(m).some((n) => norm(n) === q));
+  if (metro) return CITY_PREFIX + metro[0];
+  const exact = index.filter((it) => it.names.includes(q)).sort((x, y) => y.a.size - x.a.size)[0];
+  return exact?.a.code;
+}
+
+/** Eski adlar: yalnızca havalimanı kodu döner (şehir grubu yerine en büyük havalimanı). */
 export function resolveAirport(input: string): Airport | undefined {
-  const byCode = /^[a-z]{3}$/i.test(input.trim()) ? findAirport(input.trim()) : undefined;
-  if (byCode) return byCode;
-  const q = norm(input);
-  const exact = airports.filter((a) => searchNames(a).some((n) => norm(n) === q));
-  if (exact.length) return [...exact].sort((a, b) => b.size - a.size)[0];
-  return undefined;
+  const p = resolvePlace(input);
+  return p ? findAirport(expandCode(p, 1)[0]) : undefined;
 }
 
 export function distanceKm(a: Airport, b: Airport): number {

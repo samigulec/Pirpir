@@ -8,13 +8,26 @@ import { cityByCode } from "@/data/airports";
 import { intlLocale } from "@/lib/intl";
 import { formatDayLong, formatRange } from "@/lib/dates";
 import { dataMode, getFlexibleDateTip, searchFlights } from "@/lib/flights";
-import { parseSearch, paxTotal, searchHref, validateSearch } from "@/lib/search";
+import { paxTotal, searchHref } from "@/lib/search";
+import { parseSearch, validateSearchServer } from "@/lib/search-server";
 import type { Offer } from "@/lib/providers/types";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "results" });
   return { title: t("metaTitle") };
+}
+
+/** Sonuçlardaki tüm havalimanlarının yerel şehir adları (dünya listesi tarayıcıya gönderilmez). */
+function cityNamesFor(offers: Offer[], locale: string): Record<string, string> {
+  const codes = new Set<string>();
+  for (const o of offers)
+    for (const leg of [o.outbound, o.inbound])
+      for (const s of leg?.segments ?? []) {
+        codes.add(s.fromCode);
+        codes.add(s.toCode);
+      }
+  return Object.fromEntries([...codes].map((c) => [c, cityByCode(c, locale)]));
 }
 
 type Query = Record<string, string | string[] | undefined>;
@@ -32,9 +45,9 @@ export default async function ResultsPage({
   const q = parseSearch(await searchParams);
   const t = await getTranslations("results");
   const tSearch = await getTranslations("home.search");
-  const error = validateSearch(q);
-  const fromCity = cityByCode(q.from, locale);
-  const toCity = cityByCode(q.to, locale);
+  const error = validateSearchServer(q);
+  const fromCity = q.from.map((c) => cityByCode(c, locale)).join(", ");
+  const toCity = q.to.map((c) => cityByCode(c, locale)).join(", ");
 
   let offers: Offer[] = [];
   let failed = false;
@@ -100,7 +113,7 @@ export default async function ResultsPage({
             <Link href={searchHref({ ...q, returnDate: q.returnDate ?? "" })} className={pill}>{t("failed.retry")}</Link>
           </div>
         ) : (
-          <ResultsView offers={offers} oneWay={!q.returnDate} tip={tip} note={note} />
+          <ResultsView offers={offers} oneWay={!q.returnDate} tip={tip} note={note} cityNames={cityNamesFor(offers, locale)} />
         )}
       </main>
     </div>

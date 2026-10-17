@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
-    "svg": "node scripts/svg-to-tsx.mjs"
+    "svg": "node scripts/svg-to-tsx.mjs",
+    "airports": "node scripts/build-airports.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

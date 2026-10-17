@@ -50,7 +50,11 @@
     "nights": "{n, plural, one {# nacht} other {# nachten}}",
     "prevMonth": "Vorige maand",
     "nextMonth": "Volgende maand",
-    "paxTotal": "{n, plural, one {# reiziger} other {# reizigers}}"
+    "paxTotal": "{n, plural, one {# reiziger} other {# reizigers}}",
+    "removePlace": "{place} verwijderen",
+    "addPlace": "Stad toevoegen",
+    "placePlaceholder": "Stad of luchthaven",
+    "allAirports": "Alle luchthavens"
   },
   "trust": {
     "label": "Waarom rotala",

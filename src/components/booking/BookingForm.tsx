@@ -2,8 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
-import { useLocale, useTranslations } from "next-intl";
-import { cityByCode } from "@/data/airports";
+import { useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
 import { Valiz } from "../characters";
 import { Lock } from "../icons";
@@ -32,6 +31,7 @@ export function BookingForm({
   slots,
   testMode,
   defaultEmail,
+  viaCity,
 }: {
   offer: Offer;
   slots: PassengerSlot[];
@@ -39,6 +39,8 @@ export function BookingForm({
   testMode: boolean;
   /** Girişliyse e-posta önceden dolu gelir. */
   defaultEmail?: string;
+  /** Gidişteki aktarma şehrinin yerel adı (bagaj notu için) */
+  viaCity?: string;
 }) {
   const t = useTranslations("booking");
   const { fmt } = useCurrency();
@@ -52,8 +54,6 @@ export function BookingForm({
   const [state, setState] = useState<PlaceOrderState>({ errors: {} });
   const [pending, startTransition] = useTransition();
 
-  const locale = useLocale();
-  const viaCity = offer.outbound.via ? cityByCode(offer.outbound.via.code, locale, offer.outbound.via.city) : undefined;
   const paying = slots.filter((s) => s.type !== "infant").length;
   const bagPrice = offer.bagOptions.find((b) => b.kind === bag)?.price ?? 0;
   const discount = promo?.amount ?? 0;
@@ -202,7 +202,7 @@ export function BookingForm({
             );
           })}
         </div>
-        {offer.outbound.via && (
+        {viaCity && (
           <span className="text-sm text-muted">{t("bags.transferNote", { place: locative(viaCity!), city: viaCity! })}</span>
         )}
       </section>

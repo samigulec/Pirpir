@@ -25,22 +25,36 @@ const round5 = (n: number) => Math.round(n / 5) * 5;
 const round10 = (n: number) => Math.round(n / 10) * 10;
 const flightMins = (a: Airport, b: Airport) => round5(35 + (distanceKm(a, b) / 780) * 60);
 
-const FULL_SERVICE = new Set(["Turkish Airlines", "KLM", "Lufthansa", "British Airways", "Air France"]);
+const FULL_SERVICE = new Set(["Turkish Airlines", "KLM", "Lufthansa", "British Airways", "Air France", "Emirates", "Qatar Airways"]);
+const LONG_HAUL_KM = 4000;
+const isTr = (x: Airport) => x.country === "TR";
+
+// Uzun mesafede direkt uçuşu yalnızca uç noktaların ülkesindeki örnek havayolu yapar;
+// aktarmalılar kendi merkezlerinden (İstanbul, Dubai, Doha) bağlanır.
+const HOME_CARRIER: Record<string, string> = {
+  TR: "Turkish Airlines", NL: "KLM", DE: "Lufthansa", GB: "British Airways", FR: "Air France", AE: "Emirates", QA: "Qatar Airways",
+};
+const LONG_HAUL_HUBS: [string, string][] = [["Turkish Airlines", "IST"], ["Emirates", "DXB"], ["Qatar Airways", "DOH"]];
+const homeCarriers = (a: Airport, b: Airport) =>
+  [...new Set([a, b].map((x) => HOME_CARRIER[x.country]).filter((x): x is string => !!x))];
 const HOLIDAY = new Set(["SunExpress", "Corendon"]);
 
 function carriers(a: Airport, b: Airport): string[] {
-  const tr = [a, b].filter((x) => x.country === "Türkiye").length;
+  if (distanceKm(a, b) > LONG_HAUL_KM) return homeCarriers(a, b);
+  const tr = [a, b].filter(isTr).length;
   if (tr === 2) return ["Pegasus", "Turkish Airlines", "AJet", "SunExpress"];
   if (tr === 1) return ["Pegasus", "Turkish Airlines", "SunExpress", "Corendon", "Transavia"];
-  if ([a, b].some((x) => x.country === "Birleşik Krallık")) return ["British Airways", "KLM", "easyJet", "Transavia"];
+  if ([a, b].some((x) => x.country === "GB")) return ["British Airways", "KLM", "easyJet", "Transavia"];
   return ["KLM", "Transavia", "easyJet", "Lufthansa", "Vueling"];
 }
 
 function hubFor(a: Airport, b: Airport): Airport {
   // İstanbul'un kendisi bir uç noktaysa aktarma Avrupa'da olur; Türkiye'nin başka şehirlerine İstanbul üzerinden.
   const istanbul = (x: Airport) => x.slug === "istanbul";
-  const anyTr = a.country === "Türkiye" || b.country === "Türkiye";
-  const pick = anyTr && !istanbul(a) && !istanbul(b) ? ["IST", "SAW"] : ["FRA", "VIE", "MUC", "AMS"];
+  const anyTr = isTr(a) || isTr(b);
+  const pick = distanceKm(a, b) > LONG_HAUL_KM
+    ? ["IST", "DXB", "DOH", "FRA"]
+    : anyTr && !istanbul(a) && !istanbul(b) ? ["IST", "SAW"] : ["FRA", "VIE", "MUC", "AMS"];
   const code = pick.find((c) => {
     const h = findAirport(c)!;
     return h.slug !== a.slug && h.slug !== b.slug;
@@ -49,7 +63,8 @@ function hubFor(a: Airport, b: Airport): Airport {
 }
 
 function hasDirect(a: Airport, b: Airport): boolean {
-  if (a.country === "Türkiye" && b.country === "Türkiye") return a.size >= 2 || b.size >= 2;
+  if (distanceKm(a, b) > LONG_HAUL_KM) return a.size >= 3 && b.size >= 3 && homeCarriers(a, b).length > 0;
+  if (isTr(a) && isTr(b)) return a.size >= 2 || b.size >= 2;
   return Math.min(a.size, b.size) >= 2;
 }
 
@@ -89,11 +104,13 @@ const hhmm = (mins: number) => `${String(Math.floor(mins / 60) % 24).padStart(2,
 const IATA: Record<string, string> = {
   Pegasus: "PC", "Turkish Airlines": "TK", SunExpress: "XQ", Corendon: "XC", Transavia: "HV", KLM: "KL",
   easyJet: "U2", Lufthansa: "LH", Vueling: "VY", "British Airways": "BA", AJet: "VF", "Air France": "AF",
+  Emirates: "EK", "Qatar Airways": "QR",
 };
 const AIRCRAFT = ["Airbus A320neo", "Airbus A321neo", "Boeing 737-800", "Boeing 737 MAX 8"];
+const WIDEBODY = ["Airbus A350-900", "Boeing 777-300ER", "Boeing 787-9"];
 
-// Basit saat dilimi: Türkiye UTC+3, Birleşik Krallık/Portekiz UTC+0, diğerleri UTC+1 (kış saati yaklaşığı).
-const tz = (x: Airport) => (x.country === "Türkiye" ? 3 : x.country === "Birleşik Krallık" || x.country === "Portekiz" ? 0 : 1);
+// Basit saat dilimi: Türkiye UTC+3, diğerleri boylamdan yaklaşık (yaz/kış saati yok sayılır).
+const tz = (x: Airport) => (isTr(x) ? 3 : Math.round(x.lon / 15));
 
 function makeLeg(r: () => number, a: Airport, b: Airport, date: string, airline: string, via?: Airport): Leg {
   const carriers = airline.split(" + ");
@@ -120,7 +137,7 @@ function makeLeg(r: () => number, a: Airport, b: Airport, date: string, airline:
       mins,
       carrier,
       flightNumber: `${IATA[carrier] ?? "ZZ"} ${100 + Math.floor(r() * 8900)}`,
-      aircraft: AIRCRAFT[Math.floor(r() * AIRCRAFT.length)],
+      aircraft: (mins > 300 ? WIDEBODY : AIRCRAFT)[Math.floor(r() * (mins > 300 ? WIDEBODY : AIRCRAFT).length)],
     });
     utc += mins;
     if (i < stops.length - 2) {
@@ -180,14 +197,18 @@ function generate(q: SearchQuery): Offer[] {
       plans.push({ airline, factor: (FULL_SERVICE.has(airline) ? 1.45 : 1.15) * (0.9 + r() * 0.3) });
     }
   }
-  const transferAirlines = a.country === "Türkiye" || b.country === "Türkiye"
+  const transferAirlines = km > LONG_HAUL_KM
+    ? ["Turkish Airlines", "Emirates", "Qatar Airways"]
+    : isTr(a) || isTr(b)
     ? ["Turkish Airlines", "Pegasus", "Transavia + Pegasus"]
     : ["KLM", "Lufthansa", "Transavia + KLM"];
   const transferPool = premium ? transferAirlines.filter((x) => FULL_SERVICE.has(x)) : transferAirlines;
   const nT = premium ? Math.min(2, transferPool.length) : direct ? 2 : 3;
   for (let i = 0; i < nT; i++) {
     const airline = transferPool[i % transferPool.length];
-    plans.push({ airline, via: hub, factor: (FULL_SERVICE.has(airline) ? 1.6 : 0.85) * (0.9 + r() * 0.3) });
+    const longHub = km > LONG_HAUL_KM ? LONG_HAUL_HUBS.find(([name]) => name === airline)?.[1] : undefined;
+    const via = longHub && longHub !== a.code && longHub !== b.code ? findAirport(longHub) ?? hub : hub;
+    plans.push({ airline, via, factor: (FULL_SERVICE.has(airline) ? 1.6 : 0.85) * (0.9 + r() * 0.3) });
   }
 
   const pax = q.pax;

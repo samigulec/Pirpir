@@ -108,7 +108,9 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
           </div>
         </div>
 
-        <BookingForm offer={offer} slots={passengerSlots(offer)} testMode={dataMode() !== "live"} defaultEmail={user?.email} />
+        <BookingForm offer={offer} slots={passengerSlots(offer)} testMode={dataMode() !== "live"} defaultEmail={user?.email}
+          viaCity={offer.outbound.via ? cityByCode(offer.outbound.via.code, locale, offer.outbound.via.city) : undefined}
+        />
 
         <span className="text-center text-sm text-muted">{t("footnote")}</span>
       </main>

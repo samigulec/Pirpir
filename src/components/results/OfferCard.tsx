@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCurrency } from "../CurrencyProvider";
 import { CabinBagIcon, CheckedBagIcon, PersonalItemIcon } from "./BagIcons";
-import { cityByCode } from "@/data/airports";
 import { formatDayWithWeekday, minsParts } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 import type { Leg, Offer } from "@/lib/providers/types";
@@ -13,7 +12,8 @@ import { bookingHref } from "@/lib/search";
 
 type Badge = "cheap" | "fast" | null;
 
-export function OfferCard({ offer, badge }: { offer: Offer; badge: Badge }) {
+export function OfferCard({ offer, badge, cityNames }: { offer: Offer; badge: Badge; cityNames: Record<string, string> }) {
+  const cityByCode = (code: string) => cityNames[code] ?? code;
   const t = useTranslations("results");
   const tc = useTranslations("common");
   const locale = useLocale();
@@ -123,7 +123,7 @@ export function OfferCard({ offer, badge }: { offer: Offer; badge: Badge }) {
                         {s.arrDayOffset > 0 && <sup className="text-[11px] text-coral-text">+{s.arrDayOffset}</sup>} {s.toCode}
                       </span>
                       <span className="text-sm font-semibold text-muted">
-                        {cityByCode(s.fromCode, locale)} → {cityByCode(s.toCode, locale)} · {dur(s.mins)}
+                        {cityByCode(s.fromCode)} → {cityByCode(s.toCode)} · {dur(s.mins)}
                       </span>
                     </div>
                     <span className="text-sm font-semibold text-muted">
@@ -131,7 +131,7 @@ export function OfferCard({ offer, badge }: { offer: Offer; badge: Badge }) {
                     </span>
                     {s.layoverMins !== undefined && (
                       <span className="mt-1 self-start rounded-pill bg-coral-soft px-3 py-[2px] text-[13px] font-extrabold">
-                        {t("layover", { city: cityByCode(s.toCode, locale), code: s.toCode, wait: dur(s.layoverMins) })}
+                        {t("layover", { city: cityByCode(s.toCode), code: s.toCode, wait: dur(s.layoverMins) })}
                       </span>
                     )}
                   </div>

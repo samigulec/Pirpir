@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
 import { Antalya, Barselona, Istanbul, Londra, Paris, Roma } from "../cities";
 import type { CategoryId, PopularDestination } from "@/data/mock/home";
-import { cityByCode, countryName, findAirport } from "@/data/airports";
+import { coreCityByCode, countryName, findCoreAirport } from "@/data/airports-core";
 import { routeHref, searchHref } from "@/lib/search";
 import { minsParts } from "@/lib/dates";
 
@@ -16,11 +16,11 @@ const ILLUSTRATIONS = { ist: Istanbul, ayt: Antalya, fco: Roma, bcn: Barselona, 
 
 export function PopularFlights({
   fromLabel,
-  fromCode,
+  fromCodes,
   destinations,
 }: {
   fromLabel: string;
-  fromCode: string;
+  fromCodes: string[];
   destinations: PopularDestination[];
 }) {
   const t = useTranslations("home.popular");
@@ -62,7 +62,8 @@ export function PopularFlights({
       <div className="grid grid-cols-[repeat(auto-fill,minmax(min(320px,100%),1fr))] gap-[18px]">
         {shown.map((d) => {
           const Illustration = ILLUSTRATIONS[d.id];
-          const href = d.routeSlug && fromCode === "AMS" ? routeHref(d.routeSlug) : searchHref({ from: fromCode, to: d.code });
+          const href =
+            d.routeSlug && fromCodes.length === 1 && fromCodes[0] === "AMS" ? routeHref(d.routeSlug) : searchHref({ from: fromCodes, to: d.code });
           return (
             <Link
               key={d.id}
@@ -77,9 +78,9 @@ export function PopularFlights({
               </div>
               <div className="flex items-end justify-between gap-3 px-2">
                 <div className="flex flex-col">
-                  <span className="font-display text-[26px] font-semibold leading-[1.15]">{cityByCode(d.code, locale)}</span>
+                  <span className="font-display text-[26px] font-semibold leading-[1.15]">{coreCityByCode(d.code, locale)}</span>
                   <span className="text-[15px] font-bold text-muted">
-                    {countryName(findAirport(d.code)?.country ?? "", locale)} · {d.airports.join(", ")}
+                    {countryName(findCoreAirport(d.code)?.country ?? "", locale)} · {d.airports.join(", ")}
                   </span>
                 </div>
                 <div className="flex flex-col items-end">

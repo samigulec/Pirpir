@@ -50,7 +50,11 @@
     "nights": "{n, plural, one {# night} other {# nights}}",
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
-    "paxTotal": "{n, plural, one {# traveller} other {# travellers}}"
+    "paxTotal": "{n, plural, one {# traveller} other {# travellers}}",
+    "removePlace": "Remove {place}",
+    "addPlace": "Add city",
+    "placePlaceholder": "City or airport",
+    "allAirports": "All airports"
   },
   "trust": {
     "label": "Why rotala",

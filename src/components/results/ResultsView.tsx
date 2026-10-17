@@ -22,12 +22,15 @@ export function ResultsView({
   oneWay,
   tip,
   note,
+  cityNames,
 }: {
   offers: Offer[];
   oneWay: boolean;
   tip: ResultsTip;
   /** "örnek veri" / "test modu" etiketi */
   note?: string;
+  /** Kod → yerel şehir adı */
+  cityNames: Record<string, string>;
 }) {
   const t = useTranslations("results");
   const { fmt } = useCurrency();
@@ -76,7 +79,7 @@ export function ResultsView({
       {offers.length > 0 && list.length === 0 && <p className="m-0 font-bold text-muted">{t("empty")}</p>}
 
       {list.map((o) => (
-        <OfferCard key={o.id} offer={o} badge={o.id === cheapestId ? "cheap" : o.id === fastestId ? "fast" : null} />
+        <OfferCard key={o.id} offer={o} cityNames={cityNames} badge={o.id === cheapestId ? "cheap" : o.id === fastestId ? "fast" : null} />
       ))}
 
       {tip && (

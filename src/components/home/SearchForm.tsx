@@ -8,7 +8,6 @@ import { SwapHorizontal, SwapVertical } from "../icons";
 import { AirportField, type AirportValue } from "./AirportField";
 import { Counter, FieldPopover } from "./Popover";
 import { DateRangePicker } from "./DateRangePicker";
-import { resolveAirport } from "@/data/airports";
 import { formatRangeShort } from "@/lib/dates";
 import { CABINS, MAX_PASSENGERS, addDays, paxTotal, searchHref, validateSearch, type CabinClass, type Passengers, type SearchError } from "@/lib/search";
 
@@ -55,9 +54,7 @@ export function SearchForm({
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const a = from.code ?? resolveAirport(from.text)?.code ?? "";
-    const b = to.code ?? resolveAirport(to.text)?.code ?? "";
-    const q = { from: a, to: b, date, returnDate: trip === "rt" ? returnDate || addDays(date, 7) : undefined, pax, cabin };
+    const q = { from: from.map((p) => p.code), to: to.map((p) => p.code), date, returnDate: trip === "rt" ? returnDate || addDays(date, 7) : undefined, pax, cabin };
     const err = validateSearch(q);
     setError(err);
     if (err) return;
@@ -101,6 +98,7 @@ export function SearchForm({
             className={`${fieldBox} md:flex-1`}
             labelClassName={fieldLabel}
             inputClassName={`${fieldInput} text-[18px]`}
+            tone="primary"
           />
           <button
             type="button"
@@ -119,6 +117,7 @@ export function SearchForm({
             className={`${fieldBox} md:flex-1 md:pl-[30px]`}
             labelClassName={fieldLabel}
             inputClassName={`${fieldInput} text-[18px]`}
+            tone="coral"
           />
         </div>
 

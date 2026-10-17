@@ -139,7 +139,7 @@ export async function OtherCities({ route }: { route: RouteData }) {
   const country = findAirport(route.to.code)?.country ?? "";
   return (
     <section className="flex flex-col gap-[14px]">
-      <h2 className={h2}>{t("title", { country: countryName(country, locale), countryLoc: locative(country) })}</h2>
+      <h2 className={h2}>{t("title", { country: countryName(country, locale), countryLoc: locative(countryName(country, "tr")) })}</h2>
       <div className="flex flex-wrap gap-[10px]">
         {route.others.map((o) => (
           <Link

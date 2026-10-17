@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLocale } from "next-intl";
-import { cityByCode } from "@/data/airports";
+import { coreCityByCode } from "@/data/airports-core";
 import { HomeHero } from "./HomeHero";
 import { MobileDeal } from "./MobileDeal";
 import { PopularFlights } from "./PopularFlights";
@@ -18,12 +18,13 @@ export function HomeView({
   defaults: { date: string; returnDate: string; today: string };
 }) {
   const locale = useLocale();
-  const [from, setFrom] = useState<AirportValue>({ text: cityByCode("AMS", locale), code: "AMS" });
-  const [to, setTo] = useState<AirportValue>({ text: cityByCode("ADB", locale), code: "ADB" });
+  const [from, setFrom] = useState<AirportValue>([{ code: "AMS", label: coreCityByCode("AMS", locale) }]);
+  const [to, setTo] = useState<AirportValue>([{ code: "ADB", label: coreCityByCode("ADB", locale) }]);
   return (
     <>
       <HomeHero from={from} to={to} onFrom={setFrom} onTo={setTo} defaults={defaults} afterHero={<MobileDeal />} />
-      <PopularFlights fromLabel={from.text || cityByCode("AMS", locale)} fromCode={from.code ?? "AMS"} destinations={destinations} />
+      <PopularFlights fromLabel={from.map((p) => p.label).join(", ") || coreCityByCode("AMS", locale)}
+        fromCodes={from.length ? from.map((p) => p.code) : ["AMS"]} destinations={destinations} />
     </>
   );
 }

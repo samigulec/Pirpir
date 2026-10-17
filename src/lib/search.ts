@@ -1,5 +1,5 @@
-// Arama sorgusu: URL ↔ nesne dönüşümü ve doğrulama. İstemci ve sunucuda ortak kullanılır.
-import { findAirport, resolveAirport, type Airport } from "@/data/airports";
+// Arama sorgusu: URL ↔ nesne dönüşümü ve doğrulama. İstemci ve sunucuda ortak kullanılır
+// (dünya havalimanı listesine bakan kısımlar ./search-server.ts içinde).
 
 export type Passengers = { adults: number; children: number; infants: number };
 
@@ -17,7 +17,15 @@ export type SearchQuery = {
   cabin?: CabinClass;
 };
 
+/**
+ * Kullanıcının araması: birden fazla kalkış ve varış seçilebilir (havalimanı kodu ya da "city:LON").
+ * Sağlayıcılar her kalkış–varış ikilisi için ayrı bir SearchQuery ile çağrılır.
+ */
+export type MultiQuery = Omit<SearchQuery, "from" | "to"> & { from: string[]; to: string[] };
+
 export type SearchError = "from" | "to" | "same" | "date" | "past" | "return" | "pax";
+
+const PLACE_CODE = /^([A-Z]{3}|city:[A-Z]{3})$/;
 
 export const MAX_PASSENGERS = 9;
 
@@ -48,12 +56,11 @@ export function validatePax(p: Passengers): boolean {
   return p.adults >= 1 && p.children >= 0 && p.infants >= 0 && p.infants <= p.adults && paxTotal(p) <= MAX_PASSENGERS;
 }
 
-export function validateSearch(q: SearchQuery, now = new Date()): SearchError | null {
-  if (!findAirport(q.from)) return "from";
-  if (!findAirport(q.to)) return "to";
-  const a = findAirport(q.from)!;
-  const b = findAirport(q.to)!;
-  if (a.code === b.code || (a.slug === b.slug && a.country === b.country)) return "same";
+/** Doğrulama. `known` verilmezse yalnızca kod biçimi kontrol edilir (tarayıcıda); sunucu dünya listesine bakar. */
+export function validateSearch(q: MultiQuery, known: (code: string) => boolean = (c) => PLACE_CODE.test(c), now = new Date()): SearchError | null {
+  if (!q.from.length || !q.from.every(known)) return "from";
+  if (!q.to.length || !q.to.every(known)) return "to";
+  if (q.from.every((f) => q.to.includes(f))) return "same";
   if (!isIsoDate(q.date)) return "date";
   if (q.date < todayIso(now)) return "past";
   if (q.returnDate !== undefined && (!isIsoDate(q.returnDate) || q.returnDate < q.date)) return "return";
@@ -61,15 +68,15 @@ export function validateSearch(q: SearchQuery, now = new Date()): SearchError | 
   return null;
 }
 
-type Raw = Record<string, string | string[] | undefined>;
-const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
-const int = (v: string | undefined, d: number) => {
+export type Raw = Record<string, string | string[] | undefined>;
+export const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+export const int = (v: string | undefined, d: number) => {
   const n = Number.parseInt(v ?? "", 10);
   return Number.isFinite(n) ? n : d;
 };
 
 // Eski "pax=2a1c" biçimini de okur.
-const LEGACY_PAX: Record<string, Passengers> = {
+export const LEGACY_PAX: Record<string, Passengers> = {
   "1a": { adults: 1, children: 0, infants: 0 },
   "2a": { adults: 2, children: 0, infants: 0 },
   "2a1c": { adults: 2, children: 1, infants: 0 },
@@ -77,31 +84,16 @@ const LEGACY_PAX: Record<string, Passengers> = {
   "1a1i": { adults: 1, children: 0, infants: 1 },
 };
 
-/** URL parametreleri → sorgu. Şehir adı ("İzmir") ya da kod ("ADB") kabul edilir. */
-export function parseSearch(raw: Raw, now = new Date()): SearchQuery {
-  const d = defaultDates(now);
-  const from = resolveAirport(one(raw.from) ?? "AMS")?.code ?? (one(raw.from) ?? "").toUpperCase();
-  const to = resolveAirport(one(raw.to) ?? "ADB")?.code ?? (one(raw.to) ?? "").toUpperCase();
-  const date = one(raw.date) || d.date;
-  const ret = one(raw.return);
-  // Tarih hiç verilmemişse tasarımdaki gibi gidiş-dönüş varsay.
-  const returnDate = ret ? ret : one(raw.date) ? undefined : d.returnDate;
-  const legacy = LEGACY_PAX[one(raw.pax) ?? ""];
-  const pax = legacy ?? {
-    adults: int(one(raw.adults), 1),
-    children: int(one(raw.children), 0),
-    infants: int(one(raw.infants), 0),
-  };
-  const cabinRaw = one(raw.cabin);
-  return { from, to, date, returnDate, pax, cabin: isCabin(cabinRaw) ? cabinRaw : "economy" };
-}
-
 /** Arama sonuçları bağlantısı (dil farkında Link/router için kanonik yol + sorgu). */
-export function searchHref(q: Partial<SearchQuery> = {}, now = new Date()) {
+export function searchHref(
+  q: Partial<Omit<SearchQuery, "from" | "to">> & { from?: string | string[]; to?: string | string[] } = {},
+  now = new Date(),
+) {
   const d = defaultDates(now);
+  const list = (v: string | string[] | undefined, dflt: string) => (v === undefined ? dflt : Array.isArray(v) ? v.join(",") : v);
   const query: Record<string, string> = {
-    from: q.from ?? "AMS",
-    to: q.to ?? "ADB",
+    from: list(q.from, "AMS"),
+    to: list(q.to, "ADB"),
     date: q.date ?? d.date,
   };
   const ret = q.returnDate === undefined && !q.date ? d.returnDate : q.returnDate;
@@ -112,12 +104,6 @@ export function searchHref(q: Partial<SearchQuery> = {}, now = new Date()) {
   if (pax.infants) query.infants = String(pax.infants);
   if (q.cabin && q.cabin !== "economy") query.cabin = q.cabin;
   return { pathname: "/ara" as const, query };
-}
-
-export function airportOrThrow(code: string): Airport {
-  const a = findAirport(code);
-  if (!a) throw new Error(`Bilinmeyen havalimanı: ${code}`);
-  return a;
 }
 
 export function routeHref(slug: { from: string; to: string }) {

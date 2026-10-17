@@ -49,7 +49,11 @@
     "nights": "{n} gece",
     "prevMonth": "Önceki ay",
     "nextMonth": "Sonraki ay",
-    "paxTotal": "{n} yolcu"
+    "paxTotal": "{n} yolcu",
+    "removePlace": "{place} kaldır",
+    "addPlace": "Şehir ekle",
+    "placePlaceholder": "Şehir veya havalimanı",
+    "allAirports": "Tüm havalimanları"
   },
   "trust": {
     "label": "Neden rotala",
