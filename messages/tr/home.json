@@ -103,6 +103,30 @@
       "cdg": {
         "badge": "Hafta sonu",
         "alt": "Paris illüstrasyonu: demir kule ve parkta ağaçlar"
+      },
+      "adb": {
+        "badge": "Ege'nin incisi",
+        "alt": "İzmir illüstrasyonu: Saat Kulesi, palmiyeler ve körfezde vapur"
+      },
+      "bjv": {
+        "badge": "Mavi koylar",
+        "alt": "Bodrum illüstrasyonu: tepede kale, beyaz evler ve koyda yelkenli"
+      },
+      "lis": {
+        "badge": "Tramvay ve tepeler",
+        "alt": "Lizbon illüstrasyonu: tepede renkli evler ve sarı tramvay"
+      },
+      "ams": {
+        "badge": "Kanallar şehri",
+        "alt": "Amsterdam illüstrasyonu: kanal evleri, kanal ve tekne"
+      },
+      "dxb": {
+        "badge": "Uzun yol",
+        "alt": "Dubai illüstrasyonu: çok yüksek bir gökdelen, şehir ve kum tepeleri"
+      },
+      "nyc": {
+        "badge": "Okyanus ötesi",
+        "alt": "New York illüstrasyonu: gökdelenler ve sarı taksi"
       }
     },
     "badges": {

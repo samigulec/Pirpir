@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
-import { Antalya, Barselona, Istanbul, Londra, Paris, Roma } from "../cities";
+import { Amsterdam, Antalya, Barselona, Bodrum, Dubai, Istanbul, Izmir, Lizbon, Londra, NewYork, Paris, Roma } from "../cities";
 import type { CategoryId, PopularDestination } from "@/data/mock/home";
 import type { Deal, DealMap } from "@/lib/deals";
 import { coreCityByCode, countryName, expandMetro, findCoreAirport } from "@/data/airports-core";
@@ -14,7 +14,10 @@ import { intlLocale } from "@/lib/intl";
 
 const CATEGORIES: CategoryId[] = ["all", "tr", "eu", "sea", "city"];
 
-const ILLUSTRATIONS = { ist: Istanbul, ayt: Antalya, fco: Roma, bcn: Barselona, lhr: Londra, cdg: Paris };
+const ILLUSTRATIONS = {
+  ist: Istanbul, ayt: Antalya, fco: Roma, bcn: Barselona, lhr: Londra, cdg: Paris,
+  adb: Izmir, bjv: Bodrum, dxb: Dubai, nyc: NewYork, lis: Lizbon, ams: Amsterdam,
+};
 
 /** "En ucuz" ve "En kısa uçuş" rozetleri bulunan fırsatlardan hesaplanır (en kısa: direkt uçuşlar arasında). */
 function computedBadges(deals: DealMap, ids: string[]) {

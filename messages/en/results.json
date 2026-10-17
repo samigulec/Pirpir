@@ -123,5 +123,9 @@
     "flightNo": "Flight {no}",
     "layover": "Change in {city} · {wait}",
     "cheapest": "Best price"
+  },
+  "dates": {
+    "label": "Flexible dates",
+    "cheapest": "Cheapest"
   }
 }

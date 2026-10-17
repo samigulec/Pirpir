@@ -123,5 +123,9 @@
     "flightNo": "Vlucht {no}",
     "layover": "Overstap in {city} · {wait}",
     "cheapest": "Beste prijs"
+  },
+  "dates": {
+    "label": "Flexibele data",
+    "cheapest": "Goedkoopst"
   }
 }

@@ -23,7 +23,7 @@ const config: Config = {
         "on-ink": "#C9D3E6",
       },
       fontFamily: {
-        display: ["var(--font-fredoka)", "sans-serif"],
+        display: ["var(--font-fredoka)", "var(--font-baloo)", "sans-serif"],
         body: ["var(--font-nunito)", "system-ui", "sans-serif"],
       },
       borderRadius: {

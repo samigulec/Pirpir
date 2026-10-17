@@ -104,6 +104,30 @@
       "cdg": {
         "badge": "Weekend",
         "alt": "Paris illustration: an iron tower and trees in a park"
+      },
+      "adb": {
+        "badge": "Pearl of the Aegean",
+        "alt": "Izmir illustration: the clock tower, palm trees and a ferry in the bay"
+      },
+      "bjv": {
+        "badge": "Turquoise bays",
+        "alt": "Bodrum illustration: a hilltop castle, white houses and a sailing boat"
+      },
+      "lis": {
+        "badge": "Trams and hills",
+        "alt": "Lisbon illustration: colourful houses on a hill and a yellow tram"
+      },
+      "ams": {
+        "badge": "City of canals",
+        "alt": "Amsterdam illustration: canal houses, a canal and a boat"
+      },
+      "dxb": {
+        "badge": "Long haul",
+        "alt": "Dubai illustration: a very tall skyscraper, the city and sand dunes"
+      },
+      "nyc": {
+        "badge": "Across the ocean",
+        "alt": "New York illustration: skyscrapers and a yellow taxi"
       }
     },
     "badges": {

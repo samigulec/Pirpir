@@ -5,7 +5,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { popularDestinations, popularRoutes } from "@/data/mock/home";
 import { dataMode, searchFlights } from "./flights";
-import { addDays, todayIso } from "./search";
+import { addDays, todayIso, type MultiQuery } from "./search";
 import type { Offer } from "./providers/types";
 
 export type Deal = {
@@ -37,8 +37,8 @@ export function weekendTrips(count: number, now = new Date()): [string, string][
   });
 }
 
-// Canlı API'de her arama gerçek bir istek: hafta sonu sayısı az tutulur.
-const tripCount = () => (dataMode() === "demo" ? 4 : 2);
+// Canlı API'de her arama gerçek istek ve sayfa üretimi uzamasın diye tek hafta sonu aranır.
+const tripCount = () => (dataMode() === "demo" ? 4 : 1);
 
 async function findDeal(from: string[], to: string, trips: [string, string][]): Promise<Deal | null> {
   const settled = await Promise.allSettled(
@@ -79,43 +79,66 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promis
 
 const concurrency = () => (dataMode() === "demo" ? 16 : 3);
 
-// Hiçbir fırsat bulunamadıysa hata fırlatılır ki boş sonuç önbelleğe yazılmasın.
-function ensureSome(map: DealMap): DealMap {
-  if (!Object.values(map).some(Boolean)) throw new Error("Fırsat bulunamadı");
-  return map;
-}
-
+// Her rota ayrı önbelleklenir: biri başarısız olsa da diğerlerinin fiyatı saatlerce aynı kalır.
+// Bulunamayan rota hata fırlatır; böylece önbelleğe "yok" yazılmaz, sonraki ziyarette yeniden denenir.
 // `mode` yalnızca önbellek anahtarı için: örnek veriden canlıya geçince eski fiyatlar gösterilmez.
-async function computeDestinationDeals(from: string[], trips: [string, string][], _mode: string): Promise<DealMap> {
-  const entries = await mapLimit(popularDestinations, concurrency(), async (d) => [d.id, await findDeal(from, d.searchCode, trips)] as const);
-  return ensureSome(Object.fromEntries(entries));
-}
+const cachedDeal = unstable_cache(
+  async (from: string[], to: string, trips: [string, string][], _mode: string): Promise<Deal> => {
+    const deal = await findDeal(from, to, trips);
+    if (!deal) throw new Error(`Fırsat bulunamadı: ${from.join(",")} → ${to}`);
+    return deal;
+  },
+  ["home-deal"],
+  { revalidate: REVALIDATE },
+);
 
-async function computeRouteDeals(trips: [string, string][], _mode: string): Promise<DealMap> {
-  const entries = await mapLimit(popularRoutes, concurrency(), async (r) => [routeKey(r), await findDeal([r.fromCode], r.toCode, trips)] as const);
-  return ensureSome(Object.fromEntries(entries));
+async function dealFor(from: string[], to: string): Promise<Deal | null> {
+  try {
+    return await cachedDeal([...from].sort(), to, weekendTrips(tripCount()), dataMode());
+  } catch (e) {
+    console.error(e instanceof Error ? e.message : e);
+    return null;
+  }
 }
 
 export const routeKey = (r: { fromCode: string; toCode: string }) => `${r.fromCode}-${r.toCode}`;
 
-const cachedDestinations = unstable_cache(computeDestinationDeals, ["home-destination-deals"], { revalidate: REVALIDATE });
-const cachedRoutes = unstable_cache(computeRouteDeals, ["home-route-deals"], { revalidate: REVALIDATE });
-
-/** Popüler uçuş kartları için seçilen kalkış yerlerinden fırsatlar. Tarihler önbellek anahtarına dahil. */
+/** Popüler uçuş kartları için seçilen kalkış yerlerinden fırsatlar. */
 export async function getDestinationDeals(from: string[]): Promise<DealMap> {
-  try {
-    return await cachedDestinations([...from].sort(), weekendTrips(tripCount()), dataMode());
-  } catch (e) {
-    console.error("Popüler uçuş fırsatları alınamadı:", e);
-    return {};
-  }
+  const entries = await mapLimit(popularDestinations, concurrency(), async (d) => [d.id, await dealFor(from, d.searchCode)] as const);
+  return Object.fromEntries(entries);
 }
 
 export async function getRouteDeals(): Promise<DealMap> {
-  try {
-    return await cachedRoutes(weekendTrips(tripCount()), dataMode());
-  } catch (e) {
-    console.error("Popüler rota fırsatları alınamadı:", e);
-    return {};
-  }
+  const entries = await mapLimit(popularRoutes, concurrency(), async (r) => [routeKey(r), await dealFor([r.fromCode], r.toCode)] as const);
+  return Object.fromEntries(entries);
+}
+
+export type DatePrice = { date: string; returnDate?: string; price: number | null };
+
+/** Esnek tarih şeridi: aynı yolculuk süresiyle ±3 gün; her gün ayrı önbelleklenir. */
+const cachedDayPrice = unstable_cache(
+  async (q: MultiQuery, _mode: string): Promise<number> => {
+    const offers = await searchFlights(q);
+    if (!offers.length) throw new Error(`Uçuş yok: ${q.from.join(",")} → ${q.to.join(",")} ${q.date}`);
+    return Math.min(...offers.map((o) => o.price));
+  },
+  ["date-price"],
+  { revalidate: 3 * 3600 },
+);
+
+export async function getDatePrices(q: MultiQuery, spread = 3): Promise<DatePrice[]> {
+  const today = todayIso();
+  const days = Array.from({ length: spread * 2 + 1 }, (_, i) => i - spread)
+    .map((off) => ({ ...q, date: addDays(q.date, off), returnDate: q.returnDate ? addDays(q.returnDate, off) : undefined }))
+    .filter((d) => d.date >= today);
+  return mapLimit(days, concurrency(), async (d) => {
+    let price: number | null = null;
+    try {
+      price = await cachedDayPrice({ ...d, from: [...d.from].sort(), to: [...d.to].sort() }, dataMode());
+    } catch (e) {
+      console.error(e instanceof Error ? e.message : e);
+    }
+    return { date: d.date, returnDate: d.returnDate, price };
+  });
 }

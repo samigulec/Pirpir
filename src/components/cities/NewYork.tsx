@@ -1,0 +1,42 @@
+// Kaynak: assets/cities/new-york.svg — npm run svg ile üretildi, elle düzenleme.
+import type { SVGProps } from "react";
+
+export function NewYork(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 320 180"
+      preserveAspectRatio="xMidYMid slice"
+      role="img"
+      aria-label="New York illüstrasyonu: gökdelenler ve sarı taksi"
+      {...props}
+    >
+      <rect width="320" height="180" fill="#E3E9F7" />
+      <path d="M206 44 a16 10 0 0 1 32 -2 a14 9 0 0 1 26 4 Z" fill="#FFFFFF" />
+      <path d="M30 60 a14 9 0 0 1 28 -2 a12 8 0 0 1 22 4 Z" fill="#FFFFFF" />
+      <g fill="#6B7BA8">
+      <rect x="40" y="96" width="30" height="58" /><rect x="74" y="80" width="26" height="74" /><rect x="186" y="88" width="28" height="66" /><rect x="218" y="104" width="34" height="50" /><rect x="256" y="92" width="26" height="62" /><rect x="104" y="108" width="24" height="46" />
+      </g>
+      <g fill="#3A4A7A">
+      <rect x="136" y="72" width="42" height="82" />
+      <rect x="142" y="56" width="30" height="18" />
+      <rect x="148" y="42" width="18" height="16" />
+      <rect x="153" y="30" width="8" height="14" />
+      <rect x="156" y="12" width="2" height="20" />
+      </g>
+      <g fill="#FFF4D6">
+      <rect x="142" y="82" width="5" height="7" /><rect x="152" y="82" width="5" height="7" /><rect x="162" y="82" width="5" height="7" />
+      <rect x="142" y="98" width="5" height="7" /><rect x="152" y="98" width="5" height="7" /><rect x="162" y="98" width="5" height="7" />
+      <rect x="142" y="114" width="5" height="7" /><rect x="162" y="114" width="5" height="7" />
+      <rect x="80" y="90" width="5" height="7" /><rect x="90" y="90" width="5" height="7" /><rect x="80" y="106" width="5" height="7" />
+      <rect x="192" y="98" width="5" height="7" /><rect x="202" y="98" width="5" height="7" /><rect x="262" y="102" width="5" height="7" /><rect x="226" y="114" width="5" height="7" />
+      </g>
+      <rect y="152" width="320" height="28" fill="#B8C3D9" />
+      <path d="M20 166 h24 M70 166 h24 M120 166 h24 M250 166 h24 M300 166 h20" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+      <path d="M186 150 q4 -14 18 -16 h30 q12 2 16 16 v8 h-64 Z" fill="#FFD166" />
+      <rect x="204" y="138" width="14" height="10" rx="2" fill="#E3E9F7" /><rect x="222" y="138" width="14" height="10" rx="2" fill="#E3E9F7" />
+      <rect x="210" y="128" width="20" height="6" rx="2" fill="#1E2A44" />
+      <circle cx="200" cy="160" r="6" fill="#1E2A44" /><circle cx="238" cy="160" r="6" fill="#1E2A44" />
+    </svg>
+  );
+}

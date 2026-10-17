@@ -104,6 +104,30 @@
       "cdg": {
         "badge": "Weekend",
         "alt": "Illustratie van Parijs: een ijzeren toren en bomen in een park"
+      },
+      "adb": {
+        "badge": "Parel van de Egeïsche Zee",
+        "alt": "Illustratie van İzmir: de klokkentoren, palmbomen en een veerboot in de baai"
+      },
+      "bjv": {
+        "badge": "Blauwe baaien",
+        "alt": "Illustratie van Bodrum: een kasteel op een heuvel, witte huizen en een zeilboot"
+      },
+      "lis": {
+        "badge": "Trams en heuvels",
+        "alt": "Illustratie van Lissabon: kleurrijke huizen op een heuvel en een gele tram"
+      },
+      "ams": {
+        "badge": "Stad van grachten",
+        "alt": "Illustratie van Amsterdam: grachtenpanden, een gracht en een boot"
+      },
+      "dxb": {
+        "badge": "Verre reis",
+        "alt": "Illustratie van Dubai: een heel hoge wolkenkrabber, de stad en zandduinen"
+      },
+      "nyc": {
+        "badge": "Over de oceaan",
+        "alt": "Illustratie van New York: wolkenkrabbers en een gele taxi"
       }
     },
     "badges": {

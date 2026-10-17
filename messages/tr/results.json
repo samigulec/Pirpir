@@ -123,5 +123,9 @@
     "flightNo": "Uçuş {no}",
     "layover": "{city} aktarma · {wait}",
     "cheapest": "En uygun"
+  },
+  "dates": {
+    "label": "Esnek tarihler",
+    "cheapest": "En ucuz"
   }
 }

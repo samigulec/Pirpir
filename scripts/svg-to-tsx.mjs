@@ -8,7 +8,8 @@ const root = new URL("..", import.meta.url).pathname;
 const jobs = [
   { dir: "cities", out: "src/components/cities", files: {
     istanbul: "Istanbul", "istanbul-hero": "IstanbulHero", antalya: "Antalya", roma: "Roma",
-    barselona: "Barselona", londra: "Londra", paris: "Paris" } },
+    barselona: "Barselona", londra: "Londra", paris: "Paris", izmir: "Izmir", bodrum: "Bodrum",
+    dubai: "Dubai", "new-york": "NewYork", lizbon: "Lizbon", amsterdam: "Amsterdam" } },
   { dir: "payment", out: "src/components/payment", files: {
     kart: "KartIcon", "banka-ideal": "BankaIdealIcon", "telefon-apple-pay": "TelefonApplePayIcon",
     "cuzdan-google-pay": "CuzdanGooglePayIcon" } },

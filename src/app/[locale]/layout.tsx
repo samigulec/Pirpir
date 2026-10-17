@@ -5,7 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
 import { LoginModalProvider } from "@/components/auth/LoginModal";
 import { brand } from "@/config/brand";
-import { fredoka, nunito } from "@/config/fonts";
+import { baloo, fredoka, nunito } from "@/config/fonts";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
@@ -33,7 +33,7 @@ export default async function LocaleLayout({
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   return (
-    <html lang={locale} className={`${fredoka.variable} ${nunito.variable}`}>
+    <html lang={locale} className={`${fredoka.variable} ${baloo.variable} ${nunito.variable}`}>
       <body>
         <NextIntlClientProvider>
           <CurrencyProvider>

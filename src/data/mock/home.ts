@@ -6,7 +6,7 @@ export type CategoryId = "all" | "tr" | "eu" | "sea" | "city";
 export const DEFAULT_FROM = "AMS";
 
 export type PopularDestination = {
-  id: "ist" | "ayt" | "fco" | "bcn" | "lhr" | "cdg";
+  id: "ist" | "ayt" | "fco" | "bcn" | "lhr" | "cdg" | "adb" | "bjv" | "dxb" | "nyc" | "lis" | "ams";
   /** Şehir adı ve ülke için havalimanı kodu. */
   code: string;
   /** Aramada kullanılan yer: birden çok havalimanlı şehirlerde şehir grubu. */
@@ -24,6 +24,12 @@ export const popularDestinations: PopularDestination[] = [
   { id: "bcn", code: "BCN", searchCode: "BCN", airports: ["BCN"], tags: ["eu", "sea", "city"] },
   { id: "lhr", code: "LHR", searchCode: "city:LON", airports: ["LHR", "LGW"], tags: ["eu", "city"] },
   { id: "cdg", code: "CDG", searchCode: "city:PAR", airports: ["CDG", "ORY"], tags: ["eu", "city"] },
+  { id: "adb", code: "ADB", searchCode: "ADB", airports: ["ADB"], tags: ["tr", "sea", "city"] },
+  { id: "bjv", code: "BJV", searchCode: "BJV", airports: ["BJV"], tags: ["tr", "sea"] },
+  { id: "lis", code: "LIS", searchCode: "LIS", airports: ["LIS"], tags: ["eu", "sea", "city"] },
+  { id: "ams", code: "AMS", searchCode: "AMS", airports: ["AMS"], tags: ["eu", "city"] },
+  { id: "dxb", code: "DXB", searchCode: "DXB", airports: ["DXB"], tags: ["city"] },
+  { id: "nyc", code: "JFK", searchCode: "city:NYC", airports: ["JFK", "EWR"], tags: ["city"] },
 ];
 
 export type PopularRoute = { fromCode: string; toCode: string };
