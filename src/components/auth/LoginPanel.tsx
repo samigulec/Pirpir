@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { requestLogin, signInWithProvider, type LoginState, type OAuthProvider } from "@/actions/auth";
 import { LogoMark } from "../Logo";
 import { brand } from "@/config/brand";
-import { GoogleLogo } from "./GoogleLogo";
+import { ProviderLogo } from "./ProviderLogo";
 
 const PROVIDERS: OAuthProvider[] = ["google", "facebook", "apple"];
 
@@ -15,8 +15,7 @@ const social =
 
 /**
  * Giriş içeriği: hem açılır pencerede hem /giris sayfasında kullanılır.
- * Google butonunda Google'ın standart "G" işareti var; Facebook ve Apple'ın resmi
- * marka dosyaları gelince `assets/brands/` altına eklenecek.
+ * Sosyal butonlarda sağlayıcıların marka işaretleri var (assets/brands/README.md).
  */
 export function LoginPanel({
   next,
@@ -69,7 +68,7 @@ export function LoginPanel({
         <input type="hidden" name="next" value={next ?? ""} />
         {PROVIDERS.map((p) => (
           <button key={p} type="submit" name="provider" value={p} disabled={oauthPending} className={social}>
-            {p === "google" && <GoogleLogo />}
+            <ProviderLogo provider={p} />
             {t(`providers.${p}`)}
           </button>
         ))}

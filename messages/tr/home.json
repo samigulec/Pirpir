@@ -65,7 +65,8 @@
   "mobileDeal": {
     "title": "Hafta sonu Roma'ya kaçalım mı?",
     "price": "<price></price>'dan başlayan",
-    "cta": "Roma fırsatını gör"
+    "cta": "Roma fırsatını gör",
+    "noPrice": "Fiyatlara bak"
   },
   "popular": {
     "from": "{city} çıkışlı",
@@ -80,7 +81,7 @@
     },
     "cards": {
       "ist": {
-        "badge": "En çok aranan",
+        "badge": "İki kıtada bir şehir",
         "alt": "İstanbul illüstrasyonu: kubbeli cami, minareler, Galata Kulesi ve vapur"
       },
       "ayt": {
@@ -88,7 +89,7 @@
         "alt": "Antalya illüstrasyonu: güneş, deniz, plaj ve palmiye"
       },
       "fco": {
-        "badge": "En ucuz",
+        "badge": "Antik şehir",
         "alt": "Roma illüstrasyonu: kemerli antik amfitiyatro"
       },
       "bcn": {
@@ -96,21 +97,29 @@
         "alt": "Barselona illüstrasyonu: sivri kuleli bazilika ve deniz"
       },
       "lhr": {
-        "badge": "En kısa uçuş",
+        "badge": "Şehir turu",
         "alt": "Londra illüstrasyonu: saat kulesi ve kırmızı iki katlı otobüs"
       },
       "cdg": {
         "badge": "Hafta sonu",
         "alt": "Paris illüstrasyonu: demir kule ve parkta ağaçlar"
       }
-    }
+    },
+    "badges": {
+      "cheapest": "En ucuz",
+      "fastest": "En kısa uçuş"
+    },
+    "seePrices": "Fiyatlara bak",
+    "noteLive": "Fiyatlar kişi başı ve gidiş-dönüştür; önümüzdeki hafta sonları (Cuma gidiş, Pazartesi dönüş) için bulduğumuz en düşük fiyatlardır. Birkaç saatte bir yenilenir; koltuklar satıldıkça değişebilir.",
+    "noteSample": "Örnek veri: fiyatlar ve havayolları gerçek değildir. Kişi başı, gidiş-dönüş, önümüzdeki hafta sonları (Cuma gidiş, Pazartesi dönüş) için."
   },
   "tips": {
     "title": "Ekibimizden ipuçları",
     "subtitle": "Yolculuğun her adımında yanında küçük bir yardımcı var.",
     "bulut": {
       "name": "Bulut · fırsat avcısı",
-      "quote": "“Hafta sonu Roma'ya kaçalım mı? <price></price>'dan.”"
+      "quote": "“Hafta sonu Roma'ya kaçalım mı? <price></price>'dan.”",
+      "quoteNoPrice": "“Hafta sonu Roma'ya kaçalım mı?”"
     },
     "valiz": {
       "name": "Valiz · bagaj uzmanı",
@@ -130,7 +139,8 @@
     },
     "gunes": {
       "name": "Güneş · tatil sever",
-      "quote": "“Antalya'da deniz seni bekliyor, <price></price>'dan.”"
+      "quote": "“Antalya'da deniz seni bekliyor, <price></price>'dan.”",
+      "quoteNoPrice": "“Antalya'da deniz seni bekliyor.”"
     }
   },
   "routes": {

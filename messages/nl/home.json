@@ -66,7 +66,8 @@
   "mobileDeal": {
     "title": "Zin in een weekendje Rome?",
     "price": "vanaf <price></price>",
-    "cta": "Bekijk de deal naar Rome"
+    "cta": "Bekijk de deal naar Rome",
+    "noPrice": "Bekijk prijzen"
   },
   "popular": {
     "from": "Vanaf {city}",
@@ -81,7 +82,7 @@
     },
     "cards": {
       "ist": {
-        "badge": "Meest gezocht",
+        "badge": "Eén stad, twee continenten",
         "alt": "Illustratie van Istanbul: moskee met koepel, minaretten, Galatatoren en een veerboot"
       },
       "ayt": {
@@ -89,7 +90,7 @@
         "alt": "Illustratie van Antalya: zon, zee, strand en een palmboom"
       },
       "fco": {
-        "badge": "Goedkoopst",
+        "badge": "Eeuwenoude stad",
         "alt": "Illustratie van Rome: een antiek amfitheater met bogen"
       },
       "bcn": {
@@ -97,21 +98,29 @@
         "alt": "Illustratie van Barcelona: een basiliek met torens en de zee"
       },
       "lhr": {
-        "badge": "Kortste vlucht",
+        "badge": "Stedentrip",
         "alt": "Illustratie van Londen: een klokkentoren en een rode dubbeldekker"
       },
       "cdg": {
         "badge": "Weekend",
         "alt": "Illustratie van Parijs: een ijzeren toren en bomen in een park"
       }
-    }
+    },
+    "badges": {
+      "cheapest": "Goedkoopst",
+      "fastest": "Kortste vlucht"
+    },
+    "seePrices": "Bekijk prijzen",
+    "noteLive": "Prijzen zijn per persoon, retour; de laagste prijzen die we vonden voor de komende weekenden (vrijdag heen, maandag terug). Ze worden om de paar uur ververst en kunnen veranderen als stoelen verkocht worden.",
+    "noteSample": "Voorbeelddata: prijzen en luchtvaartmaatschappijen zijn niet echt. Per persoon, retour, voor de komende weekenden (vrijdag heen, maandag terug)."
   },
   "tips": {
     "title": "Tips van ons team",
     "subtitle": "Bij elke stap van je reis een kleine helper.",
     "bulut": {
       "name": "Bulut · dealjager",
-      "quote": "“Weekendje Rome? Vanaf <price></price>.”"
+      "quote": "“Weekendje Rome? Vanaf <price></price>.”",
+      "quoteNoPrice": "“Weekendje Rome?”"
     },
     "valiz": {
       "name": "Valiz · bagage-expert",
@@ -131,7 +140,8 @@
     },
     "gunes": {
       "name": "Güneş · vakantieliefhebber",
-      "quote": "“De zee in Antalya wacht op je, vanaf <price></price>.”"
+      "quote": "“De zee in Antalya wacht op je, vanaf <price></price>.”",
+      "quoteNoPrice": "“De zee in Antalya wacht op je.”"
     }
   },
   "routes": {

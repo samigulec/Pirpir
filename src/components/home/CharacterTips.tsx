@@ -4,19 +4,24 @@ import { Biletcik, Bulut, Gunes, Pasi, Pirpir, Valiz } from "../characters";
 import { Price } from "../Price";
 import { confirmHref, searchHref } from "@/lib/search";
 import { SAMPLE_BOOKING_ID } from "@/data/mock/booking";
+import type { Deal, DealMap } from "@/lib/deals";
 
-export async function CharacterTips() {
+/** Bulut ve Güneş'in fiyatları popüler uçuş kartlarıyla aynı fırsatlardan gelir. */
+export async function CharacterTips({ deals }: { deals: DealMap }) {
   const t = await getTranslations("home.tips");
   const tc = await getTranslations("common.characters");
   const price = (amount: number) => () => <Price amount={amount} />;
+  const dealHref = (to: string, d: Deal | null | undefined) => searchHref({ to, ...(d && { date: d.date, returnDate: d.returnDate }) });
+  const quote = (key: "bulut" | "gunes", d: Deal | null | undefined) =>
+    d ? t.rich(`${key}.quote`, { price: price(d.price) }) : t(`${key}.quoteNoPrice`);
 
   const tips = [
-    { key: "bulut", href: searchHref({ to: "FCO" }), bg: "bg-sun-soft", name: "text-sun-text", art: <Bulut aria-label={tc("bulut")} highlights={false} width={100} height={70} className="flex-none" />, quote: t.rich("bulut.quote", { price: price(1890) }) },
+    { key: "bulut", href: dealHref("city:ROM", deals.fco), bg: "bg-sun-soft", name: "text-sun-text", art: <Bulut aria-label={tc("bulut")} highlights={false} width={100} height={70} className="flex-none" />, quote: quote("bulut", deals.fco) },
     { key: "valiz", href: searchHref(), bg: "bg-coral-soft", name: "text-coral-text", art: <Valiz aria-label={tc("valiz")} stripe={false} highlights={false} width={64} height={80} className="flex-none" />, quote: t("valiz.quote") },
     { key: "pirpir", href: { pathname: "/" as const, hash: "alarm" }, bg: "bg-sky", name: "text-primary-dark", art: <Pirpir aria-label={tc("pirpir")} windows={false} highlights={false} blades={false} width={100} height={70} className="flex-none" />, quote: t("pirpir.quote") },
     { key: "pasi", href: { pathname: "/" as const, hash: "sss" }, bg: "bg-pink-soft", name: "text-plum-text", art: <Pasi aria-label={tc("pasi")} width={64} height={80} className="flex-none" />, quote: t("pasi.quote") },
     { key: "biletcik", href: confirmHref(SAMPLE_BOOKING_ID), bg: "bg-green-soft", name: "text-green-text", art: <Biletcik aria-label={tc("biletcik")} width={100} height={65} className="flex-none" />, quote: t("biletcik.quote") },
-    { key: "gunes", href: searchHref({ to: "AYT" }), bg: "bg-sun-softer", name: "text-sun-text", art: <Gunes aria-label={tc("gunes")} width={80} height={80} className="flex-none" />, quote: t.rich("gunes.quote", { price: price(3090) }) },
+    { key: "gunes", href: dealHref("AYT", deals.ayt), bg: "bg-sun-softer", name: "text-sun-text", art: <Gunes aria-label={tc("gunes")} width={80} height={80} className="flex-none" />, quote: quote("gunes", deals.ayt) },
   ];
 
   return (

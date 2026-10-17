@@ -66,7 +66,8 @@
   "mobileDeal": {
     "title": "Fancy a weekend in Rome?",
     "price": "from <price></price>",
-    "cta": "See the Rome deal"
+    "cta": "See the Rome deal",
+    "noPrice": "See prices"
   },
   "popular": {
     "from": "From {city}",
@@ -81,7 +82,7 @@
     },
     "cards": {
       "ist": {
-        "badge": "Most searched",
+        "badge": "One city, two continents",
         "alt": "Istanbul illustration: domed mosque, minarets, Galata Tower and a ferry"
       },
       "ayt": {
@@ -89,7 +90,7 @@
         "alt": "Antalya illustration: sun, sea, beach and a palm tree"
       },
       "fco": {
-        "badge": "Cheapest",
+        "badge": "Ancient city",
         "alt": "Rome illustration: an ancient arched amphitheatre"
       },
       "bcn": {
@@ -97,21 +98,29 @@
         "alt": "Barcelona illustration: a spired basilica and the sea"
       },
       "lhr": {
-        "badge": "Shortest flight",
+        "badge": "City trip",
         "alt": "London illustration: a clock tower and a red double-decker bus"
       },
       "cdg": {
         "badge": "Weekend",
         "alt": "Paris illustration: an iron tower and trees in a park"
       }
-    }
+    },
+    "badges": {
+      "cheapest": "Cheapest",
+      "fastest": "Shortest flight"
+    },
+    "seePrices": "See prices",
+    "noteLive": "Prices are per person, return; the lowest fares we found for the coming weekends (out Friday, back Monday). Refreshed every few hours and may change as seats sell.",
+    "noteSample": "Sample data: prices and airlines are not real. Per person, return, for the coming weekends (out Friday, back Monday)."
   },
   "tips": {
     "title": "Tips from our team",
     "subtitle": "A little helper at every step of your trip.",
     "bulut": {
       "name": "Bulut · deal hunter",
-      "quote": "“Weekend getaway to Rome? From <price></price>.”"
+      "quote": "“Weekend getaway to Rome? From <price></price>.”",
+      "quoteNoPrice": "“Weekend escape to Rome?”"
     },
     "valiz": {
       "name": "Valiz · baggage expert",
@@ -131,7 +140,8 @@
     },
     "gunes": {
       "name": "Güneş · holiday lover",
-      "quote": "“The sea in Antalya is waiting, from <price></price>.”"
+      "quote": "“The sea in Antalya is waiting, from <price></price>.”",
+      "quoteNoPrice": "“The sea in Antalya is waiting for you.”"
     }
   },
   "routes": {

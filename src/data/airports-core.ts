@@ -99,6 +99,9 @@ export const CITY_PREFIX = "city:";
 export const isCityCode = (code: string) => code.startsWith(CITY_PREFIX);
 export const metroOf = (code: string) => (isCityCode(code) ? METROS[code.slice(CITY_PREFIX.length)] : undefined);
 
+/** "city:IST" → ["IST", "SAW"]; havalimanı kodu olduğu gibi. */
+export const expandMetro = (code: string) => metroOf(code)?.airports ?? [code.toUpperCase()];
+
 const coreByCode = new Map(coreAirports.map((a) => [a.code, a]));
 export const findCoreAirport = (code: string) => coreByCode.get(code.toUpperCase());
 
