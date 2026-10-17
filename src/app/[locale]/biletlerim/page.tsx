@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
-import { CurrencySelect } from "@/components/HeaderControls";
+import { RegionSettings } from "@/components/HeaderControls";
 import { AccountPill, LoginButton } from "@/components/AccountLinks";
 import { Biletcik } from "@/components/characters";
 import { TripCard } from "@/components/account/TripCard";
@@ -29,7 +29,7 @@ export default async function TripsPage({ params }: { params: Promise<{ locale: 
     <div className="min-h-screen w-full bg-white">
       <SiteHeader width="results">
         <div className="flex items-center gap-2">
-          <CurrencySelect />
+          <RegionSettings />
           <AccountPill />
         </div>
       </SiteHeader>

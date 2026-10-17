@@ -1,17 +1,17 @@
-export type Currency = "TRY" | "EUR" | "USD";
+export type Currency = "TRY" | "EUR" | "USD" | "GBP";
 
-export const CURRENCIES: Currency[] = ["TRY", "EUR", "USD"];
+export const CURRENCIES: Currency[] = ["TRY", "EUR", "USD", "GBP"];
 
 // Örnek kurlar (TRY bazlı). Sonra canlı kur servisine bağlanacak.
-export const RATES: Record<Currency, number> = { TRY: 1, EUR: 1 / 40, USD: 1 / 34.5 };
+export const RATES: Record<Currency, number> = { TRY: 1, EUR: 1 / 40, USD: 1 / 34.5, GBP: 1 / 46 };
 
-export const SYMBOLS: Record<Currency, string> = { TRY: "₺", EUR: "€", USD: "$" };
+export const SYMBOLS: Record<Currency, string> = { TRY: "₺", EUR: "€", USD: "$", GBP: "£" };
 
 export const CURRENCY_COOKIE = "cur";
 export const CURRENCY_STORAGE_KEY = "rotala.cur";
 
 // Sağlayıcıdan gelen fiyatları TRY'ye çevirmek için (örnek kurlar, 1 TRY = x birim).
-const PROVIDER_RATES: Record<string, number> = { ...RATES, GBP: 1 / 46 };
+const PROVIDER_RATES: Record<string, number> = RATES;
 
 /** Sağlayıcı fiyatı (ör. "123.45 EUR") → TRY. Bilinmeyen para birimi EUR sayılır. */
 export function toTry(amount: number, currency: string): number {
@@ -20,7 +20,7 @@ export function toTry(amount: number, currency: string): number {
 }
 
 export function isCurrency(v: unknown): v is Currency {
-  return v === "TRY" || v === "EUR" || v === "USD";
+  return typeof v === "string" && (CURRENCIES as string[]).includes(v);
 }
 
 export function convert(amountTry: number, cur: Currency): number {

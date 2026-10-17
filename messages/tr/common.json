@@ -53,5 +53,15 @@
     "biletcik": "Biletçik, biniş kartı karakteri",
     "gunes": "Güneş karakteri",
     "marti": "Martı, denizci şapkalı martı karakteri"
+  },
+  "region": {
+    "open": "Ülke, dil ve para birimi",
+    "title": "Ülke, dil ve para birimi",
+    "country": "Ülke",
+    "countryHint": "Ana sayfadaki kalkış yerini ve popüler rotaları belirler.",
+    "language": "Dil",
+    "currency": "Para birimi",
+    "save": "Kaydet",
+    "cancel": "Vazgeç"
   }
 }

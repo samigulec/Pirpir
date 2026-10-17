@@ -4,8 +4,17 @@
   "myTickets": "Mijn reizen",
   "signIn": "Inloggen",
   "mainNav": "Hoofdmenu",
-  "nav": { "popular": "Populaire vluchten", "routes": "Routes", "help": "Hulp" },
-  "bottomNav": { "label": "Navigatie onderaan", "search": "Zoeken", "tickets": "Mijn reizen", "help": "Hulp" },
+  "nav": {
+    "popular": "Populaire vluchten",
+    "routes": "Routes",
+    "help": "Hulp"
+  },
+  "bottomNav": {
+    "label": "Navigatie onderaan",
+    "search": "Zoeken",
+    "tickets": "Mijn reizen",
+    "help": "Hulp"
+  },
   "duration": "{h} u {m} min",
   "direct": "Direct",
   "oneStop": "1 overstap",
@@ -30,7 +39,11 @@
   },
   "stops": "{n} overstappen",
   "account": "Mijn account",
-  "notFound": { "title": "Deze pagina is weggevlogen", "text": "We konden de pagina niet vinden. Laten we opnieuw beginnen op de homepage.", "cta": "Terug naar home" },
+  "notFound": {
+    "title": "Deze pagina is weggevlogen",
+    "text": "We konden de pagina niet vinden. Laten we opnieuw beginnen op de homepage.",
+    "cta": "Terug naar home"
+  },
   "characters": {
     "pirpir": "Pırpır, een klein vliegtuigje",
     "pirpirHappy": "Pırpır, een blij vliegtuigje",
@@ -40,5 +53,15 @@
     "biletcik": "Biletçik de instapkaart",
     "gunes": "Güneş de zon",
     "marti": "Martı, een meeuw met matrozenpet"
+  },
+  "region": {
+    "open": "Land, taal en valuta",
+    "title": "Land, taal en valuta",
+    "country": "Land",
+    "countryHint": "Bepaalt de vertrekplaats en populaire routes op de startpagina.",
+    "language": "Taal",
+    "currency": "Valuta",
+    "save": "Opslaan",
+    "cancel": "Annuleren"
   }
 }

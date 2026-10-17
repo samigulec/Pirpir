@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader, SignInLink } from "@/components/SiteHeader";
-import { CurrencySelect } from "@/components/HeaderControls";
+import { RegionSettings } from "@/components/HeaderControls";
 import { SimpleFooter } from "@/components/SiteFooter";
 import { Price } from "@/components/Price";
 import { IstanbulHero } from "@/components/cities";
@@ -56,7 +56,7 @@ export default async function RoutePage({ params }: { params: Promise<Params> })
     <div className="min-h-screen w-full bg-white">
       <SiteHeader>
         <div className="flex items-center gap-2">
-          <CurrencySelect />
+          <RegionSettings />
           <SignInLink />
         </div>
       </SiteHeader>

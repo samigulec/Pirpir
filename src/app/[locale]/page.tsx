@@ -1,7 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { HomeHeader } from "@/components/home/HomeHeader";
 import { HomeView } from "@/components/home/HomeView";
-import { DEFAULT_FROM } from "@/data/mock/home";
 import { CharacterTips } from "@/components/home/CharacterTips";
 import { PopularRoutes } from "@/components/home/PopularRoutes";
 import { Steps } from "@/components/home/Steps";
@@ -9,25 +8,34 @@ import { PriceAlert } from "@/components/home/PriceAlert";
 import { Faq } from "@/components/home/Faq";
 import { MobileNav } from "@/components/home/MobileNav";
 import { SiteFooter } from "@/components/SiteFooter";
-import { dataMode, getPopularDestinations, getPopularRoutes } from "@/lib/flights";
+import { dataMode, getPopularDestinations } from "@/lib/flights";
+import { getMarket } from "@/lib/market-server";
 import { getDestinationDeals } from "@/lib/deals";
 import { defaultDates, todayIso } from "@/lib/search";
 
-// Varsayılan tarihler, "bugün" sınırı ve fırsat fiyatları güncel kalsın diye sayfa arama önbelleğiyle aynı sürede
-// (10 dakika) yenilenir.
-export const revalidate = 600;
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const deals = await getDestinationDeals([DEFAULT_FROM]);
+  // Kalkış yeri ziyaretçinin ülkesine göre (Kiwi'deki gibi); sayfa bu yüzden her istekte çizilir.
+  // Fiyatlar paylaşılan arama önbelleğinden gelir; hazır olmayanları tarayıcı tamamlar.
+  const market = await getMarket(locale);
+  const deals = await getDestinationDeals([market.from], 2500);
   const live = dataMode() === "live";
   return (
     <div className="min-h-screen w-full bg-white pb-[84px] md:pb-0">
       <HomeHeader />
-      <HomeView destinations={getPopularDestinations()} deals={deals} live={live} defaults={{ ...defaultDates(), today: todayIso() }} />
+      <HomeView
+        key={market.id}
+        destinations={getPopularDestinations()}
+        deals={deals}
+        live={live}
+        defaults={{ ...defaultDates(), today: todayIso() }}
+        defaultFrom={market.from}
+        defaultTo={market.to}
+      />
       <CharacterTips deals={deals} />
-      <PopularRoutes routes={getPopularRoutes()} />
+      <PopularRoutes routes={market.routes} />
       <Steps />
       <PriceAlert />
       <Faq />

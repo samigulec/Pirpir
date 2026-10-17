@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useLocale } from "next-intl";
 import { INTL_LOCALE, isLocale } from "@/i18n/config";
+import { MARKET_COOKIE, MARKET_GUESS_COOKIE, isMarketId, marketById, type MarketId } from "@/config/markets";
 import {
   CURRENCY_COOKIE,
   CURRENCY_STORAGE_KEY,
@@ -15,6 +16,10 @@ import {
 type CurrencyContextValue = {
   cur: Currency;
   setCur: (c: Currency) => void;
+  /** Ziyaretçinin ülkesi (seçilmediyse tahmin); ilk çizimde henüz bilinmez */
+  market: MarketId | null;
+  /** Ülkeyi kaydeder; para birimi o ülkeninkine geçer (sonra ayrıca değiştirilebilir) */
+  setMarket: (m: MarketId) => void;
   fmt: (amountTry: number) => string;
   fmtShort: (amountTry: number) => string;
 };
@@ -26,7 +31,12 @@ function readCookie(name: string): string | null {
   return m ? decodeURIComponent(m[1]) : null;
 }
 
-// Öncelik: URL (?cur=EUR) → localStorage → çerez → TRY
+function readMarket(): MarketId | null {
+  const m = readCookie(MARKET_COOKIE) ?? readCookie(MARKET_GUESS_COOKIE);
+  return isMarketId(m) ? m : null;
+}
+
+// Öncelik: URL (?cur=EUR) → localStorage → çerez → ülkenin para birimi → TRY
 function readInitial(): Currency | null {
   const fromUrl = new URLSearchParams(window.location.search).get("cur");
   if (isCurrency(fromUrl)) return fromUrl;
@@ -35,7 +45,9 @@ function readInitial(): Currency | null {
     if (isCurrency(stored)) return stored;
   } catch {}
   const cookie = readCookie(CURRENCY_COOKIE);
-  return isCurrency(cookie) ? cookie : null;
+  if (isCurrency(cookie)) return cookie;
+  const market = readMarket();
+  return market ? marketById(market).currency : null;
 }
 
 function persist(c: Currency) {
@@ -52,10 +64,12 @@ function persist(c: Currency) {
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [cur, setCurState] = useState<Currency>("TRY");
+  const [market, setMarketState] = useState<MarketId | null>(null);
   const locale = useLocale();
   const intl = INTL_LOCALE[isLocale(locale) ? locale : "tr"];
 
   useEffect(() => {
+    setMarketState(readMarket());
     const initial = readInitial();
     if (initial) {
       setCurState(initial);
@@ -68,14 +82,21 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     persist(c);
   }, []);
 
+  const setMarket = useCallback((m: MarketId) => {
+    document.cookie = `${MARKET_COOKIE}=${m}; path=/; max-age=31536000; samesite=lax`;
+    setMarketState(m);
+  }, []);
+
   const value = useMemo<CurrencyContextValue>(
     () => ({
       cur,
       setCur,
+      market,
+      setMarket,
       fmt: (n) => formatPrice(n, cur, intl),
       fmtShort: (n) => formatShort(n, cur, intl),
     }),
-    [cur, setCur, intl],
+    [cur, setCur, market, setMarket, intl],
   );
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;

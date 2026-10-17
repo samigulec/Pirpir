@@ -18,7 +18,9 @@ Alan adı bağlanınca:
 - [ ] Duffel hesabını canlıya al; THY, Pegasus, KLM, Transavia, Corendon, SunExpress canlıda satılıyor mu sor.
 - [ ] Mollie: kart, iDEAL, Apple Pay, Google Pay. Canlıda ödeme, sonra öde (ayırma) ve iptal iadesi bunu bekliyor.
       Mollie bağlanınca ödeme logoları Mollie'nin Methods API'sinden alınsın (`assets/payment/brands/README.md`).
-- [ ] Sabit örnek kurlar (`src/lib/currency.ts`) yerine canlı kur.
+- [ ] Sabit örnek kurlar (`src/lib/currency.ts`; TRY, EUR, USD, GBP) yerine canlı kur (ör. ECB günlük kurları).
+      Bunu yaparken rezervasyonda ödenen tutar ve para birimi de saklansın; yoksa kur değiştikçe eski biletlerin
+      tutarı farklı görünür.
 - [ ] Hukuk metinlerindeki yer tutucular: [ŞİRKET ADI], [ADRES], [İLETİŞİM E-POSTASI], [SAKLAMA SÜRESİ], [UYGULANACAK HUKUK].
 
 ## Diğer

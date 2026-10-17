@@ -2,24 +2,23 @@ import { Link } from "@/i18n/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { cityByCode } from "@/data/airports";
 import { ArrowRight } from "../icons";
-import type { PopularRoute } from "@/data/mock/home";
 import { searchHref } from "@/lib/search";
 
 /** Yalnızca rota bağlantıları: tıklayınca o rota varsayılan tarihlerle aranır. */
-export async function PopularRoutes({ routes }: { routes: PopularRoute[] }) {
+export async function PopularRoutes({ routes }: { routes: [string, string][] }) {
   const t = await getTranslations("home.routes");
   const locale = await getLocale();
   return (
     <section id="rotalar" className="mx-auto flex max-w-page flex-col gap-5 px-6 pt-[88px]">
       <h2 className="m-0 font-display text-[40px] font-bold">{t("title")}</h2>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-[10px]">
-        {routes.map((r) => (
+        {routes.map(([from, to]) => (
           <Link
-            key={`${r.fromCode}-${r.toCode}`}
-            href={searchHref({ from: r.fromCode, to: r.toCode })}
+            key={`${from}-${to}`}
+            href={searchHref({ from, to })}
             className="box-border flex min-h-[64px] items-center justify-between gap-3 rounded-[20px] bg-field px-[18px] py-[14px] text-ink no-underline"
           >
-            <span className="font-extrabold">{cityByCode(r.fromCode, locale)} → {cityByCode(r.toCode, locale)}</span>
+            <span className="font-extrabold">{cityByCode(from, locale)} → {cityByCode(to, locale)}</span>
             <ArrowRight />
           </Link>
         ))}

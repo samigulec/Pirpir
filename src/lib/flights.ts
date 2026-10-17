@@ -2,7 +2,7 @@
 // DUFFEL_ACCESS_TOKEN tanımlıysa Duffel, değilse örnek veri sağlayıcısı kullanılır.
 import "server-only";
 import { unstable_cache } from "next/cache";
-import { popularDestinations, popularRoutes } from "@/data/mock/home";
+import { popularDestinations } from "@/data/mock/home";
 import { routes } from "@/data/mock/routes";
 import { demoFlexibleTip, demoProvider } from "./providers/demo";
 import { duffelProvider, isDuffelTestMode } from "./providers/duffel";
@@ -146,10 +146,6 @@ export { provider as getProvider };
 
 export function getPopularDestinations() {
   return popularDestinations;
-}
-
-export function getPopularRoutes() {
-  return popularRoutes;
 }
 
 export function getRouteSlugs() {

@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { Link } from "@/i18n/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader, SignInLink } from "@/components/SiteHeader";
-import { CurrencySelect } from "@/components/HeaderControls";
+import { RegionSettings } from "@/components/HeaderControls";
 import type { ResultsTip } from "@/components/results/ResultsView";
 import { LiveResults, type LiveChunk } from "@/components/results/LiveResults";
 import { cityByCode } from "@/data/airports";
@@ -63,7 +63,7 @@ export default async function ResultsPage({
     <div className="min-h-screen w-full bg-white">
       <SiteHeader width="page">
         <div className="flex items-center gap-2">
-          <CurrencySelect />
+          <RegionSettings />
           <SignInLink />
         </div>
       </SiteHeader>

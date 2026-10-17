@@ -110,9 +110,9 @@ async function withDeadline(keys: string[], run: (key: string) => Promise<Deal |
 const DEADLINE_MS = 9000;
 
 /** Popüler uçuş kartları için seçilen kalkış yerlerinden fırsatlar. */
-export async function getDestinationDeals(from: string[]): Promise<DealMap> {
+export async function getDestinationDeals(from: string[], deadlineMs = DEADLINE_MS): Promise<DealMap> {
   const byId = new Map(popularDestinations.map((d) => [d.id as string, d.searchCode]));
-  return withDeadline([...byId.keys()], (id) => dealFor(from, byId.get(id)!), DEADLINE_MS);
+  return withDeadline([...byId.keys()], (id) => dealFor(from, byId.get(id)!), deadlineMs);
 }
 
 /**

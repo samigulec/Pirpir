@@ -2,9 +2,6 @@
 
 export type CategoryId = "all" | "tr" | "eu" | "sea" | "city";
 
-/** Ana sayfada "Nereden" alanının ve popüler uçuş fiyatlarının varsayılan kalkış yeri. */
-export const DEFAULT_FROM = "AMS";
-
 export type PopularDestination = {
   id:
     | "ist" | "ayt" | "fco" | "bcn" | "lhr" | "cdg" | "adb" | "bjv" | "dxb" | "nyc" | "lis" | "ams"
@@ -39,17 +36,4 @@ export const popularDestinations: PopularDestination[] = [
   { id: "ams", code: "AMS", searchCode: "AMS", airports: ["AMS"], tags: ["eu", "city"] },
   { id: "dxb", code: "DXB", searchCode: "DXB", airports: ["DXB"], tags: ["city"] },
   { id: "nyc", code: "JFK", searchCode: "city:NYC", airports: ["JFK", "EWR"], tags: ["city"] },
-];
-
-export type PopularRoute = { fromCode: string; toCode: string };
-
-export const popularRoutes: PopularRoute[] = [
-  { fromCode: "AMS", toCode: "IST" },
-  { fromCode: "AMS", toCode: "ADB" },
-  { fromCode: "EIN", toCode: "AYT" },
-  { fromCode: "RTM", toCode: "AYT" },
-  { fromCode: "AMS", toCode: "ESB" },
-  { fromCode: "AMS", toCode: "ASR" },
-  { fromCode: "AMS", toCode: "GZT" },
-  { fromCode: "AMS", toCode: "TZX" },
 ];

@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Logo } from "../Logo";
-import { CurrencySelect, LanguageSelect } from "../HeaderControls";
+import { RegionSettings } from "../HeaderControls";
 import { AccountPill, ProfileButton, TicketsLink } from "../AccountLinks";
 
 export async function HomeHeader() {
@@ -16,8 +16,7 @@ export async function HomeHeader() {
           <a href="#sss" className="py-[10px] text-ink no-underline">{t("nav.help")}</a>
         </nav>
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <LanguageSelect />
-          <CurrencySelect />
+          <RegionSettings />
           <TicketsLink />
           <AccountPill />
         </div>
@@ -27,7 +26,7 @@ export async function HomeHeader() {
       <header className="flex items-center justify-between px-5 pt-5 md:hidden">
         <Logo compact />
         <span className="flex items-center gap-[6px]">
-          <CurrencySelect compact />
+          <RegionSettings compact />
           <ProfileButton />
         </span>
       </header>

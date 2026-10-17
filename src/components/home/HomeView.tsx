@@ -7,7 +7,7 @@ import { HomeHero } from "./HomeHero";
 import { MobileDeal } from "./MobileDeal";
 import { PopularFlights } from "./PopularFlights";
 import type { AirportValue } from "./AirportField";
-import { DEFAULT_FROM, type PopularDestination } from "@/data/mock/home";
+import type { PopularDestination } from "@/data/mock/home";
 import type { DealMap } from "@/lib/deals";
 
 /** Arama kutusu ile "… çıkışlı" başlığı aynı "Nereden" değerini paylaşır; kartların fiyatları da o yerden. */
@@ -16,16 +16,21 @@ export function HomeView({
   deals: initialDeals,
   live,
   defaults,
+  defaultFrom: DEFAULT_FROM,
+  defaultTo,
 }: {
   destinations: PopularDestination[];
-  /** DEFAULT_FROM çıkışlı fırsatlar (sunucuda hesaplanır) */
+  /** `defaultFrom` çıkışlı fırsatlar (sunucuda hesaplanır) */
   deals: DealMap;
   live: boolean;
   defaults: { date: string; returnDate: string; today: string };
+  /** Ziyaretçinin ülkesine göre kalkış ve önerilen varış */
+  defaultFrom: string;
+  defaultTo: string;
 }) {
   const locale = useLocale();
   const [from, setFrom] = useState<AirportValue>([{ code: DEFAULT_FROM, label: coreCityByCode(DEFAULT_FROM, locale) }]);
-  const [to, setTo] = useState<AirportValue>([{ code: "ADB", label: coreCityByCode("ADB", locale) }]);
+  const [to, setTo] = useState<AirportValue>([{ code: defaultTo, label: coreCityByCode(defaultTo, locale) }]);
   const fromCodes = from.length ? from.map((p) => p.code) : [DEFAULT_FROM];
   const key = fromCodes.join(",");
   const [loaded, setLoaded] = useState({ key: DEFAULT_FROM, deals: initialDeals });
@@ -33,7 +38,7 @@ export function HomeView({
   // Sayfa önbellekten gelir: eksik kartlar tamamlanır, diğerleri arama önbelleğinin güncel fiyatıyla
   // eşitlenir (karta tıklayınca açılan aramadaki fiyatla aynı olsun).
   useEffect(() => {
-    fetch(`/api/deals?from=${DEFAULT_FROM}`)
+    fetch(`/api/deals?from=${encodeURIComponent(DEFAULT_FROM)}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((res: { deals: DealMap } | null) => {
         if (res) setLoaded((l) => (l.key === DEFAULT_FROM ? { key: l.key, deals: { ...l.deals, ...stripNulls(res.deals) } } : l));

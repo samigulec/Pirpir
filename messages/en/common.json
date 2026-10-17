@@ -4,8 +4,17 @@
   "myTickets": "My trips",
   "signIn": "Sign in",
   "mainNav": "Main menu",
-  "nav": { "popular": "Popular flights", "routes": "Routes", "help": "Help" },
-  "bottomNav": { "label": "Bottom navigation", "search": "Search", "tickets": "My trips", "help": "Help" },
+  "nav": {
+    "popular": "Popular flights",
+    "routes": "Routes",
+    "help": "Help"
+  },
+  "bottomNav": {
+    "label": "Bottom navigation",
+    "search": "Search",
+    "tickets": "My trips",
+    "help": "Help"
+  },
   "duration": "{h} h {m} min",
   "direct": "Direct",
   "oneStop": "1 stop",
@@ -30,7 +39,11 @@
   },
   "stops": "{n} stops",
   "account": "My account",
-  "notFound": { "title": "This page has flown away", "text": "We couldn't find the page you're looking for. Let's start again from the home page.", "cta": "Back to home" },
+  "notFound": {
+    "title": "This page has flown away",
+    "text": "We couldn't find the page you're looking for. Let's start again from the home page.",
+    "cta": "Back to home"
+  },
   "characters": {
     "pirpir": "Pırpır, a little plane",
     "pirpirHappy": "Pırpır, a happy little plane",
@@ -40,5 +53,15 @@
     "biletcik": "Biletçik the boarding pass",
     "gunes": "Güneş the sun",
     "marti": "Martı, a seagull in a sailor's cap"
+  },
+  "region": {
+    "open": "Country, language and currency",
+    "title": "Country, language and currency",
+    "country": "Country",
+    "countryHint": "Sets the departure place and popular routes on the home page.",
+    "language": "Language",
+    "currency": "Currency",
+    "save": "Save",
+    "cancel": "Cancel"
   }
 }
