@@ -7,29 +7,19 @@ import { RemindToggle } from "@/components/booking/RemindToggle";
 import { SAMPLE_BOOKING_ID } from "@/data/mock/booking";
 import { cityByCode } from "@/data/airports";
 import { Link } from "@/i18n/navigation";
-import { getBooking } from "@/lib/bookings";
+import { getBookingOrSample } from "@/lib/sample-booking";
 import { formatDateTime, formatDayWithWeekday, formatRange } from "@/lib/dates";
 import { PayHeldButton } from "@/components/booking/PayHeldButton";
 import { todayIso } from "@/lib/search";
 import { AddBags, CancelBooking, ChangeFlight, TripActions } from "@/components/booking/TripActions";
 import { Price } from "@/components/Price";
 import { intlLocale } from "@/lib/intl";
-import { demoProvider } from "@/lib/providers/demo";
-import type { Booking, Leg } from "@/lib/providers/types";
-import { defaultDates } from "@/lib/search";
+import type { Leg } from "@/lib/providers/types";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "confirm" });
   return { title: t("metaTitle"), robots: { index: false } };
-}
-
-/** Biletçik ipucunun gösterdiği örnek onay ekranı (Amsterdam → İzmir). */
-async function sampleBooking(): Promise<Booking | null> {
-  const offers = await demoProvider.search({ from: "AMS", to: "ADB", ...defaultDates(), pax: { adults: 1, children: 0, infants: 0 } });
-  const o = offers.find((x) => x.outbound.via) ?? offers[0];
-  if (!o) return null;
-  return { id: SAMPLE_BOOKING_ID, provider: "demo", email: "ayse@eposta.com", offer: o, total: o.total, createdAt: new Date().toISOString() };
 }
 
 // Next.js aynı seviyede tek dinamik segment adına izin verdiği için rezervasyon kimliği
@@ -38,7 +28,7 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
   const { locale, teklifId } = await params;
   setRequestLocale(locale);
   const bookingId = decodeURIComponent(teklifId);
-  const booking = bookingId === SAMPLE_BOOKING_ID ? await sampleBooking() : await getBooking(bookingId);
+  const booking = await getBookingOrSample(bookingId);
   if (!booking) notFound();
   const t = await getTranslations("confirm");
   const tc = await getTranslations("common.characters");

@@ -79,7 +79,35 @@
       "cancelled": "İptal edildi"
     },
     "note": "Bu belge e-bilet değildir; seyahat planındır. Biniş kartını check-in'den sonra havayolundan alırsın.",
-    "back": "Rezervasyona dön"
+    "back": "Rezervasyona dön",
+    "download": "PDF indir",
+    "bookedOn": "Rezervasyon tarihi",
+    "flight": "Uçuş",
+    "aircraft": "Uçak",
+    "layover": "{city} aktarma · {time} bekleme",
+    "passengersTitle": "Yolcular ve bagaj",
+    "passenger": "Yolcu",
+    "bags": "Bagaj",
+    "bagsLine": "{cabin} kabin · {checked} kontrol{kg, select, none {} other { ({kg} kg)}}{heavy, plural, =0 {} other { · # ağır}}",
+    "noBags": "Bagaj bilgisi yok",
+    "infant": "bebek",
+    "rulesTitle": "Bilet kuralları",
+    "changeFree": "Değişiklik: ücretsiz (varsa fiyat farkı ödenir)",
+    "changeFee": "Değişiklik: {price} + varsa fiyat farkı",
+    "changeAllowed": "Değişiklik: yapılabilir, ücret havayolundan alınır",
+    "changeNo": "Değişiklik: yapılamaz",
+    "refundYes": "İade: iade edilebilir",
+    "refundNo": "İade: iade edilmez",
+    "infoTitle": "Bilmen gerekenler",
+    "info": [
+      "Saatler havalimanının yerel saatidir.",
+      "Online check-in ve biniş kartı için havayolunun sitesini ya da uygulamasını kullan.",
+      "Kimlik ya da pasaportundaki ad, rezervasyondaki adla aynı olmalı."
+    ],
+    "support": "Destek: [DESTEK TELEFONU] · [DESTEK SAATLERİ]",
+    "generated": "Oluşturulma: {date}",
+    "sample": "Örnek rezervasyon · fiyatlar örnek veridir",
+    "arrivesNextDay": "+{n} gün"
   },
   "addBags": {
     "title": "Bagaj ekle",
@@ -136,5 +164,6 @@
     },
     "changed": "Uçuş {date} tarihinde değiştirildi.",
     "changedPaid": "Uçuş {date} tarihinde değiştirildi; ödenen fark <price></price>."
-  }
+  },
+  "printView": "Yazdırılabilir görünüm"
 }

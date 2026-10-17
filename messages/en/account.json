@@ -47,7 +47,34 @@
     "guestCta": "Sign in",
     "awaitingPayment": "Awaiting payment",
     "holdExpired": "Expired",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "tabs": {
+      "label": "Filter your trips",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "cancelled": "Cancelled"
+    },
+    "emptyTab": {
+      "upcoming": "No upcoming flights.",
+      "past": "No past flights.",
+      "cancelled": "No cancelled bookings."
+    },
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "inDays": "In {n} days",
+    "nextTitle": "Your next flight",
+    "nextBiletcik": "“Keep your code handy, you'll need it at check-in.”",
+    "passengers": "{n, plural, one {# passenger} other {# passengers}}",
+    "oneWay": "One way",
+    "roundTrip": "Return",
+    "payBy": "Pay by {date}",
+    "pay": "Complete payment",
+    "pdf": "Download PDF",
+    "calendar": "Add to calendar",
+    "again": "Search again",
+    "refund": "Refund: <price></price>",
+    "outbound": "Outbound",
+    "inbound": "Return"
   },
   "account": {
     "metaTitle": "My account",

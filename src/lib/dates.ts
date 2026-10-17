@@ -75,3 +75,8 @@ export function formatDateTime(isoDateTime: string, loc = "tr-TR"): string {
     timeZoneName: "short",
   }).format(new Date(isoDateTime));
 }
+
+/** Belgeler için yıllı: "Cmt 14 Kas 2026" · "Sat 14 Nov 2026" */
+export function formatDayWithYear(iso: string, loc = "tr-TR"): string {
+  return `${formatDayWithWeekday(iso, loc)} ${parse(iso).getUTCFullYear()}`;
+}

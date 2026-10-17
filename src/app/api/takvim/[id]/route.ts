@@ -1,7 +1,7 @@
 import { type NextRequest } from "next/server";
 import { cityByCode } from "@/data/airports";
 import { brand } from "@/config/brand";
-import { getBooking } from "@/lib/bookings";
+import { getBookingOrSample } from "@/lib/sample-booking";
 import { isLocale } from "@/i18n/config";
 import { addDays } from "@/lib/search";
 import type { Leg } from "@/lib/providers/types";
@@ -19,7 +19,7 @@ const stamp = (date: string, hhmm: string) => `${date.replace(/-/g, "")}T${hhmm.
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const booking = await getBooking(decodeURIComponent(id));
+  const booking = await getBookingOrSample(decodeURIComponent(id));
   if (!booking || booking.cancelled) return new Response("Not found", { status: 404 });
   const langParam = req.nextUrl.searchParams.get("lang");
   const lang = isLocale(langParam) ? langParam : "tr";

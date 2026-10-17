@@ -79,7 +79,35 @@
       "cancelled": "Geannuleerd"
     },
     "note": "Dit document is geen e-ticket; het is je reisplan. Je instapkaart krijg je na het inchecken van de luchtvaartmaatschappij.",
-    "back": "Terug naar boeking"
+    "back": "Terug naar boeking",
+    "download": "Pdf downloaden",
+    "bookedOn": "Geboekt op",
+    "flight": "Vlucht",
+    "aircraft": "Toestel",
+    "layover": "Overstap in {city} · {time} wachten",
+    "passengersTitle": "Passagiers en bagage",
+    "passenger": "Passagier",
+    "bags": "Bagage",
+    "bagsLine": "{cabin} handbagage · {checked} ruimbagage{kg, select, none {} other { ({kg} kg)}}{heavy, plural, =0 {} other { · # zwaar}}",
+    "noBags": "Geen bagage-informatie",
+    "infant": "baby",
+    "rulesTitle": "Ticketregels",
+    "changeFree": "Wijzigen: gratis (eventueel prijsverschil)",
+    "changeFee": "Wijzigen: {price} + eventueel prijsverschil",
+    "changeAllowed": "Wijzigen: mogelijk, kosten volgens de maatschappij",
+    "changeNo": "Wijzigen: niet mogelijk",
+    "refundYes": "Terugbetaling: mogelijk",
+    "refundNo": "Terugbetaling: niet mogelijk",
+    "infoTitle": "Goed om te weten",
+    "info": [
+      "Tijden zijn lokale tijden van de luchthaven.",
+      "Gebruik de website of app van de maatschappij voor online inchecken en je instapkaart.",
+      "De naam op je ID of paspoort moet gelijk zijn aan die in de boeking."
+    ],
+    "support": "Support: [DESTEK TELEFONU] · [DESTEK SAATLERİ]",
+    "generated": "Gemaakt: {date}",
+    "sample": "Voorbeeldboeking · prijzen zijn voorbeelddata",
+    "arrivesNextDay": "+{n} dag"
   },
   "addBags": {
     "title": "Bagage toevoegen",
@@ -136,5 +164,6 @@
     },
     "changed": "Vlucht gewijzigd op {date}.",
     "changedPaid": "Vlucht gewijzigd op {date}; je betaalde <price></price>."
-  }
+  },
+  "printView": "Afdrukweergave"
 }

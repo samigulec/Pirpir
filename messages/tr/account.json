@@ -47,7 +47,34 @@
     "guestCta": "Giriş yap",
     "awaitingPayment": "Ödeme bekliyor",
     "holdExpired": "Süresi doldu",
-    "cancelled": "İptal edildi"
+    "cancelled": "İptal edildi",
+    "tabs": {
+      "label": "Biletlerini filtrele",
+      "upcoming": "Yaklaşan",
+      "past": "Geçmiş",
+      "cancelled": "İptal edilen"
+    },
+    "emptyTab": {
+      "upcoming": "Yaklaşan uçuşun yok.",
+      "past": "Geçmiş uçuşun yok.",
+      "cancelled": "İptal edilen rezervasyonun yok."
+    },
+    "today": "Bugün",
+    "tomorrow": "Yarın",
+    "inDays": "{n} gün kaldı",
+    "nextTitle": "Sıradaki uçuşun",
+    "nextBiletcik": "“Kodunu yanında tut, check-in'de lazım.”",
+    "passengers": "{n} yolcu",
+    "oneWay": "Tek yön",
+    "roundTrip": "Gidiş-dönüş",
+    "payBy": "Son ödeme: {date}",
+    "pay": "Ödemeyi tamamla",
+    "pdf": "PDF indir",
+    "calendar": "Takvime ekle",
+    "again": "Yeniden ara",
+    "refund": "İade: <price></price>",
+    "outbound": "Gidiş",
+    "inbound": "Dönüş"
   },
   "account": {
     "metaTitle": "Hesabım",

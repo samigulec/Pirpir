@@ -47,7 +47,34 @@
     "guestCta": "Inloggen",
     "awaitingPayment": "Wacht op betaling",
     "holdExpired": "Verlopen",
-    "cancelled": "Geannuleerd"
+    "cancelled": "Geannuleerd",
+    "tabs": {
+      "label": "Filter je reizen",
+      "upcoming": "Komend",
+      "past": "Voorbij",
+      "cancelled": "Geannuleerd"
+    },
+    "emptyTab": {
+      "upcoming": "Geen komende vluchten.",
+      "past": "Geen eerdere vluchten.",
+      "cancelled": "Geen geannuleerde boekingen."
+    },
+    "today": "Vandaag",
+    "tomorrow": "Morgen",
+    "inDays": "Nog {n} dagen",
+    "nextTitle": "Je volgende vlucht",
+    "nextBiletcik": "“Houd je code bij de hand, die heb je nodig bij het inchecken.”",
+    "passengers": "{n, plural, one {# passagier} other {# passagiers}}",
+    "oneWay": "Enkele reis",
+    "roundTrip": "Retour",
+    "payBy": "Betalen vóór {date}",
+    "pay": "Betaling afronden",
+    "pdf": "Pdf downloaden",
+    "calendar": "Aan agenda toevoegen",
+    "again": "Opnieuw zoeken",
+    "refund": "Terugbetaling: <price></price>",
+    "outbound": "Heen",
+    "inbound": "Terug"
   },
   "account": {
     "metaTitle": "Mijn account",

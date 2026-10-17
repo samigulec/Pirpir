@@ -37,3 +37,15 @@
     font: inherit;
   }
 }
+
+/* Yazdırma: seyahat planı A4'e kenar boşluklarıyla sığsın, zemin renkleri korunsun */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

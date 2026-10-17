@@ -79,7 +79,35 @@
       "cancelled": "Cancelled"
     },
     "note": "This document is not an e-ticket; it's your trip plan. You'll get your boarding pass from the airline after check-in.",
-    "back": "Back to booking"
+    "back": "Back to booking",
+    "download": "Download PDF",
+    "bookedOn": "Booked on",
+    "flight": "Flight",
+    "aircraft": "Aircraft",
+    "layover": "Change in {city} · {time} wait",
+    "passengersTitle": "Passengers and bags",
+    "passenger": "Passenger",
+    "bags": "Bags",
+    "bagsLine": "{cabin} cabin · {checked} checked{kg, select, none {} other { ({kg} kg)}}{heavy, plural, =0 {} other { · # heavy}}",
+    "noBags": "No bag information",
+    "infant": "infant",
+    "rulesTitle": "Ticket rules",
+    "changeFree": "Changes: free (fare difference may apply)",
+    "changeFee": "Changes: {price} + fare difference if any",
+    "changeAllowed": "Changes: allowed, fee set by the airline",
+    "changeNo": "Changes: not allowed",
+    "refundYes": "Refunds: refundable",
+    "refundNo": "Refunds: non-refundable",
+    "infoTitle": "Good to know",
+    "info": [
+      "Times are the airport's local time.",
+      "Use the airline's website or app for online check-in and your boarding pass.",
+      "The name on your ID or passport must match the booking."
+    ],
+    "support": "Support: [DESTEK TELEFONU] · [DESTEK SAATLERİ]",
+    "generated": "Created: {date}",
+    "sample": "Sample booking · prices are sample data",
+    "arrivesNextDay": "+{n} day"
   },
   "addBags": {
     "title": "Add baggage",
@@ -136,5 +164,6 @@
     },
     "changed": "Flight changed on {date}.",
     "changedPaid": "Flight changed on {date}; you paid <price></price>."
-  }
+  },
+  "printView": "Printable view"
 }

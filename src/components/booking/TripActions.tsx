@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCurrency } from "../CurrencyProvider";
+import { PdfLink } from "../account/PdfLink";
 import { Calendar, Download, Share } from "../icons";
 import {
   addBagsToBooking,
@@ -51,19 +52,24 @@ export function TripActions({ bookingId, shareTitle, shareText }: { bookingId: s
   };
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[10px]">
-      <Link href={{ pathname: "/rezervasyon/[teklifId]/plan", params: { teklifId: bookingId } }} className={`${action} bg-primary text-white`}>
-        <Download />
-        {t("download")}
+    <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[10px]">
+        <PdfLink bookingId={bookingId} className={`${action} bg-primary text-white`}>
+          <Download />
+          {t("download")}
+        </PdfLink>
+        <a href={`/api/takvim/${encodeURIComponent(bookingId)}?lang=${locale}`} download className={`${action} bg-field text-ink`}>
+          <Calendar />
+          {t("calendar")}
+        </a>
+        <button type="button" onClick={share} className={`${action} cursor-pointer bg-field text-ink`}>
+          <Share />
+          <span aria-live="polite">{copied ? t("copied") : t("share")}</span>
+        </button>
+      </div>
+      <Link href={{ pathname: "/rezervasyon/[teklifId]/plan", params: { teklifId: bookingId } }} className="self-center py-2 text-[15px] font-extrabold">
+        {t("printView")}
       </Link>
-      <a href={`/api/takvim/${encodeURIComponent(bookingId)}?lang=${locale}`} download className={`${action} bg-field text-ink`}>
-        <Calendar />
-        {t("calendar")}
-      </a>
-      <button type="button" onClick={share} className={`${action} cursor-pointer bg-field text-ink`}>
-        <Share />
-        <span aria-live="polite">{copied ? t("copied") : t("share")}</span>
-      </button>
     </div>
   );
 }
