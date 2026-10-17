@@ -6,7 +6,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCurrency } from "../CurrencyProvider";
 import { Calendar, Download, Share } from "../icons";
-import { confirmCancel, getCancelQuote, type CancelState } from "@/actions/booking";
+import { addBagsToBooking, confirmCancel, getCancelQuote, getOrderBags, type AddBagsState, type CancelState } from "@/actions/booking";
+import { BagPicker } from "./BookingForm";
+import { bagsCost, NO_BAGS } from "@/lib/extras";
+import type { BagChoice } from "@/lib/providers/types";
 
 const action = "flex min-h-[56px] items-center justify-center gap-2 rounded-[18px] border-0 font-display text-lg font-semibold leading-[normal] no-underline";
 
@@ -103,6 +106,73 @@ export function CancelBooking({ bookingId, held }: { bookingId: string; held: bo
             </button>
           </div>
         </div>
+      )}
+      {state.error && <span role="alert" className="font-bold text-coral-text">{t(`errors.${state.error}`)}</span>}
+    </section>
+  );
+}
+
+/** Rezervasyondan sonra bagaj ekleme (havayolunun güncel fiyatlarıyla). */
+export function AddBags({ bookingId }: { bookingId: string }) {
+  const t = useTranslations("confirm.addBags");
+  const { fmt } = useCurrency();
+  const router = useRouter();
+  const [state, setState] = useState<AddBagsState>({});
+  const [choices, setChoices] = useState<BagChoice[]>([]);
+  const [pending, start] = useTransition();
+  const button = "min-h-[48px] cursor-pointer rounded-pill border-0 px-6 py-3 font-display text-lg font-semibold leading-[normal] disabled:cursor-wait disabled:opacity-70";
+
+  const open = () =>
+    start(async () => {
+      const res = await getOrderBags(bookingId);
+      setState(res);
+      setChoices((res.passengers ?? []).map(() => NO_BAGS));
+    });
+  const cost = state.bags ? bagsCost(state.bags, choices) : 0;
+
+  if (state.done) return <p role="status" className="m-0 font-bold text-green-text">{t("added")}</p>;
+
+  return (
+    <section className="flex flex-col gap-3 rounded-[28px] border-2 border-solid border-line px-6 py-5">
+      <h2 className="m-0 font-display text-xl font-semibold">{t("title")}</h2>
+      {!state.bags ? (
+        <button type="button" disabled={pending} onClick={open} className={`${button} self-start bg-field text-ink`}>
+          {pending ? t("loading") : t("open")}
+        </button>
+      ) : (
+        <>
+          <span className="text-[15px] text-muted">{t("choose")}</span>
+          {state.passengers!.map((name, i) => (
+            <BagPicker
+              key={i}
+              title={state.passengers!.length > 1 || name ? name || t("pax", { n: i + 1 }) : undefined}
+              bags={state.bags!}
+              value={choices[i]}
+              onChange={(patch) => setChoices((l) => l.map((c, k) => (k === i ? { ...c, ...patch } : c)))}
+            />
+          ))}
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={pending || cost === 0}
+              onClick={() =>
+                start(async () => {
+                  const res = await addBagsToBooking(bookingId, choices);
+                  if (res.done) {
+                    setState({ done: true });
+                    router.refresh();
+                  } else setState({ ...state, error: res.error });
+                })
+              }
+              className={`${button} bg-primary text-white disabled:cursor-not-allowed disabled:opacity-50`}
+            >
+              {pending ? t("paying") : t("pay", { price: fmt(cost) })}
+            </button>
+            <button type="button" disabled={pending} onClick={() => setState({})} className={`${button} bg-white text-ink`}>
+              {t("cancel")}
+            </button>
+          </div>
+        </>
       )}
       {state.error && <span role="alert" className="font-bold text-coral-text">{t(`errors.${state.error}`)}</span>}
     </section>

@@ -80,5 +80,25 @@
     },
     "note": "This document is not an e-ticket; it's your trip plan. You'll get your boarding pass from the airline after check-in.",
     "back": "Back to booking"
+  },
+  "addBags": {
+    "title": "Add baggage",
+    "open": "Add baggage",
+    "loading": "Loading options…",
+    "choose": "Choose the baggage to add. Prices are the airline's current prices.",
+    "pax": "Passenger {n}",
+    "pay": "Pay {price} and add",
+    "paying": "Adding…",
+    "cancel": "Cancel",
+    "added": "Baggage added.",
+    "bought": "Added baggage: {list}",
+    "boughtItem": "{name}: {cabin} cabin, {checked} checked",
+    "errors": {
+      "failed": "We couldn't add baggage right now; please try again shortly.",
+      "live": "Baggage can't be added until payments are connected.",
+      "unavailable": "Baggage can't be added to this booking right now.",
+      "invalid": "Please check your selection.",
+      "notFound": "This booking wasn't found."
+    }
   }
 }

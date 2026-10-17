@@ -4,6 +4,7 @@
 import "server-only";
 import { findAirport } from "@/data/airports";
 import { toTry } from "../currency";
+import { mergeBags } from "../extras";
 import type { SearchQuery } from "../search";
 import type { BagInfo, BagOffer, Bags, CabinClass, Segment, Booking, FlightProvider, Leg, Offer, OrderInput, SeatMap, SeatRow } from "./types";
 
@@ -118,6 +119,16 @@ type DCancellation = {
   expires_at?: string | null;
   confirmed_at?: string | null;
 };
+
+/**
+ * Rezervasyon sonrası bagaj: siparişin bacakları ve yolcuları + sipariş için satılabilen hizmetler.
+ * Teklifteki bagaj hesabı (bags) aynen kullanılabilsin diye teklif biçimine çevrilir.
+ */
+async function orderAsOffer(orderId: string): Promise<DOffer> {
+  const order = await call<DOrder & { slices: DSlice[]; passengers: { id: string; type: string }[] }>(`/air/orders/${orderId}`);
+  const services = await call<DService[]>(`/air/orders/${orderId}/available_services`);
+  return { ...order, owner: { name: "" }, available_services: services } as DOffer;
+}
 
 /** Havayolu "sonra öde"ye izin veriyorsa ayırma koşulları. */
 function holdOf(p: DOffer["payment_requirements"] | DOrder["payment_status"]): Offer["hold"] {
@@ -451,6 +462,40 @@ export const duffelProvider: FlightProvider = {
       held: input.hold ? holdOf(order.payment_status) ?? offer.hold : undefined,
       providerTotal: input.hold ? toTry(Number(order.total_amount), order.total_currency) : undefined,
     };
+  },
+
+  async orderBags(booking) {
+    if (!isDuffelTestMode()) throw new ProviderError("Canlı modda ödeme altyapısı bağlanmadan bagaj eklenemez.");
+    return bags(await orderAsOffer(booking.id));
+  },
+
+  async addBags(booking, choices) {
+    if (!isDuffelTestMode()) throw new ProviderError("Canlı modda ödeme altyapısı bağlanmadan bagaj eklenemez.");
+    const o = await orderAsOffer(booking.id);
+    const fresh = bags(o);
+    const byId = new Map((o.available_services ?? []).map((s) => [s.id, s]));
+    const add: { id: string; quantity: number }[] = [];
+    let amount = 0;
+    let currency = "";
+    choices.forEach((c, i) => {
+      for (const kind of ["cabin", "checked"] as const) {
+        if (!c[kind]) continue;
+        const ids = fresh[kind].serviceIds?.[i];
+        if (!ids || c[kind] > fresh[kind].max) throw new ProviderError("Seçilen bagaj artık alınamıyor.");
+        for (const id of ids) {
+          const s = byId.get(id)!;
+          add.push({ id, quantity: c[kind] });
+          amount += Number(s.total_amount) * c[kind];
+          currency = s.total_currency;
+        }
+      }
+    });
+    if (!add.length) throw new ProviderError("Eklenecek bagaj yok.");
+    await call(`/air/orders/${booking.id}/services`, {
+      method: "POST",
+      body: JSON.stringify({ data: { add_services: add, payment: { type: "balance", currency, amount: amount.toFixed(2) } } }),
+    });
+    return { ...booking, total: booking.total + toTry(amount, currency), extraBags: mergeBags(booking.extraBags, choices) };
   },
 
   async cancelQuote(booking) {

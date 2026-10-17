@@ -11,7 +11,7 @@ import { Link } from "@/i18n/navigation";
 import { getBooking } from "@/lib/bookings";
 import { formatDateTime, formatDayWithWeekday, formatRange } from "@/lib/dates";
 import { PayHeldButton } from "@/components/booking/PayHeldButton";
-import { CancelBooking, TripActions } from "@/components/booking/TripActions";
+import { AddBags, CancelBooking, TripActions } from "@/components/booking/TripActions";
 import { Price } from "@/components/Price";
 import { intlLocale } from "@/lib/intl";
 import { demoProvider } from "@/lib/providers/demo";
@@ -55,6 +55,11 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
 
   const th = await getTranslations("confirm.held");
   const cancelled = booking.cancelled;
+  const ta = await getTranslations("confirm.addBags");
+  const bought = (booking.extraBags ?? [])
+    .map((x, i) => ({ ...x, name: booking.passengers?.[i] ?? ta("pax", { n: i + 1 }) }))
+    .filter((x) => x.cabin > 0 || x.checked > 0)
+    .map((x) => ta("boughtItem", { name: x.name, cabin: x.cabin, checked: x.checked }));
   const held = cancelled ? undefined : booking.held;
   const tx = await getTranslations("confirm.cancelled");
   const shareTitle = `${city(offer.outbound.fromCode)} → ${city(offer.outbound.toCode)}`;
@@ -128,6 +133,9 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
           ))}
         </div>
 
+        {bought.length > 0 && (
+          <p className="-mt-2 mb-0 text-[15px] font-semibold text-muted">{ta("bought", { list: bought.join(" · ") })}</p>
+        )}
         {!held && !cancelled && <TripActions bookingId={booking.id} shareTitle={shareTitle} shareText={shareText} />}
 
         {!cancelled && (
@@ -140,6 +148,7 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
           </div>
         )}
 
+        {!cancelled && !held && booking.id !== SAMPLE_BOOKING_ID && <AddBags bookingId={booking.id} />}
         {!cancelled && booking.id !== SAMPLE_BOOKING_ID && <CancelBooking bookingId={booking.id} held={!!held} />}
 
         <Link href="/" className="self-center py-[10px] font-extrabold">{t("home")}</Link>

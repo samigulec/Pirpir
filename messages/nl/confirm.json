@@ -80,5 +80,25 @@
     },
     "note": "Dit document is geen e-ticket; het is je reisplan. Je instapkaart krijg je na het inchecken van de luchtvaartmaatschappij.",
     "back": "Terug naar boeking"
+  },
+  "addBags": {
+    "title": "Bagage toevoegen",
+    "open": "Bagage toevoegen",
+    "loading": "Opties laden…",
+    "choose": "Kies de bagage die je wilt toevoegen. Prijzen zijn de actuele prijzen van de maatschappij.",
+    "pax": "Passagier {n}",
+    "pay": "{price} betalen en toevoegen",
+    "paying": "Bezig met toevoegen…",
+    "cancel": "Annuleren",
+    "added": "Bagage toegevoegd.",
+    "bought": "Toegevoegde bagage: {list}",
+    "boughtItem": "{name}: {cabin} handbagage, {checked} ruimbagage",
+    "errors": {
+      "failed": "Bagage toevoegen lukt nu niet; probeer het straks opnieuw.",
+      "live": "Bagage toevoegen kan pas als betalingen gekoppeld zijn.",
+      "unavailable": "Aan deze boeking kan nu geen bagage worden toegevoegd.",
+      "invalid": "Controleer je keuze.",
+      "notFound": "Deze boeking is niet gevonden."
+    }
   }
 }

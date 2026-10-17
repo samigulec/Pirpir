@@ -11,7 +11,8 @@ import { confirmHref } from "@/lib/search";
 import { validateBookingForm, type FieldErrors } from "@/lib/booking-validate";
 import { getOffer } from "@/lib/flights";
 import { getProviderForOffer } from "@/lib/providers/select";
-import { bagsCost, seatsCost } from "@/lib/extras";
+import { bagChoiceValid, bagsCost, seatsCost } from "@/lib/extras";
+import type { BagChoice, Bags, Booking } from "@/lib/providers/types";
 
 export type PlaceOrderState = { errors: FieldErrors; message?: "expired" | "failed" | "live" };
 
@@ -43,6 +44,9 @@ export async function placeOrder(offerId: string, form: FormData): Promise<Place
     if (booking.held) booking.providerTotal ??= quoted;
     booking.passengers = data.passengers.map((p) => `${p.givenName} ${p.familyName}`);
     booking.refundable = offer.conditions.refundable;
+    booking.payingCount = paying;
+    booking.includedBags = { cabin: offer.bags.cabin.included, checked: offer.bags.checked.included, kg: offer.bags.checked.kg };
+    booking.extraBags = data.bags;
     await saveBooking(booking, user, locale);
     bookingId = booking.id;
   } catch (e) {
@@ -104,6 +108,50 @@ export async function confirmCancel(bookingId: string, quoteId: string): Promise
     return { done: true };
   } catch (e) {
     console.error("İptal onaylanamadı:", e);
+    return { error: e instanceof Error && e.message.startsWith("Canlı modda") ? "live" : "failed" };
+  }
+}
+
+export type AddBagsState = {
+  bags?: Bags;
+  passengers?: string[];
+  error?: "failed" | "live" | "notFound" | "unavailable" | "invalid";
+  done?: boolean;
+};
+
+const payingNames = (b: Booking) => (b.passengers ?? []).slice(0, b.payingCount ?? b.passengers?.length ?? 1);
+
+/** Rezervasyondan sonra eklenebilecek bagaj seçenekleri. */
+export async function getOrderBags(bookingId: string): Promise<AddBagsState> {
+  const booking = await getBooking(bookingId);
+  if (!booking || booking.cancelled || booking.held) return { error: "notFound" };
+  try {
+    const bags = await getProviderForOffer(booking).orderBags(booking);
+    if (!bags || (bags.cabin.max === 0 && bags.checked.max === 0)) return { error: "unavailable" };
+    const names = payingNames(booking);
+    const count = names.length || bags.checked.serviceIds?.length || bags.cabin.serviceIds?.length || 1;
+    return { bags, passengers: Array.from({ length: count }, (_, i) => names[i] ?? "") };
+  } catch (e) {
+    console.error("Ek bagaj seçenekleri alınamadı:", e);
+    return { error: e instanceof Error && e.message.startsWith("Canlı modda") ? "live" : "failed" };
+  }
+}
+
+/** Ek bagajı satın alır. Tutar istemciden alınmaz; sağlayıcının güncel fiyatıyla hesaplanır. */
+export async function addBagsToBooking(bookingId: string, choices: BagChoice[]): Promise<AddBagsState> {
+  const booking = await getBooking(bookingId);
+  if (!booking || booking.cancelled || booking.held) return { error: "notFound" };
+  try {
+    const provider = getProviderForOffer(booking);
+    const bags = await provider.orderBags(booking);
+    const clean = choices.map((c) => ({ cabin: Number(c.cabin) || 0, checked: Number(c.checked) || 0 }));
+    if (!bags || !clean.length || !clean.every((c) => bagChoiceValid(bags, c)) || !clean.some((c) => c.cabin || c.checked)) {
+      return { error: "invalid" };
+    }
+    await updateBooking(await provider.addBags(booking, clean));
+    return { done: true };
+  } catch (e) {
+    console.error("Ek bagaj eklenemedi:", e);
     return { error: e instanceof Error && e.message.startsWith("Canlı modda") ? "live" : "failed" };
   }
 }

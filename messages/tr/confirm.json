@@ -80,5 +80,25 @@
     },
     "note": "Bu belge e-bilet değildir; seyahat planındır. Biniş kartını check-in'den sonra havayolundan alırsın.",
     "back": "Rezervasyona dön"
+  },
+  "addBags": {
+    "title": "Bagaj ekle",
+    "open": "Bagaj ekle",
+    "loading": "Seçenekler yükleniyor…",
+    "choose": "Eklemek istediğin bagajı seç. Fiyatlar havayolunun güncel fiyatlarıdır.",
+    "pax": "{n}. yolcu",
+    "pay": "{price} öde ve ekle",
+    "paying": "Ekleniyor…",
+    "cancel": "Vazgeç",
+    "added": "Bagaj eklendi.",
+    "bought": "Eklenen bagaj: {list}",
+    "boughtItem": "{name}: {cabin} kabin, {checked} kontrol",
+    "errors": {
+      "failed": "Bagaj şu an eklenemedi; biraz sonra tekrar dene.",
+      "live": "Ödeme altyapısı bağlanmadan bagaj eklenemiyor.",
+      "unavailable": "Bu rezervasyona şu an bagaj eklenemiyor.",
+      "invalid": "Seçimini kontrol et.",
+      "notFound": "Bu rezervasyon bulunamadı."
+    }
   }
 }

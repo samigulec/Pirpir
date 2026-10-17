@@ -164,6 +164,12 @@ export type Booking = {
   refundable?: boolean;
   /** İptal edildiyse zamanı ve iade tutarı (TRY) */
   cancelled?: { at: string; refund: number };
+  /** Ödeyen (bebek olmayan) yolcu sayısı; `passengers` listesinin ilk bu kadarı */
+  payingCount?: number;
+  /** Bilete dahil bagaj (yolcu başı) */
+  includedBags?: { cabin: number; checked: number; kg?: number };
+  /** Satın alınan ek bagaj (ödeyen yolcu sırasıyla; rezervasyonda ve sonradan) */
+  extraBags?: BagChoice[];
 };
 
 export interface FlightProvider {
@@ -177,6 +183,10 @@ export interface FlightProvider {
   cancelQuote(booking: Booking): Promise<CancelQuote>;
   /** Teklifi onaylar; rezervasyon iptal edilir. */
   cancelConfirm(booking: Booking, quoteId: string): Promise<Booking>;
+  /** Rezervasyondan sonra eklenebilecek bagaj (yoksa null). */
+  orderBags(booking: Booking): Promise<Bags | null>;
+  /** Ek bagajı satın alır; tutar sunucuda hesaplanır. */
+  addBags(booking: Booking, choices: BagChoice[]): Promise<Booking>;
 }
 
 export type { Passengers };

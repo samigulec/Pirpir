@@ -43,3 +43,8 @@ export function seatsCost(maps: SeatMap[], seats: SeatChoice[], paying: number):
   }
   return total;
 }
+
+/** Daha önce alınan ve yeni alınan ek bagajı yolcu yolcu toplar. */
+export function mergeBags(before: BagChoice[] | undefined, added: BagChoice[]): BagChoice[] {
+  return added.map((c, i) => ({ cabin: (before?.[i]?.cabin ?? 0) + c.cabin, checked: (before?.[i]?.checked ?? 0) + c.checked }));
+}

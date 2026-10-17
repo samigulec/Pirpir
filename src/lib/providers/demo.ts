@@ -2,6 +2,7 @@
 // tutarlı (aynı aramada hep aynı) teklifler üretir. Fiyatlar ve saatler ÖRNEKTİR.
 import { distanceKm, findAirport, type Airport } from "@/data/airports";
 import { addDays, todayIso, type SearchQuery } from "../search";
+import { bagsCost, mergeBags } from "../extras";
 import type { BagInfo, Bags, Booking, CabinClass, FareConditions, FlightProvider, Leg, Offer, OrderInput, SeatMap, SeatRow, Segment } from "./types";
 
 function hash(s: string): number {
@@ -384,6 +385,23 @@ export const demoProvider: FlightProvider = {
   async cancelQuote(booking) {
     const refund = booking.held ? 0 : booking.refundable ? booking.total : 0;
     return { id: "demo-cancel", refund, refundTo: booking.held ? undefined : "original_form_of_payment" };
+  },
+  // Örnek: rezervasyondaki fiyatlarla; daha önce alınan bagaj üst sınırdan düşülür.
+  async orderBags(booking) {
+    const a = findAirport(booking.offer.outbound.fromCode);
+    const b = findAirport(booking.offer.outbound.toCode);
+    if (!a || !b) return null;
+    const inc = booking.includedBags ?? { cabin: 0, checked: 0 };
+    const extra = booking.extraBags ?? [];
+    const hasCabin = inc.cabin > 0 || extra.some((x) => x.cabin > 0);
+    const bags = bagsFor({ cabin: hasCabin, checked: inc.checked > 0, checkedCount: inc.checked || undefined, checkedKg: inc.kg }, distanceKm(a, b), !!booking.offer.inbound);
+    const boughtChecked = Math.max(0, ...extra.map((x) => x.checked));
+    return { cabin: bags.cabin, checked: { ...bags.checked, max: Math.max(0, bags.checked.max - boughtChecked) } };
+  },
+  async addBags(booking, choices) {
+    const bags = await this.orderBags(booking);
+    if (!bags) throw new Error("Bagaj eklenemiyor.");
+    return { ...booking, total: booking.total + bagsCost(bags, choices), extraBags: mergeBags(booking.extraBags, choices) };
   },
   async cancelConfirm(booking) {
     const { refund } = await this.cancelQuote(booking);

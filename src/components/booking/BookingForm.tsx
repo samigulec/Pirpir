@@ -494,7 +494,7 @@ export function BookingForm({
 }
 
 /** Bir yolcunun bagajı: kabin (kişisel eşya ya da el bagajı paketi) ve kontrol edilen bagaj adedi. */
-function BagPicker({ title, bags, value, onChange }: { title?: string; bags: Offer["bags"]; value: BagChoice; onChange: (p: Partial<BagChoice>) => void }) {
+export function BagPicker({ title, bags, value, onChange }: { title?: string; bags: Offer["bags"]; value: BagChoice; onChange: (p: Partial<BagChoice>) => void }) {
   const t = useTranslations("booking.bags");
   const { fmt } = useCurrency();
   const card = (on: boolean) =>
