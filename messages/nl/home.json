@@ -68,7 +68,9 @@
     "cabinBagsHint": "Per reiziger, max. 1",
     "checkedBags": "Ruimbagage",
     "checkedBagsHint": "Per reiziger, max. 3",
-    "bagsNote": "Prijzen zijn inclusief de gekozen bagage; vluchten die deze niet verkopen, worden niet getoond."
+    "bagsNote": "Prijzen zijn inclusief de gekozen bagage; vluchten die deze niet verkopen, worden niet getoond.",
+    "withNearby": "{city} + luchthavens in de buurt",
+    "nearbyDetail": "{list} · tot {km} km"
   },
   "trust": {
     "label": "Waarom rotala",

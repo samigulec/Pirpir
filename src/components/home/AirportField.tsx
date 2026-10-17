@@ -64,7 +64,7 @@ export function AirportField({
       fetch(`/api/places?q=${encodeURIComponent(text)}&lang=${locale}`, { signal: ctrl.signal })
         .then((r) => (r.ok ? r.json() : []))
         .then((list: PlaceSuggestion[]) => {
-          setItems(list.filter((s) => !value.some((v) => v.code === s.code)));
+          setItems(list.filter((s) => s.kind === "nearby" || !value.some((v) => v.code === s.code)));
           setActive(0);
         })
         .catch(() => {});
@@ -76,7 +76,10 @@ export function AirportField({
   }, [text, focused, locale, value]);
 
   const add = (s: PlaceSuggestion) => {
-    const next = [...value, { code: s.code, label: s.city }].slice(-MAX_PLACES);
+    // "+ yakın havalimanları": yer ve çevresindekiler birlikte (zaten seçili olanlar tekrar eklenmez)
+    const picked = [{ code: s.code, label: s.city }, ...(s.nearby ?? []).map((n) => ({ code: n.code, label: n.label }))];
+    const fresh = picked.filter((p) => !value.some((v) => v.code === p.code));
+    const next = [...value, ...fresh].slice(-MAX_PLACES);
     onChange(next);
     setText("");
     setItems([]);
@@ -149,7 +152,7 @@ export function AirportField({
               fetch(`/api/places?q=${encodeURIComponent(text)}&lang=${locale}`)
                 .then((r) => (r.ok ? r.json() : []))
                 .then((list: PlaceSuggestion[]) => {
-                  const first = list.find((s) => !value.some((v) => v.code === s.code));
+                  const first = list.find((s) => s.kind !== "nearby" && !value.some((v) => v.code === s.code));
                   if (first) add(first);
                 })
                 .catch(() => {});
@@ -172,7 +175,7 @@ export function AirportField({
         >
           {items.map((s, i) => (
             <li
-              key={s.code}
+              key={s.kind + s.code}
               id={`${id}-${i}`}
               role="option"
               aria-selected={i === active}
@@ -185,14 +188,14 @@ export function AirportField({
             >
               <span className="flex min-w-0 flex-col">
                 <span className="font-extrabold text-ink">
-                  {s.city}
+                  {s.kind === "nearby" ? t("withNearby", { city: s.city }) : s.city}
                   {s.kind === "city" && <span className="font-bold text-muted"> · {t("allAirports")}</span>}
                 </span>
                 <span className="truncate text-[13px] font-semibold text-muted">
-                  {s.kind === "city" ? s.detail : s.detail} · {s.country}
+                  {s.kind === "nearby" ? t("nearbyDetail", { list: s.detail, km: Math.max(...(s.nearby ?? []).map((n) => n.km)) }) : `${s.detail} · ${s.country}`}
                 </span>
               </span>
-              <span className="flex-none font-display font-semibold text-primary">{s.kind === "city" ? "" : s.code}</span>
+              <span className="flex-none font-display font-semibold text-primary">{s.kind === "airport" ? s.code : s.kind === "nearby" ? "+" : ""}</span>
             </li>
           ))}
         </ul>

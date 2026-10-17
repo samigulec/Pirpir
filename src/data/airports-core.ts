@@ -140,7 +140,10 @@ export function coreCityByCode(code: string, lang: string = "tr", fallback?: str
 export type PlaceSuggestion = {
   /** Havalimanı kodu ya da "city:LON" */
   code: string;
-  kind: "airport" | "city";
+  /** "nearby": bu yer ve çevresindeki havalimanları birlikte (Kiwi'deki "+ yakın havalimanları") */
+  kind: "airport" | "city" | "nearby";
+  /** Yalnızca "nearby": birlikte eklenecek yakın havalimanları */
+  nearby?: { code: string; label: string; km: number }[];
   city: string;
   /** Havalimanı adı ya da şehirdeki havalimanı kodları */
   detail: string;

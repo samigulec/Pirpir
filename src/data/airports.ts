@@ -137,7 +137,39 @@ export function suggestPlaces(query: string, lang: string = "tr", limit = 8): Pl
     }
     out.push({ code: a.code, kind: "airport", city: cityName(a, lang), detail: a.name, country: countryName(a.country, lang) });
   }
-  return out;
+  // İlk önerinin hemen altına "+ yakın havalimanları": o yerin kendi havalimanları dışında, 130 km içindeki
+  // orta/büyük havalimanları (en fazla 2; seçilebilecek toplam yer sınırı 3)
+  const first = out[0];
+  const near = first && nearbyAirports(first.code, lang);
+  if (near?.length) {
+    out.splice(1, 0, {
+      code: first.code,
+      kind: "nearby",
+      city: first.city,
+      detail: near.map((n) => `${n.label} (${n.code})`).join(", "),
+      country: first.country,
+      nearby: near,
+    });
+  }
+  return out.slice(0, limit + 1);
+}
+
+const NEARBY_KM = 130;
+const NEARBY_ABROAD_KM = 90;
+
+/** Bir yerin (havalimanı ya da şehir grubu) çevresindeki havalimanları, büyükten küçüğe. */
+export function nearbyAirports(code: string, lang: string = "tr", max = 2): { code: string; label: string; km: number }[] {
+  const own = expandCode(code, 9);
+  const base = findAirport(own[0]);
+  if (!base) return [];
+  return airports
+    .filter((a) => a.size >= 2 && !own.includes(a.code) && a.code !== base.code)
+    .map((a) => ({ a, km: distanceKm(base, a) }))
+    // Sınır ötesi yalnızca yakın ve büyük havalimanları; yoksa komşu adalar ve küçük havalimanları karışır
+    .filter((x) => (x.a.country === base.country ? x.km <= NEARBY_KM : x.a.size === 3 && x.km <= NEARBY_ABROAD_KM))
+    .sort((x, y) => y.a.size - x.a.size || x.km - y.km)
+    .slice(0, max)
+    .map(({ a, km }) => ({ code: a.code, label: cityName(a, lang), km: Math.round(km) }));
 }
 
 /** "İzmir", "ADB", "london" → en iyi eşleşen yer kodu. Birden çok havalimanlı şehirde şehir grubu. */

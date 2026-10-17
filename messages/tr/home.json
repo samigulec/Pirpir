@@ -67,7 +67,9 @@
     "cabinBagsHint": "Yolcu başı, en fazla 1",
     "checkedBags": "Kontrol edilen bagaj",
     "checkedBagsHint": "Yolcu başı, en fazla 3",
-    "bagsNote": "Fiyatlar seçtiğin bagajla birlikte gösterilir; bu bagajı satmayan uçuşlar listelenmez."
+    "bagsNote": "Fiyatlar seçtiğin bagajla birlikte gösterilir; bu bagajı satmayan uçuşlar listelenmez.",
+    "withNearby": "{city} + yakın havalimanları",
+    "nearbyDetail": "{list} · {km} km'ye kadar"
   },
   "trust": {
     "label": "Neden rotala",

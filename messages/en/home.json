@@ -68,7 +68,9 @@
     "cabinBagsHint": "Per traveller, up to 1",
     "checkedBags": "Checked bag",
     "checkedBagsHint": "Per traveller, up to 3",
-    "bagsNote": "Prices include the bags you pick; flights that don't sell them are not listed."
+    "bagsNote": "Prices include the bags you pick; flights that don't sell them are not listed.",
+    "withNearby": "{city} + nearby airports",
+    "nearbyDetail": "{list} · within {km} km"
   },
   "trust": {
     "label": "Why rotala",
