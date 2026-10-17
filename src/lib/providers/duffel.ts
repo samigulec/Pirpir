@@ -8,7 +8,8 @@ import { mergeBags } from "../extras";
 import type { SearchQuery } from "../search";
 import type { BagInfo, BagOffer, Bags, BagSpec, CabinClass, Segment, Booking, FlightProvider, Leg, Offer, OrderInput, SeatMap, SeatRow } from "./types";
 
-const API = "https://api.duffel.com";
+// Testlerde sahte bir sunucuya yönlendirilebilir.
+const API = process.env.DUFFEL_API_URL || "https://api.duffel.com";
 
 export class ProviderError extends Error {
   constructor(message: string, readonly status?: number) {
@@ -371,7 +372,7 @@ export const duffelProvider: FlightProvider = {
       ...Array.from({ length: q.pax.children }, () => ({ type: "child" })),
       ...Array.from({ length: q.pax.infants }, () => ({ type: "infant_without_seat" })),
     ];
-    const data = await call<{ offers: DOffer[] }>(`/air/offer_requests?return_offers=true&supplier_timeout=${opts?.timeoutMs ?? 20000}`, {
+    const data = await call<{ offers: DOffer[] }>(`/air/offer_requests?return_offers=true&supplier_timeout=${opts?.timeoutMs ?? 15000}`, {
       method: "POST",
       body: JSON.stringify({ data: { slices, passengers, cabin_class: q.cabin ?? "economy", max_connections: 1 } }),
     });

@@ -10,16 +10,26 @@ import { addDays, searchHref, todayIso, type MultiQuery } from "@/lib/search";
 
 type Day = { date: string; returnDate?: string };
 
-// Sayfalar arasında gezinirken bilinen günler yeniden istenmez (komşu tarihler çoğunlukla aynıdır).
-const known = new Map<string, number | null>();
+// Sayfalar arasında gezinirken bilinen günler kısa süre yeniden istenmez (komşu tarihler çoğunlukla aynıdır).
+// Süre sunucudaki arama önbelleğinden kısa: eski bir fiyat, o güne tıklayınca çıkan sonuçla çelişmesin.
+const TTL_MS = 5 * 60 * 1000;
+const cache = new Map<string, { price: number | null; at: number }>();
+const known = {
+  has: (k: string) => {
+    const e = cache.get(k);
+    return !!e && Date.now() - e.at < TTL_MS;
+  },
+  get: (k: string) => cache.get(k)!.price,
+  set: (k: string, price: number | null) => cache.set(k, { price, at: Date.now() }),
+};
 
 const dayQuery = (q: MultiQuery, d: Day) => new URLSearchParams(searchHref({ ...q, ...d, returnDate: d.returnDate ?? "" }).query).toString();
 
 /**
  * Esnek tarih şeridi (Kiwi'deki gibi): aynı yolculuk süresiyle ±3 günün en düşük kişi başı fiyatı.
- * Her gün ayrı ve paralel istenir; fiyatlar geldikçe görünür, sonuçları bekletmez.
+ * Her gün ayrı ve paralel istenir; fiyatlar geldikçe görünür; seçili gün sonuçlardan gelir.
  */
-export function DateStrip({ q }: { q: MultiQuery }) {
+export function DateStrip({ q, current }: { q: MultiQuery; current: number | null }) {
   const t = useTranslations("results.dates");
   const { fmt } = useCurrency();
   const loc = intlLocale(useLocale());
@@ -28,6 +38,9 @@ export function DateStrip({ q }: { q: MultiQuery }) {
     .map((n) => ({ date: addDays(q.date, n), returnDate: q.returnDate ? addDays(q.returnDate, n) : undefined }))
     .filter((d) => d.date >= today);
   const keys = days.map((d) => dayQuery(q, d));
+  // Seçili günün fiyatı aşağıdaki sonuçların en ucuzudur; ayrıca istenmez.
+  const currentKey = dayQuery(q, { date: q.date, returnDate: q.returnDate });
+  known.set(currentKey, current);
   const [prices, setPrices] = useState<Record<string, number | null>>(() =>
     Object.fromEntries(keys.filter((k) => known.has(k)).map((k) => [k, known.get(k)!])),
   );

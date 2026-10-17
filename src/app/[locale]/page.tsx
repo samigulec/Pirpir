@@ -13,8 +13,9 @@ import { dataMode, getPopularDestinations, getPopularRoutes } from "@/lib/flight
 import { getDestinationDeals, getRouteDeals } from "@/lib/deals";
 import { defaultDates, todayIso } from "@/lib/search";
 
-// Varsayılan tarihler, "bugün" sınırı ve fırsat fiyatları güncel kalsın diye sayfa saatte bir yenilenir.
-export const revalidate = 3600;
+// Varsayılan tarihler, "bugün" sınırı ve fırsat fiyatları güncel kalsın diye sayfa arama önbelleğiyle aynı sürede
+// (10 dakika) yenilenir.
+export const revalidate = 600;
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

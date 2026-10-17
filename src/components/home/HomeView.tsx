@@ -30,10 +30,9 @@ export function HomeView({
   const key = fromCodes.join(",");
   const [loaded, setLoaded] = useState({ key: DEFAULT_FROM, deals: initialDeals });
 
-  // Sayfa önbellekten geldiyse bazı kartların fiyatı o an hazır olmayabilir: bir kez tamamlanır.
+  // Sayfa önbellekten gelir: eksik kartlar tamamlanır, diğerleri arama önbelleğinin güncel fiyatıyla
+  // eşitlenir (karta tıklayınca açılan aramadaki fiyatla aynı olsun).
   useEffect(() => {
-    // Kalkış şehrinin kendi kartı (Amsterdam'dan Amsterdam'a) zaten gösterilmez
-    if (destinations.every((d) => d.airports.includes(DEFAULT_FROM) || initialDeals[d.id])) return;
     fetch(`/api/deals?from=${DEFAULT_FROM}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((res: { deals: DealMap } | null) => {

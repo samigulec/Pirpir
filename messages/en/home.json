@@ -159,7 +159,7 @@
       "fastest": "Shortest flight"
     },
     "seePrices": "See prices",
-    "noteLive": "Prices are per person, return; the lowest fares we found for the coming weekends (out Friday, back Monday). Refreshed every few hours and may change as seats sell.",
+    "noteLive": "Prices are per person, return; the lowest fares we found for an upcoming weekend (out Friday, back Monday). Refreshed about every 10 minutes and may change as seats sell.",
     "noteSample": "Sample data: prices and airlines are not real. Per person, return, for the coming weekends (out Friday, back Monday).",
     "showMore": "More cities ({n})",
     "showLess": "Show less"

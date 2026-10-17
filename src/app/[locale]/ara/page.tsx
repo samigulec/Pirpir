@@ -8,7 +8,7 @@ import { ResultsView, type ResultsTip } from "@/components/results/ResultsView";
 import { cityByCode } from "@/data/airports";
 import { intlLocale } from "@/lib/intl";
 import { formatDayLong, formatRange } from "@/lib/dates";
-import { dataMode, getFlexibleDateTip, searchFlights } from "@/lib/flights";
+import { dataMode, getFlexibleDateTip, searchFlightsCached } from "@/lib/flights";
 import { paxTotal, searchHref, type MultiQuery } from "@/lib/search";
 import { DateStrip } from "@/components/results/DateStrip";
 import { Pirpir } from "@/components/characters";
@@ -94,7 +94,6 @@ export default async function ResultsPage({
           </div>
         ) : (
           <>
-            <DateStrip q={q} />
             {/* Arama her değiştiğinde (ör. tarih şeridinden) yükleme ekranı görünsün diye anahtarlı */}
             <Suspense key={JSON.stringify(q)} fallback={<ResultsLoading />}>
               <Results q={q} locale={locale} />
@@ -113,7 +112,7 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
   let offers: Offer[] = [];
   let tip: ResultsTip = null;
   try {
-    const [list, flex] = await Promise.all([searchFlights(q), getFlexibleDateTip(q)]);
+    const [list, flex] = await Promise.all([searchFlightsCached(q), getFlexibleDateTip(q)]);
     offers = list;
     if (flex) {
       tip = { href: searchHref({ ...flex.query, returnDate: flex.query.returnDate ?? "" }), day: formatDayLong(flex.query.date, loc), price: flex.price, save: flex.save };
@@ -130,7 +129,15 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
   }
   const mode = dataMode();
   const note = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : undefined;
-  return <ResultsView offers={offers} oneWay={!q.returnDate} tip={tip} note={note} cityNames={cityNamesFor(offers, locale)} />;
+  // Şerit sonuçlar geldikten sonra çizilir: seçili günün fiyatı doğrudan bu sonuçlardan gelir (iki ayrı arama
+  // farklı fiyat göstermesin) ve komşu günlerin aramaları ana aramayla yarışıp onu yavaşlatmaz.
+  const cheapest = offers.length ? Math.min(...offers.map((o) => o.price)) : null;
+  return (
+    <>
+      <DateStrip q={q} current={cheapest} />
+      <ResultsView offers={offers} oneWay={!q.returnDate} tip={tip} note={note} cityNames={cityNamesFor(offers, locale)} />
+    </>
+  );
 }
 
 async function ResultsLoading() {

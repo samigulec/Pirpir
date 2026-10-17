@@ -1,10 +1,10 @@
 // Ana sayfadaki fırsatlar: popüler uçuş kartları, karakter ipuçları ve popüler rotalar.
 // Fiyatlar uydurulmaz; arama sonuçlarıyla aynı sağlayıcıdan (canlı Duffel ya da örnek veri)
-// önümüzdeki hafta sonları için aranır ve birkaç saat önbellekte tutulur.
+// önümüzdeki hafta sonları için aranır; arama sonuçlarıyla aynı önbelleği paylaşır.
 import "server-only";
-import { unstable_cache } from "next/cache";
+import { after } from "next/server";
 import { popularDestinations, popularRoutes } from "@/data/mock/home";
-import { dataMode, searchFlights } from "./flights";
+import { dataMode, searchFlightsCached } from "./flights";
 import { addDays, todayIso, type MultiQuery } from "./search";
 import type { Offer } from "./providers/types";
 
@@ -24,8 +24,6 @@ export type Deal = {
 
 export type DealMap = Record<string, Deal | null>;
 
-const REVALIDATE = 6 * 3600;
-
 /** Önümüzdeki hafta sonu kaçamakları: Cuma gidiş, Pazartesi dönüş; ilk Cuma en az iki hafta sonra. */
 export function weekendTrips(count: number, now = new Date()): [string, string][] {
   const today = todayIso(now);
@@ -43,7 +41,7 @@ const tripCount = () => (dataMode() === "demo" ? 4 : 1);
 async function findDeal(from: string[], to: string, trips: [string, string][]): Promise<Deal | null> {
   const settled = await Promise.allSettled(
     trips.map(([date, returnDate]) =>
-      searchFlights({ from, to: [to], date, returnDate, pax: { adults: 1, children: 0, infants: 0 }, cabin: "economy" }),
+      searchFlightsCached({ from, to: [to], date, returnDate, pax: { adults: 1, children: 0, infants: 0 }, cabin: "economy" }),
     ),
   );
   settled.forEach((r) => r.status === "rejected" && console.error("Fırsat araması başarısız:", from.join(","), to, r.reason));
@@ -77,26 +75,15 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promis
   return out;
 }
 
-const concurrency = () => (dataMode() === "demo" ? 16 : 4);
+const concurrency = () => (dataMode() === "demo" ? 16 : 6);
 
-// Her rota ayrı önbelleklenir: biri başarısız olsa da diğerlerinin fiyatı saatlerce aynı kalır.
-// Bulunamayan rota hata fırlatır; böylece önbelleğe "yok" yazılmaz, sonraki ziyarette yeniden denenir.
-// `mode` yalnızca önbellek anahtarı için: örnek veriden canlıya geçince eski fiyatlar gösterilmez.
-const cachedDeal = unstable_cache(
-  async (from: string[], to: string, trips: [string, string][], _mode: string): Promise<Deal> => {
-    const deal = await findDeal(from, to, trips);
-    if (!deal) throw new Error(`Fırsat bulunamadı: ${from.join(",")} → ${to}`);
-    return deal;
-  },
-  ["home-deal"],
-  { revalidate: REVALIDATE },
-);
-
+// Ayrı bir fırsat önbelleği yok: kart fiyatı her seferinde sonuç sayfasının kullandığı arama önbelleğinden
+// hesaplanır. Böylece karta tıklayınca açılan aramadaki en ucuz fiyat, kartta yazanla aynıdır.
 async function dealFor(from: string[], to: string): Promise<Deal | null> {
   try {
-    return await cachedDeal([...from].sort(), to, weekendTrips(tripCount()), dataMode());
+    return await findDeal(from, to, weekendTrips(tripCount()));
   } catch (e) {
-    console.error(e instanceof Error ? e.message : e);
+    console.error("Fırsat hesaplanamadı:", from.join(","), to, e instanceof Error ? e.message : e);
     return null;
   }
 }
@@ -112,6 +99,12 @@ async function withDeadline(keys: string[], run: (key: string) => Promise<Deal |
   const all = mapLimit(keys, concurrency(), async (k) => {
     out[k] = await run(k);
   });
+  // Sayfa yanıtlandıktan sonra da kalan aramalar bitsin (sunucusuz ortamda aksi halde yarıda kalır)
+  try {
+    after(() => all);
+  } catch {
+    // Derleme sırasında istek bağlamı yok; orada zaten tamamı beklenir
+  }
   await Promise.race([all, new Promise((r) => setTimeout(r, ms))]);
   return { ...out };
 }
@@ -130,24 +123,15 @@ export async function getRouteDeals(): Promise<DealMap> {
 }
 
 /**
- * Esnek tarih şeridinde bir günün en düşük kişi başı fiyatı. Her gün ayrı istenir ve 3 saat önbellekte kalır;
- * havayollarına kısa süre tanınır ki şerit hızlı dolsun (yavaş yanıt veren havayolu o gün için atlanır).
+ * Esnek tarih şeridinde bir günün en düşük kişi başı fiyatı: sonuç sayfasıyla aynı (önbellekli) arama,
+ * bu yüzden şeritteki fiyat o güne tıklayınca çıkan en ucuz uçuşla aynıdır ve tıklayınca sonuç anında gelir.
  */
-const cachedDayPrice = unstable_cache(
-  async (q: MultiQuery, _mode: string): Promise<number> => {
-    const offers = await searchFlights(q, { timeoutMs: 8000 });
-    if (!offers.length) throw new Error(`Uçuş yok: ${q.from.join(",")} → ${q.to.join(",")} ${q.date}`);
-    return Math.min(...offers.map((o) => o.price));
-  },
-  ["date-price"],
-  { revalidate: 3 * 3600 },
-);
-
 export async function getDayPrice(q: MultiQuery): Promise<number | null> {
   try {
-    return await cachedDayPrice({ ...q, from: [...q.from].sort(), to: [...q.to].sort() }, dataMode());
+    const offers = await searchFlightsCached(q);
+    return offers.length ? Math.min(...offers.map((o) => o.price)) : null;
   } catch (e) {
-    console.error(e instanceof Error ? e.message : e);
+    console.error("Gün fiyatı alınamadı:", q.date, e instanceof Error ? e.message : e);
     return null;
   }
 }

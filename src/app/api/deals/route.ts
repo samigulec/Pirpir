@@ -9,5 +9,5 @@ export async function GET(req: NextRequest) {
     .slice(0, 3);
   if (!from.length) return NextResponse.json({ error: "from" }, { status: 400 });
   const deals = await getDestinationDeals(from);
-  return NextResponse.json({ from, deals }, { headers: { "Cache-Control": "public, max-age=300, s-maxage=300" } });
+  return NextResponse.json({ from, deals }, { headers: { "Cache-Control": "public, max-age=60, s-maxage=60" } });
 }

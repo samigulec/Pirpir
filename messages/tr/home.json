@@ -158,7 +158,7 @@
       "fastest": "En kısa uçuş"
     },
     "seePrices": "Fiyatlara bak",
-    "noteLive": "Fiyatlar kişi başı ve gidiş-dönüştür; önümüzdeki hafta sonları (Cuma gidiş, Pazartesi dönüş) için bulduğumuz en düşük fiyatlardır. Birkaç saatte bir yenilenir; koltuklar satıldıkça değişebilir.",
+    "noteLive": "Fiyatlar kişi başı ve gidiş-dönüştür; yaklaşan bir hafta sonu (Cuma gidiş, Pazartesi dönüş) için bulduğumuz en düşük fiyatlardır. Yaklaşık 10 dakikada bir yenilenir; koltuklar satıldıkça değişebilir.",
     "noteSample": "Örnek veri: fiyatlar ve havayolları gerçek değildir. Kişi başı, gidiş-dönüş, önümüzdeki hafta sonları (Cuma gidiş, Pazartesi dönüş) için.",
     "showMore": "Daha fazla şehir ({n})",
     "showLess": "Daha az göster"

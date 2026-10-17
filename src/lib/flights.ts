@@ -1,6 +1,7 @@
 // Veri erişim katmanı. Sayfalar uçuş verisini yalnızca buradan alır.
 // DUFFEL_ACCESS_TOKEN tanımlıysa Duffel, değilse örnek veri sağlayıcısı kullanılır.
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { popularDestinations, popularRoutes } from "@/data/mock/home";
 import { routes } from "@/data/mock/routes";
 import { demoFlexibleTip, demoProvider } from "./providers/demo";
@@ -39,6 +40,56 @@ export async function searchFlights(q: MultiQuery, opts?: { timeoutMs?: number }
     .sort((a, b) => a.price - b.price)
     .slice(0, MAX_RESULTS);
 }
+
+/** Aynı arama bu süre boyunca sağlayıcıya yeniden gitmez (teklifler genelde daha uzun geçerlidir). */
+const SEARCH_TTL = 10 * 60;
+
+/** Önbellek anahtarı aynı arama için hep aynı olsun: sıralı kodlar, sabit alan sırası. */
+function canonical(q: MultiQuery): MultiQuery {
+  return {
+    from: [...q.from].sort(),
+    to: [...q.to].sort(),
+    date: q.date,
+    returnDate: q.returnDate || undefined,
+    pax: { adults: q.pax.adults, children: q.pax.children, infants: q.pax.infants },
+    cabin: q.cabin ?? "economy",
+  };
+}
+
+// unstable_cache anahtarına fonksiyonun kaynak metnini de katar; bu metin sonuç sayfası ile API rotası gibi
+// ayrı paketlerde farklı derlenir ve önbellek paylaşılmaz. `bind` ile oluşan fonksiyonun metni her yerde aynıdır.
+const cachedSearch = unstable_cache(
+  ((q: MultiQuery, _mode: DataMode) => searchFlights(q)).bind(null),
+  ["search-v1"],
+  { revalidate: SEARCH_TTL },
+);
+
+/**
+ * Sonuç sayfası, esnek tarih şeridi ve ana sayfa fırsatları aynı aramayı bununla yapar:
+ * hepsi aynı teklifleri görür (fiyatlar birbirini tutar) ve tekrar eden arama anında döner.
+ * Hata önbelleğe yazılmaz.
+ */
+export function searchFlightsCached(q: MultiQuery): Promise<Offer[]> {
+  const c = canonical(q);
+  const mode = dataMode();
+  // Aynı arama aynı anda iki kez istenirse (ör. sonuç sayfası ve tarih şeridi) sağlayıcıya tek istek gider;
+  // aksi halde ikisi de önbelleği boş bulur ve test modunda farklı fiyatlar döner.
+  const key = JSON.stringify([c, mode]);
+  let p = inFlight.get(key);
+  if (!p) {
+    p = cachedSearch(c, mode)
+      .then((list) => {
+        // Önbellekteki teklif süresi dolmuşsa satın alınamaz: onları gösterme, hepsi dolmuşsa yeniden ara.
+        const fresh = list.filter((o) => !o.expiresAt || Date.parse(o.expiresAt) > Date.now() + 60_000);
+        return fresh.length || !list.length ? fresh : searchFlights(c);
+      })
+      .finally(() => inFlight.delete(key));
+    inFlight.set(key, p);
+  }
+  return p;
+}
+
+const inFlight = new Map<string, Promise<Offer[]>>();
 
 export async function getOffer(id: string) {
   // Örnek teklif kimlikleri her modda açılabilir (eski bağlantılar bozulmasın).
