@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Link } from "@/i18n/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader, SignInLink } from "@/components/SiteHeader";
@@ -8,7 +9,9 @@ import { cityByCode } from "@/data/airports";
 import { intlLocale } from "@/lib/intl";
 import { formatDayLong, formatRange } from "@/lib/dates";
 import { dataMode, getFlexibleDateTip, searchFlights } from "@/lib/flights";
-import { paxTotal, searchHref } from "@/lib/search";
+import { paxTotal, searchHref, type MultiQuery } from "@/lib/search";
+import { DateStrip } from "@/components/results/DateStrip";
+import { Pirpir } from "@/components/characters";
 import { parseSearch, validateSearchServer } from "@/lib/search-server";
 import type { Offer } from "@/lib/providers/types";
 
@@ -32,6 +35,10 @@ function cityNamesFor(offers: Offer[], locale: string): Record<string, string> {
 
 type Query = Record<string, string | string[] | undefined>;
 
+const panel = "flex flex-col items-start gap-3 rounded-[28px] bg-field px-6 py-5";
+const pill =
+  "box-border inline-flex min-h-[44px] items-center rounded-pill bg-primary px-5 py-[10px] font-display font-semibold text-white no-underline";
+
 export default async function ResultsPage({
   params,
   searchParams,
@@ -48,27 +55,6 @@ export default async function ResultsPage({
   const error = validateSearchServer(q);
   const fromCity = q.from.map((c) => cityByCode(c, locale)).join(", ");
   const toCity = q.to.map((c) => cityByCode(c, locale)).join(", ");
-
-  let offers: Offer[] = [];
-  let failed = false;
-  let tip: ResultsTip = null;
-  if (!error) {
-    try {
-      const [list, flex] = await Promise.all([searchFlights(q), getFlexibleDateTip(q)]);
-      offers = list;
-      if (flex) {
-        tip = { href: searchHref({ ...flex.query, returnDate: flex.query.returnDate ?? "" }), day: formatDayLong(flex.query.date, loc), price: flex.price, save: flex.save };
-      }
-    } catch (e) {
-      console.error("Uçuş araması başarısız:", e);
-      failed = true;
-    }
-  }
-  const mode = dataMode();
-  const note = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : undefined;
-  const panel = "flex flex-col items-start gap-3 rounded-[28px] bg-field px-6 py-5";
-  const pill =
-    "box-border inline-flex min-h-[44px] items-center rounded-pill bg-primary px-5 py-[10px] font-display font-semibold text-white no-underline";
 
   return (
     <div className="min-h-screen w-full bg-white">
@@ -106,16 +92,53 @@ export default async function ResultsPage({
             <span className="text-muted">{tSearch(`errors.${error}`)}</span>
             <Link href="/" className={pill}>{t("invalid.back")}</Link>
           </div>
-        ) : failed ? (
-          <div role="alert" className={panel}>
-            <span className="font-display text-xl font-semibold">{t("failed.title")}</span>
-            <span className="text-muted">{t("failed.text")}</span>
-            <Link href={searchHref({ ...q, returnDate: q.returnDate ?? "" })} className={pill}>{t("failed.retry")}</Link>
-          </div>
         ) : (
-          <ResultsView offers={offers} oneWay={!q.returnDate} tip={tip} note={note} cityNames={cityNamesFor(offers, locale)} query={q} />
+          <>
+            <DateStrip q={q} />
+            {/* Arama her değiştiğinde (ör. tarih şeridinden) yükleme ekranı görünsün diye anahtarlı */}
+            <Suspense key={JSON.stringify(q)} fallback={<ResultsLoading />}>
+              <Results q={q} locale={locale} />
+            </Suspense>
+          </>
         )}
       </main>
+    </div>
+  );
+}
+
+/** Uçuş araması: sayfanın geri kalanı beklemeden görünür. */
+async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
+  const t = await getTranslations("results");
+  const loc = intlLocale(locale);
+  let offers: Offer[] = [];
+  let tip: ResultsTip = null;
+  try {
+    const [list, flex] = await Promise.all([searchFlights(q), getFlexibleDateTip(q)]);
+    offers = list;
+    if (flex) {
+      tip = { href: searchHref({ ...flex.query, returnDate: flex.query.returnDate ?? "" }), day: formatDayLong(flex.query.date, loc), price: flex.price, save: flex.save };
+    }
+  } catch (e) {
+    console.error("Uçuş araması başarısız:", e);
+    return (
+      <div role="alert" className={panel}>
+        <span className="font-display text-xl font-semibold">{t("failed.title")}</span>
+        <span className="text-muted">{t("failed.text")}</span>
+        <Link href={searchHref({ ...q, returnDate: q.returnDate ?? "" })} className={pill}>{t("failed.retry")}</Link>
+      </div>
+    );
+  }
+  const mode = dataMode();
+  const note = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : undefined;
+  return <ResultsView offers={offers} oneWay={!q.returnDate} tip={tip} note={note} cityNames={cityNamesFor(offers, locale)} />;
+}
+
+async function ResultsLoading() {
+  const t = await getTranslations("results");
+  return (
+    <div className="flex flex-col items-center gap-4 pt-10 text-center">
+      <Pirpir aria-hidden trail width={200} height={140} className="animate-bounce [animation-duration:2s]" />
+      <p role="status" className="m-0 font-display text-xl font-semibold">{t("loading")}</p>
     </div>
   );
 }

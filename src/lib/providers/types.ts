@@ -173,7 +173,8 @@ export type Booking = {
 };
 
 export interface FlightProvider {
-  search(q: SearchQuery): Promise<Offer[]>;
+  /** `timeoutMs`: havayollarının yanıtı için en fazla bekleme (hızlı fiyat taraması için kısa tutulur). */
+  search(q: SearchQuery, opts?: { timeoutMs?: number }): Promise<Offer[]>;
   getOffer(id: string): Promise<Offer | null>;
   seatMaps(offer: Offer): Promise<SeatMap[]>;
   createOrder(input: OrderInput, offer: Offer, totalTry: number): Promise<Booking>;

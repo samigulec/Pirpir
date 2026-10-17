@@ -64,6 +64,7 @@ export const coreAirports: Airport[] = [
   { code: "MAD", city: "Madrid", name: "Barajas", country: "ES", slug: "madrid", lat: 40.47, lon: -3.56, size: 3 },
   { code: "LIS", city: "Lizbon", name: "Humberto Delgado", country: "PT", slug: "lizbon", lat: 38.77, lon: -9.13, size: 2, aliases: ["Lisbon", "Lisboa"], i18n: { en: "Lisbon", nl: "Lissabon" } },
   { code: "DXB", city: "Dubai", name: "Dubai International", country: "AE", slug: "dubai", lat: 25.25, lon: 55.36, size: 3 },
+  { code: "NAV", city: "Kapadokya", name: "Nevşehir Kapadokya", country: "TR", slug: "kapadokya", lat: 38.77, lon: 34.53, size: 2, aliases: ["Nevşehir", "Cappadocia"], i18n: { en: "Cappadocia", nl: "Cappadocië" } },
   { code: "JFK", city: "New York", name: "John F. Kennedy", country: "US", slug: "new-york", lat: 40.64, lon: -73.78, size: 3 },
   { code: "EWR", city: "New York", name: "Newark Liberty", country: "US", slug: "new-york", lat: 40.69, lon: -74.17, size: 3 },
   { code: "ATH", city: "Atina", name: "Eleftherios Venizelos", country: "GR", slug: "atina", lat: 37.94, lon: 23.94, size: 2, aliases: ["Athens"], i18n: { en: "Athens", nl: "Athene" } },

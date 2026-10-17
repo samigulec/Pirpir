@@ -30,6 +30,18 @@ export function HomeView({
   const key = fromCodes.join(",");
   const [loaded, setLoaded] = useState({ key: DEFAULT_FROM, deals: initialDeals });
 
+  // Sayfa önbellekten geldiyse bazı kartların fiyatı o an hazır olmayabilir: bir kez tamamlanır.
+  useEffect(() => {
+    // Kalkış şehrinin kendi kartı (Amsterdam'dan Amsterdam'a) zaten gösterilmez
+    if (destinations.every((d) => d.airports.includes(DEFAULT_FROM) || initialDeals[d.id])) return;
+    fetch(`/api/deals?from=${DEFAULT_FROM}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((res: { deals: DealMap } | null) => {
+        if (res) setLoaded((l) => (l.key === DEFAULT_FROM ? { key: l.key, deals: { ...l.deals, ...stripNulls(res.deals) } } : l));
+      })
+      .catch(() => {});
+  }, []);
+
   // Kalkış yeri değişince fırsatlar o yer için yeniden alınır
   useEffect(() => {
     if (key === loaded.key) return;
@@ -62,3 +74,5 @@ export function HomeView({
     </>
   );
 }
+
+const stripNulls = (m: DealMap): DealMap => Object.fromEntries(Object.entries(m).filter(([, v]) => v));

@@ -128,6 +128,30 @@
       "nyc": {
         "badge": "Across the ocean",
         "alt": "New York illustration: skyscrapers and a yellow taxi"
+      },
+      "nav": {
+        "badge": "Balloons and fairy chimneys",
+        "alt": "Cappadocia illustration: fairy chimneys and hot-air balloons"
+      },
+      "asr": {
+        "badge": "Skiing on Erciyes",
+        "alt": "Kayseri illustration: snowy Mount Erciyes, a skier and the city"
+      },
+      "kya": {
+        "badge": "City of Rumi",
+        "alt": "Konya illustration: a green conical tomb, domes and a whirling dervish"
+      },
+      "tzx": {
+        "badge": "Green highlands",
+        "alt": "Trabzon illustration: green highlands, tea gardens and the Black Sea"
+      },
+      "esb": {
+        "badge": "The capital",
+        "alt": "Ankara illustration: a colonnaded monument on a hill and wide steps"
+      },
+      "gzt": {
+        "badge": "Food lovers' stop",
+        "alt": "Gaziantep illustration: a hilltop castle with round towers, a pistachio tree and a tray of baklava"
       }
     },
     "badges": {
@@ -136,7 +160,9 @@
     },
     "seePrices": "See prices",
     "noteLive": "Prices are per person, return; the lowest fares we found for the coming weekends (out Friday, back Monday). Refreshed every few hours and may change as seats sell.",
-    "noteSample": "Sample data: prices and airlines are not real. Per person, return, for the coming weekends (out Friday, back Monday)."
+    "noteSample": "Sample data: prices and airlines are not real. Per person, return, for the coming weekends (out Friday, back Monday).",
+    "showMore": "More cities ({n})",
+    "showLess": "Show less"
   },
   "tips": {
     "title": "Tips from our team",

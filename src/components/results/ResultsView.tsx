@@ -19,8 +19,7 @@ import {
   type Group,
 } from "@/lib/results-filter";
 import type { Offer } from "@/lib/providers/types";
-import type { MultiQuery, searchHref } from "@/lib/search";
-import { DateStrip } from "./DateStrip";
+import type { searchHref } from "@/lib/search";
 
 type Sort = "cheap" | "fast" | "direct";
 const SORTS: Sort[] = ["cheap", "fast", "direct"];
@@ -36,7 +35,6 @@ export function ResultsView({
   tip,
   note,
   cityNames,
-  query,
 }: {
   offers: Offer[];
   oneWay: boolean;
@@ -45,8 +43,6 @@ export function ResultsView({
   note?: string;
   /** Kod → yerel şehir adı */
   cityNames: Record<string, string>;
-  /** Esnek tarih şeridi için arama */
-  query: MultiQuery;
 }) {
   const t = useTranslations("results");
   const { fmt } = useCurrency();
@@ -95,7 +91,6 @@ export function ResultsView({
       </aside>
 
       <div className="flex min-w-0 flex-col gap-5">
-        <DateStrip q={query} />
         <div role="tablist" aria-label={t("sortLabel")} className="flex flex-wrap gap-2">
           {SORTS.map((s) => {
             const on = sort === s;

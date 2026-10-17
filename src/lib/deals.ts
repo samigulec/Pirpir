@@ -77,7 +77,7 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promis
   return out;
 }
 
-const concurrency = () => (dataMode() === "demo" ? 16 : 3);
+const concurrency = () => (dataMode() === "demo" ? 16 : 4);
 
 // Her rota ayrı önbelleklenir: biri başarısız olsa da diğerlerinin fiyatı saatlerce aynı kalır.
 // Bulunamayan rota hata fırlatır; böylece önbelleğe "yok" yazılmaz, sonraki ziyarette yeniden denenir.
@@ -103,23 +103,39 @@ async function dealFor(from: string[], to: string): Promise<Deal | null> {
 
 export const routeKey = (r: { fromCode: string; toCode: string }) => `${r.fromCode}-${r.toCode}`;
 
+/**
+ * Sayfa en fazla `ms` bekler: o ana kadar bulunanlar döner, kalan aramalar arka planda sürüp önbelleğe yazılır
+ * (ilk ziyaretçi birkaç kartta "Fiyatlara bak" görür, sonrakiler fiyatları hemen görür).
+ */
+async function withDeadline(keys: string[], run: (key: string) => Promise<Deal | null>, ms: number): Promise<DealMap> {
+  const out: DealMap = {};
+  const all = mapLimit(keys, concurrency(), async (k) => {
+    out[k] = await run(k);
+  });
+  await Promise.race([all, new Promise((r) => setTimeout(r, ms))]);
+  return { ...out };
+}
+
+const DEADLINE_MS = 9000;
+
 /** Popüler uçuş kartları için seçilen kalkış yerlerinden fırsatlar. */
 export async function getDestinationDeals(from: string[]): Promise<DealMap> {
-  const entries = await mapLimit(popularDestinations, concurrency(), async (d) => [d.id, await dealFor(from, d.searchCode)] as const);
-  return Object.fromEntries(entries);
+  const byId = new Map(popularDestinations.map((d) => [d.id as string, d.searchCode]));
+  return withDeadline([...byId.keys()], (id) => dealFor(from, byId.get(id)!), DEADLINE_MS);
 }
 
 export async function getRouteDeals(): Promise<DealMap> {
-  const entries = await mapLimit(popularRoutes, concurrency(), async (r) => [routeKey(r), await dealFor([r.fromCode], r.toCode)] as const);
-  return Object.fromEntries(entries);
+  const byKey = new Map(popularRoutes.map((r) => [routeKey(r), r]));
+  return withDeadline([...byKey.keys()], (k) => dealFor([byKey.get(k)!.fromCode], byKey.get(k)!.toCode), DEADLINE_MS);
 }
 
-export type DatePrice = { date: string; returnDate?: string; price: number | null };
-
-/** Esnek tarih şeridi: aynı yolculuk süresiyle ±3 gün; her gün ayrı önbelleklenir. */
+/**
+ * Esnek tarih şeridinde bir günün en düşük kişi başı fiyatı. Her gün ayrı istenir ve 3 saat önbellekte kalır;
+ * havayollarına kısa süre tanınır ki şerit hızlı dolsun (yavaş yanıt veren havayolu o gün için atlanır).
+ */
 const cachedDayPrice = unstable_cache(
   async (q: MultiQuery, _mode: string): Promise<number> => {
-    const offers = await searchFlights(q);
+    const offers = await searchFlights(q, { timeoutMs: 8000 });
     if (!offers.length) throw new Error(`Uçuş yok: ${q.from.join(",")} → ${q.to.join(",")} ${q.date}`);
     return Math.min(...offers.map((o) => o.price));
   },
@@ -127,18 +143,11 @@ const cachedDayPrice = unstable_cache(
   { revalidate: 3 * 3600 },
 );
 
-export async function getDatePrices(q: MultiQuery, spread = 3): Promise<DatePrice[]> {
-  const today = todayIso();
-  const days = Array.from({ length: spread * 2 + 1 }, (_, i) => i - spread)
-    .map((off) => ({ ...q, date: addDays(q.date, off), returnDate: q.returnDate ? addDays(q.returnDate, off) : undefined }))
-    .filter((d) => d.date >= today);
-  return mapLimit(days, concurrency(), async (d) => {
-    let price: number | null = null;
-    try {
-      price = await cachedDayPrice({ ...d, from: [...d.from].sort(), to: [...d.to].sort() }, dataMode());
-    } catch (e) {
-      console.error(e instanceof Error ? e.message : e);
-    }
-    return { date: d.date, returnDate: d.returnDate, price };
-  });
+export async function getDayPrice(q: MultiQuery): Promise<number | null> {
+  try {
+    return await cachedDayPrice({ ...q, from: [...q.from].sort(), to: [...q.to].sort() }, dataMode());
+  } catch (e) {
+    console.error(e instanceof Error ? e.message : e);
+    return null;
+  }
 }

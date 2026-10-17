@@ -4,7 +4,10 @@ import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
-import { Amsterdam, Antalya, Barselona, Bodrum, Dubai, Istanbul, Izmir, Lizbon, Londra, NewYork, Paris, Roma } from "../cities";
+import {
+  Amsterdam, Ankara, Antalya, Barselona, Bodrum, Dubai, Gaziantep, Istanbul, Izmir, Kapadokya, Kayseri, Konya, Lizbon, Londra,
+  NewYork, Paris, Roma, Trabzon,
+} from "../cities";
 import type { CategoryId, PopularDestination } from "@/data/mock/home";
 import type { Deal, DealMap } from "@/lib/deals";
 import { coreCityByCode, countryName, expandMetro, findCoreAirport } from "@/data/airports-core";
@@ -17,7 +20,11 @@ const CATEGORIES: CategoryId[] = ["all", "tr", "eu", "sea", "city"];
 const ILLUSTRATIONS = {
   ist: Istanbul, ayt: Antalya, fco: Roma, bcn: Barselona, lhr: Londra, cdg: Paris,
   adb: Izmir, bjv: Bodrum, dxb: Dubai, nyc: NewYork, lis: Lizbon, ams: Amsterdam,
+  nav: Kapadokya, asr: Kayseri, kya: Konya, tzx: Trabzon, esb: Ankara, gzt: Gaziantep,
 };
+
+/** Başta gösterilen kart sayısı (masaüstünde üç satır) */
+const INITIAL = 9;
 
 /** "En ucuz" ve "En kısa uçuş" rozetleri bulunan fırsatlardan hesaplanır (en kısa: direkt uçuşlar arasında). */
 function computedBadges(deals: DealMap, ids: string[]) {
@@ -49,11 +56,14 @@ export function PopularFlights({
   const locale = useLocale();
   const loc = intlLocale(locale);
   const [cat, setCat] = useState<CategoryId>("all");
+  const [expanded, setExpanded] = useState(false);
 
   // Kalkış şehriyle aynı yerdeki kart gösterilmez (İstanbul'dan İstanbul'a fırsat olmaz).
   const origin = new Set(fromCodes.flatMap((c) => expandMetro(c)));
   const available = destinations.filter((d) => !d.airports.some((a) => origin.has(a)) && !origin.has(d.code));
-  const shown = available.filter((d) => cat === "all" || d.tags.includes(cat));
+  const inCategory = available.filter((d) => cat === "all" || d.tags.includes(cat));
+  const shown = expanded ? inCategory : inCategory.slice(0, INITIAL);
+  const hidden = inCategory.length - shown.length;
   const badges = computedBadges(deals, available.map((d) => d.id));
 
   const stopsLabel = (n: number) => (n === 0 ? tc("direct") : n === 1 ? tc("oneStop") : tc("stops", { n }));
@@ -74,7 +84,10 @@ export function PopularFlights({
                 type="button"
                 role="tab"
                 aria-selected={on}
-                onClick={() => setCat(c)}
+                onClick={() => {
+                  setCat(c);
+                  setExpanded(false);
+                }}
                 className={`min-h-[44px] cursor-pointer rounded-pill border-0 px-[18px] leading-[normal] py-[10px] font-display text-base font-semibold ${
                   on ? "bg-ink text-white" : "bg-field text-ink"
                 }`}
@@ -136,6 +149,16 @@ export function PopularFlights({
           );
         })}
       </div>
+      {(hidden > 0 || expanded) && inCategory.length > INITIAL && (
+        <button
+          type="button"
+          aria-expanded={expanded}
+          onClick={() => setExpanded(!expanded)}
+          className="min-h-[48px] cursor-pointer self-center rounded-pill border-2 border-solid border-line bg-white px-6 py-3 font-display text-lg font-semibold leading-[normal] text-ink hover:border-primary"
+        >
+          {expanded ? t("showLess") : t("showMore", { n: hidden })}
+        </button>
+      )}
       <p className="m-0 text-sm font-semibold text-muted">{t(live ? "noteLive" : "noteSample")}</p>
     </section>
   );

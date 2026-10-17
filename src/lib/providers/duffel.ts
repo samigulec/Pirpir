@@ -341,7 +341,7 @@ async function seatMapsFor(o: DOffer): Promise<SeatMap[]> {
 }
 
 export const duffelProvider: FlightProvider = {
-  async search(q) {
+  async search(q, opts) {
     const slices = [{ origin: q.from, destination: q.to, departure_date: q.date }];
     if (q.returnDate) slices.push({ origin: q.to, destination: q.from, departure_date: q.returnDate });
     const passengers = [
@@ -349,7 +349,7 @@ export const duffelProvider: FlightProvider = {
       ...Array.from({ length: q.pax.children }, () => ({ type: "child" })),
       ...Array.from({ length: q.pax.infants }, () => ({ type: "infant_without_seat" })),
     ];
-    const data = await call<{ offers: DOffer[] }>("/air/offer_requests?return_offers=true&supplier_timeout=20000", {
+    const data = await call<{ offers: DOffer[] }>(`/air/offer_requests?return_offers=true&supplier_timeout=${opts?.timeoutMs ?? 20000}`, {
       method: "POST",
       body: JSON.stringify({ data: { slices, passengers, cabin_class: q.cabin ?? "economy", max_connections: 1 } }),
     });

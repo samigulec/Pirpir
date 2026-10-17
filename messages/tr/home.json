@@ -127,6 +127,30 @@
       "nyc": {
         "badge": "Okyanus ötesi",
         "alt": "New York illüstrasyonu: gökdelenler ve sarı taksi"
+      },
+      "nav": {
+        "badge": "Balonlar ve peribacaları",
+        "alt": "Kapadokya illüstrasyonu: peribacaları ve sıcak hava balonları"
+      },
+      "asr": {
+        "badge": "Erciyes'te kayak",
+        "alt": "Kayseri illüstrasyonu: karlı Erciyes Dağı, kayakçı ve şehir"
+      },
+      "kya": {
+        "badge": "Mevlana'nın şehri",
+        "alt": "Konya illüstrasyonu: yeşil külahlı türbe, kubbeler ve semazen"
+      },
+      "tzx": {
+        "badge": "Yeşil yaylalar",
+        "alt": "Trabzon illüstrasyonu: yeşil yaylalar, çay bahçeleri ve Karadeniz"
+      },
+      "esb": {
+        "badge": "Başkent",
+        "alt": "Ankara illüstrasyonu: tepede sütunlu anıt yapı ve geniş merdivenler"
+      },
+      "gzt": {
+        "badge": "Lezzet durağı",
+        "alt": "Gaziantep illüstrasyonu: tepede yuvarlak burçlu kale, fıstık ağacı ve baklava tepsisi"
       }
     },
     "badges": {
@@ -135,7 +159,9 @@
     },
     "seePrices": "Fiyatlara bak",
     "noteLive": "Fiyatlar kişi başı ve gidiş-dönüştür; önümüzdeki hafta sonları (Cuma gidiş, Pazartesi dönüş) için bulduğumuz en düşük fiyatlardır. Birkaç saatte bir yenilenir; koltuklar satıldıkça değişebilir.",
-    "noteSample": "Örnek veri: fiyatlar ve havayolları gerçek değildir. Kişi başı, gidiş-dönüş, önümüzdeki hafta sonları (Cuma gidiş, Pazartesi dönüş) için."
+    "noteSample": "Örnek veri: fiyatlar ve havayolları gerçek değildir. Kişi başı, gidiş-dönüş, önümüzdeki hafta sonları (Cuma gidiş, Pazartesi dönüş) için.",
+    "showMore": "Daha fazla şehir ({n})",
+    "showLess": "Daha az göster"
   },
   "tips": {
     "title": "Ekibimizden ipuçları",

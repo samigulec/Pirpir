@@ -128,6 +128,30 @@
       "nyc": {
         "badge": "Over de oceaan",
         "alt": "Illustratie van New York: wolkenkrabbers en een gele taxi"
+      },
+      "nav": {
+        "badge": "Ballonnen en feeënschoorstenen",
+        "alt": "Illustratie van Cappadocië: feeënschoorstenen en heteluchtballonnen"
+      },
+      "asr": {
+        "badge": "Skiën op de Erciyes",
+        "alt": "Illustratie van Kayseri: de besneeuwde Erciyes, een skiër en de stad"
+      },
+      "kya": {
+        "badge": "Stad van Rumi",
+        "alt": "Illustratie van Konya: een groen kegelvormig mausoleum, koepels en een derwisj"
+      },
+      "tzx": {
+        "badge": "Groene hooglanden",
+        "alt": "Illustratie van Trabzon: groene hooglanden, theetuinen en de Zwarte Zee"
+      },
+      "esb": {
+        "badge": "De hoofdstad",
+        "alt": "Illustratie van Ankara: een monument met zuilen op een heuvel en brede trappen"
+      },
+      "gzt": {
+        "badge": "Culinaire stop",
+        "alt": "Illustratie van Gaziantep: een kasteel met ronde torens, een pistacheboom en een schaal baklava"
       }
     },
     "badges": {
@@ -136,7 +160,9 @@
     },
     "seePrices": "Bekijk prijzen",
     "noteLive": "Prijzen zijn per persoon, retour; de laagste prijzen die we vonden voor de komende weekenden (vrijdag heen, maandag terug). Ze worden om de paar uur ververst en kunnen veranderen als stoelen verkocht worden.",
-    "noteSample": "Voorbeelddata: prijzen en luchtvaartmaatschappijen zijn niet echt. Per persoon, retour, voor de komende weekenden (vrijdag heen, maandag terug)."
+    "noteSample": "Voorbeelddata: prijzen en luchtvaartmaatschappijen zijn niet echt. Per persoon, retour, voor de komende weekenden (vrijdag heen, maandag terug).",
+    "showMore": "Meer steden ({n})",
+    "showLess": "Minder tonen"
   },
   "tips": {
     "title": "Tips van ons team",

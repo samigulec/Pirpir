@@ -27,10 +27,10 @@ const MAX_RESULTS = 60;
  * Birden fazla kalkış/varış: her ikili paralel aranır, sonuçlar fiyata göre birleştirilir.
  * Bazı ikililer hata verse de diğerleri gösterilir; hepsi başarısızsa hata fırlatılır.
  */
-export async function searchFlights(q: MultiQuery): Promise<Offer[]> {
+export async function searchFlights(q: MultiQuery, opts?: { timeoutMs?: number }): Promise<Offer[]> {
   const combos = expandCombos(q);
   const p = provider();
-  const settled = await Promise.allSettled(combos.map((c) => p.search(c)));
+  const settled = await Promise.allSettled(combos.map((c) => p.search(c, opts)));
   const ok = settled.filter((r): r is PromiseFulfilledResult<Offer[]> => r.status === "fulfilled");
   if (!ok.length && settled.length) throw (settled[0] as PromiseRejectedResult).reason;
   settled.forEach((r, i) => r.status === "rejected" && console.error("Arama ikilisi başarısız:", combos[i].from, combos[i].to, r.reason));
