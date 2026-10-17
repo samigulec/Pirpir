@@ -50,7 +50,12 @@ export function OfferCard({ offer, badge, cityNames }: { offer: Offer; badge: Ba
               {t(`badge.${badge}`)}
             </span>
           )}
-          <span className="text-[15px] font-bold text-ink">{offer.airline}</span>
+          <span className="flex items-center gap-2 text-[15px] font-bold text-ink">
+            {offer.airlineLogo && (
+              <img src={offer.airlineLogo} alt="" width={24} height={24} className="h-6 w-6 flex-none object-contain" />
+            )}
+            {offer.airline}
+          </span>
           <span className="text-[15px] font-semibold text-muted">
             · {t(`cabin.${offer.cabin}`)}
             {offer.fareBrand && ` · ${offer.fareBrand}`}

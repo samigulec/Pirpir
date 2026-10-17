@@ -89,7 +89,10 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
             <span className="font-display text-[22px] font-semibold">
               {cityByCode(q.from, locale, offer.fromCity)} → {cityByCode(q.to, locale, offer.toCity)}
             </span>
-            <span className="font-bold text-muted">
+            <span className="flex items-center gap-2 font-bold text-muted">
+              {offer.airlineLogo && (
+                <img src={offer.airlineLogo} alt="" width={24} height={24} className="h-6 w-6 flex-none object-contain" />
+              )}
               {offer.airline} · {tr(`cabin.${offer.cabin}`)}
               {offer.fareBrand && ` · ${offer.fareBrand}`}
             </span>

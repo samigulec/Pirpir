@@ -64,6 +64,8 @@ export type Offer = {
   fromCity: string;
   toCity: string;
   airline: string;
+  /** Havayolunun resmi simge logosu (Duffel'ın varlık sunucusundan SVG); örnek veride yok. */
+  airlineLogo?: string;
   outbound: Leg;
   inbound?: Leg;
   /** Kişi başı fiyat (TRY) — sonuç kartında gösterilen. */

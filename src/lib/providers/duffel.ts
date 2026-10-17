@@ -80,7 +80,7 @@ type DOffer = {
   total_amount: string;
   total_currency: string;
   expires_at?: string;
-  owner: { name: string };
+  owner: { name: string; logo_symbol_url?: string | null };
   slices: DSlice[];
   passengers: { id: string; type: string }[];
   passenger_identity_documents_required?: boolean;
@@ -185,6 +185,9 @@ function bagOptions(o: DOffer): BagOption[] {
   return opts;
 }
 
+// Yalnızca Duffel'ın kendi logo sunucusundan gelen adresler gösterilir.
+const logoUrl = (u?: string | null) => (u && u.startsWith("https://assets.duffel.com/") ? u : undefined);
+
 function mapOffer(o: DOffer, q: SearchQuery): Offer {
   const total = toTry(Number(o.total_amount), o.total_currency);
   const paying = Math.max(1, q.pax.adults + q.pax.children);
@@ -195,6 +198,7 @@ function mapOffer(o: DOffer, q: SearchQuery): Offer {
     fromCity: cityOf(o.slices[0].origin),
     toCity: cityOf(o.slices[0].destination),
     airline: o.owner.name,
+    airlineLogo: logoUrl(o.owner.logo_symbol_url),
     outbound: mapLeg(o.slices[0]),
     inbound: o.slices[1] ? mapLeg(o.slices[1]) : undefined,
     price: Math.round(total / paying),
