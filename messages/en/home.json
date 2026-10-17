@@ -43,7 +43,14 @@
       "premium_economy": "Premium economy",
       "business": "Business",
       "first": "First"
-    }
+    },
+    "pickReturn": "Choose return date",
+    "pickReturnHint": "Now choose your return date",
+    "oneWayHint": "One-way flight",
+    "nights": "{n, plural, one {# night} other {# nights}}",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "paxTotal": "{n, plural, one {# traveller} other {# travellers}}"
   },
   "trust": {
     "label": "Why rotala",

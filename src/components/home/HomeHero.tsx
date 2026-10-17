@@ -25,7 +25,7 @@ export function HomeHero({
   const t = useTranslations("home");
   return (
     <section className="mx-auto max-w-page px-4 pt-4 md:px-6 md:pt-0">
-      <div className="relative flex flex-col items-center gap-[14px] overflow-hidden rounded-[32px] bg-sky px-4 pb-4 pt-5 md:gap-7 md:rounded-[40px] md:px-12 md:pb-12 md:pt-14">
+      <div className="relative flex flex-col items-center gap-[14px] rounded-[32px] bg-sky px-4 pb-4 pt-5 md:gap-7 md:rounded-[40px] md:px-12 md:pb-12 md:pt-14">
         <CloudShape width={180} height={64} className="absolute left-[6%] top-10 hidden md:block" />
         <CloudShape width={130} height={48} className="absolute right-[8%] top-[120px] hidden md:block" />
 

@@ -12,6 +12,7 @@ export function FieldPopover({
   children,
   panelClassName = "",
   chevron = false,
+  closeLabel = "Kapat",
 }: {
   label: string;
   value: string;
@@ -22,6 +23,7 @@ export function FieldPopover({
   panelClassName?: string;
   /** Tasarımdaki açılır liste oku. */
   chevron?: boolean;
+  closeLabel?: string;
 }) {
   const id = useId();
   const [open, setOpen] = useState(false);
@@ -61,14 +63,31 @@ export function FieldPopover({
         </span>
       </button>
       {open && (
-        <div
-          id={`${id}-panel`}
-          role="dialog"
-          aria-label={label}
-          className={`absolute left-0 top-[calc(100%+6px)] z-30 flex min-w-[260px] flex-col gap-3 rounded-[20px] bg-white p-4 text-ink shadow-search ${panelClassName}`}
-        >
-          {children(() => setOpen(false))}
-        </div>
+        <>
+          {/* Telefonda arka plan karartması; panel alttan açılır. */}
+          <div aria-hidden="true" className="fixed inset-0 z-40 bg-ink/40 md:hidden" onClick={() => setOpen(false)} />
+          <div
+            id={`${id}-panel`}
+            role="dialog"
+            aria-label={label}
+            className={`fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col gap-3 overflow-y-auto rounded-t-[28px] bg-white p-5 pb-8 text-ink shadow-search md:absolute md:inset-x-auto md:bottom-auto md:left-0 md:top-[calc(100%+8px)] md:max-h-none md:min-w-[260px] md:overflow-visible md:rounded-[24px] md:p-5 ${panelClassName}`}
+          >
+            <div className="flex items-center justify-between md:hidden">
+              <span className="font-display text-xl font-semibold">{label}</span>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label={closeLabel}
+                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-0 bg-field text-ink"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+            </div>
+            {children(() => setOpen(false))}
+          </div>
+        </>
       )}
     </div>
   );
@@ -90,7 +109,7 @@ export function Counter({
   onChange: (v: number) => void;
 }) {
   const btn =
-    "flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-0 bg-field font-display text-xl font-semibold text-ink disabled:cursor-not-allowed disabled:opacity-40";
+    "flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 border-solid border-primary bg-white font-display text-xl font-semibold text-primary disabled:cursor-not-allowed disabled:border-line disabled:text-muted";
   return (
     <div className="flex items-center justify-between gap-4">
       <span className="flex flex-col">
@@ -99,7 +118,7 @@ export function Counter({
       </span>
       <span className="flex items-center gap-3">
         <button type="button" aria-label={`${label} −`} disabled={value <= min} onClick={() => onChange(value - 1)} className={btn}>−</button>
-        <span aria-live="polite" className="w-5 text-center font-display text-lg font-semibold">{value}</span>
+        <span aria-live="polite" className="w-6 text-center font-display text-xl font-semibold">{value}</span>
         <button type="button" aria-label={`${label} +`} disabled={value >= max} onClick={() => onChange(value + 1)} className={btn}>+</button>
       </span>
     </div>

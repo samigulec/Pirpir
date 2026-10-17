@@ -42,7 +42,14 @@
       "premium_economy": "Premium ekonomi",
       "business": "Business",
       "first": "First"
-    }
+    },
+    "pickReturn": "Dönüş tarihini seç",
+    "pickReturnHint": "Şimdi dönüş tarihini seç",
+    "oneWayHint": "Tek yön uçuş",
+    "nights": "{n} gece",
+    "prevMonth": "Önceki ay",
+    "nextMonth": "Sonraki ay",
+    "paxTotal": "{n} yolcu"
   },
   "trust": {
     "label": "Neden rotala",

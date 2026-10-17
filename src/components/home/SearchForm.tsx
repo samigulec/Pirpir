@@ -7,6 +7,7 @@ import { intlLocale } from "@/lib/intl";
 import { SwapHorizontal, SwapVertical } from "../icons";
 import { AirportField, type AirportValue } from "./AirportField";
 import { Counter, FieldPopover } from "./Popover";
+import { DateRangePicker } from "./DateRangePicker";
 import { resolveAirport } from "@/data/airports";
 import { formatRangeShort } from "@/lib/dates";
 import { CABINS, MAX_PASSENGERS, addDays, paxTotal, searchHref, validateSearch, type CabinClass, type Passengers, type SearchError } from "@/lib/search";
@@ -18,9 +19,6 @@ const fieldBox =
 const fieldLabel = "text-[12px] font-extrabold text-muted md:text-[13px]";
 const fieldInput =
   "min-w-0 border-0 bg-transparent p-0 font-extrabold text-ink outline-none md:text-[19px]";
-
-const dateInput =
-  "box-border min-h-[48px] w-full rounded-[14px] border-2 border-solid border-line bg-white px-3 py-2 font-bold text-ink";
 
 export function SearchForm({
   from,
@@ -50,19 +48,16 @@ export function SearchForm({
     onTo(from);
   };
 
-  const paxLabel = [
-    t("paxAdults", { n: pax.adults }),
-    pax.children ? t("paxChildren", { n: pax.children }) : null,
-    pax.infants ? t("paxInfants", { n: pax.infants }) : null,
-  ]
-    .filter(Boolean)
-    .join(", ") + (cabin !== "economy" ? ` · ${t(`cabins.${cabin}`)}` : "");
+  // Yalnızca yetişkin varsa "1 yetişkin", karışıksa Kiwi'deki gibi toplam: "3 yolcu".
+  const paxLabel =
+    (pax.children || pax.infants ? t("paxTotal", { n: paxTotal(pax) }) : t("paxAdults", { n: pax.adults })) +
+    (cabin !== "economy" ? ` · ${t(`cabins.${cabin}`)}` : "");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const a = from.code ?? resolveAirport(from.text)?.code ?? "";
     const b = to.code ?? resolveAirport(to.text)?.code ?? "";
-    const q = { from: a, to: b, date, returnDate: trip === "rt" ? returnDate : undefined, pax, cabin };
+    const q = { from: a, to: b, date, returnDate: trip === "rt" ? returnDate || addDays(date, 7) : undefined, pax, cabin };
     const err = validateSearch(q);
     setError(err);
     if (err) return;
@@ -129,45 +124,29 @@ export function SearchForm({
 
         <FieldPopover
           label={t("when")}
-          value={formatRangeShort(date, trip === "rt" ? returnDate : undefined, loc)}
+          value={formatRangeShort(date, trip === "rt" && returnDate ? returnDate : undefined, loc)}
+          panelClassName="md:left-1/2 md:-translate-x-1/2"
+          closeLabel={t("done")}
           className={fieldBox}
           labelClassName={fieldLabel}
           valueClassName={`${fieldInput} text-base`}
         >
           {(close) => (
-            <>
-              <label className="flex flex-col gap-1 text-sm font-extrabold text-muted">
-                {t("departDate")}
-                <input
-                  type="date"
-                  min={defaults.today}
-                  value={date}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    if (!v) return;
-                    setDate(v);
-                    if (returnDate < v) setReturnDate(addDays(v, 7));
-                    setError(null);
-                  }}
-                  className={dateInput}
-                />
-              </label>
-              {trip === "rt" && (
-                <label className="flex flex-col gap-1 text-sm font-extrabold text-muted">
-                  {t("returnDate")}
-                  <input
-                    type="date"
-                    min={date}
-                    value={returnDate}
-                    onChange={(e) => e.target.value && setReturnDate(e.target.value)}
-                    className={dateInput}
-                  />
-                </label>
-              )}
-              <button type="button" onClick={close} className="min-h-[44px] cursor-pointer rounded-pill border-0 bg-ink px-5 font-display text-base font-semibold text-white">
-                {t("done")}
-              </button>
-            </>
+            <DateRangePicker
+              mode={trip === "rt" ? "range" : "single"}
+              start={date}
+              end={trip === "rt" ? returnDate || undefined : undefined}
+              min={defaults.today}
+              onChange={(s, e) => {
+                setDate(s);
+                setReturnDate(e ?? "");
+                setError(null);
+              }}
+              onDone={() => {
+                if (trip === "rt" && !returnDate) setReturnDate(addDays(date, 7));
+                close();
+              }}
+            />
           )}
         </FieldPopover>
 
@@ -177,7 +156,8 @@ export function SearchForm({
           className={fieldBox}
           labelClassName={fieldLabel}
           valueClassName={`${fieldInput} text-base md:pl-1`}
-          panelClassName="md:left-auto md:right-0 min-w-[300px]"
+          panelClassName="md:left-auto md:right-0 md:w-[360px]"
+          closeLabel={t("done")}
           chevron
         >
           {(close) => (
@@ -189,8 +169,9 @@ export function SearchForm({
               <Counter label={t("infants")} hint={t("infantsHint")} value={pax.infants} min={0} max={Math.min(pax.adults, MAX_PASSENGERS - pax.adults - pax.children)}
                 onChange={(n) => setPax({ ...pax, infants: n })} />
               <span className="text-[13px] font-semibold text-muted">{t("paxNote", { max: MAX_PASSENGERS, total })}</span>
-              <fieldset className="m-0 flex flex-col gap-2 border-0 border-t border-solid border-line p-0 pt-3">
-                <legend className="p-0 pb-2 font-extrabold">{t("cabinLabel")}</legend>
+              <span aria-hidden="true" className="h-px bg-line" />
+              <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+                <legend className="mb-2 p-0 font-extrabold">{t("cabinLabel")}</legend>
                 <div className="grid grid-cols-2 gap-2">
                   {CABINS.map((c) => (
                     <button
