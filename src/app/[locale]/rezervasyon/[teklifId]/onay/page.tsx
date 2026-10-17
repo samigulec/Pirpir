@@ -82,7 +82,9 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
             <div key={title} className="flex flex-col">
               <span className="text-[13px] font-extrabold text-muted">{title}</span>
               <span className="font-display text-[22px] font-semibold" title={`${city(leg.fromCode)} → ${city(leg.toCode)}`}>
-                {leg.dep} {leg.fromCode} → {leg.arr} {leg.toCode}
+                {leg.dep} {leg.fromCode} → {leg.arr}
+                {leg.arrDayOffset > 0 && <sup className="ml-[2px] text-[12px] font-extrabold text-coral-text">+{leg.arrDayOffset}</sup>}{" "}
+                {leg.toCode}
               </span>
               <span className="text-[15px] font-semibold text-muted">{legNote(leg)}</span>
             </div>
