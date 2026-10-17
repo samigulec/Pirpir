@@ -4,6 +4,7 @@
   "change": "Change",
   "sortLabel": "Sort by",
   "sort": {
+    "best": "Best",
     "cheap": "Cheapest",
     "fast": "Fastest",
     "direct": "Direct only"
@@ -60,7 +61,11 @@
     "refundable": "Refundable",
     "nonRefundable": "Non-refundable",
     "changeable": "Changes allowed",
-    "notChangeable": "No changes"
+    "notChangeable": "No changes",
+    "changeFee": "Change fee {fee} + any fare difference",
+    "changeFree": "Free changes (any fare difference applies)",
+    "refundFee": "Refundable, minus a {fee} fee",
+    "refundFree": "Free refund"
   },
   "filters": {
     "title": "Filters",
@@ -122,7 +127,12 @@
     "bagsAdded": "Prices include the baggage you chose.",
     "flightNo": "Flight {no}",
     "layover": "Change in {city} · {wait}",
-    "cheapest": "Best price"
+    "cheapest": "Best price",
+    "changeFee": "Change fee {fee} + any fare difference",
+    "changeFree": "Free changes (any fare difference applies)",
+    "refundFee": "Refundable, minus a {fee} fee",
+    "refundFree": "Free refund",
+    "heavyAdd": "Heavy bag ({kg} kg) available: {price}"
   },
   "dates": {
     "label": "Flexible dates",
@@ -148,5 +158,6 @@
   "live": {
     "searching": "Searching for more flights… The list updates as airlines respond.",
     "incomplete": "The search could not finish; some flights may be missing."
-  }
+  },
+  "bestHint": "Price, duration and stops together"
 }

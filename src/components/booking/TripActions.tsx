@@ -6,10 +6,22 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCurrency } from "../CurrencyProvider";
 import { Calendar, Download, Share } from "../icons";
-import { addBagsToBooking, confirmCancel, getCancelQuote, getOrderBags, type AddBagsState, type CancelState } from "@/actions/booking";
+import {
+  addBagsToBooking,
+  confirmCancel,
+  confirmChange,
+  getCancelQuote,
+  getChangeOptions,
+  getOrderBags,
+  type AddBagsState,
+  type CancelState,
+  type ChangeState,
+} from "@/actions/booking";
+import { formatDayWithWeekday } from "@/lib/dates";
+import { intlLocale } from "@/lib/intl";
 import { BagPicker } from "./BookingForm";
 import { bagsCost, NO_BAGS } from "@/lib/extras";
-import type { BagChoice } from "@/lib/providers/types";
+import type { BagChoice, ChangeOption, ChangeRequest, Leg } from "@/lib/providers/types";
 
 const action = "flex min-h-[56px] items-center justify-center gap-2 rounded-[18px] border-0 font-display text-lg font-semibold leading-[normal] no-underline";
 
@@ -175,6 +187,173 @@ export function AddBags({ bookingId }: { bookingId: string }) {
         </>
       )}
       {state.error && <span role="alert" className="font-bold text-coral-text">{t(`errors.${state.error}`)}</span>}
+    </section>
+  );
+}
+
+/**
+ * Uçuş değişikliği (Kiwi'deki "Uçuşu değiştir"): yeni gün seçilir, havayolunun seçenekleri ve ödenecek tutar
+ * (değişiklik ücreti + fiyat farkı) gösterilir, onaylanınca bilet güncellenir. Tutarlar havayolundan gelir.
+ */
+export function ChangeFlight({
+  bookingId,
+  outDate,
+  inDate,
+  changeable,
+  changeFee,
+  today,
+}: {
+  bookingId: string;
+  outDate: string;
+  inDate?: string;
+  changeable?: boolean;
+  changeFee?: number;
+  today: string;
+}) {
+  const t = useTranslations("confirm.change");
+  const tc = useTranslations("common");
+  const loc = intlLocale(useLocale());
+  const { fmt } = useCurrency();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [legs, setLegs] = useState({ out: true, in: false });
+  const [dates, setDates] = useState({ out: outDate, in: inDate ?? "" });
+  const [state, setState] = useState<ChangeState>({});
+  const [picked, setPicked] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  const button = "min-h-[48px] cursor-pointer rounded-pill border-0 px-6 py-3 font-display text-lg font-semibold leading-[normal] disabled:cursor-not-allowed disabled:opacity-60";
+  const input = "min-h-[48px] rounded-[16px] border-2 border-solid border-line bg-field px-4 font-bold text-ink";
+
+  const req: ChangeRequest = { outDate: legs.out ? dates.out : undefined, inDate: legs.in && inDate ? dates.in : undefined };
+  const option = state.options?.find((o) => o.id === picked);
+  const legText = (l: Leg) =>
+    `${formatDayWithWeekday(l.date, loc)} · ${l.dep} ${l.fromCode} → ${l.arr}${l.arrDayOffset > 0 ? `+${l.arrDayOffset}` : ""} ${l.toCode} · ${l.airline} · ${
+      l.stops === 0 ? tc("direct") : l.stops === 1 ? tc("oneStop") : tc("stops", { n: l.stops })
+    }`;
+  const amountText = (o: ChangeOption) => (o.changeTotal > 0 ? t("pay", { price: fmt(o.changeTotal) }) : o.changeTotal < 0 ? t("refund", { price: fmt(-o.changeTotal) }) : t("free"));
+
+  if (state.done) return <p role="status" className="m-0 font-bold text-green-text">{t("done")}</p>;
+
+  return (
+    <section className="flex flex-col gap-3 rounded-[28px] border-2 border-solid border-line px-6 py-5">
+      <h2 className="m-0 font-display text-xl font-semibold">{t("title")}</h2>
+      {changeable === false ? (
+        <p className="m-0 text-muted">{t("notAllowed")}</p>
+      ) : !open ? (
+        <>
+          <p className="m-0 text-[15px] text-muted">
+            {changeFee === 0 ? t("feeFree") : changeFee !== undefined ? t("feeKnown", { price: fmt(changeFee) }) : t("feeUnknown")}
+          </p>
+          <button type="button" onClick={() => setOpen(true)} className={`${button} self-start bg-field text-ink`}>
+            {t("open")}
+          </button>
+        </>
+      ) : (
+        <>
+          <div className="flex flex-wrap gap-4">
+            {(["out", "in"] as const)
+              .filter((k) => k === "out" || inDate)
+              .map((k) => (
+                <div key={k} className="flex flex-col gap-2">
+                  <label className="flex min-h-[44px] cursor-pointer items-center gap-2 font-extrabold">
+                    <input
+                      type="checkbox"
+                      checked={legs[k]}
+                      onChange={(e) => {
+                        setLegs({ ...legs, [k]: e.target.checked });
+                        setState({});
+                        setPicked(null);
+                      }}
+                      className="h-5 w-5 accent-primary"
+                    />
+                    {t(k === "out" ? "outbound" : "inbound")}
+                  </label>
+                  <input
+                    type="date"
+                    aria-label={t(k === "out" ? "outDate" : "inDate")}
+                    disabled={!legs[k]}
+                    min={k === "in" && legs.out ? dates.out : today}
+                    value={dates[k]}
+                    onChange={(e) => {
+                      setDates({ ...dates, [k]: e.target.value });
+                      setState({});
+                      setPicked(null);
+                    }}
+                    className={`${input} disabled:opacity-50`}
+                  />
+                </div>
+              ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={pending || (!req.outDate && !req.inDate)}
+              onClick={() =>
+                start(async () => {
+                  setPicked(null);
+                  setState(await getChangeOptions(bookingId, req));
+                })
+              }
+              className={`${button} bg-primary text-white`}
+            >
+              {pending && !state.options ? t("searching") : t("search")}
+            </button>
+            <button type="button" disabled={pending} onClick={() => { setOpen(false); setState({}); }} className={`${button} bg-white text-ink`}>
+              {t("back")}
+            </button>
+          </div>
+
+          {state.options && (
+            <div role="radiogroup" aria-label={t("options")} className="flex flex-col gap-2">
+              {state.options.map((o) => (
+                <button
+                  key={o.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={picked === o.id}
+                  onClick={() => setPicked(o.id)}
+                  className={`flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-[20px] border-[3px] border-solid px-4 py-3 text-left text-ink ${
+                    picked === o.id ? "border-primary bg-sky" : "border-line bg-white"
+                  }`}
+                >
+                  <span className="flex flex-col gap-1 text-[15px] font-bold">
+                    {o.outbound && <span>{t("outbound")}: {legText(o.outbound)}</span>}
+                    {o.inbound && <span>{t("inbound")}: {legText(o.inbound)}</span>}
+                    {o.fareBrand && <span className="text-[13px] font-semibold text-muted">{o.fareBrand}</span>}
+                    {o.penalty !== undefined && o.penalty > 0 && (
+                      <span className="text-[13px] font-semibold text-muted">{t("includesFee", { price: fmt(o.penalty) })}</span>
+                    )}
+                  </span>
+                  <span className="font-display text-lg font-semibold">{amountText(o)}</span>
+                </button>
+              ))}
+              <p className="m-0 text-[13px] font-semibold text-muted">{t("note")}</p>
+              <button
+                type="button"
+                disabled={!option || pending}
+                onClick={() =>
+                  option &&
+                  start(async () => {
+                    const res = await confirmChange(bookingId, req, option.id, option.changeTotal);
+                    if (res.done) {
+                      setState(res);
+                      router.refresh();
+                    } else setState({ ...state, error: res.error, newTotal: res.newTotal });
+                  })
+                }
+                className={`${button} self-start bg-primary text-white`}
+              >
+                {pending ? t("confirming") : option ? t("confirm", { amount: amountText(option) }) : t("pick")}
+              </button>
+            </div>
+          )}
+        </>
+      )}
+      {state.error && (
+        <span role="alert" className="font-bold text-coral-text">
+          {state.error === "priceChanged" && state.newTotal !== undefined ? t("errors.priceChanged", { price: fmt(state.newTotal) }) : t(`errors.${state.error}`)}
+        </span>
+      )}
     </section>
   );
 }

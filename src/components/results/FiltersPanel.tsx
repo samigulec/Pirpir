@@ -82,7 +82,7 @@ export function FiltersPanel({
       <section className={section}>
         <h3 className={h3}>{t("bagsTitle")}</h3>
         {counter(t("cabinBag"), <CabinBagIcon />, value.bags.cabin, 1, (n) => set({ bags: { ...value.bags, cabin: n } }))}
-        {counter(t("checkedBag"), <CheckedBagIcon />, value.bags.checked, 2, (n) => set({ bags: { ...value.bags, checked: n } }))}
+        {counter(t("checkedBag"), <CheckedBagIcon />, value.bags.checked, 3, (n) => set({ bags: { ...value.bags, checked: n } }))}
         <span className="text-[13px] font-semibold text-muted">{t("bagsNote")}</span>
       </section>
 

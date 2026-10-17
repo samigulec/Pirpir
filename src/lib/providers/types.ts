@@ -40,7 +40,11 @@ export type { CabinClass } from "../search";
 import type { CabinClass } from "../search";
 
 /** Havayolu bildirdiyse iade / değişiklik koşulları (bilinmiyorsa undefined). */
-export type FareConditions = { refundable?: boolean; changeable?: boolean };
+/**
+ * Bilet koşulları. Ücretler havayolunun bildirdiği ceza tutarıdır (TRY, tüm rezervasyon için); değişiklikte
+ * varsa fiyat farkı ayrıca eklenir. Bilinmeyen alan yoktur (havayolu bildirmediyse undefined).
+ */
+export type FareConditions = { refundable?: boolean; changeable?: boolean; changeFee?: number; refundFee?: number };
 
 /** Fiyata dahil bagaj (yolcu başı). Kişisel eşya (koltuk altı çanta) her bilete dahildir. */
 export type BagInfo = { cabin: boolean; checkedKg?: number; checked?: boolean; checkedCount?: number };
@@ -63,10 +67,16 @@ export type BagOffer = {
   serviceIds?: string[][];
 };
 
-export type Bags = { cabin: BagOffer; checked: BagOffer };
+/**
+ * `heavy`: havayolu daha ağır bir kontrol edilen bagaj da satıyorsa (ör. 20 kg yanında 32 kg) o seçenek.
+ * `checked` en hafif seçenektir.
+ */
+export type Bags = { cabin: BagOffer; checked: BagOffer; heavy?: BagOffer };
 
-/** Yolcunun seçtiği ek bagaj (dahil olanların üstüne). */
-export type BagChoice = { cabin: number; checked: number };
+/** Yolcunun seçtiği ek bagaj (dahil olanların üstüne); `heavy` ağır seçenekten adet. */
+export type BagChoice = { cabin: number; checked: number; heavy?: number };
+
+export const BAG_KINDS = ["cabin", "checked", "heavy"] as const;
 
 /** Koltuk haritası (bir uçuş bacağı). */
 export type SeatMap = {
@@ -176,6 +186,31 @@ export type Booking = {
   includedBags?: { cabin: number; checked: number; kg?: number };
   /** Satın alınan ek bagaj (ödeyen yolcu sırasıyla; rezervasyonda ve sonradan) */
   extraBags?: BagChoice[];
+  /** Bilet değiştirilebilir mi ve havayolunun bildirdiği değişiklik ücreti (biliniyorsa) */
+  changeable?: boolean;
+  changeFee?: number;
+  /** Son uçuş değişikliği: zamanı ve ödenen fark (TRY) */
+  changed?: { at: string; paid: number };
+};
+
+/** Uçuş değişikliğinde yeni tarih isteği: hangi bacak, hangi gün. */
+export type ChangeRequest = { outDate?: string; inDate?: string };
+
+/** Havayolunun sunduğu değişiklik seçeneği. Tutarlar TRY ve tüm rezervasyon için. */
+export type ChangeOption = {
+  id: string;
+  /** Yeni gidiş ve/veya dönüş (değişmeyen bacak yoksa) */
+  outbound?: Leg;
+  /** Havayolunun paket adı (aynı uçuşun farklı paketleri ayrı seçenek olur) */
+  fareBrand?: string;
+  inbound?: Leg;
+  /** Ödenecek toplam (ceza + fiyat farkı); negatifse iade */
+  changeTotal: number;
+  /** İçindeki ceza tutarı (biliniyorsa) */
+  penalty?: number;
+  /** Değişiklikten sonra biletin toplam tutarı */
+  newTotal?: number;
+  expiresAt?: string;
 };
 
 export type SearchOptions = { timeoutMs?: number; onPartial?: (offers: Offer[]) => void };
@@ -197,6 +232,10 @@ export interface FlightProvider {
   cancelConfirm(booking: Booking, quoteId: string): Promise<Booking>;
   /** Rezervasyondan sonra eklenebilecek bagaj (yoksa null). */
   orderBags(booking: Booking): Promise<Bags | null>;
+  /** Uçuş değişikliği seçenekleri (henüz bir şey değişmez). */
+  changeOptions(booking: Booking, req: ChangeRequest): Promise<ChangeOption[]>;
+  /** Seçeneği onaylar; tutar seçenektekiyle aynı değilse PriceChangedError. */
+  changeConfirm(booking: Booking, req: ChangeRequest, optionId: string, expectedTotal: number): Promise<Booking>;
   /** Ek bagajı satın alır; tutar sunucuda hesaplanır. */
   addBags(booking: Booking, choices: BagChoice[]): Promise<Booking>;
 }

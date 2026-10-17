@@ -20,7 +20,9 @@ type CompactBooking = {
   /** Yolcu adları, iade edilebilirlik, iptal [zaman, iade] */
   n?: string[]; x?: boolean; k?: [string, number];
   /** Ödeyen yolcu sayısı, dahil bagaj [kabin, kontrol, kg], ek bagaj [kabin, kontrol][] */
-  pc?: number; ib?: [number, number, number?]; eb?: [number, number][];
+  pc?: number; ib?: [number, number, number?]; eb?: [number, number, number?][];
+  /** Değiştirilebilir, değişiklik ücreti, son değişiklik [zaman, ödenen] */
+  cg?: boolean; cf?: number; ch?: [string, number];
 };
 
 const packLeg = (l: Leg): CompactLeg => [l.date, l.dep, l.arr, l.arrDayOffset, l.fromCode, l.toCode, l.airline, l.stops, l.via?.code, l.mins];
@@ -34,7 +36,8 @@ const pack = (b: Booking): CompactBooking => ({
   h: b.held ? [b.held.payBy, b.held.priceGuaranteedUntil] : undefined, pt: b.providerTotal,
   n: b.passengers, x: b.refundable, k: b.cancelled ? [b.cancelled.at, b.cancelled.refund] : undefined,
   pc: b.payingCount, ib: b.includedBags ? [b.includedBags.cabin, b.includedBags.checked, b.includedBags.kg] : undefined,
-  eb: b.extraBags?.map((x) => [x.cabin, x.checked]),
+  eb: b.extraBags?.map((x) => (x.heavy ? [x.cabin, x.checked, x.heavy] : [x.cabin, x.checked])),
+  cg: b.changeable, cf: b.changeFee, ch: b.changed ? [b.changed.at, b.changed.paid] : undefined,
 });
 const unpack = (c: CompactBooking): Booking => ({
   id: c.i, provider: c.p, pnr: c.r, email: c.e, total: c.t, createdAt: c.c,
@@ -42,7 +45,8 @@ const unpack = (c: CompactBooking): Booking => ({
   held: c.h ? { payBy: c.h[0], priceGuaranteedUntil: c.h[1] } : undefined, providerTotal: c.pt,
   passengers: c.n, refundable: c.x, cancelled: c.k ? { at: c.k[0], refund: c.k[1] } : undefined,
   payingCount: c.pc, includedBags: c.ib ? { cabin: c.ib[0], checked: c.ib[1], kg: c.ib[2] } : undefined,
-  extraBags: c.eb?.map(([cabin, checked]) => ({ cabin, checked })),
+  extraBags: c.eb?.map(([cabin, checked, heavy]) => ({ cabin, checked, ...(heavy ? { heavy } : {}) })),
+  changeable: c.cg, changeFee: c.cf, changed: c.ch ? { at: c.ch[0], paid: c.ch[1] } : undefined,
 });
 
 async function readCookieList(): Promise<Booking[]> {
@@ -89,13 +93,13 @@ export async function saveBooking(b: Booking, user: CurrentUser | null, locale: 
   }
 }
 
-/** Ayrılmış rezervasyonun ödemesi yapılınca kayıt güncellenir (çerez ve veritabanı). */
+/** Ödeme, iptal, bagaj ya da uçuş değişikliğinden sonra kayıt güncellenir (çerez ve veritabanı). */
 export async function updateBooking(b: Booking) {
   const list = await readCookieList();
   if (list.some((x) => x.id === b.id)) await writeCookieList(list.map((x) => (x.id === b.id ? b : x)));
   const admin = supabaseAdmin();
   if (admin) {
-    const { error } = await admin.from("bookings").update({ pnr: b.pnr ?? null, summary: b }).eq("id", b.id);
+    const { error } = await admin.from("bookings").update({ pnr: b.pnr ?? null, total_try: b.total, summary: b }).eq("id", b.id);
     if (error) console.error("Rezervasyon güncellenemedi:", error.message);
   }
 }

@@ -518,6 +518,9 @@ export function BagPicker({
   const cabinBuyable = bags.cabin.max > 0 && bags.cabin.price !== undefined;
   const checkedBuyable = bags.checked.max > 0 && bags.checked.price !== undefined;
   const checkedLabel = t("checkedTitle");
+  // Havayolunun yolcu başı izin verdiği en fazla ek kontrol bagajı (iki ağırlık birlikte)
+  const maxTotal = checkedBuyable || bags.heavy?.max ? Math.max(checkedBuyable ? bags.checked.max : 0, bags.heavy?.max ?? 0) : 0;
+  const room = maxTotal - value.checked - (value.heavy ?? 0);
 
   return (
     <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
@@ -550,48 +553,88 @@ export function BagPicker({
       </div>
 
       <span className="text-[15px] font-extrabold">{checkedLabel}</span>
-      <div
-        className={`flex flex-wrap items-center gap-3 rounded-[22px] border-[3px] border-solid px-5 py-4 text-ink ${
-          value.checked > 0 || bags.checked.included > 0 ? "border-coral bg-coral-soft" : "border-line bg-white"
-        }`}
-      >
-        <CheckedBagIcon />
-        <span className="flex min-w-[160px] flex-1 flex-col">
-          <span className="font-display text-[19px] font-semibold">
-            {bags.checked.kg ? t("checkedDesc", { kg: bags.checked.kg }) : t("checkedDescNoKg")}
-          </span>
-          {spec.size(specs?.checked) && <span className="text-[13px] font-bold text-muted">{spec.size(specs?.checked)}</span>}
-          <span className="text-sm font-semibold">
-            {[bags.checked.included > 0 && t("includedCount", { n: bags.checked.included }), checkedBuyable && t("perBag", { price: fmt(bags.checked.price!) })]
-              .filter(Boolean)
-              .join(" · ") || t("unavailable")}
-          </span>
-        </span>
-        {checkedBuyable && (
-          <span className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label={t("remove", { label: checkedLabel })}
-              disabled={value.checked === 0}
-              onClick={() => onChange({ checked: value.checked - 1 })}
-              className="h-11 w-11 cursor-pointer rounded-full border-2 border-solid border-primary bg-white text-xl font-extrabold leading-none text-primary disabled:cursor-not-allowed disabled:border-line disabled:text-muted"
-            >
-              −
-            </button>
-            <span aria-live="polite" className="w-6 text-center font-display text-xl font-semibold">{value.checked}</span>
-            <button
-              type="button"
-              aria-label={t("add", { label: checkedLabel })}
-              disabled={value.checked >= bags.checked.max}
-              onClick={() => onChange({ checked: value.checked + 1 })}
-              className="h-11 w-11 cursor-pointer rounded-full border-2 border-solid border-primary bg-white text-xl font-extrabold leading-none text-primary disabled:cursor-not-allowed disabled:border-line disabled:text-muted"
-            >
-              +
-            </button>
-          </span>
-        )}
-      </div>
+      <CheckedBagRow
+        title={bags.checked.kg ? t("checkedDesc", { kg: bags.checked.kg }) : t("checkedDescNoKg")}
+        size={spec.size(specs?.checked)}
+        offer={bags.checked}
+        count={value.checked}
+        room={room}
+        label={checkedLabel}
+        onChange={(n) => onChange({ checked: n })}
+      />
+      {bags.heavy && bags.heavy.max > 0 && bags.heavy.price !== undefined && (
+        <CheckedBagRow
+          title={bags.heavy.kg ? t("heavyDesc", { kg: bags.heavy.kg }) : t("heavyDescNoKg")}
+          offer={bags.heavy}
+          count={value.heavy ?? 0}
+          room={room}
+          label={t("heavyTitle")}
+          onChange={(n) => onChange({ heavy: n })}
+        />
+      )}
+      {maxTotal > 0 && <span className="text-[13px] font-semibold text-muted">{t("maxNote", { n: maxTotal })}</span>}
     </fieldset>
+  );
+}
+
+/** Kontrol edilen bagaj satırı: açıklama, adet başı fiyat ve adet seçici. */
+function CheckedBagRow({
+  title,
+  size,
+  offer,
+  count,
+  room,
+  label,
+  onChange,
+}: {
+  title: string;
+  size?: string;
+  offer: BagOffer;
+  count: number;
+  /** Bu yolcu için daha kaç bagaj eklenebilir (diğer ağırlıklar dahil) */
+  room: number;
+  label: string;
+  onChange: (n: number) => void;
+}) {
+  const t = useTranslations("booking.bags");
+  const { fmt } = useCurrency();
+  const buyable = offer.max > 0 && offer.price !== undefined;
+  const step =
+    "h-11 w-11 cursor-pointer rounded-full border-2 border-solid border-primary bg-white text-xl font-extrabold leading-none text-primary disabled:cursor-not-allowed disabled:border-line disabled:text-muted";
+  return (
+    <div
+      className={`flex flex-wrap items-center gap-3 rounded-[22px] border-[3px] border-solid px-5 py-4 text-ink ${
+        count > 0 || offer.included > 0 ? "border-coral bg-coral-soft" : "border-line bg-white"
+      }`}
+    >
+      <CheckedBagIcon />
+      <span className="flex min-w-[160px] flex-1 flex-col">
+        <span className="font-display text-[19px] font-semibold">{title}</span>
+        {size && <span className="text-[13px] font-bold text-muted">{size}</span>}
+        <span className="text-sm font-semibold">
+          {[offer.included > 0 && t("includedCount", { n: offer.included }), buyable && t("perBag", { price: fmt(offer.price!) })]
+            .filter(Boolean)
+            .join(" · ") || t("unavailable")}
+        </span>
+      </span>
+      {buyable && (
+        <span className="flex items-center gap-2">
+          <button type="button" aria-label={t("remove", { label })} disabled={count === 0} onClick={() => onChange(count - 1)} className={step}>
+            −
+          </button>
+          <span aria-live="polite" className="w-6 text-center font-display text-xl font-semibold">{count}</span>
+          <button
+            type="button"
+            aria-label={t("add", { label })}
+            disabled={count >= offer.max || room <= 0}
+            onClick={() => onChange(count + 1)}
+            className={step}
+          >
+            +
+          </button>
+        </span>
+      )}
+    </div>
   );
 }
 

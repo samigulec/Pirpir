@@ -92,7 +92,7 @@
     "cancel": "Annuleren",
     "added": "Bagage toegevoegd.",
     "bought": "Toegevoegde bagage: {list}",
-    "boughtItem": "{name}: {cabin} handbagage, {checked} ruimbagage",
+    "boughtItem": "{name}: {cabin} handbagage, {checked} ruimbagage{heavy, plural, =0 {} other {, # zwaar}}",
     "errors": {
       "failed": "Bagage toevoegen lukt nu niet; probeer het straks opnieuw.",
       "live": "Bagage toevoegen kan pas als betalingen gekoppeld zijn.",
@@ -100,5 +100,41 @@
       "invalid": "Controleer je keuze.",
       "notFound": "Deze boeking is niet gevonden."
     }
+  },
+  "change": {
+    "title": "Vlucht wijzigen",
+    "open": "Datum wijzigen",
+    "notAllowed": "Dit ticket kan niet worden gewijzigd (tariefregel van de airline).",
+    "feeKnown": "De wijzigingskosten van de airline zijn {price}; is de nieuwe vlucht duurder, dan komt het prijsverschil erbij.",
+    "feeFree": "Wijzigen is gratis op dit ticket; is de nieuwe vlucht duurder, dan betaal je alleen het prijsverschil.",
+    "feeUnknown": "De kosten krijg je van de airline zodra je een nieuwe datum kiest (wijzigingskosten + eventueel prijsverschil).",
+    "outbound": "Heen",
+    "inbound": "Terug",
+    "outDate": "Nieuwe vertrekdatum",
+    "inDate": "Nieuwe terugreisdatum",
+    "search": "Opties tonen",
+    "searching": "We vragen het de airline…",
+    "back": "Annuleren",
+    "options": "Wijzigingsopties",
+    "pay": "{price} betalen",
+    "refund": "{price} terug",
+    "free": "Geen extra kosten",
+    "includesFee": "Inclusief {price} wijzigingskosten",
+    "note": "Bedragen zijn de wijzigingskosten en het prijsverschil van de airline, voor alle reizigers samen.",
+    "pick": "Kies een optie",
+    "confirm": "Wijziging bevestigen · {amount}",
+    "confirming": "Wijzigen…",
+    "done": "Je vlucht is gewijzigd. De nieuwe tijden staan hierboven.",
+    "errors": {
+      "failed": "De wijziging lukt nu niet; probeer het zo opnieuw.",
+      "live": "Wijzigen kan pas als betalen is gekoppeld; neem contact met ons op.",
+      "notFound": "Deze boeking is niet gevonden, geannuleerd of nog niet betaald.",
+      "notChangeable": "Dit ticket kan niet worden gewijzigd.",
+      "invalid": "Controleer de data: niet in het verleden en terug niet vóór heen.",
+      "none": "De airline bood voor deze datum geen wijzigingsopties; probeer een andere dag.",
+      "priceChanged": "Het bedrag is veranderd: nu {price}. Toon de opties opnieuw."
+    },
+    "changed": "Vlucht gewijzigd op {date}.",
+    "changedPaid": "Vlucht gewijzigd op {date}; je betaalde <price></price>."
   }
 }

@@ -12,6 +12,7 @@ import type { Leg } from "@/lib/providers/types";
 import type { BagChoice } from "@/lib/providers/types";
 import type { Group } from "@/lib/results-filter";
 import { useBagSpecText } from "./BagRules";
+import { useConditionText } from "./conditions";
 
 const dayDiff = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
 
@@ -45,6 +46,7 @@ export function TripModal({
     return p.length ? ` · ${p.join(" · ")}` : "";
   };
   const dur = (m: number) => tc("duration", minsParts(m));
+  const conditionText = useConditionText("results.trip");
 
   useEffect(() => {
     const d = ref.current;
@@ -153,11 +155,14 @@ export function TripModal({
                   : b.checked.price !== undefined && b.checked.max > 0
                     ? { ok: false, text: t("checkedAdd", { price: fmt(b.checked.price) }) }
                     : { ok: false, text: t("checkedNo") },
+                ...(b.heavy?.price !== undefined && b.heavy.max > 0
+                  ? [{ ok: false, text: t("heavyAdd", { kg: b.heavy.kg ?? "", price: fmt(b.heavy.price) }) }]
+                  : []),
                 ...(o.conditions.changeable === undefined && o.conditions.refundable === undefined
                   ? [{ ok: false, text: t("conditionsUnknown") }]
                   : [
-                      ...(o.conditions.changeable !== undefined ? [{ ok: o.conditions.changeable, text: t(o.conditions.changeable ? "changeable" : "notChangeable") }] : []),
-                      ...(o.conditions.refundable !== undefined ? [{ ok: o.conditions.refundable, text: t(o.conditions.refundable ? "refundable" : "nonRefundable") }] : []),
+                      ...(o.conditions.changeable !== undefined ? [{ ok: o.conditions.changeable, text: conditionText(o.conditions, "change") }] : []),
+                      ...(o.conditions.refundable !== undefined ? [{ ok: o.conditions.refundable, text: conditionText(o.conditions, "refund") }] : []),
                     ]),
               ];
               return (

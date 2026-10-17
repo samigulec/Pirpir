@@ -4,6 +4,7 @@
   "change": "Wijzigen",
   "sortLabel": "Sorteren",
   "sort": {
+    "best": "Beste",
     "cheap": "Goedkoopst",
     "fast": "Snelst",
     "direct": "Alleen direct"
@@ -60,7 +61,11 @@
     "refundable": "Terugbetaalbaar",
     "nonRefundable": "Niet terugbetaalbaar",
     "changeable": "Wijzigen mogelijk",
-    "notChangeable": "Niet te wijzigen"
+    "notChangeable": "Niet te wijzigen",
+    "changeFee": "Wijzigingskosten {fee} + eventueel prijsverschil",
+    "changeFree": "Gratis wijzigen (eventueel prijsverschil betaal je wel)",
+    "refundFee": "Terugbetaalbaar, min {fee} kosten",
+    "refundFree": "Gratis terugbetaling"
   },
   "filters": {
     "title": "Filters",
@@ -122,7 +127,12 @@
     "bagsAdded": "Prijzen zijn inclusief de gekozen bagage.",
     "flightNo": "Vlucht {no}",
     "layover": "Overstap in {city} · {wait}",
-    "cheapest": "Beste prijs"
+    "cheapest": "Beste prijs",
+    "changeFee": "Wijzigingskosten {fee} + eventueel prijsverschil",
+    "changeFree": "Gratis wijzigen (eventueel prijsverschil betaal je wel)",
+    "refundFee": "Terugbetaalbaar, min {fee} kosten",
+    "refundFree": "Gratis terugbetaling",
+    "heavyAdd": "Zware koffer ({kg} kg) bij te boeken: {price}"
   },
   "dates": {
     "label": "Flexibele data",
@@ -148,5 +158,6 @@
   "live": {
     "searching": "Meer vluchten zoeken… De lijst wordt bijgewerkt zodra airlines reageren.",
     "incomplete": "Het zoeken kon niet worden afgerond; sommige vluchten kunnen ontbreken."
-  }
+  },
+  "bestHint": "Prijs, reisduur en overstappen samen"
 }

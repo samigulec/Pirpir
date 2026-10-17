@@ -12,7 +12,7 @@ import { validateBookingForm, type FieldErrors } from "@/lib/booking-validate";
 import { getOffer } from "@/lib/flights";
 import { getProviderForOffer } from "@/lib/providers/select";
 import { bagChoiceValid, bagsCost, seatsCost } from "@/lib/extras";
-import type { BagChoice, Bags, Booking } from "@/lib/providers/types";
+import type { BagChoice, Bags, Booking, ChangeOption, ChangeRequest } from "@/lib/providers/types";
 
 export type PlaceOrderState = { errors: FieldErrors; message?: "expired" | "failed" | "live" };
 
@@ -44,6 +44,8 @@ export async function placeOrder(offerId: string, form: FormData): Promise<Place
     if (booking.held) booking.providerTotal ??= quoted;
     booking.passengers = data.passengers.map((p) => `${p.givenName} ${p.familyName}`);
     booking.refundable = offer.conditions.refundable;
+    booking.changeable = offer.conditions.changeable;
+    booking.changeFee = offer.conditions.changeFee;
     booking.payingCount = paying;
     booking.includedBags = { cabin: offer.bags.cabin.included, checked: offer.bags.checked.included, kg: offer.bags.checked.kg };
     booking.extraBags = data.bags;
@@ -144,14 +146,69 @@ export async function addBagsToBooking(bookingId: string, choices: BagChoice[]):
   try {
     const provider = getProviderForOffer(booking);
     const bags = await provider.orderBags(booking);
-    const clean = choices.map((c) => ({ cabin: Number(c.cabin) || 0, checked: Number(c.checked) || 0 }));
-    if (!bags || !clean.length || !clean.every((c) => bagChoiceValid(bags, c)) || !clean.some((c) => c.cabin || c.checked)) {
+    const clean = choices.map((c) => ({ cabin: Number(c.cabin) || 0, checked: Number(c.checked) || 0, heavy: Number(c.heavy) || 0 }));
+    if (!bags || !clean.length || !clean.every((c) => bagChoiceValid(bags, c)) || !clean.some((c) => c.cabin || c.checked || c.heavy)) {
       return { error: "invalid" };
     }
     await updateBooking(await provider.addBags(booking, clean));
     return { done: true };
   } catch (e) {
     console.error("Ek bagaj eklenemedi:", e);
+    return { error: e instanceof Error && e.message.startsWith("Canlı modda") ? "live" : "failed" };
+  }
+}
+
+export type ChangeState = {
+  options?: ChangeOption[];
+  error?: "failed" | "live" | "notFound" | "notChangeable" | "invalid" | "none" | "priceChanged";
+  newTotal?: number;
+  done?: boolean;
+};
+
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+/** İstek geçerli mi: en az bir bacak, bugünden sonra, dönüş gidişten önce değil. */
+function changeRequestValid(b: Booking, req: ChangeRequest): boolean {
+  const today = new Date().toISOString().slice(0, 10);
+  const out = req.outDate ?? b.offer.outbound.date;
+  const inn = req.inDate ?? b.offer.inbound?.date;
+  if (!req.outDate && !req.inDate) return false;
+  if (req.inDate && !b.offer.inbound) return false;
+  for (const d of [req.outDate, req.inDate]) if (d !== undefined && (!ISO_DAY.test(d) || d < today)) return false;
+  return !inn || inn >= out;
+}
+
+async function changeable(bookingId: string, req: ChangeRequest): Promise<Booking | ChangeState> {
+  const booking = await getBooking(bookingId);
+  if (!booking || booking.cancelled || booking.held) return { error: "notFound" };
+  if (booking.changeable === false) return { error: "notChangeable" };
+  if (!changeRequestValid(booking, req)) return { error: "invalid" };
+  return booking;
+}
+
+/** Yeni tarih için havayolunun değişiklik seçenekleri; henüz bir şey değişmez. */
+export async function getChangeOptions(bookingId: string, req: ChangeRequest): Promise<ChangeState> {
+  const b = await changeable(bookingId, req);
+  if (!("id" in b)) return b;
+  try {
+    const options = await getProviderForOffer(b).changeOptions(b, req);
+    return options.length ? { options } : { error: "none" };
+  } catch (e) {
+    console.error("Değişiklik seçenekleri alınamadı:", e);
+    return { error: e instanceof Error && e.message.startsWith("Canlı modda") ? "live" : "failed" };
+  }
+}
+
+/** Seçilen değişikliği onaylar. Tutar müşterinin gördüğüyle aynı değilse onaylanmaz. */
+export async function confirmChange(bookingId: string, req: ChangeRequest, optionId: string, expectedTotal: number): Promise<ChangeState> {
+  const b = await changeable(bookingId, req);
+  if (!("id" in b)) return b;
+  try {
+    await updateBooking(await getProviderForOffer(b).changeConfirm(b, req, optionId, expectedTotal));
+    return { done: true };
+  } catch (e) {
+    if (e instanceof PriceChangedError) return { error: "priceChanged", newTotal: e.newTotal };
+    console.error("Değişiklik onaylanamadı:", e);
     return { error: e instanceof Error && e.message.startsWith("Canlı modda") ? "live" : "failed" };
   }
 }

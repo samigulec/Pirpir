@@ -5,12 +5,17 @@ export const NO_BAGS: BagChoice = { cabin: 0, checked: 0 };
 
 /** Seçim geçerli mi (alınabilir türde ve adet sınırında)? */
 export function bagChoiceValid(bags: Bags, c: BagChoice): boolean {
-  const ok = (n: number, b: Bags["cabin"]) => Number.isInteger(n) && n >= 0 && n <= b.max && (n === 0 || b.price !== undefined);
-  return ok(c.cabin, bags.cabin) && ok(c.checked, bags.checked);
+  const ok = (n: number, b: Bags["cabin"] | undefined) =>
+    Number.isInteger(n) && n >= 0 && (n === 0 || (!!b && n <= b.max && b.price !== undefined));
+  const heavy = c.heavy ?? 0;
+  // İki ağırlık birlikte alınırsa toplam, havayolunun izin verdiği en yüksek adedi geçmez
+  const together = c.checked + heavy <= Math.max(bags.checked.max, bags.heavy?.max ?? 0);
+  return ok(c.cabin, bags.cabin) && ok(c.checked, bags.checked) && ok(heavy, bags.heavy) && together;
 }
 
 /** Bir yolcunun ek bagaj ücreti (TRY). */
-export const bagCost = (bags: Bags, c: BagChoice) => c.cabin * (bags.cabin.price ?? 0) + c.checked * (bags.checked.price ?? 0);
+export const bagCost = (bags: Bags, c: BagChoice) =>
+  c.cabin * (bags.cabin.price ?? 0) + c.checked * (bags.checked.price ?? 0) + (c.heavy ?? 0) * (bags.heavy?.price ?? 0);
 
 export const bagsCost = (bags: Bags, choices: BagChoice[]) => choices.reduce((n, c) => n + bagCost(bags, c), 0);
 
@@ -46,5 +51,8 @@ export function seatsCost(maps: SeatMap[], seats: SeatChoice[], paying: number):
 
 /** Daha önce alınan ve yeni alınan ek bagajı yolcu yolcu toplar. */
 export function mergeBags(before: BagChoice[] | undefined, added: BagChoice[]): BagChoice[] {
-  return added.map((c, i) => ({ cabin: (before?.[i]?.cabin ?? 0) + c.cabin, checked: (before?.[i]?.checked ?? 0) + c.checked }));
+  return added.map((c, i) => {
+    const heavy = (before?.[i]?.heavy ?? 0) + (c.heavy ?? 0);
+    return { cabin: (before?.[i]?.cabin ?? 0) + c.cabin, checked: (before?.[i]?.checked ?? 0) + c.checked, ...(heavy ? { heavy } : {}) };
+  });
 }

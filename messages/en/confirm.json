@@ -92,7 +92,7 @@
     "cancel": "Cancel",
     "added": "Baggage added.",
     "bought": "Added baggage: {list}",
-    "boughtItem": "{name}: {cabin} cabin, {checked} checked",
+    "boughtItem": "{name}: {cabin} cabin, {checked} checked{heavy, plural, =0 {} other {, # heavy}}",
     "errors": {
       "failed": "We couldn't add baggage right now; please try again shortly.",
       "live": "Baggage can't be added until payments are connected.",
@@ -100,5 +100,41 @@
       "invalid": "Please check your selection.",
       "notFound": "This booking wasn't found."
     }
+  },
+  "change": {
+    "title": "Change flight",
+    "open": "Change dates",
+    "notAllowed": "This ticket can't be changed (airline fare rule).",
+    "feeKnown": "The airline's change fee is {price}; if the new flight costs more, the fare difference is added.",
+    "feeFree": "Changes are free on this ticket; if the new flight costs more, you only pay the fare difference.",
+    "feeUnknown": "The cost comes from the airline once you pick a new date (change fee + any fare difference).",
+    "outbound": "Outbound",
+    "inbound": "Return",
+    "outDate": "New outbound date",
+    "inDate": "New return date",
+    "search": "Show options",
+    "searching": "Asking the airline…",
+    "back": "Cancel",
+    "options": "Change options",
+    "pay": "Pay {price}",
+    "refund": "{price} refund",
+    "free": "No extra cost",
+    "includesFee": "Includes a {price} change fee",
+    "note": "Amounts are the airline's change fee and fare difference, for all passengers together.",
+    "pick": "Pick an option",
+    "confirm": "Confirm change · {amount}",
+    "confirming": "Changing…",
+    "done": "Your flight has been changed. The new times are above.",
+    "errors": {
+      "failed": "The change couldn't be made right now; please try again shortly.",
+      "live": "Changes aren't possible until payments are connected; please contact us.",
+      "notFound": "This booking wasn't found, was cancelled or isn't paid yet.",
+      "notChangeable": "This ticket can't be changed.",
+      "invalid": "Check the dates: they can't be in the past and the return can't be before the outbound.",
+      "none": "The airline offered no change options for this date; try another day.",
+      "priceChanged": "The amount changed: it's now {price}. Show the options again."
+    },
+    "changed": "Flight changed on {date}.",
+    "changedPaid": "Flight changed on {date}; you paid <price></price>."
   }
 }

@@ -3,7 +3,7 @@
 import { distanceKm, findAirport, type Airport } from "@/data/airports";
 import { addDays, todayIso, type SearchQuery } from "../search";
 import { bagsCost, mergeBags } from "../extras";
-import type { BagInfo, Bags, BagSpecs, Booking, CabinClass, FareConditions, FlightProvider, Leg, Offer, OrderInput, SeatMap, SeatRow, Segment } from "./types";
+import type { ChangeOption, ChangeRequest, BagInfo, BagOffer, Bags, BagSpecs, Booking, CabinClass, FareConditions, FlightProvider, Leg, Offer, OrderInput, SeatMap, SeatRow, Segment } from "./types";
 
 function hash(s: string): number {
   let h = 2166136261;
@@ -145,21 +145,21 @@ function faresFor(airline: string, cabin: CabinClass): Fare[] {
   const main = airline.split(" + ")[0];
   const base = bagInfo(airline, cabin);
   if (cabin === "business" || cabin === "first") return [{ brand: "Flex", factor: 1, info: base, conditions: { refundable: true, changeable: true } }];
-  if (cabin === "premium_economy") return [{ brand: "Comfort", factor: 1, info: base, conditions: { refundable: false, changeable: true } }];
+  if (cabin === "premium_economy") return [{ brand: "Comfort", factor: 1, info: base, conditions: { refundable: false, changeable: true, changeFee: 2000 } }];
   const flex = (factor: number, kg: number): Fare => ({
-    brand: "Flex", factor, info: { cabin: true, checked: true, checkedKg: kg, checkedCount: 1 }, conditions: { refundable: true, changeable: true },
+    brand: "Flex", factor, info: { cabin: true, checked: true, checkedKg: kg, checkedCount: 1 }, conditions: { refundable: true, changeable: true, changeFee: 0, refundFee: 0 },
   });
   if (FULL_SERVICE.has(main)) {
     return [
       { brand: "Light", factor: 0.88, info: { cabin: true }, conditions: { refundable: false, changeable: false } },
-      { brand: "Standard", factor: 1, info: base, conditions: { refundable: false, changeable: true } },
+      { brand: "Standard", factor: 1, info: base, conditions: { refundable: false, changeable: true, changeFee: 1600 } },
       flex(1.35, 23),
     ];
   }
   if (HOLIDAY.has(main)) return [{ brand: "Basic", factor: 1, info: base, conditions: { refundable: false, changeable: false } }, flex(1.3, 20)];
   return [
     { brand: "Basic", factor: 1, info: base, conditions: { refundable: false, changeable: false } },
-    { brand: "Plus", factor: 1.28, info: { cabin: true, checked: true, checkedKg: 20, checkedCount: 1 }, conditions: { refundable: false, changeable: true } },
+    { brand: "Plus", factor: 1.28, info: { cabin: true, checked: true, checkedKg: 20, checkedCount: 1 }, conditions: { refundable: false, changeable: true, changeFee: 1200 } },
   ];
 }
 
@@ -171,6 +171,8 @@ function bagsFor(info: BagInfo, km: number, roundTrip: boolean, airline = ""): B
   return {
     cabin: info.cabin ? { included: 1, max: 0, kg: p.cabinKg } : { included: 0, price: round10(640 * scale), max: 1, kg: p.cabinKg },
     checked: { included, price: round10(1380 * scale), max: 2, kg: info.checkedKg ?? p.checkedKg },
+    // Örnek: daha ağır bagaj seçeneği (32 kg)
+    ...((info.checkedKg ?? p.checkedKg) < 32 ? { heavy: { included: 0, price: round10(2200 * scale), max: 2, kg: 32 } } : {}),
   };
 }
 
@@ -430,8 +432,9 @@ export const demoProvider: FlightProvider = {
     const extra = booking.extraBags ?? [];
     const hasCabin = inc.cabin > 0 || extra.some((x) => x.cabin > 0);
     const bags = bagsFor({ cabin: hasCabin, checked: inc.checked > 0, checkedCount: inc.checked || undefined, checkedKg: inc.kg }, distanceKm(a, b), !!booking.offer.inbound, booking.offer.airline);
-    const boughtChecked = Math.max(0, ...extra.map((x) => x.checked));
-    return { cabin: bags.cabin, checked: { ...bags.checked, max: Math.max(0, bags.checked.max - boughtChecked) } };
+    const boughtChecked = Math.max(0, ...extra.map((x) => x.checked + (x.heavy ?? 0)));
+    const left = (b: BagOffer) => ({ ...b, max: Math.max(0, b.max - boughtChecked) });
+    return { cabin: bags.cabin, checked: left(bags.checked), ...(bags.heavy ? { heavy: left(bags.heavy) } : {}) };
   },
   async addBags(booking, choices) {
     const bags = await this.orderBags(booking);
@@ -442,7 +445,65 @@ export const demoProvider: FlightProvider = {
     const { refund } = await this.cancelQuote(booking);
     return { ...booking, held: undefined, cancelled: { at: new Date().toISOString(), refund } };
   },
+  async changeOptions(booking, req) {
+    return demoChangeOptions(booking, req);
+  },
+  async changeConfirm(booking, req, optionId, expectedTotal) {
+    const option = demoChangeOptions(booking, req).find((o) => o.id === optionId);
+    if (!option) throw new Error("Değişiklik seçeneği bulunamadı.");
+    if (option.changeTotal !== expectedTotal) throw new Error("Fiyat değişti");
+    return {
+      ...booking,
+      offer: { ...booking.offer, outbound: option.outbound ?? booking.offer.outbound, inbound: option.inbound ?? booking.offer.inbound },
+      total: booking.total + option.changeTotal,
+      changed: { at: new Date().toISOString(), paid: option.changeTotal },
+    };
+  },
 };
+
+/**
+ * Örnek değişiklik: yeni günün örnek uçuşları; ödenecek = değişiklik ücreti + (pahalıysa) fiyat farkı.
+ * Kimlik tarih ve sıradan oluşur, onayda aynı hesap yeniden yapılır (istemcinin tutarına güvenilmez).
+ */
+function demoChangeOptions(booking: Booking, req: ChangeRequest): ChangeOption[] {
+  const out = booking.offer.outbound;
+  const inn = booking.offer.inbound;
+  const paying = booking.payingCount ?? 1;
+  const legs = inn ? 2 : 1;
+  const both = !!(req.outDate && req.inDate && inn);
+  const base = req.outDate ? out : inn;
+  if (!base) return [];
+  const q: SearchQuery = {
+    from: base.fromCode,
+    to: base.toCode,
+    date: (req.outDate ?? req.inDate)!,
+    returnDate: both ? req.inDate : undefined,
+    pax: { adults: paying, children: 0, infants: 0 },
+    cabin: "economy",
+  };
+  if (q.date < todayIso() || (both && q.returnDate! < q.date)) return [];
+  // Eski bacağın kişi başı payı (örnek): toplam tutar bacaklara eşit bölünür
+  const oldShare = Math.round(booking.total / paying / legs) * (both ? 2 : 1);
+  const fee = booking.changeFee ?? 1500;
+  // Aynı uçuşun paketlerinden en ucuzu (örnekte paket seçimi yok)
+  const seen = new Set<string>();
+  const offers = generate(q).filter((o) => {
+    const k = `${o.airline}|${o.outbound.dep}|${o.inbound?.dep ?? ""}`;
+    return !seen.has(k) && !!seen.add(k);
+  });
+  const same = offers.filter((o) => o.airline === booking.offer.airline);
+  return (same.length ? same : offers).slice(0, 6).map((o, i) => {
+    const diff = Math.max(0, o.price - oldShare) * paying;
+    return {
+      id: `demochg_${req.outDate ?? ""}_${req.inDate ?? ""}_${i}`,
+      outbound: req.outDate ? o.outbound : undefined,
+      inbound: both ? o.inbound : req.inDate ? o.outbound : undefined,
+      changeTotal: fee + diff,
+      penalty: fee,
+      newTotal: booking.total + fee + diff,
+    };
+  });
+}
 
 /** Esnek tarih ipucu: iki gün sonrası daha ucuzsa döner. */
 export async function demoFlexibleTip(q: SearchQuery) {

@@ -62,7 +62,11 @@
     "remove": "Remove {label}",
     "roundTripNote": "Baggage prices cover both the outbound and return flights.",
     "paxTitle": "Passenger {n} · {type}",
-    "noChecked": "I don't need checked baggage"
+    "noChecked": "I don't need checked baggage",
+    "heavyTitle": "Heavy bag",
+    "heavyDesc": "Heavy bag, up to {kg} kg",
+    "heavyDescNoKg": "Heavy bag",
+    "maxNote": "The airline allows up to {n} extra checked bags per passenger."
   },
   "payment": {
     "title": "How would you like to pay?",

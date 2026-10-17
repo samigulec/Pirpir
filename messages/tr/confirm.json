@@ -92,7 +92,7 @@
     "cancel": "Vazgeç",
     "added": "Bagaj eklendi.",
     "bought": "Eklenen bagaj: {list}",
-    "boughtItem": "{name}: {cabin} kabin, {checked} kontrol",
+    "boughtItem": "{name}: {cabin} kabin, {checked} kontrol{heavy, plural, =0 {} other {, # ağır}}",
     "errors": {
       "failed": "Bagaj şu an eklenemedi; biraz sonra tekrar dene.",
       "live": "Ödeme altyapısı bağlanmadan bagaj eklenemiyor.",
@@ -100,5 +100,41 @@
       "invalid": "Seçimini kontrol et.",
       "notFound": "Bu rezervasyon bulunamadı."
     }
+  },
+  "change": {
+    "title": "Uçuşu değiştir",
+    "open": "Tarihi değiştir",
+    "notAllowed": "Bu bilette değişiklik yapılamıyor (havayolunun bilet kuralı).",
+    "feeKnown": "Havayolunun değişiklik ücreti {price}; yeni uçuş daha pahalıysa fiyat farkı da eklenir.",
+    "feeFree": "Bu bilette değişiklik ücretsiz; yeni uçuş daha pahalıysa yalnızca fiyat farkı ödenir.",
+    "feeUnknown": "Ücret, yeni tarihi seçince havayolundan alınır (değişiklik ücreti + varsa fiyat farkı).",
+    "outbound": "Gidiş",
+    "inbound": "Dönüş",
+    "outDate": "Yeni gidiş tarihi",
+    "inDate": "Yeni dönüş tarihi",
+    "search": "Seçenekleri göster",
+    "searching": "Havayoluna soruluyor…",
+    "back": "Vazgeç",
+    "options": "Değişiklik seçenekleri",
+    "pay": "{price} öde",
+    "refund": "{price} iade",
+    "free": "Ek ücret yok",
+    "includesFee": "İçinde {price} değişiklik ücreti var",
+    "note": "Tutarlar havayolunun bildirdiği değişiklik ücreti ve fiyat farkıdır; tüm yolcular için toplamdır.",
+    "pick": "Bir seçenek seç",
+    "confirm": "Değişikliği onayla · {amount}",
+    "confirming": "Değiştiriliyor…",
+    "done": "Uçuşun değiştirildi. Yeni saatler yukarıda.",
+    "errors": {
+      "failed": "Değişiklik şu an yapılamadı; biraz sonra tekrar dene.",
+      "live": "Ödeme altyapısı bağlanmadan değişiklik yapılamıyor; bize yaz.",
+      "notFound": "Bu rezervasyon bulunamadı, iptal edildi ya da henüz ödenmedi.",
+      "notChangeable": "Bu bilette değişiklik yapılamıyor.",
+      "invalid": "Tarihleri kontrol et: geçmiş bir gün olamaz, dönüş gidişten önce olamaz.",
+      "none": "Bu tarihte havayolu değişiklik seçeneği sunmadı; başka bir gün dene.",
+      "priceChanged": "Tutar değişti: artık {price}. Seçenekleri yeniden göster."
+    },
+    "changed": "Uçuş {date} tarihinde değiştirildi.",
+    "changedPaid": "Uçuş {date} tarihinde değiştirildi; ödenen fark <price></price>."
   }
 }

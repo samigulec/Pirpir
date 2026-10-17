@@ -62,7 +62,11 @@
     "remove": "{label} verwijderen",
     "roundTripNote": "Bagageprijzen gelden voor heen- en terugvlucht samen.",
     "paxTitle": "Passagier {n} · {type}",
-    "noChecked": "Ik heb geen ruimbagage nodig"
+    "noChecked": "Ik heb geen ruimbagage nodig",
+    "heavyTitle": "Zware koffer",
+    "heavyDesc": "Zware koffer, tot {kg} kg",
+    "heavyDescNoKg": "Zware koffer",
+    "maxNote": "De airline staat maximaal {n} extra ruimbagage per reiziger toe."
   },
   "payment": {
     "title": "Hoe wil je betalen?",

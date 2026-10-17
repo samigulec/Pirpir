@@ -62,7 +62,11 @@
     "remove": "{label} çıkar",
     "roundTripNote": "Bagaj fiyatları gidiş ve dönüş için birliktedir.",
     "paxTitle": "{n}. yolcu · {type}",
-    "noChecked": "Kontrol edilen bagaja ihtiyacım yok"
+    "noChecked": "Kontrol edilen bagaja ihtiyacım yok",
+    "heavyTitle": "Ağır bagaj",
+    "heavyDesc": "Ağır bagaj, {kg} kg'a kadar",
+    "heavyDescNoKg": "Ağır bagaj",
+    "maxNote": "Havayolu yolcu başı en fazla {n} ek kontrol bagajına izin veriyor."
   },
   "payment": {
     "title": "Nasıl ödemek istersin?",

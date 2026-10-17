@@ -21,11 +21,30 @@ import {
 import type { Offer } from "@/lib/providers/types";
 import type { searchHref } from "@/lib/search";
 
-type Sort = "cheap" | "fast" | "direct";
-const SORTS: Sort[] = ["cheap", "fast", "direct"];
+type Sort = "best" | "cheap" | "fast" | "direct";
+const SORTS: Sort[] = ["best", "cheap", "fast", "direct"];
 
 /** Gidiş + dönüş toplam yolculuk süresi */
 const totalMins = (o: Offer) => o.outbound.mins + (o.inbound?.mins ?? 0);
+const totalStops = (o: Offer) => o.outbound.stops + (o.inbound?.stops ?? 0);
+
+/**
+ * "En iyi" (Kiwi'deki gibi): fiyat, toplam süre ve aktarma birlikte. Her biri listedeki en iyiye göre 0–1 arası
+ * ölçeklenir; fiyat %60, süre %30, aktarma sayısı %10 ağırlıklı. Düşük puan önde.
+ */
+function bestScores(groups: Group[]): Map<string, number> {
+  const prices = groups.map((g) => g.best.price);
+  const mins = groups.map((g) => totalMins(g.best.offer));
+  const stops = groups.map((g) => totalStops(g.best.offer));
+  const norm = (v: number, list: number[]) => {
+    const lo = Math.min(...list);
+    const hi = Math.max(...list);
+    return hi > lo ? (v - lo) / (hi - lo) : 0;
+  };
+  return new Map(
+    groups.map((g, i) => [g.key, 0.6 * norm(prices[i], prices) + 0.3 * norm(mins[i], mins) + 0.1 * norm(stops[i], stops)]),
+  );
+}
 
 export type ResultsTip = { href: ReturnType<typeof searchHref>; day: string; price: number; save: number } | null;
 
@@ -49,7 +68,7 @@ export function ResultsView({
 }) {
   const t = useTranslations("results");
   const { fmt } = useCurrency();
-  const [sort, setSort] = useState<Sort>("cheap");
+  const [sort, setSort] = useState<Sort>("best");
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
   const [selected, setSelected] = useState<Group | null>(null);
@@ -62,6 +81,10 @@ export function ResultsView({
 
   const list = useMemo(() => {
     let l = [...groups];
+    if (sort === "best") {
+      const score = bestScores(l);
+      l.sort((a, b) => score.get(a.key)! - score.get(b.key)! || a.best.price - b.best.price);
+    }
     if (sort === "cheap") l.sort((a, b) => a.best.price - b.best.price);
     if (sort === "fast") l.sort((a, b) => totalMins(a.best.offer) - totalMins(b.best.offer));
     if (sort === "direct")
@@ -115,6 +138,7 @@ export function ResultsView({
         </div>
         <span className="-mt-2 text-sm font-bold text-muted">
           {t("count", { count: list.length })} · {oneWay ? t("countNoteOneWay") : t("countNote")}
+          {sort === "best" && <> · {t("bestHint")}</>}
           {note && <> · {note}</>}
         </span>
 

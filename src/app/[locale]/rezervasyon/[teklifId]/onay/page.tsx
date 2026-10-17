@@ -11,7 +11,8 @@ import { Link } from "@/i18n/navigation";
 import { getBooking } from "@/lib/bookings";
 import { formatDateTime, formatDayWithWeekday, formatRange } from "@/lib/dates";
 import { PayHeldButton } from "@/components/booking/PayHeldButton";
-import { AddBags, CancelBooking, TripActions } from "@/components/booking/TripActions";
+import { todayIso } from "@/lib/search";
+import { AddBags, CancelBooking, ChangeFlight, TripActions } from "@/components/booking/TripActions";
 import { Price } from "@/components/Price";
 import { intlLocale } from "@/lib/intl";
 import { demoProvider } from "@/lib/providers/demo";
@@ -58,8 +59,8 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
   const ta = await getTranslations("confirm.addBags");
   const bought = (booking.extraBags ?? [])
     .map((x, i) => ({ ...x, name: booking.passengers?.[i] ?? ta("pax", { n: i + 1 }) }))
-    .filter((x) => x.cabin > 0 || x.checked > 0)
-    .map((x) => ta("boughtItem", { name: x.name, cabin: x.cabin, checked: x.checked }));
+    .filter((x) => x.cabin > 0 || x.checked > 0 || (x.heavy ?? 0) > 0)
+    .map((x) => ta("boughtItem", { name: x.name, cabin: x.cabin, checked: x.checked, heavy: x.heavy ?? 0 }));
   const held = cancelled ? undefined : booking.held;
   const tx = await getTranslations("confirm.cancelled");
   const shareTitle = `${city(offer.outbound.fromCode)} → ${city(offer.outbound.toCode)}`;
@@ -133,6 +134,14 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
           ))}
         </div>
 
+        {booking.changed && (
+          <p className="-mt-2 mb-0 text-[15px] font-semibold text-muted">
+            {t.rich(booking.changed.paid > 0 ? "change.changedPaid" : "change.changed", {
+              date: formatDateTime(booking.changed.at, loc),
+              price: () => <Price amount={Math.abs(booking.changed!.paid)} />,
+            })}
+          </p>
+        )}
         {bought.length > 0 && (
           <p className="-mt-2 mb-0 text-[15px] font-semibold text-muted">{ta("bought", { list: bought.join(" · ") })}</p>
         )}
@@ -148,6 +157,16 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
           </div>
         )}
 
+        {!cancelled && !held && booking.id !== SAMPLE_BOOKING_ID && (
+          <ChangeFlight
+            bookingId={booking.id}
+            outDate={booking.offer.outbound.date}
+            inDate={booking.offer.inbound?.date}
+            changeable={booking.changeable}
+            changeFee={booking.changeFee}
+            today={todayIso()}
+          />
+        )}
         {!cancelled && !held && booking.id !== SAMPLE_BOOKING_ID && <AddBags bookingId={booking.id} />}
         {!cancelled && booking.id !== SAMPLE_BOOKING_ID && <CancelBooking bookingId={booking.id} held={!!held} />}
 

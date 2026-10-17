@@ -87,7 +87,7 @@ export function validateBookingForm(form: FormData, offer: Offer): { data?: Pars
   if (phoneDigits.length < 6 || phoneDigits.length > 14) errors.phone = "phone";
   const paying = passengers.filter((p) => p.type !== "infant").length;
   const bags = parseJsonList(get("bags"), paying, (v): v is BagChoice => !!v && typeof v === "object" && "cabin" in v && "checked" in v)
-    ?.map((b) => ({ cabin: Number(b.cabin), checked: Number(b.checked) }));
+    ?.map((b) => ({ cabin: Number(b.cabin), checked: Number(b.checked), ...(b.heavy ? { heavy: Number(b.heavy) } : {}) }));
   const finalBags = bags ?? Array.from({ length: paying }, () => NO_BAGS);
   if (finalBags.length !== paying || !finalBags.every((b) => bagChoiceValid(offer.bags, b))) errors.bag = "bag";
   const seats =

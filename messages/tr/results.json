@@ -4,6 +4,7 @@
   "change": "Değiştir",
   "sortLabel": "Sıralama",
   "sort": {
+    "best": "En iyi",
     "cheap": "En ucuz",
     "fast": "En hızlı",
     "direct": "Sadece direkt"
@@ -60,7 +61,11 @@
     "refundable": "İade edilebilir",
     "nonRefundable": "İade edilmez",
     "changeable": "Değişiklik yapılabilir",
-    "notChangeable": "Değişiklik yapılamaz"
+    "notChangeable": "Değişiklik yapılamaz",
+    "changeFee": "Değişiklik ücreti {fee} + varsa fiyat farkı",
+    "changeFree": "Ücretsiz değişiklik (varsa fiyat farkı ödenir)",
+    "refundFee": "İade edilebilir, {fee} kesintiyle",
+    "refundFree": "Ücretsiz iade"
   },
   "filters": {
     "title": "Filtreler",
@@ -122,7 +127,12 @@
     "bagsAdded": "Fiyatlar seçtiğin bagajı içerir.",
     "flightNo": "Uçuş {no}",
     "layover": "{city} aktarma · {wait}",
-    "cheapest": "En uygun"
+    "cheapest": "En uygun",
+    "changeFee": "Değişiklik ücreti {fee} + varsa fiyat farkı",
+    "changeFree": "Ücretsiz değişiklik (varsa fiyat farkı ödenir)",
+    "refundFee": "İade edilebilir, {fee} kesintiyle",
+    "refundFree": "Ücretsiz iade",
+    "heavyAdd": "Ağır bagaj ({kg} kg) eklenebilir: {price}"
   },
   "dates": {
     "label": "Esnek tarihler",
@@ -148,5 +158,6 @@
   "live": {
     "searching": "Daha fazla uçuş aranıyor… Liste havayolları yanıt verdikçe güncellenir.",
     "incomplete": "Arama tamamlanamadı; bazı uçuşlar listede olmayabilir."
-  }
+  },
+  "bestHint": "Fiyat, süre ve aktarma birlikte"
 }
