@@ -132,7 +132,13 @@
     "changeFree": "Free changes (any fare difference applies)",
     "refundFee": "Refundable, minus a {fee} fee",
     "refundFree": "Free refund",
-    "heavyAdd": "Heavy bag ({kg} kg) available: {price}"
+    "heavyAdd": "Heavy bag ({kg} kg) available: {price}",
+    "diff": {
+      "refundable": "Refundable",
+      "changeable": "Changeable",
+      "moreChecked": "More bags",
+      "hold": "Pay later"
+    }
   },
   "dates": {
     "label": "Flexible dates",

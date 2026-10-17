@@ -86,8 +86,48 @@ export function groupByItinerary(list: Priced[]): Group[] {
   }
   return [...map.entries()].map(([key, fares]) => {
     const sorted = [...fares].sort((a, b) => a.price - b.price);
-    return { key, best: sorted[0], fares: sorted };
+    // Daha ucuz (ya da aynı fiyatlı) bir paketten hiçbir konuda iyi olmayan paket gösterilmez:
+    // aynı ya da daha az bagaj, aynı ya da daha kötü değişiklik/iade koşulu için daha fazla ödemek anlamsız.
+    const kept = sorted.filter((f, i) => !sorted.some((g, j) => j !== i && (j < i || g.price < f.price) && g.price <= f.price && atLeastAsGood(g.offer, f.offer)));
+    return { key, best: kept[0], fares: kept };
   });
+}
+
+/**
+ * `a`, `b`'nin sunduğu her şeyi sunuyor mu? Yalnızca bilinen koşullar karşılaştırılır; `b`'de bilinen bir koşul
+ * `a`'da bilinmiyorsa "iyi" sayılmaz (yanlışlıkla iyi bir paket gizlenmesin).
+ */
+function atLeastAsGood(a: Offer, b: Offer): boolean {
+  if (a.cabin !== b.cabin) return false;
+  const known = <T,>(x: T | undefined, y: T | undefined, ok: (x: T, y: T) => boolean) => y === undefined || (x !== undefined && ok(x, y));
+  const ca = a.conditions;
+  const cb = b.conditions;
+  const allowed = (x: boolean, y: boolean) => x || !y;
+  return (
+    a.bags.cabin.included >= b.bags.cabin.included &&
+    a.bags.checked.included >= b.bags.checked.included &&
+    known(a.bags.checked.kg, b.bags.checked.included ? b.bags.checked.kg : undefined, (x, y) => x >= y) &&
+    known(ca.changeable, cb.changeable, allowed) &&
+    known(ca.refundable, cb.refundable, allowed) &&
+    (!cb.changeable || known(ca.changeFee, cb.changeFee, (x, y) => x <= y)) &&
+    (!cb.refundable || known(ca.refundFee, cb.refundFee, (x, y) => x <= y)) &&
+    (!b.hold || !!a.hold)
+  );
+}
+
+/**
+ * Aynı adlı paketler (ör. iki "Basic") birbirinden ne ile ayrılıyor: kısa fark listesi (anahtarlar).
+ * Ad tekse boş döner.
+ */
+export function fareDifferences(fare: Offer, all: Offer[]): ("refundable" | "changeable" | "moreChecked" | "hold")[] {
+  const same = all.filter((o) => o !== fare && (o.fareBrand ?? o.cabin) === (fare.fareBrand ?? fare.cabin));
+  if (!same.length) return [];
+  const out: ("refundable" | "changeable" | "moreChecked" | "hold")[] = [];
+  if (fare.conditions.refundable && same.some((o) => !o.conditions.refundable)) out.push("refundable");
+  if (fare.conditions.changeable && same.some((o) => !o.conditions.changeable)) out.push("changeable");
+  if (same.some((o) => o.bags.checked.included < fare.bags.checked.included)) out.push("moreChecked");
+  if (fare.hold && same.some((o) => !o.hold)) out.push("hold");
+  return out;
 }
 
 /** Süre filtresinin sınırları (saat) */

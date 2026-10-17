@@ -10,7 +10,7 @@ import { locative } from "@/lib/tr-suffix";
 import { bookingHref } from "@/lib/search";
 import type { Leg } from "@/lib/providers/types";
 import type { BagChoice } from "@/lib/providers/types";
-import type { Group } from "@/lib/results-filter";
+import { fareDifferences, type Group } from "@/lib/results-filter";
 import { useBagSpecText } from "./BagRules";
 import { useConditionText } from "./conditions";
 
@@ -168,10 +168,14 @@ export function TripModal({
               return (
                 <div key={o.id} className={`flex flex-col gap-3 rounded-[24px] border-[3px] border-solid px-5 py-4 ${i === 0 ? "border-primary" : "border-line"}`}>
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="flex items-center gap-2 font-display text-xl font-semibold">
+                    <span className="flex flex-wrap items-center gap-2 font-display text-xl font-semibold">
                       {o.airlineLogo && <img src={o.airlineLogo} alt="" width={24} height={24} className="h-6 w-6 object-contain" />}
                       {o.fareBrand ?? tr(`cabin.${o.cabin}`)}
                       <span className="text-[15px] font-bold text-muted">· {tr(`cabin.${o.cabin}`)}</span>
+                      {/* Aynı adlı paketlerde fark adın yanında yazar */}
+                      {fareDifferences(o, group.fares.map((f) => f.offer)).map((d) => (
+                        <span key={d} className="rounded-pill bg-green-soft px-[10px] py-[2px] text-[13px] font-extrabold text-green-text">{t(`diff.${d}`)}</span>
+                      ))}
                     </span>
                     {i === 0 && group.fares.length > 1 && <span className="rounded-pill bg-sun px-3 py-1 font-display text-sm font-semibold">{t("cheapest")}</span>}
                   </div>

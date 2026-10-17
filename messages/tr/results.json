@@ -132,7 +132,13 @@
     "changeFree": "Ücretsiz değişiklik (varsa fiyat farkı ödenir)",
     "refundFee": "İade edilebilir, {fee} kesintiyle",
     "refundFree": "Ücretsiz iade",
-    "heavyAdd": "Ağır bagaj ({kg} kg) eklenebilir: {price}"
+    "heavyAdd": "Ağır bagaj ({kg} kg) eklenebilir: {price}",
+    "diff": {
+      "refundable": "İade edilebilir",
+      "changeable": "Değiştirilebilir",
+      "moreChecked": "Daha fazla bagaj",
+      "hold": "Sonra öde"
+    }
   },
   "dates": {
     "label": "Esnek tarihler",

@@ -132,7 +132,13 @@
     "changeFree": "Gratis wijzigen (eventueel prijsverschil betaal je wel)",
     "refundFee": "Terugbetaalbaar, min {fee} kosten",
     "refundFree": "Gratis terugbetaling",
-    "heavyAdd": "Zware koffer ({kg} kg) bij te boeken: {price}"
+    "heavyAdd": "Zware koffer ({kg} kg) bij te boeken: {price}",
+    "diff": {
+      "refundable": "Terugbetaalbaar",
+      "changeable": "Wijzigbaar",
+      "moreChecked": "Meer bagage",
+      "hold": "Later betalen"
+    }
   },
   "dates": {
     "label": "Flexibele data",
