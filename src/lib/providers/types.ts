@@ -158,6 +158,12 @@ export type Booking = {
   held?: HoldTerms;
   /** Ayırmada sağlayıcının istediği tutar (TRY, indirimden önce); ödemede fiyat değişti mi diye karşılaştırılır. */
   providerTotal?: number;
+  /** Yolcu adları (seyahat planı için) */
+  passengers?: string[];
+  /** Bilet iade edilebilir mi (biliniyorsa) */
+  refundable?: boolean;
+  /** İptal edildiyse zamanı ve iade tutarı (TRY) */
+  cancelled?: { at: string; refund: number };
 };
 
 export interface FlightProvider {
@@ -167,6 +173,19 @@ export interface FlightProvider {
   createOrder(input: OrderInput, offer: Offer, totalTry: number): Promise<Booking>;
   /** Ayrılmış rezervasyonun ödemesini yapar; güncel tutar değiştiyse hata verir. */
   payHeld(booking: Booking): Promise<Booking>;
+  /** İptal teklifi: iade tutarı ve teklifin geçerlilik süresi. Henüz bir şey iptal edilmez. */
+  cancelQuote(booking: Booking): Promise<CancelQuote>;
+  /** Teklifi onaylar; rezervasyon iptal edilir. */
+  cancelConfirm(booking: Booking, quoteId: string): Promise<Booking>;
 }
 
 export type { Passengers };
+
+export type CancelQuote = {
+  id: string;
+  /** İade tutarı (TRY) */
+  refund: number;
+  /** İadenin gideceği yer: "original_form_of_payment", "balance", "airline_credits" … */
+  refundTo?: string;
+  expiresAt?: string;
+};

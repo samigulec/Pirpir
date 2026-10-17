@@ -46,7 +46,8 @@
     "guestText": "Sign in to see all tickets booked with the same email. For now, we're showing the ones booked in this browser.",
     "guestCta": "Sign in",
     "awaitingPayment": "Awaiting payment",
-    "holdExpired": "Expired"
+    "holdExpired": "Expired",
+    "cancelled": "Cancelled"
   },
   "account": {
     "metaTitle": "My account",

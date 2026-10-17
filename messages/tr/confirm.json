@@ -7,7 +7,7 @@
   "inbound": "Dönüş · {date}",
   "transferVia": "{city} aktarmalı",
   "direct": "Direkt",
-  "download": "Bileti indir",
+  "download": "Seyahat planı (PDF)",
   "calendar": "Takvime ekle",
   "share": "Paylaş",
   "remind": {
@@ -34,5 +34,51 @@
       "live": "Ödeme altyapısı henüz bağlı değil; şimdilik ödeme alınamıyor.",
       "expired": "Ödeme süresi geçti."
     }
+  },
+  "copied": "Bilgiler kopyalandı",
+  "shareText": "{route} · {dates} · {airline}",
+  "manage": {
+    "title": "Rezervasyonu yönet",
+    "cancel": "Rezervasyonu iptal et",
+    "cancelHold": "Ayırmayı iptal et",
+    "checking": "İade tutarı hesaplanıyor…",
+    "refund": "İptal edersen iade: {price}",
+    "noRefund": "Bu bilet iade edilmez; iptal edersen ücret geri ödenmez.",
+    "holdNote": "Henüz ödeme yapılmadı; ayırma ücretsiz iptal edilir.",
+    "refundTo": {
+      "original_form_of_payment": "İade, ödediğin yönteme yapılır.",
+      "balance": "İade, ödediğin yönteme yapılır.",
+      "airline_credits": "İade, havayolu kredisi olarak verilir.",
+      "voucher": "İade, kupon olarak verilir."
+    },
+    "confirm": "İptal etmeyi onayla",
+    "back": "Vazgeç",
+    "cancelling": "İptal ediliyor…",
+    "errors": {
+      "failed": "İptal şu an yapılamadı; biraz sonra tekrar dene.",
+      "live": "Ödeme altyapısı bağlanmadan iptal yapılamıyor; bize yaz.",
+      "notFound": "Bu rezervasyon bulunamadı ya da zaten iptal edildi."
+    }
+  },
+  "cancelled": {
+    "title": "Rezervasyon iptal edildi",
+    "refund": "İade: {price}",
+    "noRefund": "Bu rezervasyon için iade yok."
+  },
+  "plan": {
+    "metaTitle": "Seyahat planı",
+    "title": "Seyahat planı",
+    "print": "Yazdır / PDF olarak kaydet",
+    "passengers": "Yolcular",
+    "email": "E-posta",
+    "total": "Toplam",
+    "status": "Durum",
+    "statuses": {
+      "confirmed": "Bilet kesildi",
+      "held": "Ödeme bekliyor",
+      "cancelled": "İptal edildi"
+    },
+    "note": "Bu belge e-bilet değildir; seyahat planındır. Biniş kartını check-in'den sonra havayolundan alırsın.",
+    "back": "Rezervasyona dön"
   }
 }

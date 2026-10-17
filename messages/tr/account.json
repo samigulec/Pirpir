@@ -46,7 +46,8 @@
     "guestText": "Giriş yaparsan aynı e-postayla aldığın tüm biletleri burada görürsün. Şimdilik bu tarayıcıda aldıkların listeleniyor.",
     "guestCta": "Giriş yap",
     "awaitingPayment": "Ödeme bekliyor",
-    "holdExpired": "Süresi doldu"
+    "holdExpired": "Süresi doldu",
+    "cancelled": "İptal edildi"
   },
   "account": {
     "metaTitle": "Hesabım",

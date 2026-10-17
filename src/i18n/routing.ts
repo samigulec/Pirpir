@@ -19,6 +19,11 @@ export const routing = defineRouting({
       en: "/booking/[teklifId]/confirmation",
       nl: "/boeking/[teklifId]/bevestiging",
     },
+    "/rezervasyon/[teklifId]/plan": {
+      tr: "/rezervasyon/[teklifId]/plan",
+      en: "/booking/[teklifId]/plan",
+      nl: "/boeking/[teklifId]/reisplan",
+    },
     "/giris": { tr: "/giris", en: "/login", nl: "/inloggen" },
     "/biletlerim": { tr: "/biletlerim", en: "/my-trips", nl: "/mijn-reizen" },
     "/hesap": { tr: "/hesap", en: "/account", nl: "/account" },

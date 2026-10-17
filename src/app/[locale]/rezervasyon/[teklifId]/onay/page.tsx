@@ -4,14 +4,15 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TicketsLink } from "@/components/AccountLinks";
 import { Bulut, Pirpir, Valiz } from "@/components/characters";
-import { Calendar, Download, Share } from "@/components/icons";
 import { RemindToggle } from "@/components/booking/RemindToggle";
 import { SAMPLE_BOOKING_ID } from "@/data/mock/booking";
 import { cityByCode } from "@/data/airports";
 import { Link } from "@/i18n/navigation";
 import { getBooking } from "@/lib/bookings";
-import { formatDateTime, formatDayWithWeekday } from "@/lib/dates";
+import { formatDateTime, formatDayWithWeekday, formatRange } from "@/lib/dates";
 import { PayHeldButton } from "@/components/booking/PayHeldButton";
+import { CancelBooking, TripActions } from "@/components/booking/TripActions";
+import { Price } from "@/components/Price";
 import { intlLocale } from "@/lib/intl";
 import { demoProvider } from "@/lib/providers/demo";
 import type { Booking, Leg } from "@/lib/providers/types";
@@ -53,12 +54,18 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
     `${leg.airline} · ${leg.via ? t("transferVia", { city: cityByCode(leg.via.code, locale, leg.via.city) }) : t("direct")}`;
 
   const th = await getTranslations("confirm.held");
-  const held = booking.held;
+  const cancelled = booking.cancelled;
+  const held = cancelled ? undefined : booking.held;
+  const tx = await getTranslations("confirm.cancelled");
+  const shareTitle = `${city(offer.outbound.fromCode)} → ${city(offer.outbound.toCode)}`;
+  const shareText = t("shareText", {
+    route: shareTitle,
+    dates: formatRange(offer.outbound.date, offer.inbound?.date, loc),
+    airline: offer.airline,
+  });
   const expired = !!held && Date.parse(held.payBy) < Date.now();
   const payBy = held ? formatDateTime(held.payBy, loc) : "";
 
-  const action =
-    "flex min-h-[56px] items-center justify-center gap-2 rounded-[18px] font-display text-lg font-semibold no-underline";
 
   return (
     <div className="min-h-screen w-full bg-white">
@@ -73,7 +80,15 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
             <Pirpir aria-label={tc("pirpirHappy")} happy width={170} height={119} />
             <Valiz aria-label={tc("valiz")} happy stripe={false} tag={false} width={56} height={70} />
           </div>
-          {held ? (
+          {cancelled ? (
+            <>
+              <h1 className="m-0 font-display text-[46px] font-bold leading-[1.1]">{tx("title")}</h1>
+              <p className="m-0 text-lg text-muted">
+                {cancelled.refund > 0 ? tx("refund", { price: "" }).trim() : tx("noRefund")}
+                {cancelled.refund > 0 && <> <Price amount={cancelled.refund} /></>}
+              </p>
+            </>
+          ) : held ? (
             <>
               <h1 className="m-0 font-display text-[46px] font-bold leading-[1.1]">{expired ? th("expiredTitle") : th("title")}</h1>
               <p className="m-0 text-lg text-muted">{expired ? th("expiredText") : th("text", { date: payBy })}</p>
@@ -113,19 +128,19 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
           ))}
         </div>
 
-        {!held && <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[10px]">
-          <a href="#" className={`${action} bg-primary text-white`}><Download />{t("download")}</a>
-          <a href="#" className={`${action} bg-field text-ink`}><Calendar />{t("calendar")}</a>
-          <a href="#" className={`${action} bg-field text-ink`}><Share />{t("share")}</a>
-        </div>}
+        {!held && !cancelled && <TripActions bookingId={booking.id} shareTitle={shareTitle} shareText={shareText} />}
 
-        <div className="flex flex-wrap items-center gap-x-[18px] gap-y-[14px] rounded-[28px] bg-coral-soft px-6 py-5">
-          <div className="flex flex-[1_1_300px] flex-col">
-            <span className="font-display text-xl font-semibold">{t("remind.title")}</span>
-            <span className="text-[15px] text-muted">{t("remind.text")}</span>
+        {!cancelled && (
+          <div className="flex flex-wrap items-center gap-x-[18px] gap-y-[14px] rounded-[28px] bg-coral-soft px-6 py-5">
+            <div className="flex flex-[1_1_300px] flex-col">
+              <span className="font-display text-xl font-semibold">{t("remind.title")}</span>
+              <span className="text-[15px] text-muted">{t("remind.text")}</span>
+            </div>
+            <RemindToggle />
           </div>
-          <RemindToggle />
-        </div>
+        )}
+
+        {!cancelled && booking.id !== SAMPLE_BOOKING_ID && <CancelBooking bookingId={booking.id} held={!!held} />}
 
         <Link href="/" className="self-center py-[10px] font-extrabold">{t("home")}</Link>
       </main>

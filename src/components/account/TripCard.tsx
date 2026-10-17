@@ -20,7 +20,9 @@ export async function TripCard({ booking }: { booking: Booking }) {
     <article className={`flex flex-wrap items-center gap-x-6 gap-y-3 rounded-[28px] border-2 border-solid border-line px-6 py-5 ${upcoming ? "bg-white" : "bg-field"}`}>
       <div className="flex min-w-0 flex-[999_1_340px] flex-col gap-1">
         <span className="flex flex-wrap items-center gap-2">
-          {booking.held ? (
+          {booking.cancelled ? (
+            <span className="rounded-pill bg-line px-3 py-[2px] font-display text-sm font-semibold text-muted">{t("cancelled")}</span>
+          ) : booking.held ? (
             <span className={`rounded-pill px-3 py-[2px] font-display text-sm font-semibold ${heldExpired ? "bg-line text-muted" : "bg-sun-soft text-sun-text"}`}>
               {heldExpired ? t("holdExpired") : t("awaitingPayment")}
             </span>

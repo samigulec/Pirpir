@@ -380,6 +380,15 @@ export const demoProvider: FlightProvider = {
   async payHeld(booking) {
     return { ...booking, held: undefined };
   },
+  // Örnek iptal: iade edilebilir bilette tamamı, edilemeyende hiçbir şey; ödenmemiş ayırmada iade yok.
+  async cancelQuote(booking) {
+    const refund = booking.held ? 0 : booking.refundable ? booking.total : 0;
+    return { id: "demo-cancel", refund, refundTo: booking.held ? undefined : "original_form_of_payment" };
+  },
+  async cancelConfirm(booking) {
+    const { refund } = await this.cancelQuote(booking);
+    return { ...booking, held: undefined, cancelled: { at: new Date().toISOString(), refund } };
+  },
 };
 
 /** Esnek tarih ipucu: iki gün sonrası daha ucuzsa döner. */

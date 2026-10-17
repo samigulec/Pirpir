@@ -46,7 +46,8 @@
     "guestText": "Log in om alle tickets te zien die je met hetzelfde e-mailadres hebt geboekt. Nu zie je alleen de boekingen uit deze browser.",
     "guestCta": "Inloggen",
     "awaitingPayment": "Wacht op betaling",
-    "holdExpired": "Verlopen"
+    "holdExpired": "Verlopen",
+    "cancelled": "Geannuleerd"
   },
   "account": {
     "metaTitle": "Mijn account",

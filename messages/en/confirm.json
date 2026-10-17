@@ -7,7 +7,7 @@
   "inbound": "Return · {date}",
   "transferVia": "via {city}",
   "direct": "Direct",
-  "download": "Download ticket",
+  "download": "Trip plan (PDF)",
   "calendar": "Add to calendar",
   "share": "Share",
   "remind": {
@@ -34,5 +34,51 @@
       "live": "Payments aren't connected yet, so we can't take payment for now.",
       "expired": "The payment deadline has passed."
     }
+  },
+  "copied": "Details copied",
+  "shareText": "{route} · {dates} · {airline}",
+  "manage": {
+    "title": "Manage booking",
+    "cancel": "Cancel booking",
+    "cancelHold": "Cancel reservation",
+    "checking": "Calculating your refund…",
+    "refund": "If you cancel, refund: {price}",
+    "noRefund": "This ticket is non-refundable; you won't get money back if you cancel.",
+    "holdNote": "Nothing has been paid yet; the reservation is cancelled free of charge.",
+    "refundTo": {
+      "original_form_of_payment": "The refund goes back to your payment method.",
+      "balance": "The refund goes back to your payment method.",
+      "airline_credits": "The refund is given as airline credit.",
+      "voucher": "The refund is given as a voucher."
+    },
+    "confirm": "Confirm cancellation",
+    "back": "Keep booking",
+    "cancelling": "Cancelling…",
+    "errors": {
+      "failed": "We couldn't cancel right now; please try again shortly.",
+      "live": "Cancellation isn't possible until payments are connected; please contact us.",
+      "notFound": "This booking wasn't found or is already cancelled."
+    }
+  },
+  "cancelled": {
+    "title": "Booking cancelled",
+    "refund": "Refund: {price}",
+    "noRefund": "No refund for this booking."
+  },
+  "plan": {
+    "metaTitle": "Trip plan",
+    "title": "Trip plan",
+    "print": "Print / save as PDF",
+    "passengers": "Passengers",
+    "email": "Email",
+    "total": "Total",
+    "status": "Status",
+    "statuses": {
+      "confirmed": "Ticket issued",
+      "held": "Awaiting payment",
+      "cancelled": "Cancelled"
+    },
+    "note": "This document is not an e-ticket; it's your trip plan. You'll get your boarding pass from the airline after check-in.",
+    "back": "Back to booking"
   }
 }

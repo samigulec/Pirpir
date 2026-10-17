@@ -41,6 +41,8 @@ export async function placeOrder(offerId: string, form: FormData): Promise<Place
   try {
     const booking = await provider.createOrder({ ...data, offerId }, offer, total);
     if (booking.held) booking.providerTotal ??= quoted;
+    booking.passengers = data.passengers.map((p) => `${p.givenName} ${p.familyName}`);
+    booking.refundable = offer.conditions.refundable;
     await saveBooking(booking, user, locale);
     bookingId = booking.id;
   } catch (e) {
@@ -72,4 +74,36 @@ export async function payHeldBooking(bookingId: string): Promise<PayHeldState> {
   }
   redirect({ href: confirmHref(bookingId), locale });
   return {};
+}
+
+export type CancelState = {
+  quote?: { id: string; refund: number; refundTo?: string };
+  error?: "failed" | "live" | "notFound";
+  done?: boolean;
+};
+
+/** İptal teklifi: iade tutarını gösterir, henüz iptal etmez. */
+export async function getCancelQuote(bookingId: string): Promise<CancelState> {
+  const booking = await getBooking(bookingId);
+  if (!booking || booking.cancelled) return { error: "notFound" };
+  try {
+    const q = await getProviderForOffer(booking).cancelQuote(booking);
+    return { quote: { id: q.id, refund: q.refund, refundTo: q.refundTo } };
+  } catch (e) {
+    console.error("İptal teklifi alınamadı:", e);
+    return { error: e instanceof Error && e.message.startsWith("Canlı modda") ? "live" : "failed" };
+  }
+}
+
+/** Rezervasyonu iptal eder (müşteri teklifi gördükten sonra). */
+export async function confirmCancel(bookingId: string, quoteId: string): Promise<CancelState> {
+  const booking = await getBooking(bookingId);
+  if (!booking || booking.cancelled) return { error: "notFound" };
+  try {
+    await updateBooking(await getProviderForOffer(booking).cancelConfirm(booking, quoteId));
+    return { done: true };
+  } catch (e) {
+    console.error("İptal onaylanamadı:", e);
+    return { error: e instanceof Error && e.message.startsWith("Canlı modda") ? "live" : "failed" };
+  }
 }

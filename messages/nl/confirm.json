@@ -7,7 +7,7 @@
   "inbound": "Terug · {date}",
   "transferVia": "via {city}",
   "direct": "Direct",
-  "download": "Ticket downloaden",
+  "download": "Reisplan (pdf)",
   "calendar": "Toevoegen aan agenda",
   "share": "Delen",
   "remind": {
@@ -34,5 +34,51 @@
       "live": "Betalingen zijn nog niet gekoppeld; we kunnen nu nog niet afrekenen.",
       "expired": "De betaaltermijn is verstreken."
     }
+  },
+  "copied": "Gegevens gekopieerd",
+  "shareText": "{route} · {dates} · {airline}",
+  "manage": {
+    "title": "Boeking beheren",
+    "cancel": "Boeking annuleren",
+    "cancelHold": "Reservering annuleren",
+    "checking": "Terugbetaling berekenen…",
+    "refund": "Bij annuleren krijg je terug: {price}",
+    "noRefund": "Dit ticket is niet restitueerbaar; bij annuleren krijg je geen geld terug.",
+    "holdNote": "Er is nog niets betaald; de reservering wordt kosteloos geannuleerd.",
+    "refundTo": {
+      "original_form_of_payment": "Je krijgt het terug via je betaalmethode.",
+      "balance": "Je krijgt het terug via je betaalmethode.",
+      "airline_credits": "Je krijgt een tegoed bij de luchtvaartmaatschappij.",
+      "voucher": "Je krijgt een voucher."
+    },
+    "confirm": "Annulering bevestigen",
+    "back": "Boeking houden",
+    "cancelling": "Bezig met annuleren…",
+    "errors": {
+      "failed": "Annuleren lukt nu niet; probeer het straks opnieuw.",
+      "live": "Annuleren kan pas als betalingen gekoppeld zijn; neem contact met ons op.",
+      "notFound": "Deze boeking is niet gevonden of al geannuleerd."
+    }
+  },
+  "cancelled": {
+    "title": "Boeking geannuleerd",
+    "refund": "Terugbetaling: {price}",
+    "noRefund": "Geen terugbetaling voor deze boeking."
+  },
+  "plan": {
+    "metaTitle": "Reisplan",
+    "title": "Reisplan",
+    "print": "Afdrukken / opslaan als pdf",
+    "passengers": "Passagiers",
+    "email": "E-mail",
+    "total": "Totaal",
+    "status": "Status",
+    "statuses": {
+      "confirmed": "Ticket uitgegeven",
+      "held": "Wacht op betaling",
+      "cancelled": "Geannuleerd"
+    },
+    "note": "Dit document is geen e-ticket; het is je reisplan. Je instapkaart krijg je na het inchecken van de luchtvaartmaatschappij.",
+    "back": "Terug naar boeking"
   }
 }

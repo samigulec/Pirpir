@@ -17,6 +17,8 @@ type CompactBooking = {
   i: string; p: Booking["provider"]; r?: string; e: string; t: number; c: string; a: string; o: CompactLeg; b?: CompactLeg;
   /** Ayrılmış: [son ödeme, fiyat garantisi] ve sağlayıcı tutarı */
   h?: [string, string?]; pt?: number;
+  /** Yolcu adları, iade edilebilirlik, iptal [zaman, iade] */
+  n?: string[]; x?: boolean; k?: [string, number];
 };
 
 const packLeg = (l: Leg): CompactLeg => [l.date, l.dep, l.arr, l.arrDayOffset, l.fromCode, l.toCode, l.airline, l.stops, l.via?.code, l.mins];
@@ -28,11 +30,13 @@ const pack = (b: Booking): CompactBooking => ({
   i: b.id, p: b.provider, r: b.pnr, e: b.email, t: b.total, c: b.createdAt, a: b.offer.airline,
   o: packLeg(b.offer.outbound), b: b.offer.inbound ? packLeg(b.offer.inbound) : undefined,
   h: b.held ? [b.held.payBy, b.held.priceGuaranteedUntil] : undefined, pt: b.providerTotal,
+  n: b.passengers, x: b.refundable, k: b.cancelled ? [b.cancelled.at, b.cancelled.refund] : undefined,
 });
 const unpack = (c: CompactBooking): Booking => ({
   id: c.i, provider: c.p, pnr: c.r, email: c.e, total: c.t, createdAt: c.c,
   offer: { airline: c.a, outbound: unpackLeg(c.o), inbound: c.b ? unpackLeg(c.b) : undefined },
   held: c.h ? { payBy: c.h[0], priceGuaranteedUntil: c.h[1] } : undefined, providerTotal: c.pt,
+  passengers: c.n, refundable: c.x, cancelled: c.k ? { at: c.k[0], refund: c.k[1] } : undefined,
 });
 
 async function readCookieList(): Promise<Booking[]> {

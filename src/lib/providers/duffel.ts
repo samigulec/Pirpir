@@ -110,6 +110,15 @@ type DOrder = {
   payment_status?: { awaiting_payment: boolean; payment_required_by?: string | null; price_guarantee_expires_at?: string | null } | null;
 };
 
+type DCancellation = {
+  id: string;
+  refund_amount?: string | null;
+  refund_currency?: string | null;
+  refund_to?: string | null;
+  expires_at?: string | null;
+  confirmed_at?: string | null;
+};
+
 /** Havayolu "sonra öde"ye izin veriyorsa ayırma koşulları. */
 function holdOf(p: DOffer["payment_requirements"] | DOrder["payment_status"]): Offer["hold"] {
   if (!p || ("requires_instant_payment" in p && p.requires_instant_payment) || !p.payment_required_by) return undefined;
@@ -442,6 +451,28 @@ export const duffelProvider: FlightProvider = {
       held: input.hold ? holdOf(order.payment_status) ?? offer.hold : undefined,
       providerTotal: input.hold ? toTry(Number(order.total_amount), order.total_currency) : undefined,
     };
+  },
+
+  async cancelQuote(booking) {
+    if (!isDuffelTestMode()) throw new ProviderError("Canlı modda ödeme altyapısı bağlanmadan iptal yapılamaz.");
+    const c = await call<DCancellation>("/air/order_cancellations", {
+      method: "POST",
+      body: JSON.stringify({ data: { order_id: booking.id } }),
+    });
+    return {
+      id: c.id,
+      refund: c.refund_amount ? toTry(Number(c.refund_amount), c.refund_currency ?? "EUR") : 0,
+      refundTo: c.refund_to ?? undefined,
+      expiresAt: c.expires_at ?? undefined,
+    };
+  },
+
+  async cancelConfirm(booking, quoteId) {
+    if (!isDuffelTestMode()) throw new ProviderError("Canlı modda ödeme altyapısı bağlanmadan iptal yapılamaz.");
+    if (!/^ore_[A-Za-z0-9]+$/.test(quoteId)) throw new ProviderError("Geçersiz iptal teklifi.");
+    const c = await call<DCancellation>(`/air/order_cancellations/${quoteId}/actions/confirm`, { method: "POST" });
+    const refund = c.refund_amount ? toTry(Number(c.refund_amount), c.refund_currency ?? "EUR") : 0;
+    return { ...booking, held: undefined, cancelled: { at: c.confirmed_at ?? new Date().toISOString(), refund } };
   },
 
   async payHeld(booking) {
