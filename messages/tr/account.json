@@ -44,7 +44,9 @@
     "biletcik": "“Biletin hazır olunca burada bekleyeceğim.”",
     "guestTitle": "Biletlerin her cihazda yanında olsun",
     "guestText": "Giriş yaparsan aynı e-postayla aldığın tüm biletleri burada görürsün. Şimdilik bu tarayıcıda aldıkların listeleniyor.",
-    "guestCta": "Giriş yap"
+    "guestCta": "Giriş yap",
+    "awaitingPayment": "Ödeme bekliyor",
+    "holdExpired": "Süresi doldu"
   },
   "account": {
     "metaTitle": "Hesabım",

@@ -112,6 +112,14 @@ export type Offer = {
   conditions: FareConditions;
   passportRequired: boolean;
   expiresAt?: string;
+  /** Havayolu "şimdi ayır, sonra öde"ye izin veriyorsa: son ödeme zamanı ve fiyat garantisi (ISO). */
+  hold?: HoldTerms;
+};
+
+export type HoldTerms = {
+  payBy: string;
+  /** Yoksa koltuk ayrılır ama fiyat ödemeye kadar değişebilir. */
+  priceGuaranteedUntil?: string;
 };
 
 export type PassengerInput = {
@@ -133,6 +141,8 @@ export type OrderInput = {
   bags: BagChoice[];
   seats: SeatChoice[];
   promo?: string;
+  /** Şimdi ödemeden ayır (fiyat sabitleme) */
+  hold?: boolean;
 };
 
 export type Booking = {
@@ -144,6 +154,10 @@ export type Booking = {
   offer: Pick<Offer, "airline" | "outbound" | "inbound">;
   total: number;
   createdAt: string;
+  /** Ayrıldı, ödeme bekliyor (yoksa ödenmiş, bilet kesilmiş) */
+  held?: HoldTerms;
+  /** Ayırmada sağlayıcının istediği tutar (TRY, indirimden önce); ödemede fiyat değişti mi diye karşılaştırılır. */
+  providerTotal?: number;
 };
 
 export interface FlightProvider {
@@ -151,6 +165,8 @@ export interface FlightProvider {
   getOffer(id: string): Promise<Offer | null>;
   seatMaps(offer: Offer): Promise<SeatMap[]>;
   createOrder(input: OrderInput, offer: Offer, totalTry: number): Promise<Booking>;
+  /** Ayrılmış rezervasyonun ödemesini yapar; güncel tutar değiştiyse hata verir. */
+  payHeld(booking: Booking): Promise<Booking>;
 }
 
 export type { Passengers };

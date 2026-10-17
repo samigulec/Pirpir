@@ -16,5 +16,23 @@
     "off": "Yes, remind me",
     "on": "Reminder on ✓"
   },
-  "home": "Back to home"
+  "home": "Back to home",
+  "held": {
+    "title": "Your price is locked!",
+    "text": "Your reservation is awaiting payment. Pay by {date} and your ticket will be issued.",
+    "guaranteed": "The price won't change during this time.",
+    "notGuaranteed": "Your seat is reserved, but the price may change until you pay.",
+    "pay": "Pay now · {price}",
+    "paying": "Paying…",
+    "pnrLabel": "Reservation code",
+    "expiredTitle": "Reservation expired",
+    "expiredText": "The payment deadline for this reservation has passed. Search again to book at current prices.",
+    "searchAgain": "Search again",
+    "errors": {
+      "priceChanged": "The price changed: the new total is {price}. Search again to continue at the current price.",
+      "failed": "We couldn't complete the payment right now; please try again shortly.",
+      "live": "Payments aren't connected yet, so we can't take payment for now.",
+      "expired": "The payment deadline has passed."
+    }
+  }
 }

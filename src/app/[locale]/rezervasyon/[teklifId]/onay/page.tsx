@@ -10,7 +10,8 @@ import { SAMPLE_BOOKING_ID } from "@/data/mock/booking";
 import { cityByCode } from "@/data/airports";
 import { Link } from "@/i18n/navigation";
 import { getBooking } from "@/lib/bookings";
-import { formatDayWithWeekday } from "@/lib/dates";
+import { formatDateTime, formatDayWithWeekday } from "@/lib/dates";
+import { PayHeldButton } from "@/components/booking/PayHeldButton";
 import { intlLocale } from "@/lib/intl";
 import { demoProvider } from "@/lib/providers/demo";
 import type { Booking, Leg } from "@/lib/providers/types";
@@ -51,6 +52,11 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
   const legNote = (leg: Leg) =>
     `${leg.airline} · ${leg.via ? t("transferVia", { city: cityByCode(leg.via.code, locale, leg.via.city) }) : t("direct")}`;
 
+  const th = await getTranslations("confirm.held");
+  const held = booking.held;
+  const expired = !!held && Date.parse(held.payBy) < Date.now();
+  const payBy = held ? formatDateTime(held.payBy, loc) : "";
+
   const action =
     "flex min-h-[56px] items-center justify-center gap-2 rounded-[18px] font-display text-lg font-semibold no-underline";
 
@@ -67,14 +73,30 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
             <Pirpir aria-label={tc("pirpirHappy")} happy width={170} height={119} />
             <Valiz aria-label={tc("valiz")} happy stripe={false} tag={false} width={56} height={70} />
           </div>
-          <h1 className="m-0 font-display text-[46px] font-bold leading-[1.1]">{t("title")}</h1>
-          <p className="m-0 text-lg text-muted">
-            {t.rich("sent", { email: () => <strong className="text-ink">{booking.email}</strong> })}
-          </p>
+          {held ? (
+            <>
+              <h1 className="m-0 font-display text-[46px] font-bold leading-[1.1]">{expired ? th("expiredTitle") : th("title")}</h1>
+              <p className="m-0 text-lg text-muted">{expired ? th("expiredText") : th("text", { date: payBy })}</p>
+              {!expired && <p className="m-0 font-bold text-ink">{th(held.priceGuaranteedUntil ? "guaranteed" : "notGuaranteed")}</p>}
+            </>
+          ) : (
+            <>
+              <h1 className="m-0 font-display text-[46px] font-bold leading-[1.1]">{t("title")}</h1>
+              <p className="m-0 text-lg text-muted">
+                {t.rich("sent", { email: () => <strong className="text-ink">{booking.email}</strong> })}
+              </p>
+            </>
+          )}
           <div className="flex flex-col items-center rounded-[20px] bg-white px-7 py-3">
-            <span className="text-[13px] font-extrabold text-muted">{t("pnrLabel")}</span>
+            <span className="text-[13px] font-extrabold text-muted">{held ? th("pnrLabel") : t("pnrLabel")}</span>
             <span className="font-display text-[32px] font-bold tracking-[0.12em]">{booking.pnr ?? "[PNR]"}</span>
           </div>
+          {held && !expired && <PayHeldButton bookingId={booking.id} total={booking.total} />}
+          {held && expired && (
+            <Link href="/" className="box-border inline-flex min-h-[52px] items-center rounded-pill bg-primary px-7 py-3 font-display text-lg font-semibold text-white no-underline">
+              {th("searchAgain")}
+            </Link>
+          )}
         </div>
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 rounded-[28px] border-2 border-solid border-line px-6 py-5">
@@ -91,11 +113,11 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
           ))}
         </div>
 
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[10px]">
+        {!held && <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[10px]">
           <a href="#" className={`${action} bg-primary text-white`}><Download />{t("download")}</a>
           <a href="#" className={`${action} bg-field text-ink`}><Calendar />{t("calendar")}</a>
           <a href="#" className={`${action} bg-field text-ink`}><Share />{t("share")}</a>
-        </div>
+        </div>}
 
         <div className="flex flex-wrap items-center gap-x-[18px] gap-y-[14px] rounded-[28px] bg-coral-soft px-6 py-5">
           <div className="flex flex-[1_1_300px] flex-col">

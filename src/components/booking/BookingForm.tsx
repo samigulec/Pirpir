@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { formatDateTime } from "@/lib/dates";
+import { intlLocale } from "@/lib/intl";
 import { useCurrency } from "../CurrencyProvider";
 import { Valiz } from "../characters";
 import { Lock } from "../icons";
@@ -59,6 +61,7 @@ export function BookingForm({
     payingSlots.map(() => wantedBagsExtra(offer.bags, wantBags)?.choice ?? NO_BAGS),
   );
   const [seats, setSeats] = useState<SeatChoice[]>([]);
+  const [holdMode, setHoldMode] = useState(false);
   const [pay, setPay] = useState<PaymentId>("card");
   const [card, setCard] = useState("");
   const [promoCode, setPromoCode] = useState("");
@@ -76,7 +79,9 @@ export function BookingForm({
     payingSlots.length > 1 ? t("bags.paxTitle", { n: i + 1, type: t(`passenger.types.${payingSlots[i].type}`) }) : t(`passenger.types.${payingSlots[i].type}`);
   const setBag = (i: number, patch: Partial<BagChoice>) => setBags((l) => l.map((b, k) => (k === i ? { ...b, ...patch } : b)));
   const brand = detectCardBrand(card);
-  const payLabel = `${t(`payment.methods.${pay}.pay`)} · ${fmt(total)}`;
+  const payLabel = holdMode ? t("hold.button") : `${t(`payment.methods.${pay}.pay`)} · ${fmt(total)}`;
+  const locale = useLocale();
+  const payBy = offer.hold ? formatDateTime(offer.hold.payBy, intlLocale(locale)) : "";
   const err = (name: string) => state.errors[name];
   const errText = (name: string) =>
     err(name) ? <span className="text-sm font-bold text-coral-text">{t(`errors.${err(name)}`)}</span> : null;
@@ -100,6 +105,7 @@ export function BookingForm({
     const fd = new FormData(e.currentTarget);
     fd.set("bags", JSON.stringify(bags));
     fd.set("seats", JSON.stringify(seats));
+    fd.set("hold", holdMode ? "1" : "0");
     if (promo) fd.set("promo", promo.code);
     startTransition(async () => {
       const res = await placeOrder(offer.id, fd);
@@ -223,101 +229,136 @@ export function BookingForm({
         {errText("seats")}
       </section>
 
-      {/* Ödeme */}
-      <section className="flex flex-col gap-[14px]">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className={h2}>{t("payment.title")}</h2>
-          <span className="flex items-center gap-[6px] text-sm font-extrabold text-green-text">
-            <Lock size={16} strokeWidth={2.6} />
-            {t("payment.secure")}
-          </span>
-        </div>
-        <div role="radiogroup" aria-label={t("payment.label")} className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-[10px]">
-          {paymentMethods.map((p) => {
-            const on = pay === p;
-            const Icon = PAY_ICON[p];
-            return (
-              <button
-                key={p}
-                type="button"
-                role="radio"
-                aria-checked={on}
-                onClick={() => setPay(p)}
-                className={`flex min-h-[120px] cursor-pointer flex-col items-start gap-[6px] rounded-[20px] border-[3px] border-solid px-4 py-[14px] text-left text-ink ${
-                  on ? "border-primary bg-sky" : "border-line bg-white"
-                }`}
-              >
-                <span className="inline-flex h-[46px] w-16 items-center justify-center rounded-[14px] bg-white">
-                  <Icon width={56} height={40} />
-                </span>
-                <span className="font-display text-lg font-semibold">{t(`payment.methods.${p}.label`)}</span>
-                <span className="text-[13px] font-bold text-muted">{t(`payment.methods.${p}.sub`)}</span>
-              </button>
-            );
-          })}
-        </div>
+      {/* Ne zaman ödenecek: havayolu izin veriyorsa fiyatı sabitleyip sonra ödeme */}
+      {offer.hold && (
+        <section className="flex flex-col gap-3">
+          <h2 className={h2}>{t("hold.title")}</h2>
+          <div role="radiogroup" aria-label={t("hold.title")} className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-[10px]">
+            {[false, true].map((later) => {
+              const on = holdMode === later;
+              return (
+                <button
+                  key={String(later)}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  onClick={() => setHoldMode(later)}
+                  className={`flex min-h-[120px] cursor-pointer flex-col items-start gap-1 rounded-[22px] border-[3px] border-solid px-5 py-4 text-left text-ink ${on ? "border-primary bg-sky" : "border-line bg-white"}`}
+                >
+                  <span className="font-display text-[19px] font-semibold">{t(later ? "hold.later" : "hold.now")}</span>
+                  <span className="text-sm font-semibold">{later ? t("hold.laterDesc", { date: payBy }) : t("hold.nowDesc")}</span>
+                  {later && (
+                    <span className="text-sm font-semibold text-muted">{t(offer.hold!.priceGuaranteedUntil ? "hold.guaranteed" : "hold.notGuaranteed")}</span>
+                  )}
+                  {later && <span className="mt-auto font-extrabold text-green-text">{t("hold.free")}</span>}
+                </button>
+              );
+            })}
+          </div>
+          {holdMode && <span className="text-sm text-muted">{t("hold.note")}</span>}
+          {errText("hold")}
+        </section>
+      )}
 
-        {pay === "card" ? (
-          // Kart bilgisi hiçbir yere gönderilmez; gerçek ödemede sağlayıcının güvenli bileşeni kullanılacak.
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3 rounded-[24px] border-2 border-solid border-line p-[18px]">
-            <label className={`${label} col-span-full`}>
-              {t("payment.cardName")}
-              <input type="text" placeholder={t("payment.cardNamePlaceholder")} autoComplete="cc-name" className={`${input} uppercase`} />
-            </label>
-            <label className={`${label} col-span-full`}>
-              {t("payment.cardNumber")}
-              <span className="relative flex">
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="cc-number"
-                  placeholder="0000 0000 0000 0000"
-                  value={card}
-                  onChange={(e) => setCard(formatCardNumber(e.target.value))}
-                  className={`${field} min-w-0 flex-1 pl-[18px] pr-[120px] font-bold tracking-[0.06em]`}
-                />
-                <span
-                  aria-live="polite"
-                  className={`absolute right-[10px] top-1/2 box-border inline-flex h-[34px] min-w-[96px] -translate-y-1/2 items-center justify-center rounded-[10px] px-[10px] text-[12px] font-extrabold ${
-                    brand
-                      ? "border-[1.5px] border-solid border-primary bg-sky text-ink"
-                      : "border-[1.5px] border-dashed border-[#B9C4DA] bg-field text-muted"
+      {/* Ödeme (fiyat sabitlemede ödeme sonra alınır) */}
+      {!holdMode && (
+        <>
+        <section className="flex flex-col gap-[14px]">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className={h2}>{t("payment.title")}</h2>
+            <span className="flex items-center gap-[6px] text-sm font-extrabold text-green-text">
+              <Lock size={16} strokeWidth={2.6} />
+              {t("payment.secure")}
+            </span>
+          </div>
+          <div role="radiogroup" aria-label={t("payment.label")} className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-[10px]">
+            {paymentMethods.map((p) => {
+              const on = pay === p;
+              const Icon = PAY_ICON[p];
+              return (
+                <button
+                  key={p}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  onClick={() => setPay(p)}
+                  className={`flex min-h-[120px] cursor-pointer flex-col items-start gap-[6px] rounded-[20px] border-[3px] border-solid px-4 py-[14px] text-left text-ink ${
+                    on ? "border-primary bg-sky" : "border-line bg-white"
                   }`}
                 >
-                  {brand ? `${brand} ✓` : t("payment.cardType")}
-                </span>
-              </span>
-            </label>
-            <label className={label}>
-              {t("payment.expiry")}
-              <input type="text" inputMode="numeric" autoComplete="cc-exp" placeholder={t("payment.expiryPlaceholder")} className={input} />
-            </label>
-            <label className={label}>
-              {t("payment.cvc")}
-              <input type="text" inputMode="numeric" autoComplete="cc-csc" placeholder="123" className={input} />
-            </label>
-            <label className="col-span-full flex cursor-pointer items-center gap-[10px] text-[15px] font-bold">
-              <input type="checkbox" className="m-[3px_3px_3px_4px] h-5 w-5 accent-primary" />
-              {t("payment.saveCard")}
-            </label>
-            <span className="col-span-full text-sm text-muted">{t("payment.threeDs")}</span>
+                  <span className="inline-flex h-[46px] w-16 items-center justify-center rounded-[14px] bg-white">
+                    <Icon width={56} height={40} />
+                  </span>
+                  <span className="font-display text-lg font-semibold">{t(`payment.methods.${p}.label`)}</span>
+                  <span className="text-[13px] font-bold text-muted">{t(`payment.methods.${p}.sub`)}</span>
+                </button>
+              );
+            })}
           </div>
-        ) : (
-          <div className="flex flex-col gap-[10px] rounded-[20px] bg-field px-[18px] py-4">
-            <span className="font-bold text-ink">{t(`payment.methods.${pay}.note`)}</span>
-            {pay === "ideal" && (
-              <label className={label}>
-                {t("payment.bank")}
-                <select className={input}>
-                  {idealBanks.map((b) => (
-                    <option key={b}>{b}</option>
-                  ))}
-                </select>
+
+          {pay === "card" ? (
+            // Kart bilgisi hiçbir yere gönderilmez; gerçek ödemede sağlayıcının güvenli bileşeni kullanılacak.
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3 rounded-[24px] border-2 border-solid border-line p-[18px]">
+              <label className={`${label} col-span-full`}>
+                {t("payment.cardName")}
+                <input type="text" placeholder={t("payment.cardNamePlaceholder")} autoComplete="cc-name" className={`${input} uppercase`} />
               </label>
-            )}
-          </div>
-        )}
-      </section>
+              <label className={`${label} col-span-full`}>
+                {t("payment.cardNumber")}
+                <span className="relative flex">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="cc-number"
+                    placeholder="0000 0000 0000 0000"
+                    value={card}
+                    onChange={(e) => setCard(formatCardNumber(e.target.value))}
+                    className={`${field} min-w-0 flex-1 pl-[18px] pr-[120px] font-bold tracking-[0.06em]`}
+                  />
+                  <span
+                    aria-live="polite"
+                    className={`absolute right-[10px] top-1/2 box-border inline-flex h-[34px] min-w-[96px] -translate-y-1/2 items-center justify-center rounded-[10px] px-[10px] text-[12px] font-extrabold ${
+                      brand
+                        ? "border-[1.5px] border-solid border-primary bg-sky text-ink"
+                        : "border-[1.5px] border-dashed border-[#B9C4DA] bg-field text-muted"
+                    }`}
+                  >
+                    {brand ? `${brand} ✓` : t("payment.cardType")}
+                  </span>
+                </span>
+              </label>
+              <label className={label}>
+                {t("payment.expiry")}
+                <input type="text" inputMode="numeric" autoComplete="cc-exp" placeholder={t("payment.expiryPlaceholder")} className={input} />
+              </label>
+              <label className={label}>
+                {t("payment.cvc")}
+                <input type="text" inputMode="numeric" autoComplete="cc-csc" placeholder="123" className={input} />
+              </label>
+              <label className="col-span-full flex cursor-pointer items-center gap-[10px] text-[15px] font-bold">
+                <input type="checkbox" className="m-[3px_3px_3px_4px] h-5 w-5 accent-primary" />
+                {t("payment.saveCard")}
+              </label>
+              <span className="col-span-full text-sm text-muted">{t("payment.threeDs")}</span>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-[10px] rounded-[20px] bg-field px-[18px] py-4">
+              <span className="font-bold text-ink">{t(`payment.methods.${pay}.note`)}</span>
+              {pay === "ideal" && (
+                <label className={label}>
+                  {t("payment.bank")}
+                  <select className={input}>
+                    {idealBanks.map((b) => (
+                      <option key={b}>{b}</option>
+                    ))}
+                  </select>
+                </label>
+              )}
+            </div>
+          )}
+        </section>
+        </>
+      )}
 
       {/* İndirim kodu */}
       <details className="rounded-[22px] bg-field px-5 py-4">
@@ -381,6 +422,12 @@ export function BookingForm({
         <div className="flex flex-col">
           <span className="font-bold text-on-ink">{t("total.total")}</span>
           <span aria-live="polite" className="font-display text-[38px] font-bold leading-[1.1]">{fmt(total)}</span>
+          {holdMode && (
+            <span className="mt-1 flex flex-col text-sm font-bold text-on-ink">
+              <span>{t("hold.payNow")}: {fmt(0)}</span>
+              <span>{t("hold.payLater", { date: payBy })}: {fmt(total)}</span>
+            </span>
+          )}
         </div>
         <label className="flex cursor-pointer items-start gap-[10px] text-[15px] font-semibold">
           <input type="checkbox" name="terms" checked={terms} onChange={() => setTerms(!terms)} className="m-0 mt-[1px] h-[22px] w-[22px] flex-none accent-sun" />

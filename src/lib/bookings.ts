@@ -13,7 +13,11 @@ const MAX_IN_COOKIE = 4;
 
 // Çerez 4 KB ile sınırlı: bacaklar kısa anahtarlarla saklanır, şehir adları koddan türetilir.
 type CompactLeg = [string, string, string, number, string, string, string, number, string?, number?];
-type CompactBooking = { i: string; p: Booking["provider"]; r?: string; e: string; t: number; c: string; a: string; o: CompactLeg; b?: CompactLeg };
+type CompactBooking = {
+  i: string; p: Booking["provider"]; r?: string; e: string; t: number; c: string; a: string; o: CompactLeg; b?: CompactLeg;
+  /** Ayrılmış: [son ödeme, fiyat garantisi] ve sağlayıcı tutarı */
+  h?: [string, string?]; pt?: number;
+};
 
 const packLeg = (l: Leg): CompactLeg => [l.date, l.dep, l.arr, l.arrDayOffset, l.fromCode, l.toCode, l.airline, l.stops, l.via?.code, l.mins];
 const unpackLeg = (c: CompactLeg): Leg => ({
@@ -23,10 +27,12 @@ const unpackLeg = (c: CompactLeg): Leg => ({
 const pack = (b: Booking): CompactBooking => ({
   i: b.id, p: b.provider, r: b.pnr, e: b.email, t: b.total, c: b.createdAt, a: b.offer.airline,
   o: packLeg(b.offer.outbound), b: b.offer.inbound ? packLeg(b.offer.inbound) : undefined,
+  h: b.held ? [b.held.payBy, b.held.priceGuaranteedUntil] : undefined, pt: b.providerTotal,
 });
 const unpack = (c: CompactBooking): Booking => ({
   id: c.i, provider: c.p, pnr: c.r, email: c.e, total: c.t, createdAt: c.c,
   offer: { airline: c.a, outbound: unpackLeg(c.o), inbound: c.b ? unpackLeg(c.b) : undefined },
+  held: c.h ? { payBy: c.h[0], priceGuaranteedUntil: c.h[1] } : undefined, providerTotal: c.pt,
 });
 
 async function readCookieList(): Promise<Booking[]> {
@@ -43,15 +49,18 @@ type Row = { id: string; email: string; provider: string; pnr: string | null; to
 
 const fromRow = (r: Row): Booking => ({ ...r.summary, id: r.id, pnr: r.pnr ?? undefined, email: r.email, total: r.total_try, createdAt: r.created_at });
 
-export async function saveBooking(b: Booking, user: CurrentUser | null, locale: string) {
-  const list = [b, ...(await readCookieList()).filter((x) => x.id !== b.id)].slice(0, MAX_IN_COOKIE);
-  (await cookies()).set(COOKIE, Buffer.from(JSON.stringify(list.map(pack))).toString("base64url"), {
+async function writeCookieList(list: Booking[]) {
+  (await cookies()).set(COOKIE, Buffer.from(JSON.stringify(list.slice(0, MAX_IN_COOKIE).map(pack))).toString("base64url"), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
   });
+}
+
+export async function saveBooking(b: Booking, user: CurrentUser | null, locale: string) {
+  await writeCookieList([b, ...(await readCookieList()).filter((x) => x.id !== b.id)]);
 
   const admin = supabaseAdmin();
   if (admin) {
@@ -67,6 +76,17 @@ export async function saveBooking(b: Booking, user: CurrentUser | null, locale: 
     });
     // Kayıt başarısız olsa da bilet kesildi; kullanıcıyı durdurmayalım, sadece günlüğe yazalım.
     if (error) console.error("Rezervasyon veritabanına yazılamadı:", error.message);
+  }
+}
+
+/** Ayrılmış rezervasyonun ödemesi yapılınca kayıt güncellenir (çerez ve veritabanı). */
+export async function updateBooking(b: Booking) {
+  const list = await readCookieList();
+  if (list.some((x) => x.id === b.id)) await writeCookieList(list.map((x) => (x.id === b.id ? b : x)));
+  const admin = supabaseAdmin();
+  if (admin) {
+    const { error } = await admin.from("bookings").update({ pnr: b.pnr ?? null, summary: b }).eq("id", b.id);
+    if (error) console.error("Rezervasyon güncellenemedi:", error.message);
   }
 }
 

@@ -41,6 +41,7 @@ export type ParsedBooking = {
   bags: BagChoice[];
   seats: SeatChoice[];
   promo?: string;
+  hold: boolean;
 };
 
 export function validateBookingForm(form: FormData, offer: Offer): { data?: ParsedBooking; errors: FieldErrors } {
@@ -96,11 +97,13 @@ export function validateBookingForm(form: FormData, offer: Offer): { data?: Pars
       designator: String(s.designator).slice(0, 4),
     })) ?? [];
   if (form.get("terms") !== "on") errors.terms = "terms";
+  const hold = form.get("hold") === "1";
+  if (hold && !offer.hold) errors.hold = "hold";
 
   if (Object.keys(errors).length) return { errors };
   return {
     errors,
-    data: { passengers, email, phone: code + phoneDigits.replace(/^0/, ""), bags: finalBags, seats, promo: get("promo") || undefined },
+    data: { passengers, email, phone: code + phoneDigits.replace(/^0/, ""), bags: finalBags, seats, promo: get("promo") || undefined, hold },
   };
 }
 

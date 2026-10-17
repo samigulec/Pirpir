@@ -16,5 +16,23 @@
     "off": "Ja, herinner me",
     "on": "Herinnering aan ✓"
   },
-  "home": "Terug naar home"
+  "home": "Terug naar home",
+  "held": {
+    "title": "Je prijs staat vast!",
+    "text": "Je reservering wacht op betaling. Betaal vóór {date} en je ticket wordt uitgegeven.",
+    "guaranteed": "De prijs verandert in deze periode niet.",
+    "notGuaranteed": "Je stoel is gereserveerd, maar de prijs kan veranderen tot je betaalt.",
+    "pay": "Nu betalen · {price}",
+    "paying": "Bezig met betalen…",
+    "pnrLabel": "Reserveringscode",
+    "expiredTitle": "Reservering verlopen",
+    "expiredText": "De betaaltermijn voor deze reservering is verstreken. Zoek opnieuw om te boeken tegen actuele prijzen.",
+    "searchAgain": "Opnieuw zoeken",
+    "errors": {
+      "priceChanged": "De prijs is veranderd: het nieuwe totaal is {price}. Zoek opnieuw om verder te gaan.",
+      "failed": "We konden de betaling nu niet afronden; probeer het straks opnieuw.",
+      "live": "Betalingen zijn nog niet gekoppeld; we kunnen nu nog niet afrekenen.",
+      "expired": "De betaaltermijn is verstreken."
+    }
+  }
 }

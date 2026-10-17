@@ -285,10 +285,23 @@ function generate(q: SearchQuery): Offer[] {
         fareBrand: fare.brand,
         conditions: fare.conditions,
         passportRequired: a.country !== b.country,
+        hold: demoHold(p.airline, q.date),
       };
     });
   });
   return offers.map((o, i) => ({ ...o, id: encodeId(q, i) }));
+}
+
+/**
+ * Örnek "sonra öde": yalnızca tam hizmet havayollarında ve kalkışa en az 4 gün varken;
+ * son ödeme 3 gün sonra, fiyat o zamana kadar garanti.
+ */
+function demoHold(airline: string, date: string): Offer["hold"] {
+  if (!FULL_SERVICE.has(airline.split(" + ")[0])) return undefined;
+  const payDay = addDays(todayIso(), 3);
+  if (addDays(payDay, 1) >= date) return undefined;
+  const payBy = `${payDay}T21:00:00Z`;
+  return { payBy, priceGuaranteedUntil: payBy };
 }
 
 /** Örnek koltuk haritası: aynı teklif ve bacak için hep aynı dolu koltuklar ve fiyatlar. */
@@ -353,7 +366,9 @@ export const demoProvider: FlightProvider = {
     return segs.map((seg, i) => demoSeatMap(offer, i, seg));
   },
   async createOrder(input: OrderInput, offer: Offer, totalTry: number): Promise<Booking> {
+    if (input.hold && !offer.hold) throw new Error("Bu teklif ayrılamıyor.");
     return {
+      held: input.hold ? offer.hold : undefined,
       id: "demo-" + hash(input.offerId + input.email + Date.now()).toString(36),
       provider: "demo",
       email: input.email,
@@ -361,6 +376,9 @@ export const demoProvider: FlightProvider = {
       total: totalTry,
       createdAt: new Date().toISOString(),
     };
+  },
+  async payHeld(booking) {
+    return { ...booking, held: undefined };
   },
 };
 

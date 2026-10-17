@@ -16,5 +16,23 @@
     "off": "Evet, hatırlat",
     "on": "Hatırlatma açık ✓"
   },
-  "home": "Ana sayfaya dön"
+  "home": "Ana sayfaya dön",
+  "held": {
+    "title": "Fiyatın sabitlendi!",
+    "text": "Rezervasyonun ödeme bekliyor. {date} tarihine kadar ödersen biletin kesilir.",
+    "guaranteed": "Fiyat bu süre boyunca değişmez.",
+    "notGuaranteed": "Koltuğun ayrıldı ama fiyat ödemeye kadar değişebilir.",
+    "pay": "Şimdi öde · {price}",
+    "paying": "Ödeniyor…",
+    "pnrLabel": "Ayırma kodu",
+    "expiredTitle": "Ayırma süresi doldu",
+    "expiredText": "Bu rezervasyonun ödeme süresi geçti. Yeniden arayıp güncel fiyatlarla bilet alabilirsin.",
+    "searchAgain": "Yeniden ara",
+    "errors": {
+      "priceChanged": "Fiyat değişti: yeni tutar {price}. Yeniden arayıp güncel fiyatla devam edebilirsin.",
+      "failed": "Ödemeyi şu an tamamlayamadık; biraz sonra tekrar dene.",
+      "live": "Ödeme altyapısı henüz bağlı değil; şimdilik ödeme alınamıyor.",
+      "expired": "Ödeme süresi geçti."
+    }
+  }
 }

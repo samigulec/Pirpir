@@ -145,7 +145,8 @@
     "expired": "Deze aanbieding is verlopen. Zoek opnieuw voor actuele prijzen.",
     "failed": "We konden de boeking nu niet afronden. Er is niets afgeschreven; probeer het zo opnieuw.",
     "live": "Betalingen zijn nog niet gekoppeld, dus tickets kunnen nu nog niet worden uitgegeven.",
-    "seats": "Een van je stoelen is niet meer beschikbaar. Kies opnieuw."
+    "seats": "Een van je stoelen is niet meer beschikbaar. Kies opnieuw.",
+    "hold": "Dit aanbod kan niet meer gereserveerd worden; je kunt nu betalen."
   },
   "testNotice": "Testmodus: er wordt niet betaald en je kaartgegevens worden nergens naartoe gestuurd.",
   "processing": "Bezig met boeken…",
@@ -173,5 +174,19 @@
     "notPicked": "{pax}: niet gekozen",
     "free": "Gratis",
     "front": "Voor"
+  },
+  "hold": {
+    "title": "Wanneer wil je betalen?",
+    "now": "Nu betalen",
+    "nowDesc": "Je ticket wordt meteen uitgegeven.",
+    "later": "Prijs vastzetten, later betalen",
+    "laterDesc": "We reserveren zonder betaling. Betaal vóór {date}.",
+    "guaranteed": "De prijs verandert in deze periode niet.",
+    "notGuaranteed": "Je stoel wordt gereserveerd, maar de prijs kan veranderen tot je betaalt.",
+    "free": "Gratis",
+    "button": "Prijs vastzetten · gratis",
+    "payNow": "Nu te betalen",
+    "payLater": "Te betalen vóór {date}",
+    "note": "Je kunt betalen via de bevestigingspagina of Mijn reizen. Verloopt de tijd, dan vervalt de reservering."
   }
 }

@@ -145,7 +145,8 @@
     "expired": "Bu teklifin süresi doldu. Güncel fiyatlar için yeniden ara.",
     "failed": "Rezervasyonu şu an tamamlayamadık. Kartından para çekilmedi; biraz sonra tekrar dene.",
     "live": "Ödeme altyapısı henüz bağlı değil; şimdilik bilet kesilemiyor.",
-    "seats": "Seçtiğin koltuklardan biri artık müsait değil. Lütfen yeniden seç."
+    "seats": "Seçtiğin koltuklardan biri artık müsait değil. Lütfen yeniden seç.",
+    "hold": "Bu teklif artık ayrılamıyor; şimdi ödeyebilirsin."
   },
   "testNotice": "Test modu: ödeme alınmaz ve kart bilgilerin hiçbir yere gönderilmez.",
   "processing": "Rezervasyon yapılıyor…",
@@ -173,5 +174,19 @@
     "notPicked": "{pax}: seçilmedi",
     "free": "Ücretsiz",
     "front": "Ön"
+  },
+  "hold": {
+    "title": "Ne zaman ödemek istersin?",
+    "now": "Şimdi öde",
+    "nowDesc": "Biletin hemen kesilir.",
+    "later": "Fiyatı sabitle, sonra öde",
+    "laterDesc": "Ödemeden ayırıyoruz. Son ödeme: {date}.",
+    "guaranteed": "Fiyat bu süre boyunca değişmez.",
+    "notGuaranteed": "Koltuğun ayrılır ama fiyat ödemeye kadar değişebilir.",
+    "free": "Ücretsiz",
+    "button": "Fiyatı sabitle · ücretsiz",
+    "payNow": "Şimdi ödenecek",
+    "payLater": "{date} tarihine kadar ödenecek",
+    "note": "Ödemeyi onay sayfasından ya da Biletlerim'den yapabilirsin. Süre dolarsa ayırma iptal olur."
   }
 }

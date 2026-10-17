@@ -145,7 +145,8 @@
     "expired": "This offer has expired. Search again for current prices.",
     "failed": "We couldn't complete the booking right now. You haven't been charged; please try again shortly.",
     "live": "Payments aren't connected yet, so tickets can't be issued for now.",
-    "seats": "One of your seats is no longer available. Please choose again."
+    "seats": "One of your seats is no longer available. Please choose again.",
+    "hold": "This offer can no longer be reserved; you can pay now."
   },
   "testNotice": "Test mode: no payment is taken and your card details are not sent anywhere.",
   "processing": "Booking…",
@@ -173,5 +174,19 @@
     "notPicked": "{pax}: not chosen",
     "free": "Free",
     "front": "Front"
+  },
+  "hold": {
+    "title": "When would you like to pay?",
+    "now": "Pay now",
+    "nowDesc": "Your ticket is issued straight away.",
+    "later": "Lock the price, pay later",
+    "laterDesc": "We reserve it without payment. Pay by {date}.",
+    "guaranteed": "The price won't change during this time.",
+    "notGuaranteed": "Your seat is reserved, but the price may change until you pay.",
+    "free": "Free",
+    "button": "Lock the price · free",
+    "payNow": "Due now",
+    "payLater": "Due by {date}",
+    "note": "You can pay from the confirmation page or My trips. If time runs out, the reservation is cancelled."
   }
 }

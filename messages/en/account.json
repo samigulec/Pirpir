@@ -44,7 +44,9 @@
     "biletcik": "“I'll be waiting here when your ticket is ready.”",
     "guestTitle": "Keep your tickets on every device",
     "guestText": "Sign in to see all tickets booked with the same email. For now, we're showing the ones booked in this browser.",
-    "guestCta": "Sign in"
+    "guestCta": "Sign in",
+    "awaitingPayment": "Awaiting payment",
+    "holdExpired": "Expired"
   },
   "account": {
     "metaTitle": "My account",

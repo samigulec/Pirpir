@@ -59,3 +59,19 @@ export function minsParts(mins: number, pad = false) {
   const m = mins % 60;
   return { h: Math.floor(mins / 60), m: pad ? String(m).padStart(2, "0") : String(m) };
 }
+
+/**
+ * Son ödeme gibi tam zaman damgaları: "Pzt 20 Eki 23:00 GMT+2".
+ * Sunucu ve tarayıcı aynı metni üretsin diye sabit saat dilimi (Amsterdam) ve kısaltması gösterilir.
+ */
+export function formatDateTime(isoDateTime: string, loc = "tr-TR"): string {
+  return new Intl.DateTimeFormat(loc, {
+    timeZone: "Europe/Amsterdam",
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(new Date(isoDateTime));
+}

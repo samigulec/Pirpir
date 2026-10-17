@@ -21,6 +21,13 @@ function token(): string {
   return t;
 }
 
+/** Ayrılmış rezervasyonun güncel tutarı değişti (TRY). */
+export class PriceChangedError extends ProviderError {
+  constructor(readonly newTotal: number) {
+    super("Fiyat değişti");
+  }
+}
+
 export const isDuffelTestMode = () => (process.env.DUFFEL_ACCESS_TOKEN ?? "").startsWith("duffel_test_");
 
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -88,7 +95,26 @@ type DOffer = {
   passenger_identity_documents_required?: boolean;
   available_services?: DService[] | null;
   conditions?: DConditions;
+  payment_requirements?: {
+    requires_instant_payment: boolean;
+    payment_required_by?: string | null;
+    price_guarantee_expires_at?: string | null;
+  } | null;
 };
+
+type DOrder = {
+  id: string;
+  booking_reference: string;
+  total_amount: string;
+  total_currency: string;
+  payment_status?: { awaiting_payment: boolean; payment_required_by?: string | null; price_guarantee_expires_at?: string | null } | null;
+};
+
+/** Havayolu "sonra öde"ye izin veriyorsa ayırma koşulları. */
+function holdOf(p: DOffer["payment_requirements"] | DOrder["payment_status"]): Offer["hold"] {
+  if (!p || ("requires_instant_payment" in p && p.requires_instant_payment) || !p.payment_required_by) return undefined;
+  return { payBy: p.payment_required_by, priceGuaranteedUntil: p.price_guarantee_expires_at ?? undefined };
+}
 
 const cityOf = (p: DPlace) => findAirport(p.iata_code)?.city ?? p.city_name ?? p.name;
 
@@ -230,6 +256,7 @@ function mapOffer(o: DOffer, q: SearchQuery): Offer {
       changeable: o.conditions?.change_before_departure?.allowed,
     },
     passportRequired: !!o.passenger_identity_documents_required,
+    hold: holdOf(o.payment_requirements),
     expiresAt: o.expires_at,
   };
 }
@@ -389,16 +416,18 @@ export const duffelProvider: FlightProvider = {
       }
     }
     const amount = (Number(o.total_amount) + extra).toFixed(2);
+    if (input.hold && !holdOf(o.payment_requirements)) throw new ProviderError("Bu teklif ayrılamıyor.");
 
-    const order = await call<{ id: string; booking_reference: string }>("/air/orders", {
+    // Ayırmada (hold) ödeme gönderilmez; havayolu koltuğu son ödeme zamanına kadar tutar.
+    const order = await call<DOrder>("/air/orders", {
       method: "POST",
       body: JSON.stringify({
         data: {
-          type: "instant",
+          type: input.hold ? "hold" : "instant",
           selected_offers: [o.id],
           passengers,
           services,
-          payments: [{ type: "balance", currency: o.total_currency, amount }],
+          ...(input.hold ? {} : { payments: [{ type: "balance", currency: o.total_currency, amount }] }),
         },
       }),
     });
@@ -410,6 +439,24 @@ export const duffelProvider: FlightProvider = {
       offer: { airline: offer.airline, outbound: offer.outbound, inbound: offer.inbound },
       total: totalTry,
       createdAt: new Date().toISOString(),
+      held: input.hold ? holdOf(order.payment_status) ?? offer.hold : undefined,
+      providerTotal: input.hold ? toTry(Number(order.total_amount), order.total_currency) : undefined,
     };
+  },
+
+  async payHeld(booking) {
+    if (!isDuffelTestMode()) {
+      throw new ProviderError("Canlı modda ödeme altyapısı bağlanmadan bilet kesilemez.");
+    }
+    const order = await call<DOrder>(`/air/orders/${booking.id}`);
+    if (!order.payment_status?.awaiting_payment) return { ...booking, held: undefined, pnr: order.booking_reference };
+    // Fiyat garantisi bittiyse tutar değişmiş olabilir: müşteriye göstermeden ödeme yapılmaz.
+    const total = toTry(Number(order.total_amount), order.total_currency);
+    if (Math.abs(total - (booking.providerTotal ?? booking.total)) > 1) throw new PriceChangedError(total);
+    await call("/air/payments", {
+      method: "POST",
+      body: JSON.stringify({ data: { order_id: order.id, payment: { type: "balance", currency: order.total_currency, amount: order.total_amount } } }),
+    });
+    return { ...booking, held: undefined, pnr: order.booking_reference };
   },
 };
