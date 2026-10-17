@@ -22,6 +22,8 @@ export const routing = defineRouting({
     "/giris": { tr: "/giris", en: "/login", nl: "/inloggen" },
     "/biletlerim": { tr: "/biletlerim", en: "/my-trips", nl: "/mijn-reizen" },
     "/hesap": { tr: "/hesap", en: "/account", nl: "/account" },
+    "/gizlilik": { tr: "/gizlilik", en: "/privacy", nl: "/privacy" },
+    "/kosullar": { tr: "/kosullar", en: "/terms", nl: "/voorwaarden" },
   },
 });
 

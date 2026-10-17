@@ -36,9 +36,9 @@ export async function SiteFooter() {
       <div className="mx-auto flex max-w-page flex-wrap justify-between gap-3 border-0 border-t border-solid border-line px-6 pb-10 pt-[18px] text-sm text-muted">
         <span>© {brand.name}</span>
         <span className="flex gap-5">
-          <a href="#" className={link}>{t("privacy")}</a>
-          <a href="#" className={link}>{t("terms")}</a>
-          <a href="#" className={link}>{t("cookies")}</a>
+          <Link href="/gizlilik" className={link}>{t("privacy")}</Link>
+          <Link href="/kosullar" className={link}>{t("terms")}</Link>
+          <Link href={{ pathname: "/gizlilik", hash: "cerezler" }} className={link}>{t("cookies")}</Link>
         </span>
       </div>
     </footer>
@@ -54,8 +54,8 @@ export async function SimpleFooter() {
         <span>© {brand.name}</span>
         <span className="flex gap-5">
           <a href="#" className="text-muted">{t("footer.help")}</a>
-          <a href="#" className="text-muted">{t("footer.privacy")}</a>
-          <a href="#" className="text-muted">{t("footer.terms")}</a>
+          <Link href="/gizlilik" className="text-muted">{t("footer.privacy")}</Link>
+          <Link href="/kosullar" className="text-muted">{t("footer.terms")}</Link>
         </span>
       </div>
     </footer>

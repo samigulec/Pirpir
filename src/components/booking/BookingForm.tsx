@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { cityByCode } from "@/data/airports";
 import { useCurrency } from "../CurrencyProvider";
@@ -366,8 +367,8 @@ export function BookingForm({
           <input type="checkbox" name="terms" checked={terms} onChange={() => setTerms(!terms)} className="m-0 mt-[1px] h-[22px] w-[22px] flex-none accent-sun" />
           <span>
             {t.rich("total.terms", {
-              terms: (c) => <a href="#" className="text-sun">{c}</a>,
-              privacy: (c) => <a href="#" className="text-sun">{c}</a>,
+              terms: (c) => <Link href="/kosullar" target="_blank" className="text-sun">{c}</Link>,
+              privacy: (c) => <Link href="/gizlilik" target="_blank" className="text-sun">{c}</Link>,
             })}
           </span>
         </label>

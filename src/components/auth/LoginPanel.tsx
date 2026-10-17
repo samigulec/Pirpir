@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { requestLogin, signInWithProvider, type LoginState, type OAuthProvider } from "@/actions/auth";
 import { LogoMark } from "../Logo";
@@ -114,8 +115,8 @@ export function LoginPanel({
         {help && <p className="m-0 text-[15px] text-muted">{t("wrongEmailHelp")}</p>}
         <p className="m-0 text-sm text-muted">
           {t.rich("legal", {
-            terms: (c) => <a href="#" className="font-bold text-ink">{c}</a>,
-            privacy: (c) => <a href="#" className="font-bold text-ink">{c}</a>,
+            terms: (c) => <Link href="/kosullar" target="_blank" className="font-bold text-ink">{c}</Link>,
+            privacy: (c) => <Link href="/gizlilik" target="_blank" className="font-bold text-ink">{c}</Link>,
           })}
         </p>
       </div>
