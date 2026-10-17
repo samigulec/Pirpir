@@ -71,6 +71,11 @@ export async function saveBooking(b: Booking, user: CurrentUser | null, locale: 
 }
 
 /** Bu tarayıcıdaki ya da (girişliyse) hesaptaki rezervasyon. */
+/** Çıkışta: bu tarayıcıda tutulan bilet listesi silinir (ortak bilgisayarda başkası görmesin). */
+export async function clearLocalBookings() {
+  (await cookies()).delete(COOKIE);
+}
+
 export async function getBooking(id: string): Promise<Booking | null> {
   const local = (await readCookieList()).find((b) => b.id === id);
   if (local) return local;

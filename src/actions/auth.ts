@@ -7,6 +7,7 @@ import { getPathname, redirect } from "@/i18n/navigation";
 import { enabledProviders, isSupabaseConfigured } from "@/lib/auth/config";
 import { clearSession, getCurrentUser, setDemoUser } from "@/lib/auth/session";
 import { supabaseServer } from "@/lib/auth/supabase-server";
+import { clearLocalBookings } from "@/lib/bookings";
 import { asLocale } from "@/lib/intl";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -82,6 +83,7 @@ export async function signInWithProvider(_prev: LoginState, form: FormData): Pro
 
 export async function signOut() {
   await clearSession();
+  await clearLocalBookings();
   redirect({ href: "/", locale: asLocale(await getLocale()) });
 }
 
