@@ -16,10 +16,10 @@ export const COUNTRY_CODES = [
 ] as const;
 
 /** Listenin başında gösterilenler (hizmet verdiğimiz pazarlar). */
-export const COMMON_COUNTRIES = ["TR", "NL", "BE", "DE", "GB", "US", "FR", "AT", "CH"] as const;
+export const COMMON_COUNTRIES = ["TR", "NL", "BE", "DE", "GB", "US", "FR", "AT", "CH", "ES", "IT"] as const;
 
 /** Sayfa diline göre önceden seçili uyruk (İngilizcede seçim yolcuya bırakılır). */
-export const DEFAULT_NATIONALITY: Record<string, string> = { tr: "TR", nl: "NL", de: "DE" };
+export const DEFAULT_NATIONALITY: Record<string, string> = { tr: "TR", nl: "NL", de: "DE", fr: "FR", es: "ES", it: "IT" };
 
 const CODES = new Set<string>(COUNTRY_CODES);
 export const isCountryCode = (v: unknown): v is string => typeof v === "string" && CODES.has(v);

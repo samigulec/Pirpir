@@ -62,7 +62,10 @@
     "language": "Taal",
     "currency": "Valuta",
     "save": "Opslaan",
-    "cancel": "Annuleren"
+    "cancel": "Annuleren",
+    "countrySearch": "Zoek een land…",
+    "currencySearch": "Zoek een valuta…",
+    "none": "Geen resultaten."
   },
   "menu": {
     "label": "Accountmenu",

@@ -1,0 +1,39 @@
+{
+  "breadcrumb": "Ruta de navegación",
+  "home": "Inicio",
+  "heroFrom": "Desde {from}",
+  "heroTitle": "Vuelos a {to}",
+  "metaTitle": "Vuelos de {from} a {to}",
+  "fromPrice": "ida y vuelta desde <price></price>",
+  "cta": "Elige fechas y encuentra billetes",
+  "facts": {
+    "label": "Datos rápidos",
+    "duration": "Duración del vuelo",
+    "durationValue": "{h} h {m} min directo",
+    "airports": "Aeropuertos",
+    "airlines": "Aerolíneas",
+    "timeDiff": "Diferencia horaria"
+  },
+  "monthly": {
+    "title": "¿Qué mes es el más barato?",
+    "subtitle": "La tarifa de ida y vuelta más baja por mes. Toca un mes.",
+    "groupLabel": "Elige un mes",
+    "aria": "{month}: {price}",
+    "cheapest": "¡El mes más barato del año!",
+    "diff": "{price} más que el mes más barato",
+    "note": "Precios de ejemplo. Los precios reales se actualizan al buscar."
+  },
+  "deals": {
+    "title": "Las próximas fechas más baratas",
+    "select": "Elegir"
+  },
+  "airports": {
+    "title": "¿Qué aeropuerto te viene mejor?"
+  },
+  "tips": {
+    "title": "Consejos para {city}"
+  },
+  "others": {
+    "title": "¿Adónde más en {country}?"
+  }
+}

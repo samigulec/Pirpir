@@ -4,7 +4,7 @@
 import type { Currency } from "@/lib/currency";
 import type { Locale } from "@/i18n/config";
 
-export type MarketId = "NL" | "BE" | "DE" | "TR" | "GB" | "US";
+export type MarketId = "NL" | "BE" | "DE" | "TR" | "GB" | "US" | "FR" | "AT" | "CH" | "ES" | "IT" | "DK" | "SE" | "NO" | "PL" | "IE";
 
 export type Market = {
   id: MarketId;
@@ -51,6 +51,66 @@ export const MARKETS: Market[] = [
     currency: "USD",
     from: "city:NYC",
     routes: [["city:NYC", "city:LON"], ["city:NYC", "city:PAR"], ["city:NYC", "city:ROM"], ["city:NYC", "BCN"], ["city:NYC", "LIS"], ["city:NYC", "AMS"], ["city:NYC", "city:IST"], ["city:NYC", "ATH"], ["city:NYC", "DXB"]],
+  },
+  {
+    id: "FR",
+    currency: "EUR",
+    from: "city:PAR",
+    routes: [["city:PAR", "city:IST"], ["city:PAR", "city:LON"], ["city:PAR", "BCN"], ["city:PAR", "city:ROM"], ["city:PAR", "LIS"], ["city:PAR", "AYT"], ["city:PAR", "ATH"], ["city:PAR", "DXB"], ["city:PAR", "city:NYC"]],
+  },
+  {
+    id: "AT",
+    currency: "EUR",
+    from: "VIE",
+    routes: [["VIE", "city:IST"], ["VIE", "AYT"], ["VIE", "city:LON"], ["VIE", "BCN"], ["VIE", "city:ROM"], ["VIE", "ATH"], ["VIE", "city:PAR"], ["VIE", "DXB"], ["VIE", "city:NYC"]],
+  },
+  {
+    id: "CH",
+    currency: "CHF",
+    from: "ZRH",
+    routes: [["ZRH", "city:IST"], ["ZRH", "city:LON"], ["ZRH", "BCN"], ["GVA", "LIS"], ["ZRH", "AYT"], ["ZRH", "ATH"], ["GVA", "city:ROM"], ["ZRH", "DXB"], ["ZRH", "city:NYC"]],
+  },
+  {
+    id: "ES",
+    currency: "EUR",
+    from: "MAD",
+    routes: [["MAD", "city:LON"], ["BCN", "city:PAR"], ["MAD", "city:ROM"], ["BCN", "city:IST"], ["MAD", "LIS"], ["BCN", "AMS"], ["MAD", "ATH"], ["MAD", "DXB"], ["MAD", "city:NYC"]],
+  },
+  {
+    id: "IT",
+    currency: "EUR",
+    from: "city:ROM",
+    routes: [["city:ROM", "city:IST"], ["city:MIL", "city:LON"], ["city:ROM", "city:PAR"], ["city:ROM", "BCN"], ["city:MIL", "AMS"], ["city:ROM", "ATH"], ["city:MIL", "LIS"], ["city:ROM", "DXB"], ["city:ROM", "city:NYC"]],
+  },
+  {
+    id: "DK",
+    currency: "DKK",
+    from: "CPH",
+    routes: [["CPH", "city:IST"], ["CPH", "city:LON"], ["CPH", "BCN"], ["CPH", "AYT"], ["CPH", "city:ROM"], ["CPH", "city:PAR"], ["CPH", "ATH"], ["CPH", "DXB"], ["CPH", "city:NYC"]],
+  },
+  {
+    id: "SE",
+    currency: "SEK",
+    from: "city:STO",
+    routes: [["city:STO", "city:IST"], ["city:STO", "city:LON"], ["city:STO", "BCN"], ["city:STO", "AYT"], ["city:STO", "city:ROM"], ["city:STO", "city:PAR"], ["city:STO", "ATH"], ["city:STO", "DXB"], ["city:STO", "city:NYC"]],
+  },
+  {
+    id: "NO",
+    currency: "NOK",
+    from: "OSL",
+    routes: [["OSL", "city:IST"], ["OSL", "city:LON"], ["OSL", "BCN"], ["OSL", "AYT"], ["OSL", "city:ROM"], ["OSL", "city:PAR"], ["OSL", "ATH"], ["OSL", "DXB"], ["OSL", "city:NYC"]],
+  },
+  {
+    id: "PL",
+    currency: "PLN",
+    from: "WAW",
+    routes: [["WAW", "city:LON"], ["WAW", "city:IST"], ["KRK", "BCN"], ["WAW", "city:ROM"], ["WAW", "city:PAR"], ["WAW", "AYT"], ["WAW", "ATH"], ["WAW", "DXB"], ["WAW", "city:NYC"]],
+  },
+  {
+    id: "IE",
+    currency: "EUR",
+    from: "DUB",
+    routes: [["DUB", "city:LON"], ["DUB", "BCN"], ["DUB", "city:ROM"], ["DUB", "city:PAR"], ["DUB", "LIS"], ["DUB", "city:IST"], ["DUB", "AMS"], ["DUB", "DXB"], ["DUB", "city:NYC"]],
   },
 ];
 

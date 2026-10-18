@@ -62,7 +62,10 @@
     "language": "Language",
     "currency": "Currency",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "countrySearch": "Search a country…",
+    "currencySearch": "Search a currency…",
+    "none": "No results."
   },
   "menu": {
     "label": "Account menu",

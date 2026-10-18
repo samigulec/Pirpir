@@ -1,0 +1,83 @@
+{
+  "language": "Lingua",
+  "currency": "Valuta",
+  "myTickets": "I miei viaggi",
+  "signIn": "Accedi",
+  "mainNav": "Menu principale",
+  "nav": {
+    "popular": "Voli popolari",
+    "routes": "Rotte",
+    "help": "Aiuto"
+  },
+  "bottomNav": {
+    "label": "Navigazione inferiore",
+    "search": "Cerca",
+    "tickets": "I miei viaggi",
+    "help": "Aiuto"
+  },
+  "duration": "{h} h {m} min",
+  "direct": "Diretto",
+  "oneStop": "1 scalo",
+  "roundTrip": "andata e ritorno",
+  "footer": {
+    "company": "Azienda",
+    "about": "Chi siamo",
+    "careers": "Lavora con noi",
+    "press": "Stampa",
+    "help": "Aiuto",
+    "helpCenter": "Centro assistenza",
+    "baggage": "Regole sui bagagli",
+    "cancel": "Cancellazioni e rimborsi",
+    "popular": "Popolari",
+    "istanbul": "Voli per Istanbul",
+    "antalya": "Voli per Antalya",
+    "izmir": "Voli per Smirne",
+    "privacy": "Privacy",
+    "terms": "Condizioni",
+    "cookies": "Cookie",
+    "tagline": "Il modo più semplice per volare."
+  },
+  "stops": "{n} scali",
+  "account": "Il mio account",
+  "notFound": {
+    "title": "Questa pagina è volata via",
+    "text": "Non abbiamo trovato la pagina che cerchi. Ripartiamo dalla home.",
+    "cta": "Torna alla home"
+  },
+  "characters": {
+    "pirpir": "Pırpır, un piccolo aereo",
+    "pirpirHappy": "Pırpır, un piccolo aereo felice",
+    "bulut": "Bulut, la nuvola",
+    "valiz": "Valiz, la valigia",
+    "pasi": "Pasi, il passaporto",
+    "biletcik": "Biletçik, la carta d'imbarco",
+    "gunes": "Güneş, il sole",
+    "marti": "Martı, un gabbiano con il berretto da marinaio"
+  },
+  "region": {
+    "open": "Paese, lingua e valuta",
+    "title": "Paese, lingua e valuta",
+    "country": "Paese",
+    "countryHint": "Imposta il luogo di partenza e le rotte popolari nella home.",
+    "language": "Lingua",
+    "currency": "Valuta",
+    "save": "Salva",
+    "cancel": "Annulla"
+  },
+  "menu": {
+    "label": "Menu account",
+    "profile": "Profilo",
+    "signIn": "Accedi",
+    "signInText": "Accedi per vedere i tuoi viaggi su ogni dispositivo e prenotare più in fretta.",
+    "hello": "Il tuo account",
+    "trips": "I miei viaggi",
+    "tripsText": "Prenotazioni, modifiche e cancellazioni",
+    "account": "Account e profilo",
+    "accountText": "Nome, lingua e valuta",
+    "help": "Aiuto e FAQ",
+    "signOut": "Esci",
+    "travellers": "Viaggiatori salvati",
+    "alerts": "I miei avvisi di prezzo",
+    "favorites": "I miei preferiti"
+  }
+}

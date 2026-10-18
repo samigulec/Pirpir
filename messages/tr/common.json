@@ -62,7 +62,10 @@
     "language": "Dil",
     "currency": "Para birimi",
     "save": "Kaydet",
-    "cancel": "Vazgeç"
+    "cancel": "Vazgeç",
+    "countrySearch": "Ülke ara…",
+    "currencySearch": "Para birimi ara…",
+    "none": "Sonuç yok."
   },
   "menu": {
     "label": "Hesap menüsü",

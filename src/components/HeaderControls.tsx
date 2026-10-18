@@ -107,7 +107,9 @@ export function RegionSettings({ compact = false }: { compact?: boolean }) {
   }>({ market: "NL", locale: "tr", cur: "TRY" });
   const countryItems = useMemo<PickerItem[]>(() => {
     const names = new Intl.DisplayNames([locale], { type: "region" });
-    return MARKETS.map((m) => ({ value: m.id, label: names.of(m.id) ?? m.id, icon: { flag: m.id } }));
+    return MARKETS.map((m) => ({ value: m.id, label: names.of(m.id) ?? m.id, icon: { flag: m.id }, keywords: m.id })).sort((a, b) =>
+      a.label.localeCompare(b.label, locale),
+    );
   }, [locale]);
   const languageItems = useLanguageItems();
   const currencyItems = useCurrencyItems();
@@ -170,7 +172,7 @@ export function RegionSettings({ compact = false }: { compact?: boolean }) {
           </span>
         )}
         <span>
-          {SYMBOLS[cur]} {cur}
+          {SYMBOLS[cur] === cur ? cur : `${SYMBOLS[cur]} ${cur}`}
         </span>
       </button>
       <dialog
@@ -193,6 +195,8 @@ export function RegionSettings({ compact = false }: { compact?: boolean }) {
               onChange={(m) => isMarketId(m) && setDraft((d) => ({ ...d, market: m, cur: marketById(m).currency }))}
               labelId={`${titleId}-country`}
               className={pickerField}
+              searchPlaceholder={t("countrySearch")}
+              emptyText={t("none")}
             />
             <span id={hintId} className="text-sm font-semibold text-muted">
               {t("countryHint")}
@@ -218,6 +222,8 @@ export function RegionSettings({ compact = false }: { compact?: boolean }) {
               onChange={(c) => isCurrency(c) && setDraft((d) => ({ ...d, cur: c }))}
               labelId={`${titleId}-currency`}
               className={pickerField}
+              searchPlaceholder={t("currencySearch")}
+              emptyText={t("none")}
             />
           </div>
           <div className="flex flex-wrap justify-end gap-2 pt-2">

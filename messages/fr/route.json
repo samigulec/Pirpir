@@ -1,0 +1,30 @@
+{
+  "breadcrumb": "Fil d'Ariane",
+  "home": "Accueil",
+  "heroFrom": "Au départ de {from}",
+  "heroTitle": "Vols pour {to}",
+  "metaTitle": "Vols de {from} à {to}",
+  "fromPrice": "aller-retour dès <price></price>",
+  "cta": "Choisis tes dates, trouve tes billets",
+  "facts": {
+    "label": "En bref",
+    "duration": "Durée de vol",
+    "durationValue": "{h} h {m} min en direct",
+    "airports": "Aéroports",
+    "airlines": "Compagnies aériennes",
+    "timeDiff": "Décalage horaire"
+  },
+  "monthly": {
+    "title": "Quel mois est le moins cher ?",
+    "subtitle": "Prix aller-retour le plus bas par mois. Touche un mois.",
+    "groupLabel": "Choisis un mois",
+    "aria": "{month} : {price}",
+    "cheapest": "Le mois le moins cher de l'année !",
+    "diff": "{price} de plus que le mois le moins cher",
+    "note": "Prix donnés à titre d'exemple. Les vrais prix se mettent à jour quand tu lances une recherche."
+  },
+  "deals": { "title": "Prochaines dates les moins chères", "select": "Choisir" },
+  "airports": { "title": "Quel aéroport te convient ?" },
+  "tips": { "title": "Conseils pour {city}" },
+  "others": { "title": "Où aller d'autre en {country} ?" }
+}

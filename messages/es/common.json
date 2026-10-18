@@ -1,0 +1,83 @@
+{
+  "language": "Idioma",
+  "currency": "Moneda",
+  "myTickets": "Mis viajes",
+  "signIn": "Iniciar sesión",
+  "mainNav": "Menú principal",
+  "nav": {
+    "popular": "Vuelos populares",
+    "routes": "Rutas",
+    "help": "Ayuda"
+  },
+  "bottomNav": {
+    "label": "Navegación inferior",
+    "search": "Buscar",
+    "tickets": "Mis viajes",
+    "help": "Ayuda"
+  },
+  "duration": "{h} h {m} min",
+  "direct": "Directo",
+  "oneStop": "1 escala",
+  "roundTrip": "ida y vuelta",
+  "footer": {
+    "company": "Empresa",
+    "about": "Quiénes somos",
+    "careers": "Empleo",
+    "press": "Prensa",
+    "help": "Ayuda",
+    "helpCenter": "Centro de ayuda",
+    "baggage": "Normas de equipaje",
+    "cancel": "Cancelaciones y reembolsos",
+    "popular": "Populares",
+    "istanbul": "Vuelos a Estambul",
+    "antalya": "Vuelos a Antalya",
+    "izmir": "Vuelos a Esmirna",
+    "privacy": "Privacidad",
+    "terms": "Condiciones",
+    "cookies": "Cookies",
+    "tagline": "La forma más fácil de volar."
+  },
+  "stops": "{n} escalas",
+  "account": "Mi cuenta",
+  "notFound": {
+    "title": "Esta página se ha ido volando",
+    "text": "No hemos encontrado la página que buscas. Empecemos de nuevo desde la página de inicio.",
+    "cta": "Volver al inicio"
+  },
+  "characters": {
+    "pirpir": "Pırpır, un avioncito",
+    "pirpirHappy": "Pırpır, un avioncito feliz",
+    "bulut": "Bulut, la nube",
+    "valiz": "Valiz, la maleta",
+    "pasi": "Pasi, el pasaporte",
+    "biletcik": "Biletçik, la tarjeta de embarque",
+    "gunes": "Güneş, el sol",
+    "marti": "Martı, una gaviota con gorra de marinero"
+  },
+  "region": {
+    "open": "País, idioma y moneda",
+    "title": "País, idioma y moneda",
+    "country": "País",
+    "countryHint": "Define el lugar de salida y las rutas populares de la página de inicio.",
+    "language": "Idioma",
+    "currency": "Moneda",
+    "save": "Guardar",
+    "cancel": "Cancelar"
+  },
+  "menu": {
+    "label": "Menú de la cuenta",
+    "profile": "Perfil",
+    "signIn": "Iniciar sesión",
+    "signInText": "Inicia sesión para ver tus viajes en todos tus dispositivos y reservar más rápido.",
+    "hello": "Tu cuenta",
+    "trips": "Mis viajes",
+    "tripsText": "Reservas, cambios y cancelaciones",
+    "account": "Cuenta y perfil",
+    "accountText": "Nombre, idioma y moneda",
+    "help": "Ayuda y preguntas frecuentes",
+    "signOut": "Cerrar sesión",
+    "travellers": "Viajeros guardados",
+    "alerts": "Mis alertas de precio",
+    "favorites": "Mis favoritos"
+  }
+}

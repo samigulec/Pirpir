@@ -1,7 +1,9 @@
 // Çekirdek havalimanı listesi: öne çıkan şehirler, Türkçe/İngilizce/Hollandaca adları ve rota sayfası adresleri.
 // Tarayıcıya gönderilebilecek kadar küçüktür. Dünyadaki tüm havalimanları sunucuda: ./airports.ts
 
-export type Lang = "tr" | "en" | "nl" | "de";
+export type Lang = "tr" | "en" | "nl" | "de" | "fr" | "es" | "it";
+/** Şehir adının diğer dillerdeki yazılışı (Türkçe ad `city` alanında) */
+export type CityI18n = Partial<Record<Exclude<Lang, "tr">, string>>;
 
 export type Airport = {
   code: string;
@@ -18,7 +20,7 @@ export type Airport = {
   size: 1 | 2 | 3;
   aliases?: string[];
   /** Türkçeden farklıysa İngilizce / Hollandaca / Almanca şehir adı. */
-  i18n?: { en?: string; nl?: string; de?: string };
+  i18n?: CityI18n;
 };
 
 export const coreAirports: Airport[] = [
@@ -75,7 +77,7 @@ export const coreAirports: Airport[] = [
 ];
 
 /** Birden çok havalimanı olan şehirler: "Tüm havalimanları" seçeneği. Anahtarlar havalimanı kodlarıyla çakışmasın diye "city:" önekiyle kullanılır. */
-export const METROS: Record<string, { airports: string[]; city: string; i18n?: { en?: string; nl?: string; de?: string } }> = {
+export const METROS: Record<string, { airports: string[]; city: string; i18n?: CityI18n }> = {
   IST: { airports: ["IST", "SAW"], city: "İstanbul", i18n: { en: "Istanbul", nl: "Istanbul", de: "Istanbul" } },
   LON: { airports: ["LHR", "LGW", "STN", "LTN", "LCY", "SEN"], city: "Londra", i18n: { en: "London", nl: "Londen", de: "London" } },
   PAR: { airports: ["CDG", "ORY", "BVA"], city: "Paris" },
@@ -110,7 +112,9 @@ const coreByCode = new Map(coreAirports.map((a) => [a.code, a]));
 export const findCoreAirport = (code: string) => coreByCode.get(code.toUpperCase());
 
 export function cityName(a: Pick<Airport, "city" | "i18n">, lang: string = "tr"): string {
-  return (lang !== "tr" && a.i18n?.[lang as Exclude<Lang, "tr">]) || a.city;
+  // O dilde yazılışı yoksa İngilizcesi (Türkçe ad yabancı dilde garip durur: "Brüksel")
+  if (lang === "tr") return a.city;
+  return a.i18n?.[lang as Exclude<Lang, "tr">] || a.i18n?.en || a.city;
 }
 
 const regionNames = new Map<string, Intl.DisplayNames>();

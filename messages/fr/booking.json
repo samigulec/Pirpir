@@ -1,0 +1,203 @@
+{
+  "metaTitle": "Réservation",
+  "back": "← Retour aux vols",
+  "steps": {
+    "label": "Étapes",
+    "passenger": "Voyageur",
+    "bags": "Bagages",
+    "seats": "Siège",
+    "payment": "Paiement"
+  },
+  "title": "Presque fini !",
+  "outbound": "Aller · {date}",
+  "inbound": "Retour · {date}",
+  "transferWait": "Escale de {wait} à {city}",
+  "transfer": "Escale à {city}",
+  "direct": "Direct",
+  "passenger": {
+    "title": "Qui voyage ?",
+    "firstName": "Prénom (comme sur le passeport)",
+    "lastName": "Nom",
+    "gender": "Sexe (comme sur le passeport)",
+    "female": "Femme",
+    "male": "Homme",
+    "birth": "Date de naissance",
+    "birthPlaceholder": "JJ.MM.AAAA",
+    "nationality": "Nationalité",
+    "passport": "Numéro de passeport",
+    "note": "Pour les vols internationaux, les compagnies aériennes demandent les informations du passeport. Ton passeport doit être valable au moins 6 mois après ton retour.",
+    "slot": "Voyageur {n} · {type}",
+    "types": {
+      "adult": "Adulte",
+      "child": "Enfant",
+      "infant": "Bébé"
+    },
+    "savedFill": "Voyageur enregistré :",
+    "save": "Enregistrer ce voyageur dans mon compte (rempli en un clic la prochaine fois)",
+    "nationalityPick": "Choisis un pays",
+    "nationalityCommon": "Populaires",
+    "nationalityAll": "Tous les pays",
+    "nationalitySearch": "Rechercher un pays…",
+    "nationalityNone": "Aucun pays trouvé avec ce nom."
+  },
+  "contact": {
+    "title": "Comment te joindre ?",
+    "email": "E-mail (ton billet sera envoyé ici)",
+    "phone": "Téléphone (on t'envoie un SMS si ton vol change)",
+    "phoneCode": "Indicatif du pays"
+  },
+  "bags": {
+    "title": "Combien de bagages ?",
+    "valiz": "Valiz : “L'ajouter maintenant coûte moins cher qu'à l'aéroport !”",
+    "label": "Bagages",
+    "free": "Gratuit",
+    "transferNote": "Sur un trajet avec correspondance, tu devras peut-être récupérer tes bagages à {city} et les enregistrer à nouveau.",
+    "cabinTitle": "Bagage cabine ou à main",
+    "personal": "Objet personnel",
+    "personalDesc": "Se range sous le siège",
+    "cabinPack": "Pack bagage à main",
+    "cabinPackDesc": "Objet personnel + bagage cabine de {kg} kg",
+    "cabinPackDescNoKg": "Objet personnel + bagage cabine",
+    "checkedTitle": "Bagage en soute",
+    "checkedDesc": "Jusqu'à {kg} kg, en soute",
+    "checkedDescNoKg": "En soute",
+    "included": "Inclus",
+    "includedCount": "{n} inclus",
+    "perBag": "{price} par bagage",
+    "unavailable": "Impossible de l'ajouter à ce billet pour le moment.",
+    "add": "Ajouter : {label}",
+    "remove": "Retirer : {label}",
+    "roundTripNote": "Les prix des bagages couvrent l'aller et le retour.",
+    "paxTitle": "Passager {n} · {type}",
+    "noChecked": "Je n'ai pas besoin de bagage en soute",
+    "heavyTitle": "Bagage lourd",
+    "heavyDesc": "Bagage lourd, jusqu'à {kg} kg",
+    "heavyDescNoKg": "Bagage lourd",
+    "maxNote": "La compagnie autorise jusqu'à {n} bagages en soute supplémentaires par passager."
+  },
+  "payment": {
+    "title": "Comment veux-tu payer ?",
+    "secure": "Connexion chiffrée et sécurisée",
+    "label": "Moyen de paiement",
+    "methods": {
+      "card": {
+        "label": "Carte",
+        "sub": "Visa, Mastercard, Amex",
+        "pay": "Payer par carte"
+      },
+      "ideal": {
+        "label": "iDEAL",
+        "sub": "Banques néerlandaises",
+        "pay": "Payer avec iDEAL",
+        "note": "Choisis ta banque ; quand tu appuies sur Payer, tu es redirigé vers ton appli bancaire."
+      },
+      "apple": {
+        "label": "Apple Pay",
+        "sub": "iPhone, Mac",
+        "pay": "Payer avec Apple Pay",
+        "note": "Apple Pay s'ouvre quand tu appuies sur Payer ; confirme avec Face ID ou Touch ID."
+      },
+      "google": {
+        "label": "Google Pay",
+        "sub": "Android, Chrome",
+        "pay": "Payer avec Google Pay",
+        "note": "Google Pay s'ouvre quand tu appuies sur Payer ; confirme sur ton téléphone."
+      }
+    },
+    "cardName": "Nom sur la carte",
+    "cardNamePlaceholder": "AYSE YILMAZ",
+    "cardNumber": "Numéro de carte",
+    "cardType": "Type de carte",
+    "expiry": "Date d'expiration",
+    "expiryPlaceholder": "MM/AA",
+    "cvc": "CVC (3 chiffres au dos)",
+    "saveCard": "Enregistrer ma carte en toute sécurité pour la prochaine fois",
+    "threeDs": "Ta banque peut te demander une vérification rapide (3D Secure) dans son appli ou par SMS.",
+    "bank": "Choisis ta banque"
+  },
+  "promo": {
+    "question": "Tu as un code promo ?",
+    "label": "Code promo",
+    "placeholder": "Saisis le code",
+    "apply": "Appliquer",
+    "applied": "Code appliqué, tu économises {amount} !",
+    "invalid": "Ce code n'est pas valide."
+  },
+  "total": {
+    "ticket": "Billet ({pax}, {trip})",
+    "bag": "Bagages",
+    "bagPerPax": "Bagages ({n} personnes)",
+    "promo": "Code promo",
+    "taxes": "Taxes et frais de service",
+    "included": "Inclus",
+    "total": "Total",
+    "terms": "J'ai lu et j'accepte les <terms>conditions d'utilisation</terms>, les règles de la compagnie aérienne et la <privacy>politique de confidentialité</privacy>.",
+    "needTerms": "Accepte les conditions pour continuer, s'il te plaît.",
+    "bags": "Bagages supplémentaires",
+    "seats": "Choix du siège"
+  },
+  "footnote": "Annulation gratuite dans les 24 heures suivant la réservation. [İPTAL KOŞULLARI] · Aide : [DESTEK TELEFONU]",
+  "trip": {
+    "rt": "aller-retour",
+    "ow": "aller simple"
+  },
+  "errors": {
+    "summary": "Certaines informations manquent ou sont incorrectes. Vérifie les champs signalés.",
+    "name": "Saisis-le comme sur ton passeport (lettres uniquement).",
+    "birth": "Saisis une date valide au format JJ.MM.AAAA.",
+    "adultAge": "Les adultes doivent avoir au moins 12 ans le jour du voyage.",
+    "childAge": "Les enfants doivent avoir entre 2 et 11 ans le jour du voyage.",
+    "infantAge": "Les bébés doivent avoir moins de 2 ans pendant tout le voyage.",
+    "passport": "Vérifie le numéro de passeport.",
+    "email": "Saisis une adresse e-mail valide.",
+    "phone": "Vérifie le numéro de téléphone.",
+    "bag": "Les bagages choisis ne peuvent pas être ajoutés à ce billet.",
+    "terms": "Accepte les conditions pour continuer, s'il te plaît.",
+    "expired": "Cette offre a expiré. Relance une recherche pour voir les prix actuels.",
+    "failed": "On n'a pas pu finaliser la réservation pour le moment. Tu n'as pas été débité ; réessaie dans un instant.",
+    "live": "Les paiements ne sont pas encore connectés, les billets ne peuvent donc pas être émis pour l'instant.",
+    "seats": "L'un de tes sièges n'est plus disponible. Choisis à nouveau, s'il te plaît.",
+    "hold": "Cette offre ne peut plus être réservée ; tu peux payer maintenant."
+  },
+  "testNotice": "Mode test : aucun paiement n'est prélevé et les données de ta carte ne sont envoyées nulle part.",
+  "processing": "Réservation…",
+  "expiredPage": {
+    "title": "Cette offre a expiré",
+    "text": "Les prix changent souvent. Relance une recherche pour voir les vols actuels.",
+    "cta": "Relancer la recherche"
+  },
+  "seats": {
+    "title": "Choisis ton siège",
+    "subtitle": "Facultatif. Si tu passes cette étape, la compagnie t'attribue un siège à l'enregistrement.",
+    "flight": "{from} → {to}",
+    "forPax": "Passager {n}",
+    "legendFree": "Gratuit",
+    "legendPaid": "Payant",
+    "legendLegroom": "Plus d'espace pour les jambes",
+    "legendTaken": "Occupé",
+    "legendSelected": "Ton choix",
+    "seat": "Siège {seat}, {price}",
+    "seatTaken": "Siège {seat}, occupé",
+    "exit": "Sortie",
+    "none": "Le choix du siège n'est pas proposé pour ce vol pour le moment ; tu pourras choisir à l'enregistrement.",
+    "clear": "Retirer le siège",
+    "picked": "{pax} : {seat}",
+    "notPicked": "{pax} : non choisi",
+    "free": "Gratuit",
+    "front": "Avant"
+  },
+  "hold": {
+    "title": "Quand veux-tu payer ?",
+    "now": "Payer maintenant",
+    "nowDesc": "Ton billet est émis tout de suite.",
+    "later": "Bloquer le prix, payer plus tard",
+    "laterDesc": "On réserve sans paiement. Paie avant le {date}.",
+    "guaranteed": "Le prix ne change pas pendant ce temps.",
+    "notGuaranteed": "Ta place est réservée, mais le prix peut changer jusqu'au paiement.",
+    "free": "Gratuit",
+    "button": "Bloquer le prix · gratuit",
+    "payNow": "À payer maintenant",
+    "payLater": "À payer avant le {date}",
+    "note": "Tu peux payer depuis la page de confirmation ou Mes voyages. Si le délai expire, la réservation est annulée."
+  }
+}

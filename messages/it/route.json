@@ -1,0 +1,39 @@
+{
+  "breadcrumb": "Percorso di navigazione",
+  "home": "Home",
+  "heroFrom": "Da {from}",
+  "heroTitle": "Voli per {to}",
+  "metaTitle": "Voli da {from} a {to}",
+  "fromPrice": "andata e ritorno da <price></price>",
+  "cta": "Scegli le date, trova i biglietti",
+  "facts": {
+    "label": "In breve",
+    "duration": "Durata del volo",
+    "durationValue": "{h} h {m} min diretto",
+    "airports": "Aeroporti",
+    "airlines": "Compagnie aeree",
+    "timeDiff": "Differenza di fuso orario"
+  },
+  "monthly": {
+    "title": "Qual è il mese più economico?",
+    "subtitle": "Tariffa di andata e ritorno più bassa per mese. Tocca un mese.",
+    "groupLabel": "Scegli un mese",
+    "aria": "{month}: {price}",
+    "cheapest": "Il mese più economico dell'anno!",
+    "diff": "{price} in più rispetto al mese più economico",
+    "note": "Prezzi di esempio. I prezzi reali si aggiornano quando cerchi."
+  },
+  "deals": {
+    "title": "Le prossime date più economiche",
+    "select": "Seleziona"
+  },
+  "airports": {
+    "title": "Quale aeroporto fa per te?"
+  },
+  "tips": {
+    "title": "Consigli per {city}"
+  },
+  "others": {
+    "title": "Dove altro in {country}?"
+  }
+}
