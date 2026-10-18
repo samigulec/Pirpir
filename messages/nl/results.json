@@ -142,7 +142,9 @@
   },
   "dates": {
     "label": "Flexibele data",
-    "cheapest": "Goedkoopst"
+    "cheapest": "Goedkoopst",
+    "noFlights": "Geen vluchten",
+    "check": "Bekijk prijs"
   },
   "bagRules": {
     "title": "Bagageregels (per passagier)",

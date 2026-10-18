@@ -142,7 +142,9 @@
   },
   "dates": {
     "label": "Flexible Daten",
-    "cheapest": "Günstigste"
+    "cheapest": "Günstigste",
+    "noFlights": "Keine Flüge",
+    "check": "Preis ansehen"
   },
   "bagRules": {
     "title": "Gepäckregeln (pro Person)",

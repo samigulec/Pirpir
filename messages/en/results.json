@@ -142,7 +142,9 @@
   },
   "dates": {
     "label": "Flexible dates",
-    "cheapest": "Cheapest"
+    "cheapest": "Cheapest",
+    "noFlights": "No flights",
+    "check": "See price"
   },
   "bagRules": {
     "title": "Baggage rules (per passenger)",

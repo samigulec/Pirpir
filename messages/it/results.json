@@ -142,7 +142,9 @@
   },
   "dates": {
     "label": "Date flessibili",
-    "cheapest": "Il più economico"
+    "cheapest": "Il più economico",
+    "noFlights": "Nessun volo",
+    "check": "Vedi prezzo"
   },
   "bagRules": {
     "title": "Regole sui bagagli (per passeggero)",

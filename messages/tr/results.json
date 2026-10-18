@@ -142,7 +142,9 @@
   },
   "dates": {
     "label": "Esnek tarihler",
-    "cheapest": "En ucuz"
+    "cheapest": "En ucuz",
+    "noFlights": "Uçuş yok",
+    "check": "Fiyata bak"
   },
   "bagRules": {
     "title": "Bagaj kuralları (yolcu başı)",

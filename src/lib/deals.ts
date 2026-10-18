@@ -11,7 +11,7 @@ import { backgroundRetryIn, inBackground, isSkipped } from "./providers/rate-lim
 import { addDays, todayIso, type MultiQuery } from "./search";
 import type { Offer } from "./providers/types";
 import { cheapestWithBags } from "./extras";
-import { bestKnownPrices, knownDayPrice, routeKey, type KnownPrice } from "./price-calendar";
+import { bestKnownPrices, routeKey, type KnownPrice } from "./price-calendar";
 
 export type Deal = {
   /** Kişi başı en düşük gidiş-dönüş fiyatı (TRY). */
@@ -182,21 +182,18 @@ export async function getRouteDates(routes: [string, string][]): Promise<Record<
 /**
  * Esnek tarih şeridinde bir günün en düşük kişi başı fiyatı: sonuç sayfasıyla aynı (önbellekli) arama,
  * bu yüzden şeritteki fiyat o güne tıklayınca çıkan en ucuz uçuşla aynıdır ve tıklayınca sonuç anında gelir.
- * İstek sınırı darken arama gönderilmez: son 24 saatte o gün için görülen fiyat varsa o döner (bagajsız aramada),
- * yoksa `busy`: şerit istek hakkı yenilenince (`retryMs`) yeniden sorar.
+ * Eski (takvimde saklanan) fiyat gösterilmez: tıklayınca çıkan fiyatla çelişirdi. İstek sınırı darken arama
+ * gönderilmez, `busy` döner ve şerit istek hakkı yenilenince (`retryMs`) yeniden sorar.
+ * `price: null` o gün uçuş yok; `failed` fiyat alınamadı.
  */
-export async function getDayPrice(q: MultiQuery): Promise<{ price: number | null; busy?: boolean; retryMs?: number }> {
+export async function getDayPrice(q: MultiQuery): Promise<{ price: number | null; busy?: boolean; retryMs?: number; failed?: boolean }> {
   try {
     const offers = await inBackground(() => searchFlightsCached(q));
     return { price: cheapestWithBags(offers, q.bags) };
   } catch (e) {
-    if (isSkipped(e)) {
-      const plain = !q.bags?.cabin && !q.bags?.checked;
-      const known = plain ? await knownDayPrice(q).catch(() => null) : null;
-      return known != null ? { price: known } : { price: null, busy: true, retryMs: backgroundRetryIn() };
-    }
+    if (isSkipped(e)) return { price: null, busy: true, retryMs: backgroundRetryIn() };
     console.error("Gün fiyatı alınamadı:", q.date, e instanceof Error ? e.message : e);
-    return { price: null };
+    return { price: null, failed: true };
   }
 }
 

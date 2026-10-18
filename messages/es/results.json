@@ -142,7 +142,9 @@
   },
   "dates": {
     "label": "Fechas flexibles",
-    "cheapest": "El más barato"
+    "cheapest": "El más barato",
+    "noFlights": "Sin vuelos",
+    "check": "Ver precio"
   },
   "bagRules": {
     "title": "Normas de equipaje (por pasajero)",

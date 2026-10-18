@@ -6,10 +6,10 @@ import { parseSearch, validateSearchServer } from "@/lib/search-server";
 export async function GET(req: NextRequest) {
   const q = parseSearch(Object.fromEntries(req.nextUrl.searchParams));
   if (validateSearchServer(q)) return NextResponse.json({ error: "invalid" }, { status: 400 });
-  const { price, busy, retryMs } = await getDayPrice(q);
+  const { price, busy, retryMs, failed } = await getDayPrice(q);
   // busy: istek sınırı yüzünden henüz aranmadı; tarayıcı saklamasın, şerit kısa süre sonra yeniden sorar
   return NextResponse.json(
-    { date: q.date, returnDate: q.returnDate, price, busy, retryMs },
-    { headers: { "Cache-Control": busy ? "no-store" : "private, max-age=600" } },
+    { date: q.date, returnDate: q.returnDate, price, busy, retryMs, failed },
+    { headers: { "Cache-Control": busy || failed ? "no-store" : "private, max-age=600" } },
   );
 }

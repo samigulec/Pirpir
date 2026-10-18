@@ -13,14 +13,16 @@ type Day = { date: string; returnDate?: string };
 // Sayfalar arasında gezinirken bilinen günler kısa süre yeniden istenmez (komşu tarihler çoğunlukla aynıdır).
 // Süre sunucudaki arama önbelleğinden kısa: eski bir fiyat, o güne tıklayınca çıkan sonuçla çelişmesin.
 const TTL_MS = 5 * 60 * 1000;
-const cache = new Map<string, { price: number | null; at: number }>();
+/** Gün fiyatı; null: o gün uçuş yok; "unknown": fiyat alınamadı (tıklayınca yine aranır) */
+type DayPrice = number | null | "unknown";
+const cache = new Map<string, { price: DayPrice; at: number }>();
 const known = {
   has: (k: string) => {
     const e = cache.get(k);
     return !!e && Date.now() - e.at < TTL_MS;
   },
   get: (k: string) => cache.get(k)!.price,
-  set: (k: string, price: number | null) => cache.set(k, { price, at: Date.now() }),
+  set: (k: string, price: DayPrice) => cache.set(k, { price, at: Date.now() }),
 };
 
 /** İstek sınırı darken en fazla bu kadar yeniden sorulur; aralığı sunucu söyler (yoksa bunlar), sonra gün "—" kalır. */
@@ -44,7 +46,7 @@ export function DateStrip({ q, current }: { q: MultiQuery; current: number | nul
   // Seçili günün fiyatı aşağıdaki sonuçların en ucuzudur; ayrıca istenmez.
   const currentKey = dayQuery(q, { date: q.date, returnDate: q.returnDate });
   // İlk çizim sunucuyla aynı olsun: tarayıcıdaki bilinen günler efektte eklenir.
-  const [prices, setPrices] = useState<Record<string, number | null>>(() => ({ [currentKey]: current }));
+  const [prices, setPrices] = useState<Record<string, DayPrice>>(() => ({ [currentKey]: current }));
   const signature = keys.join("|");
 
   useEffect(() => {
@@ -55,17 +57,18 @@ export function DateStrip({ q, current }: { q: MultiQuery; current: number | nul
     // Sunucu "busy" derse (istek sınırı) gün yükleniyor görünür ve artan aralıklarla yeniden sorulur
     const load = (key: string, attempt: number) =>
       fetch(`/api/date-prices?${key}`, { signal: ctrl.signal })
-        .then((r) => (r.ok ? r.json() : { price: null }))
-        .then((res: { price: number | null; busy?: boolean; retryMs?: number }) => {
+        .then((r) => (r.ok ? r.json() : { price: null, failed: true }))
+        .then((res: { price: number | null; busy?: boolean; retryMs?: number; failed?: boolean }) => {
           if (res.busy && attempt < RETRY_MS.length) {
             timers.push(setTimeout(() => load(key, attempt + 1), res.retryMs ?? RETRY_MS[attempt]));
             return;
           }
-          if (!res.busy) known.set(key, res.price);
-          setPrices((p) => ({ ...p, [key]: res.price }));
+          const price: DayPrice = res.busy || res.failed ? "unknown" : res.price;
+          if (price !== "unknown") known.set(key, price);
+          setPrices((p) => ({ ...p, [key]: price }));
         })
         .catch(() => {
-          if (!ctrl.signal.aborted) setPrices((p) => ({ ...p, [key]: null }));
+          if (!ctrl.signal.aborted) setPrices((p) => ({ ...p, [key]: "unknown" }));
         });
     for (const key of signature.split("|")) if (!known.has(key)) load(key, 0);
     return () => {
@@ -104,7 +107,9 @@ export function DateStrip({ q, current }: { q: MultiQuery; current: number | nul
                   {price === undefined ? (
                     <span className="inline-block h-4 w-14 animate-pulse rounded bg-line align-middle" />
                   ) : price === null ? (
-                    "—"
+                    <span className="text-[13px] font-bold text-muted">{t("noFlights")}</span>
+                  ) : price === "unknown" ? (
+                    <span className="text-[13px] font-bold text-primary">{t("check")}</span>
                   ) : (
                     fmt(price)
                   )}
