@@ -1,5 +1,6 @@
 // Oturumdaki kullanıcı. Supabase yapılandırılmışsa gerçek hesap, değilse örnek mod.
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { SIGNED_IN_COOKIE, isSupabaseConfigured } from "./config";
 import { supabaseServer } from "./supabase-server";
@@ -13,15 +14,21 @@ export type CurrentUser = {
 
 const DEMO_COOKIE = "rotala_demo_user";
 
-export async function getCurrentUser(): Promise<CurrentUser | null> {
+/**
+ * İstek başına bir kez çalışır (sayfa, eylemler ve kayıt listeleri aynı sonucu paylaşır).
+ * Oturum anahtarı (JWT) Supabase'in açık anahtarıyla yerelde doğrulanır: her çağrıda Supabase'e ağ isteği gitmez.
+ * Proje eski tip (HS256) anahtar kullanıyorsa getClaims kendiliğinden sunucuya sorar.
+ */
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   if (isSupabaseConfigured()) {
     const supabase = await supabaseServer();
-    const { data } = await supabase.auth.getUser();
-    if (!data.user?.email) return null;
+    const { data } = await supabase.auth.getClaims();
+    const c = data?.claims;
+    if (!c?.sub || !c.email) return null;
     return {
-      id: data.user.id,
-      email: data.user.email,
-      name: (data.user.user_metadata?.full_name as string | undefined) || undefined,
+      id: c.sub,
+      email: c.email,
+      name: ((c.user_metadata as Record<string, unknown> | undefined)?.full_name as string | undefined) || undefined,
       mode: "supabase",
     };
   }
@@ -33,7 +40,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   } catch {
     return null;
   }
-}
+});
 
 const cookieOpts = {
   path: "/",

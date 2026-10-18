@@ -24,7 +24,7 @@ const Heart = () => (
 
 export function ProfileMenu() {
   const t = useTranslations("common.menu");
-  const { signedIn, openLogin } = useAuthUi();
+  const { signedIn, openLogin, markSignedOut } = useAuthUi();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const id = useId();
@@ -123,7 +123,15 @@ export function ProfileMenu() {
               </Link>
             </nav>
             {signedIn && (
-              <form action={signOut} className="mt-1 border-0 border-t border-solid border-line pt-2">
+              <form
+                action={signOut}
+                // Sunucu çıkışı bitirip ana sayfaya yönlendirene kadar beklemeden: menü kapanır, başlık "Giriş yap" olur
+                onSubmit={() => {
+                  markSignedOut();
+                  close();
+                }}
+                className="mt-1 border-0 border-t border-solid border-line pt-2"
+              >
                 <button type="submit" className={`${base} font-extrabold text-coral-text`}>
                   {t("signOut")}
                 </button>

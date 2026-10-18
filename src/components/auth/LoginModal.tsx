@@ -10,6 +10,8 @@ type AuthUi = {
   signedIn: boolean;
   /** Giriş penceresini açar; `next`: girişten sonra gidilecek sayfa (isteğe bağlı). */
   openLogin: (next?: string) => void;
+  /** Çıkış başladı: başlık sunucuyu beklemeden "Giriş yap"a döner */
+  markSignedOut: () => void;
 };
 
 const Ctx = createContext<AuthUi | null>(null);
@@ -39,6 +41,11 @@ export function LoginModalProvider({ children }: { children: React.ReactNode }) 
 
   const close = () => ref.current?.close();
 
+  const markSignedOut = useCallback(() => {
+    document.cookie = `${SIGNED_IN_COOKIE}=; path=/; max-age=0`;
+    setSignedIn(false);
+  }, []);
+
   const onSignedIn = useCallback(() => {
     setSignedIn(true);
     ref.current?.close();
@@ -47,7 +54,7 @@ export function LoginModalProvider({ children }: { children: React.ReactNode }) 
   }, [next, router]);
 
   return (
-    <Ctx.Provider value={{ signedIn, openLogin }}>
+    <Ctx.Provider value={{ signedIn, openLogin, markSignedOut }}>
       {children}
       <dialog
         ref={ref}
