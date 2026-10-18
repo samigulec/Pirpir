@@ -9,7 +9,7 @@ export async function SiteFooter() {
   const link = "text-muted";
   return (
     <footer className="mt-24 bg-field">
-      <div className="mx-auto grid max-w-page grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-7 px-6 pb-10 pt-12 text-[15px]">
+      <div className="mx-auto grid max-w-page grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-7 px-4 pb-10 pt-12 md:px-6 text-[15px]">
         <div className="flex flex-col gap-[10px]">
           <span className="font-display text-[26px] font-bold">{brand.name}</span>
           <span className="text-muted">{t("tagline")}</span>
@@ -50,7 +50,7 @@ export async function SimpleFooter() {
   const t = await getTranslations("common");
   return (
     <footer className="bg-field">
-      <div className="mx-auto flex max-w-page flex-wrap justify-between gap-3 px-6 pb-10 pt-7 text-sm text-muted">
+      <div className="mx-auto flex max-w-page flex-wrap justify-between gap-3 px-4 pb-10 pt-7 md:px-6 text-sm text-muted">
         <span>© {brand.name}</span>
         <span className="flex gap-5">
           <a href="#" className="text-muted">{t("footer.help")}</a>

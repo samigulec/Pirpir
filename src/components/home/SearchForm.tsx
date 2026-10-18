@@ -197,14 +197,14 @@ export function SearchForm({
       </div>
 
       {/* Masaüstünde Kiwi'deki gibi uzun tek satır: nereden-nereye en geniş, alanlar şehir ekledikçe büyümez */}
-      <div className="grid grid-cols-2 gap-[6px] md:grid-cols-[minmax(0,3fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(130px,0.7fr)] md:gap-2">
-        <div className="relative col-span-2 flex flex-col gap-[6px] md:col-span-1 md:flex-row md:gap-2">
+      <div className="grid grid-cols-2 gap-[6px] lg:grid-cols-[minmax(0,3fr)_minmax(0,1fr)_minmax(156px,1fr)_minmax(130px,0.7fr)] lg:gap-2">
+        <div className="relative col-span-2 flex flex-col gap-[6px] lg:col-span-1 lg:flex-row lg:gap-2">
           <AirportField
             label={t("from")}
             value={from}
             onChange={(v) => { onFrom(v); setError(null); }}
             invalid={error === "from" || error === "same"}
-            className={`${fieldBox} md:flex-1`}
+            className={`${fieldBox} lg:flex-1`}
             labelClassName={fieldLabel}
             inputClassName={`${fieldInput} text-[18px]`}
             tone="primary"
@@ -213,17 +213,17 @@ export function SearchForm({
             type="button"
             aria-label={t("swap")}
             onClick={swap}
-            className="absolute right-[14px] top-1/2 z-[1] flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-[3px] border-white bg-sun text-ink md:left-1/2 md:right-auto md:-translate-x-1/2 md:border-4"
+            className="absolute right-[14px] top-1/2 z-[1] flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-[3px] border-white bg-sun text-ink lg:left-1/2 lg:right-auto lg:-translate-x-1/2 md:border-4"
           >
-            <span className="md:hidden"><SwapVertical /></span>
-            <span className="hidden md:inline"><SwapHorizontal /></span>
+            <span className="lg:hidden"><SwapVertical /></span>
+            <span className="hidden lg:inline"><SwapHorizontal /></span>
           </button>
           <AirportField
             label={t("to")}
             value={to}
             onChange={(v) => { onTo(v); setError(null); }}
             invalid={error === "to" || error === "same"}
-            className={`${fieldBox} md:flex-1 md:pl-[30px]`}
+            className={`${fieldBox} lg:flex-1 lg:pl-[30px]`}
             labelClassName={fieldLabel}
             inputClassName={`${fieldInput} text-[18px]`}
             tone="coral"
@@ -233,7 +233,7 @@ export function SearchForm({
         <FieldPopover
           label={suggested ? t("whenCheapest") : t("when")}
           value={date ? formatRangeShort(date, trip === "rt" && returnDate ? returnDate : undefined, loc) + (flex ? ` ±${flex}` : "") : t("pickDates")}
-          panelClassName="md:left-1/2 md:-translate-x-1/2"
+          panelClassName="lg:left-1/2 lg:-translate-x-1/2"
           closeLabel={t("done")}
           className={fieldBox}
           labelClassName={fieldLabel}
@@ -269,7 +269,7 @@ export function SearchForm({
           className={fieldBox}
           labelClassName={fieldLabel}
           valueClassName={`${fieldInput} text-base md:pl-1`}
-          panelClassName="md:left-auto md:right-0 md:w-[360px]"
+          panelClassName="lg:left-auto lg:right-0 lg:w-[360px]"
           closeLabel={t("done")}
           chevron
         >
@@ -291,7 +291,7 @@ export function SearchForm({
 
         <button
           type="submit"
-          className="col-span-2 flex min-h-[56px] cursor-pointer items-center justify-center gap-2 rounded-[16px] border-0 bg-primary font-display text-[20px] font-semibold text-white md:col-span-1 md:min-h-[68px] md:rounded-[18px] md:text-[21px]"
+          className="col-span-2 flex min-h-[56px] cursor-pointer items-center justify-center gap-2 rounded-[16px] border-0 bg-primary font-display text-[20px] font-semibold text-white lg:col-span-1 md:min-h-[68px] md:rounded-[18px] md:text-[21px]"
         >
           {t("submit")}
         </button>

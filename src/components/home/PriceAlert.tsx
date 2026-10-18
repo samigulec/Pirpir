@@ -9,11 +9,11 @@ export function PriceAlert() {
   const tc = useTranslations("common.characters");
   const [done, setDone] = useState(false);
   return (
-    <section id="alarm" className="mx-auto max-w-page px-6 pt-[88px]">
-      <div className="flex flex-wrap items-center gap-7 rounded-[40px] bg-ink px-11 py-10 text-white">
-        <Pirpir aria-label={tc("pirpir")} outline="#FFFFFF" highlights={false} blades={false} width={170} height={119} className="flex-none" />
-        <div className="flex flex-[1_1_340px] flex-col gap-[14px]">
-          <h2 className="m-0 font-display text-[34px] font-bold leading-[1.15]">{t("title")}</h2>
+    <section id="alarm" className="mx-auto max-w-page px-4 pt-14 md:px-6 md:pt-[88px]">
+      <div className="flex flex-wrap items-center gap-5 rounded-[32px] bg-ink px-6 py-8 text-white md:gap-7 md:rounded-[40px] md:px-11 md:py-10">
+        <Pirpir aria-label={tc("pirpir")} outline="#FFFFFF" highlights={false} blades={false} width={170} height={119} className="h-auto w-[130px] flex-none md:w-[170px]" />
+        <div className="flex min-w-0 flex-[1_1_340px] flex-col gap-[14px]">
+          <h2 className="m-0 font-display text-[28px] font-bold leading-[1.15] md:text-[34px]">{t("title")}</h2>
           {done ? (
             <span role="status" className="text-lg font-extrabold text-sun">{t("thanks")}</span>
           ) : (
@@ -24,7 +24,7 @@ export function PriceAlert() {
                 setDone(true);
               }}
             >
-              <label className="flex flex-[1_1_240px]">
+              <label className="flex min-w-0 flex-[1_1_240px]">
                 <span className="sr-only">{t("email")}</span>
                 <input
                   type="email"

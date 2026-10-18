@@ -85,7 +85,7 @@ export function PriceTrends({
           type="button"
           aria-expanded={open}
           onClick={() => setOpen(!open)}
-          className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-pill border-2 border-solid border-line bg-white px-5 font-display text-base font-semibold text-ink"
+          className="inline-flex min-h-[44px] flex-[1_1_auto] cursor-pointer items-center justify-center gap-2 rounded-pill border-2 border-solid border-line bg-white px-4 font-display text-base font-semibold text-ink md:flex-none md:px-5"
         >
           <svg
             width="18"

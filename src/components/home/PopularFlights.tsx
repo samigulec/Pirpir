@@ -75,7 +75,7 @@ export function PopularFlights({
   const stopsLabel = (n: number) => (n === 0 ? tc("direct") : n === 1 ? tc("oneStop") : tc("stops", { n }));
 
   return (
-    <section id="populer" className="mx-auto flex max-w-page flex-col gap-[22px] px-6 pt-20">
+    <section id="populer" className="mx-auto flex max-w-page flex-col gap-[22px] px-4 pt-12 md:px-6 md:pt-20">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-[2px]">
           <span className="font-extrabold text-muted">{t("from", { city: fromLabel })}</span>

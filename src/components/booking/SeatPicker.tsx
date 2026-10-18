@@ -88,21 +88,22 @@ export function SeatPicker({
       </ul>
 
       {/* Geniş gövdeli uçakta harita telefondan geniş olabilir: yalnızca harita kayar, sayfa değil */}
-      <div className="max-h-[560px] overflow-auto rounded-[24px] border-2 border-solid border-line bg-white px-3 py-4">
+      <div className="max-h-[560px] overflow-auto rounded-[24px] border-2 border-solid border-line bg-white px-2 py-4 md:px-3">
         <div className="mx-auto flex w-max flex-col items-center gap-[6px]">
-          <div className="flex gap-[6px]" aria-hidden="true">
-            <span className="w-7" />
+          {/* Telefonda dar aralık: 6 koltuklu sıra 390 px ekrana kaydırmadan sığsın (koltuklar yine 44 px) */}
+          <div className="flex gap-1 md:gap-[6px]" aria-hidden="true">
+            <span className="w-5 md:w-7" />
             {map.columns.map((c, i) => (
-              <span key={i} className={`${c ? "w-11" : "w-5"} text-center text-[13px] font-extrabold text-muted`}>{c}</span>
+              <span key={i} className={`${c ? "w-11" : "w-3 md:w-5"} text-center text-[13px] font-extrabold text-muted`}>{c}</span>
             ))}
           </div>
           {map.rows.map((row) => (
             <div key={row.number} className="flex flex-col items-center gap-[6px]">
               {row.exit && <span className="text-[11px] font-extrabold uppercase text-muted">{t("exit")}</span>}
-              <div className="flex items-center gap-[6px]">
-                <span className="w-7 text-right text-[13px] font-extrabold text-muted" aria-hidden="true">{row.number}</span>
+              <div className="flex items-center gap-1 md:gap-[6px]">
+                <span className="w-5 text-right text-[13px] md:w-7 font-extrabold text-muted" aria-hidden="true">{row.number}</span>
                 {row.seats.map((seat, i) => {
-                  if (!map.columns[i]) return <span key={i} className="w-5" />;
+                  if (!map.columns[i]) return <span key={i} className="w-3 md:w-5" />;
                   if (!seat) return <span key={i} className="w-11" />;
                   const owner = pickedBy(seat.designator);
                   const selected = owner !== undefined;

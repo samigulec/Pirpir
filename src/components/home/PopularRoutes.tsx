@@ -9,7 +9,7 @@ export async function PopularRoutes({ routes, dates }: { routes: [string, string
   const t = await getTranslations("home.routes");
   const locale = await getLocale();
   return (
-    <section id="rotalar" className="mx-auto flex max-w-page flex-col gap-5 px-6 pt-[88px]">
+    <section id="rotalar" className="mx-auto flex max-w-page flex-col gap-5 px-4 pt-14 md:px-6 md:pt-[88px]">
       <h2 className="m-0 font-display text-[40px] font-bold">{t("title")}</h2>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-[10px]">
         {routes.map(([from, to]) => (

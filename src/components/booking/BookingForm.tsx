@@ -400,11 +400,11 @@ export function BookingForm({
                     placeholder="0000 0000 0000 0000"
                     value={card}
                     onChange={(e) => setCard(formatCardNumber(e.target.value))}
-                    className={`${field} min-w-0 flex-1 pl-[18px] pr-[120px] font-bold tracking-[0.06em]`}
+                    className={`${field} min-w-0 flex-1 pl-4 pr-[88px] text-base font-bold md:pl-[18px] md:pr-[120px] md:text-[18px] md:tracking-[0.06em]`}
                   />
                   <span
                     aria-live="polite"
-                    className={`absolute right-[10px] top-1/2 box-border inline-flex h-[34px] min-w-[96px] -translate-y-1/2 items-center justify-center rounded-[10px] px-[10px] text-[12px] font-extrabold ${
+                    className={`absolute right-[10px] top-1/2 box-border inline-flex h-[34px] min-w-[70px] -translate-y-1/2 md:min-w-[96px] items-center justify-center rounded-[10px] px-[10px] text-[12px] font-extrabold ${
                       brand
                         ? "border-[1.5px] border-solid border-primary bg-sky text-ink"
                         : "border-[1.5px] border-dashed border-[#B9C4DA] bg-field text-muted"
@@ -414,11 +414,12 @@ export function BookingForm({
                   </span>
                 </span>
               </label>
-              <label className={label}>
+              {/* Uzun etiket iki satıra inerse alanlar yine aynı hizada kalsın */}
+              <label className={`${label} justify-between`}>
                 {t("payment.expiry")}
                 <input type="text" inputMode="numeric" autoComplete="cc-exp" placeholder={t("payment.expiryPlaceholder")} className={input} />
               </label>
-              <label className={label}>
+              <label className={`${label} justify-between`}>
                 {t("payment.cvc")}
                 <input type="text" inputMode="numeric" autoComplete="cc-csc" placeholder="123" className={input} />
               </label>

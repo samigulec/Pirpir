@@ -86,16 +86,16 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
     <div className="min-h-screen w-full bg-white">
       <SiteHeader width="form" />
 
-      <main className="mx-auto flex max-w-form flex-col gap-[22px] px-6 pb-20 pt-2">
-        <div className="flex flex-col items-center gap-[14px] rounded-[40px] bg-sky px-7 py-9 text-center">
+      <main className="mx-auto flex max-w-form flex-col gap-[22px] px-4 md:px-6 pb-20 pt-2">
+        <div className="flex flex-col items-center gap-[14px] rounded-[32px] bg-sky px-5 py-8 text-center md:rounded-[40px] md:px-7 md:py-9">
           <div className="flex items-end gap-[6px]">
-            <Bulut aria-label={tc("bulut")} happy width={96} height={66} />
-            <Pirpir aria-label={tc("pirpirHappy")} happy width={170} height={119} />
-            <Valiz aria-label={tc("valiz")} happy stripe={false} tag={false} width={56} height={70} />
+            <Bulut aria-label={tc("bulut")} happy width={96} height={66} className="h-auto w-[64px] min-[360px]:w-[80px] md:w-[96px]" />
+            <Pirpir aria-label={tc("pirpirHappy")} happy width={170} height={119} className="h-auto w-[116px] min-[360px]:w-[144px] md:w-[170px]" />
+            <Valiz aria-label={tc("valiz")} happy stripe={false} tag={false} width={56} height={70} className="h-auto w-[38px] min-[360px]:w-[46px] md:w-[56px]" />
           </div>
           {cancelled ? (
             <>
-              <h1 className="m-0 font-display text-[46px] font-bold leading-[1.1]">{tx("title")}</h1>
+              <h1 className="m-0 font-display text-[38px] font-bold leading-[1.1] md:text-[46px]">{tx("title")}</h1>
               <p className="m-0 text-lg text-muted">
                 {cancelled.refund > 0 ? tx("refund", { price: "" }).trim() : tx("noRefund")}
                 {cancelled.refund > 0 && <> <Price amount={cancelled.refund} /></>}
@@ -103,13 +103,13 @@ export default async function ConfirmPage({ params }: { params: Promise<{ locale
             </>
           ) : held ? (
             <>
-              <h1 className="m-0 font-display text-[46px] font-bold leading-[1.1]">{expired ? th("expiredTitle") : th("title")}</h1>
+              <h1 className="m-0 font-display text-[38px] font-bold leading-[1.1] md:text-[46px]">{expired ? th("expiredTitle") : th("title")}</h1>
               <p className="m-0 text-lg text-muted">{expired ? th("expiredText") : th("text", { date: payBy })}</p>
               {!expired && <p className="m-0 font-bold text-ink">{th(held.priceGuaranteedUntil ? "guaranteed" : "notGuaranteed")}</p>}
             </>
           ) : (
             <>
-              <h1 className="m-0 font-display text-[46px] font-bold leading-[1.1]">{t("title")}</h1>
+              <h1 className="m-0 font-display text-[38px] font-bold leading-[1.1] md:text-[46px]">{t("title")}</h1>
               <p className="m-0 text-lg text-muted">
                 {t.rich("sent", { email: () => <strong className="text-ink">{booking.email}</strong> })}
               </p>

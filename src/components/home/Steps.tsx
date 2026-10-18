@@ -9,7 +9,7 @@ const STEPS = [
 export async function Steps() {
   const t = await getTranslations("home.steps");
   return (
-    <section className="mx-auto max-w-page px-6 pt-[88px]">
+    <section className="mx-auto max-w-page px-4 pt-14 md:px-6 md:pt-[88px]">
       <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-8 text-center">
         {STEPS.map((s) => (
           <div key={s.key} className="flex flex-col items-center gap-2">

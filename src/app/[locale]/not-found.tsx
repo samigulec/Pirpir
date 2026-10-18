@@ -8,7 +8,7 @@ export default async function NotFound() {
   return (
     <div className="min-h-screen w-full bg-white">
       <SiteHeader width="form" />
-      <main className="mx-auto flex max-w-form flex-col items-center gap-4 px-6 pb-20 pt-10 text-center">
+      <main className="mx-auto flex max-w-form flex-col items-center gap-4 px-4 md:px-6 pb-20 pt-10 text-center">
         <Pirpir aria-hidden width={170} height={119} />
         <h1 className="m-0 font-display text-[44px] font-bold leading-[1.1]">{t("title")}</h1>
         <p className="m-0 text-muted">{t("text")}</p>

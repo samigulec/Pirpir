@@ -21,7 +21,7 @@ export function SiteHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <header className={`mx-auto flex ${widths[width]} flex-wrap items-center justify-between gap-4 px-6 py-[22px]`}>
+    <header className={`mx-auto flex ${widths[width]} flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4 md:px-6 md:py-[22px]`}>
       <Logo />
       <div className="flex items-center gap-2">
         {children}

@@ -44,7 +44,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
   return (
     <div className="min-h-screen w-full bg-white">
       <SiteHeader width="form" />
-      <main className="mx-auto flex max-w-form flex-col gap-[22px] px-6 pb-20 pt-2">
+      <main className="mx-auto flex max-w-form flex-col gap-[22px] px-4 md:px-6 pb-20 pt-2">
         <div className="flex flex-col gap-1 rounded-[40px] bg-sky px-7 py-8">
           <span className="font-extrabold text-muted">{t("title")}</span>
           <h1 className="m-0 font-display text-[40px] font-bold leading-[1.1]">

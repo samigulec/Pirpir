@@ -8,7 +8,7 @@ export function LegalPage({ doc }: { doc: LegalDoc }) {
   return (
     <div className="min-h-screen w-full bg-white">
       <SiteHeader width="form" />
-      <main className="mx-auto flex max-w-form flex-col gap-8 px-6 pb-20 pt-2">
+      <main className="mx-auto flex max-w-form flex-col gap-8 px-4 md:px-6 pb-20 pt-2">
         <div className="flex flex-col gap-2 rounded-[40px] bg-sky px-7 py-8">
           <h1 className="m-0 font-display text-[40px] font-bold leading-[1.1]">{doc.title}</h1>
           <span className="text-sm font-bold text-muted">{doc.updated}</span>

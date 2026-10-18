@@ -46,7 +46,7 @@ export default async function BookingPage({
     return (
       <div className="min-h-screen w-full bg-white">
         {header}
-        <main className="mx-auto flex max-w-form flex-col items-start gap-4 px-6 pb-20 pt-2">
+        <main className="mx-auto flex max-w-form flex-col items-start gap-4 px-4 md:px-6 pb-20 pt-2">
           <h1 className="m-0 font-display text-[44px] font-bold leading-[1.1]">{t("expiredPage.title")}</h1>
           <p className="m-0 text-muted">{t("expiredPage.text")}</p>
           <Link href="/" className="box-border inline-flex min-h-[48px] items-center rounded-pill bg-primary px-6 py-3 font-display text-lg font-semibold text-white no-underline">
@@ -84,7 +84,7 @@ export default async function BookingPage({
     <div className="min-h-screen w-full bg-white">
       {header}
 
-      <main className="mx-auto flex max-w-form flex-col gap-[22px] px-6 pb-20 pt-2">
+      <main className="mx-auto flex max-w-form flex-col gap-[22px] px-4 md:px-6 pb-20 pt-2">
         <Link href={searchHref({ ...q, returnDate: q.returnDate ?? "" })} className="self-start py-[6px] text-[15px] font-bold">
           {t("back")}
         </Link>

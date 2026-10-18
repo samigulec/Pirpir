@@ -20,7 +20,7 @@ export function HomeHero({
   onFrom: (v: AirportValue) => void;
   onTo: (v: AirportValue) => void;
   defaults: { today: string };
-  /** Hero kutusunun hemen altına (telefonda fırsat kartı). */
+  /** Hero kutusunun içinde, aramanın altında (telefonda fırsat kartı). */
   afterHero?: React.ReactNode;
 }) {
   const t = useTranslations("home");
@@ -41,9 +41,9 @@ export function HomeHero({
         </div>
 
         <SearchForm from={from} to={to} onFrom={onFrom} onTo={onTo} defaults={defaults} />
-      </div>
 
-      {afterHero}
+        {afterHero}
+      </div>
 
       <ul
         aria-label={t("trust.label", { brand: brand.name })}

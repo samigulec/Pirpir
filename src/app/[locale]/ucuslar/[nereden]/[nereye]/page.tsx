@@ -55,7 +55,7 @@ export default async function RoutePage({ params }: { params: Promise<Params> })
     <div className="min-h-screen w-full bg-white">
       <SiteHeader />
 
-      <main className="mx-auto flex max-w-page flex-col gap-14 px-6 pb-20">
+      <main className="mx-auto flex max-w-page flex-col gap-10 px-4 pb-20 md:gap-14 md:px-6">
         <div className="flex flex-col gap-[14px]">
           <nav aria-label={t("breadcrumb")} className="flex flex-wrap gap-2 text-[15px] font-bold text-muted">
             <Link href="/">{t("home")}</Link>
@@ -64,12 +64,13 @@ export default async function RoutePage({ params }: { params: Promise<Params> })
             <span aria-hidden="true">›</span>
             <span>{n.to}</span>
           </nav>
-          <div className="relative overflow-hidden rounded-[40px] bg-[#FFD9C7]">
-            <Hero className="block h-[340px] w-full" />
-            <div className="absolute bottom-8 left-8 right-8 flex flex-wrap items-end justify-between gap-4">
-              <div className="flex flex-col rounded-[28px] bg-white px-6 py-[18px] shadow-float">
+          <div className="relative overflow-hidden rounded-[32px] bg-[#FFD9C7] md:rounded-[40px]">
+            <Hero className="block h-[200px] w-full md:h-[340px]" />
+            {/* Telefonda kart çizimin altında akar (çizimi kapatmasın); geniş ekranda üstüne biner */}
+            <div className="flex flex-col gap-3 p-3 md:absolute md:bottom-8 md:left-8 md:right-8 md:flex-row md:flex-wrap md:items-end md:justify-between md:gap-4 md:p-0">
+              <div className="flex flex-col rounded-[24px] bg-white px-5 py-4 md:rounded-[28px] md:px-6 md:py-[18px] md:shadow-float">
                 <span className="text-[15px] font-extrabold text-muted">{t("heroFrom", n)}</span>
-                <h1 className="m-0 font-display text-[46px] font-bold leading-[1.05]">{t("heroTitle", n)}</h1>
+                <h1 className="m-0 font-display text-[34px] font-bold leading-[1.05] md:text-[46px]">{t("heroTitle", n)}</h1>
                 <span className="font-bold text-muted">
                   {t.rich("fromPrice", {
                     price: () => (
@@ -80,7 +81,7 @@ export default async function RoutePage({ params }: { params: Promise<Params> })
               </div>
               <Link
                 href={searchHref({ from: route.from.code, to: route.to.code })}
-                className="box-border inline-flex min-h-[60px] items-center rounded-pill bg-primary px-[34px] py-4 font-display text-[21px] font-semibold text-white no-underline shadow-float-strong"
+                className="box-border inline-flex min-h-[56px] items-center justify-center rounded-pill bg-primary px-[34px] py-4 font-display text-[19px] font-semibold text-white no-underline md:min-h-[60px] md:text-[21px] md:shadow-float-strong"
               >
                 {t("cta")}
               </Link>

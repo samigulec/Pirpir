@@ -14,7 +14,7 @@ export function MobileDeal({ deal, from }: { deal: Deal | null; from: string[] }
   const tc = useTranslations("common.characters");
   const { fmt } = useCurrency();
   return (
-    <div className="mt-4 flex items-center gap-3 rounded-[24px] bg-sun-soft px-4 py-[14px] md:hidden">
+    <div className="box-border flex w-full items-center gap-3 rounded-[24px] bg-sun-soft px-4 py-[14px] md:hidden">
       <Bulut aria-label={tc("bulut")} bold highlights={false} width={64} height={44} className="flex-none" />
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="font-display text-[17px] font-semibold leading-[1.25]">{t("title")}</span>

@@ -64,7 +64,7 @@ export default async function ResultsPage({
     <div className="min-h-screen w-full bg-white">
       <SiteHeader width="page" />
 
-      <main className="mx-auto flex max-w-page flex-col gap-5 px-6 pb-20 pt-2">
+      <main className="mx-auto flex max-w-page flex-col gap-5 px-4 pb-20 pt-2 md:px-6">
         <h1 className="sr-only">
           {fromCity} → {toCity}
           {!error && ` · ${t("summaryMeta", { dates: formatRange(q.date, q.returnDate, loc), count: paxTotal(q.pax) })}`}

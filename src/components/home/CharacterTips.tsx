@@ -30,7 +30,7 @@ export async function CharacterTips({ deals, from }: { deals: DealMap; from: str
   ];
 
   return (
-    <section className="mx-auto flex max-w-page flex-col gap-6 px-6 pt-[88px]">
+    <section className="mx-auto flex max-w-page flex-col gap-6 px-4 pt-14 md:px-6 md:pt-[88px]">
       <div className="flex flex-col items-center gap-1 text-center">
         <h2 className="m-0 font-display text-[40px] font-bold">{t("title")}</h2>
         <p className="m-0 text-muted">{t("subtitle")}</p>

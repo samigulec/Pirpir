@@ -45,7 +45,7 @@ export default async function TripsPage({ params, searchParams }: { params: Prom
   return (
     <div className="min-h-screen w-full bg-white">
       <SiteHeader width="results" />
-      <main className="mx-auto flex max-w-results flex-col gap-5 px-6 pb-20 pt-2">
+      <main className="mx-auto flex max-w-results flex-col gap-5 px-4 md:px-6 pb-20 pt-2">
         <h1 className="m-0 font-display text-[44px] font-bold leading-[1.1]">{t("title")}</h1>
 
         {!user && (

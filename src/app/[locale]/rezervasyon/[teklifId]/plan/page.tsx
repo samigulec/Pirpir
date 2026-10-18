@@ -32,7 +32,7 @@ export default async function TripPlanPage({ params, searchParams }: { params: P
   const label = "text-[11px] font-extrabold uppercase tracking-[0.06em] text-muted";
 
   return (
-    <main className="mx-auto flex max-w-form flex-col gap-4 px-6 py-8 print:max-w-none print:gap-[10px] print:p-0 print:text-[14px]">
+    <main className="mx-auto flex max-w-form flex-col gap-4 px-4 md:px-6 py-8 print:max-w-none print:gap-[10px] print:p-0 print:text-[14px]">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <Link href={{ pathname: "/rezervasyon/[teklifId]/onay", params: { teklifId: booking.id } }} className="py-2 font-bold">
           ← {tp("back")}

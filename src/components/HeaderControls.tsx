@@ -155,7 +155,7 @@ export function RegionSettings({ compact = false }: { compact?: boolean }) {
         onClick={open}
         disabled={pending}
         aria-label={t("open")}
-        className={`${selectBase} inline-flex items-center gap-2 whitespace-nowrap ${compact ? "px-3 py-[10px] text-sm" : "px-[14px] py-[10px] text-[15px]"}`}
+        className={`${selectBase} inline-flex items-center gap-2 whitespace-nowrap ${compact ? "px-3 py-[10px] text-sm" : "px-3 py-[10px] text-sm md:px-[14px] md:text-[15px]"}`}
       >
         {market && <span>{market}</span>}
         {market && (
@@ -163,11 +163,12 @@ export function RegionSettings({ compact = false }: { compact?: boolean }) {
             ·
           </span>
         )}
+        {/* Telefonda dil adı sığmaz; dil yine pencerede seçilir */}
         {!compact && (
-          <span>{LOCALE_LABELS[isLocale(locale) ? locale : "tr"]}</span>
+          <span className="hidden md:inline">{LOCALE_LABELS[isLocale(locale) ? locale : "tr"]}</span>
         )}
         {!compact && (
-          <span aria-hidden="true" className="text-muted">
+          <span aria-hidden="true" className="hidden text-muted md:inline">
             ·
           </span>
         )}

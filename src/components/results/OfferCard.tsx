@@ -66,29 +66,32 @@ export function OfferCard({
   return (
     <article className="flex flex-col overflow-hidden rounded-[28px] border-2 border-solid border-line bg-white md:flex-row">
       <div className="flex min-w-0 flex-1 flex-col gap-4 px-5 py-5 md:px-6">
-        <div className="flex flex-wrap items-center gap-2">
-          {badge && (
-            <span className={`rounded-pill px-3 py-1 font-display text-sm font-semibold text-ink ${badge === "cheap" ? "bg-sun" : "bg-blue-soft-light"}`}>
-              {t(`badge.${badge}`)}
-            </span>
-          )}
-          <span className="flex items-center gap-2 text-[15px] font-bold text-ink">
-            {offer.airlineLogo && (
-              <img src={offer.airlineLogo} alt="" width={24} height={24} className="h-6 w-6 flex-none object-contain" />
+        <div className="flex items-start gap-2">
+          {/* Kalp ayrı sütunda: uzun havayolu adında tek başına alt satıra düşmesin */}
+          <div className="flex min-h-[44px] min-w-0 flex-1 flex-wrap items-center gap-2">
+            {badge && (
+              <span className={`rounded-pill px-3 py-1 font-display text-sm font-semibold text-ink ${badge === "cheap" ? "bg-sun" : "bg-blue-soft-light"}`}>
+                {t(`badge.${badge}`)}
+              </span>
             )}
-            {offer.airline}
-          </span>
-          <span className="text-[15px] font-semibold text-muted">
-            · {t(`cabin.${offer.cabin}`)}
-            {offer.fareBrand && ` · ${offer.fareBrand}`}
-          </span>
+            <span className="flex items-center gap-2 text-[15px] font-bold text-ink">
+              {offer.airlineLogo && (
+                <img src={offer.airlineLogo} alt="" width={24} height={24} className="h-6 w-6 flex-none object-contain" />
+              )}
+              {offer.airline}
+            </span>
+            <span className="text-[15px] font-semibold text-muted">
+              · {t(`cabin.${offer.cabin}`)}
+              {offer.fareBrand && ` · ${offer.fareBrand}`}
+            </span>
+          </div>
           {onFavorite && (
             <button
               type="button"
               aria-pressed={!!favorite}
               aria-label={favorite ? t("favorite.remove") : t("favorite.add")}
               onClick={onFavorite}
-              className={`ml-auto flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-0 ${favorite ? "bg-coral-soft text-coral-text" : "bg-field text-muted hover:text-ink"}`}
+              className={`flex h-11 w-11 flex-none cursor-pointer items-center justify-center rounded-full border-0 ${favorite ? "bg-coral-soft text-coral-text" : "bg-field text-muted hover:text-ink"}`}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill={favorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" aria-hidden="true">
                 <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />

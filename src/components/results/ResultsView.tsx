@@ -153,7 +153,8 @@ export function ResultsView({
       </aside>
 
       <div className="flex min-w-0 flex-col gap-5">
-        <div role="tablist" aria-label={t("sortLabel")} className="flex flex-wrap gap-2">
+        {/* Telefonda tek satır, yana kayar */}
+        <div role="tablist" aria-label={t("sortLabel")} className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
           {SORTS.map((s) => {
             const on = sort === s;
             return (
@@ -163,7 +164,7 @@ export function ResultsView({
                 role="tab"
                 aria-selected={on}
                 onClick={() => setSort(s)}
-                className={`min-h-[44px] cursor-pointer rounded-pill border-0 px-[22px] py-[10px] font-display text-[17px] font-semibold leading-[normal] ${
+                className={`min-h-[44px] flex-none cursor-pointer whitespace-nowrap rounded-pill border-0 px-[18px] py-[10px] font-display text-base md:px-[22px] md:text-[17px] font-semibold leading-[normal] ${
                   on ? "bg-ink text-white" : "bg-field text-ink"
                 }`}
               >
