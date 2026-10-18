@@ -6,6 +6,7 @@ import { popularDestinations } from "@/data/mock/home";
 import { routes } from "@/data/mock/routes";
 import { demoFlexibleTip, demoProvider } from "./providers/demo";
 import { duffelProvider, isDuffelTestMode } from "./providers/duffel";
+import { isBackground, isSkipped } from "./providers/rate-limit";
 import type { FlightProvider, SearchOptions } from "./providers/types";
 import type { MultiQuery } from "./search";
 import { expandCombos } from "./search-server";
@@ -52,6 +53,8 @@ export async function searchFlights(q: MultiQuery, opts?: SearchOptions): Promis
       // uzun süren bir aramadan sonra yeniden denemek sayfa süresini aşar
       return run(i).catch(async (e) => {
         if (!isTransient(e) || Date.now() - started > 15_000) throw e;
+        // Arka plan araması istek sınırına takıldıysa yeniden denenmez: kalan pay ziyaretçinin aramasına kalsın
+        if (isSkipped(e) || (isBackground() && (e as { status?: number }).status === 429)) throw e;
         console.error("Arama geçici hatayla kesildi, yeniden deneniyor:", combos[i].from, combos[i].to, e instanceof Error ? e.message : e);
         await new Promise((r) => setTimeout(r, 1500));
         return run(i);
@@ -60,7 +63,7 @@ export async function searchFlights(q: MultiQuery, opts?: SearchOptions): Promis
   );
   const ok = settled.filter((r): r is PromiseFulfilledResult<Offer[]> => r.status === "fulfilled");
   if (!ok.length && settled.length) throw (settled[0] as PromiseRejectedResult).reason;
-  settled.forEach((r, i) => r.status === "rejected" && console.error("Arama ikilisi başarısız:", combos[i].from, combos[i].to, r.reason));
+  settled.forEach((r, i) => r.status === "rejected" && !isSkipped(r.reason) && console.error("Arama ikilisi başarısız:", combos[i].from, combos[i].to, r.reason));
   return merge(ok.flatMap((r) => r.value));
 }
 
@@ -128,7 +131,8 @@ export function searchFlightsCached(q: MultiQuery): Promise<Offer[]> {
       .finally(() => inFlight.delete(key));
     inFlight.set(key, p);
   }
-  return p;
+  // Aynı aramayı arka planda başlatılmış ve sınır yüzünden ertelenmiş bir istekle paylaştıysa ziyaretçi için yeniden dene
+  return isBackground() ? p : p.catch((e) => (isSkipped(e) ? cachedSearch(c, mode) : Promise.reject(e)));
 }
 
 const searchKey = (q: MultiQuery, mode: DataMode) => JSON.stringify([canonical(q), mode]);

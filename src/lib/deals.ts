@@ -7,6 +7,7 @@ import "server-only";
 import { after } from "next/server";
 import { popularDestinations } from "@/data/mock/home";
 import { dataMode, searchFlightsCached } from "./flights";
+import { inBackground, isSkipped } from "./providers/rate-limit";
 import { addDays, todayIso, type MultiQuery } from "./search";
 import type { Offer } from "./providers/types";
 import { cheapestWithBags } from "./extras";
@@ -60,7 +61,7 @@ async function findDeal(from: string[], to: string, trips: [string, string][]): 
       searchFlightsCached({ from, to: [to], date, returnDate, pax: { adults: 1, children: 0, infants: 0 }, cabin: "economy" }),
     ),
   );
-  settled.forEach((r) => r.status === "rejected" && console.error("Fırsat araması başarısız:", from.join(","), to, r.reason));
+  settled.forEach((r) => r.status === "rejected" && !isSkipped(r.reason) && console.error("Fırsat araması başarısız:", from.join(","), to, r.reason));
   const offers: Offer[] = settled.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
   if (!offers.length) return null;
   offers.sort((a, b) => a.price - b.price);
@@ -99,8 +100,10 @@ const concurrency = () => (dataMode() === "demo" ? 16 : 3);
 /** Örnek modda tüm tarihler, canlıda bu dilimin tek tarihi aranır. */
 async function dealFor(from: string[], to: string, index: number): Promise<Deal | null> {
   try {
-    return await findDeal(from, to, dataMode() === "demo" ? candidateTrips() : [rotatingTrip(index)]);
+    // Arka plan önceliği: ziyaretçinin kendi araması istek sınırında önce gelir
+    return await inBackground(() => findDeal(from, to, dataMode() === "demo" ? candidateTrips() : [rotatingTrip(index)]));
   } catch (e) {
+    if (isSkipped(e)) return null;
     console.error("Fırsat hesaplanamadı:", from.join(","), to, e instanceof Error ? e.message : e);
     return null;
   }
@@ -182,9 +185,10 @@ export async function getRouteDates(routes: [string, string][]): Promise<Record<
  */
 export async function getDayPrice(q: MultiQuery): Promise<number | null> {
   try {
-    const offers = await searchFlightsCached(q);
+    const offers = await inBackground(() => searchFlightsCached(q));
     return cheapestWithBags(offers, q.bags);
   } catch (e) {
+    if (isSkipped(e)) return null;
     console.error("Gün fiyatı alınamadı:", q.date, e instanceof Error ? e.message : e);
     return null;
   }

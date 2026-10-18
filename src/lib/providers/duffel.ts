@@ -7,6 +7,7 @@ import { uniqueChangeOptions } from "../change-options";
 import { toTry } from "../currency";
 import { mergeBags } from "../extras";
 import type { SearchQuery } from "../search";
+import { acquire, isBackground, isSkipped, noteResponse, retryWait } from "./rate-limit";
 import { BAG_KINDS } from "./types";
 import type { BagInfo, BagOffer, Bags, BagSpec, CabinClass, ChangeOption, ChangeRequest, Segment, Booking, FlightProvider, Leg, Offer, OrderInput, SeatMap, SeatRow } from "./types";
 
@@ -34,33 +35,31 @@ export class PriceChangedError extends ProviderError {
 
 export const isDuffelTestMode = () => (process.env.DUFFEL_ACCESS_TOKEN ?? "").startsWith("duffel_test_");
 
-/** "ratelimit-reset" başlığından beklenecek süre (ms): saniye, Unix zamanı ya da tarih olabilir; en fazla 5 sn. */
-function resetWait(h: string | null): number {
-  const n = Number(h);
-  let ms = 1500;
-  if (h && Number.isFinite(n)) ms = n > 1e9 ? n * 1000 - Date.now() : n * 1000;
-  else if (h && !Number.isNaN(Date.parse(h))) ms = Date.parse(h) - Date.now();
-  return Math.min(5000, Math.max(500, ms));
-}
-
 /**
- * Duffel isteği. İstek sınırına takılırsa (429) istek işlenmemiştir; kısa bekleyip en fazla iki kez yeniden denenir.
- * Ana sayfa fırsatları ve tarih şeridi aynı anda çok arama yapabildiği için önemli.
+ * Duffel isteği. İstek sınırı (429) ziyaretçinin aramasında kısa bekleyip en fazla iki kez yeniden denenir;
+ * arka plan aramaları (fırsatlar, tarih şeridi) yeniden denenmez ve sınır darken hiç gönderilmez (rate-limit.ts).
  */
 async function call<T>(path: string, init: RequestInit = {}, attempt = 0): Promise<T> {
-  const res = await fetch(API + path, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${token()}`,
-      "Duffel-Version": "v2",
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      ...init.headers,
-    },
-    cache: "no-store",
-  });
-  if (res.status === 429 && attempt < 2) {
-    await new Promise((r) => setTimeout(r, resetWait(res.headers.get("ratelimit-reset"))));
+  const release = await acquire();
+  let res: Response;
+  try {
+    res = await fetch(API + path, {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${token()}`,
+        "Duffel-Version": "v2",
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        ...init.headers,
+      },
+      cache: "no-store",
+    });
+  } finally {
+    release();
+  }
+  noteResponse(res);
+  if (res.status === 429 && attempt < 2 && !isBackground()) {
+    await new Promise((r) => setTimeout(r, retryWait()));
     return call<T>(path, init, attempt + 1);
   }
   const body = await res.json().catch(() => null);
@@ -70,6 +69,9 @@ async function call<T>(path: string, init: RequestInit = {}, attempt = 0): Promi
   }
   return body.data as T;
 }
+
+/** Yeni bir istekle tekrar denemek boşuna: sınır dolu ya da arka plan isteği ertelendi. */
+const rateLimited = (e: unknown) => isSkipped(e) || (e instanceof ProviderError && e.status === 429);
 
 type DBatch = { id: string; total_batches: number; remaining_batches: number; offers?: DOffer[] };
 
@@ -89,6 +91,7 @@ async function batchSearch(
   try {
     created = await call<DBatch>(`/air/batch_offer_requests?supplier_timeout=${timeout}`, { method: "POST", body });
   } catch (e) {
+    if (rateLimited(e)) throw e;
     console.error("Parça parça arama başlatılamadı, tek seferde aranıyor:", e instanceof Error ? e.message : e);
     return whole();
   }
@@ -108,11 +111,13 @@ async function batchSearch(
       else if (remaining > 0) await new Promise((r) => setTimeout(r, 300));
     }
   } catch (e) {
+    if (isSkipped(e)) throw e;
     console.error("Parça parça arama kesildi, tüm teklifler alınıyor:", e instanceof Error ? e.message : e);
     try {
       const all = await call<DOffer[]>(`/air/offers?offer_request_id=${created.id}&sort=total_amount&limit=200`);
       return finish(all);
     } catch (e2) {
+      if (rateLimited(e2)) throw e2;
       console.error("Teklif listesi alınamadı, tek seferde aranıyor:", e2 instanceof Error ? e2.message : e2);
       return whole();
     }
