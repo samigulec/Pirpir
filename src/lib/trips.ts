@@ -78,7 +78,7 @@ export function unknownIncludedKgHint(b: Booking): number | undefined {
   return b.bagKg?.extraChecked;
 }
 
-/** İndirilen PDF'in adı: rotala-PNR.pdf ya da rotala-AMS-IST-2026-11-07.pdf */
+/** İndirilen PDF'in adı: pirpir-PNR.pdf ya da pirpir-AMS-IST-2026-11-07.pdf */
 export function planFileName(b: Booking): string {
   const o = b.offer.outbound;
   return `${brand.name}-${b.pnr ?? `${o.fromCode}-${o.toCode}-${o.date}`}.pdf`;

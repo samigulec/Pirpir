@@ -1,28 +1,36 @@
 import { Link } from "@/i18n/navigation";
 import { brand } from "@/config/brand";
+import { Pirpir } from "./characters";
 
+/** Logo işareti: sevinen Pırpır (çevresindeki boşluk kırpılmış). `size` yüksekliktir. */
 export function LogoMark({ size = 34 }: { size?: number }) {
+  return <Pirpir happy viewBox="16 14 176 112" width={Math.round(size * 1.57)} height={size} role={undefined} aria-label={undefined} aria-hidden="true" />;
+}
+
+/** Yazı logosu: dördüncü harf mercan ("pirpir" → pir·p·ir), Pırpır'ın kuyruk rengi. */
+export function Wordmark({ className = "" }: { className?: string }) {
+  const n = brand.name;
   return (
-    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
-      <circle cx="20" cy="20" r="18" fill="#FFD166" />
-      <path d="M9 23 C 15 12, 25 12, 31 18" fill="none" stroke="#1E2A44" strokeWidth="3" strokeLinecap="round" strokeDasharray="1 6" />
-      <circle cx="31" cy="18" r="3.5" fill="#FF8A65" />
-    </svg>
+    <span className={`font-display font-bold ${className}`}>
+      {n.slice(0, 3)}
+      <span className="text-coral">{n.slice(3, 4)}</span>
+      {n.slice(4)}
+    </span>
   );
 }
 
 export function Logo({ compact = false, tight = false }: { compact?: boolean; tight?: boolean }) {
   return (
-    <Link href="/" className="flex items-center gap-2 text-ink no-underline">
+    <Link href="/" aria-label={brand.name} className="flex items-center gap-2 text-ink no-underline">
       {compact ? (
         <>
-          <LogoMark size={30} />
-          <span className="font-display text-[25px] font-bold">{brand.name}</span>
+          <LogoMark size={28} />
+          <Wordmark className="text-[25px]" />
         </>
       ) : (
         <>
           <LogoMark />
-          <span className={`font-display text-[28px] font-bold ${tight ? "tracking-[-0.01em]" : ""}`}>{brand.name}</span>
+          <Wordmark className={`text-[28px] ${tight ? "tracking-[-0.01em]" : ""}`} />
         </>
       )}
     </Link>

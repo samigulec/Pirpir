@@ -1,6 +1,7 @@
 import { SiteHeader } from "./SiteHeader";
 import { SimpleFooter } from "./SiteFooter";
 import type { LegalDoc } from "@/content/legal/types";
+import { withBrand } from "@/config/brand";
 
 /** Gizlilik ve koşullar gibi metin sayfaları. */
 export function LegalPage({ doc }: { doc: LegalDoc }) {
@@ -11,7 +12,7 @@ export function LegalPage({ doc }: { doc: LegalDoc }) {
         <div className="flex flex-col gap-2 rounded-[40px] bg-sky px-7 py-8">
           <h1 className="m-0 font-display text-[40px] font-bold leading-[1.1]">{doc.title}</h1>
           <span className="text-sm font-bold text-muted">{doc.updated}</span>
-          <p className="m-0 text-lg">{doc.intro}</p>
+          <p className="m-0 text-lg">{withBrand(doc.intro)}</p>
         </div>
         <nav aria-label={doc.title} className="flex flex-wrap gap-2">
           {doc.sections.map((s) => (
@@ -26,11 +27,11 @@ export function LegalPage({ doc }: { doc: LegalDoc }) {
             {s.body.length > 1 ? (
               <ul className="m-0 flex list-disc flex-col gap-2 pl-5">
                 {s.body.map((p) => (
-                  <li key={p}>{p}</li>
+                  <li key={p}>{withBrand(p)}</li>
                 ))}
               </ul>
             ) : (
-              <p className="m-0">{s.body[0]}</p>
+              <p className="m-0">{withBrand(s.body[0])}</p>
             )}
           </section>
         ))}

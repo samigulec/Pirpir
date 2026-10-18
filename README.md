@@ -1,4 +1,4 @@
-# rotala
+# pirpir
 
 Uçuş bileti sitesi arayüzü — Next.js (App Router) + TypeScript + Tailwind. Proje kuralları için `CLAUDE.md`.
 

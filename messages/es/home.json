@@ -73,7 +73,7 @@
     "nearbyDetail": "{list} · a menos de {km} km"
   },
   "trust": {
-    "label": "Por qué rotala",
+    "label": "Por qué {brand}",
     "secure": "Nunca guardamos los datos de tu tarjeta",
     "clear": "Equipaje y cargos a la vista desde el principio",
     "manage": "Cambia, cancela y añade equipaje online"

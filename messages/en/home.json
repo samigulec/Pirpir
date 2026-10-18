@@ -73,7 +73,7 @@
     "nearbyDetail": "{list} · within {km} km"
   },
   "trust": {
-    "label": "Why rotala",
+    "label": "Why {brand}",
     "secure": "We never store your card details",
     "clear": "Bags and fees shown up front",
     "manage": "Change, cancel and add bags online"

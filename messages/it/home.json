@@ -73,7 +73,7 @@
     "nearbyDetail": "{list} · entro {km} km"
   },
   "trust": {
-    "label": "Perché rotala",
+    "label": "Perché {brand}",
     "secure": "Non salviamo mai i dati della tua carta",
     "clear": "Bagagli e costi mostrati fin da subito",
     "manage": "Modifica, cancella e aggiungi bagagli online"

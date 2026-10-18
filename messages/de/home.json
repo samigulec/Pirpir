@@ -73,7 +73,7 @@
     "nearbyDetail": "{list} · im Umkreis von {km} km"
   },
   "trust": {
-    "label": "Warum rotala",
+    "label": "Warum {brand}",
     "secure": "Wir speichern deine Kartendaten nie",
     "clear": "Gepäck und Gebühren von Anfang an sichtbar",
     "manage": "Umbuchen, stornieren und Gepäck hinzufügen – alles online"

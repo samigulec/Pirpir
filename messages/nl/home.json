@@ -73,7 +73,7 @@
     "nearbyDetail": "{list} · tot {km} km"
   },
   "trust": {
-    "label": "Waarom rotala",
+    "label": "Waarom {brand}",
     "secure": "We bewaren je kaartgegevens niet",
     "clear": "Bagage en kosten vooraf duidelijk",
     "manage": "Wijzigen, annuleren en bagage online"

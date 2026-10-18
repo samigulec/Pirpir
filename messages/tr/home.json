@@ -72,7 +72,7 @@
     "nearbyDetail": "{list} · {km} km'ye kadar"
   },
   "trust": {
-    "label": "Neden rotala",
+    "label": "Neden {brand}",
     "secure": "Kart bilgin bizde saklanmaz",
     "clear": "Bagaj ve ücretler baştan belli",
     "manage": "Değişiklik, iptal ve bagaj sitede"

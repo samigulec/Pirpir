@@ -6,7 +6,7 @@ export const privacy: Record<"tr" | "en" | "nl" | "de" | "fr" | "es" | "it", Leg
   tr: {
     title: "Gizlilik Politikası",
     updated: "Son güncelleme: 17 Ekim 2026",
-    intro: "rotala olarak kişisel verilerini yalnızca uçuşunu bulmak, biletini kesmek ve hesabını yönetmek için kullanıyoruz. Bu sayfa hangi bilgileri neden topladığımızı ve haklarını anlatır.",
+    intro: "{brand} olarak kişisel verilerini yalnızca uçuşunu bulmak, biletini kesmek ve hesabını yönetmek için kullanıyoruz. Bu sayfa hangi bilgileri neden topladığımızı ve haklarını anlatır.",
     sections: [
       { id: "biz", title: "Biz kimiz", body: ["Veri sorumlusu: [ŞİRKET ADI], [ADRES].", "Gizlilikle ilgili her sorun için: [İLETİŞİM E-POSTASI]."] },
       {
@@ -66,7 +66,7 @@ export const privacy: Record<"tr" | "en" | "nl" | "de" | "fr" | "es" | "it", Leg
   en: {
     title: "Privacy Policy",
     updated: "Last updated: 17 October 2026",
-    intro: "At rotala we only use your personal data to find your flight, issue your ticket and manage your account. This page explains what we collect, why, and your rights.",
+    intro: "At {brand} we only use your personal data to find your flight, issue your ticket and manage your account. This page explains what we collect, why, and your rights.",
     sections: [
       { id: "biz", title: "Who we are", body: ["Data controller: [ŞİRKET ADI], [ADRES].", "For any privacy question: [İLETİŞİM E-POSTASI]."] },
       {
@@ -126,7 +126,7 @@ export const privacy: Record<"tr" | "en" | "nl" | "de" | "fr" | "es" | "it", Leg
   nl: {
     title: "Privacybeleid",
     updated: "Laatst bijgewerkt: 17 oktober 2026",
-    intro: "Bij rotala gebruiken we je persoonsgegevens alleen om je vlucht te vinden, je ticket uit te geven en je account te beheren. Hier lees je wat we verzamelen, waarom, en wat je rechten zijn.",
+    intro: "Bij {brand} gebruiken we je persoonsgegevens alleen om je vlucht te vinden, je ticket uit te geven en je account te beheren. Hier lees je wat we verzamelen, waarom, en wat je rechten zijn.",
     sections: [
       { id: "biz", title: "Wie we zijn", body: ["Verwerkingsverantwoordelijke: [ŞİRKET ADI], [ADRES].", "Voor vragen over privacy: [İLETİŞİM E-POSTASI]."] },
       {
@@ -186,7 +186,7 @@ export const privacy: Record<"tr" | "en" | "nl" | "de" | "fr" | "es" | "it", Leg
   de: {
     title: "Datenschutzerklärung",
     updated: "Zuletzt aktualisiert: 17. Oktober 2026",
-    intro: "Bei rotala nutzen wir deine personenbezogenen Daten nur, um deinen Flug zu finden, dein Ticket auszustellen und dein Konto zu verwalten. Hier erfährst du, was wir erheben, warum, und welche Rechte du hast.",
+    intro: "Bei {brand} nutzen wir deine personenbezogenen Daten nur, um deinen Flug zu finden, dein Ticket auszustellen und dein Konto zu verwalten. Hier erfährst du, was wir erheben, warum, und welche Rechte du hast.",
     sections: [
       { id: "biz", title: "Wer wir sind", body: ["Verantwortlicher: [ŞİRKET ADI], [ADRES].", "Bei Fragen zum Datenschutz: [İLETİŞİM E-POSTASI]."] },
       {
@@ -246,7 +246,7 @@ export const privacy: Record<"tr" | "en" | "nl" | "de" | "fr" | "es" | "it", Leg
   fr: {
     "title": "Politique de confidentialité",
     "updated": "Dernière mise à jour : 17 octobre 2026",
-    "intro": "Chez rotala, on utilise tes données personnelles uniquement pour trouver ton vol, émettre ton billet et gérer ton compte. Cette page explique ce qu'on collecte, pourquoi, et quels sont tes droits.",
+    "intro": "Chez {brand}, on utilise tes données personnelles uniquement pour trouver ton vol, émettre ton billet et gérer ton compte. Cette page explique ce qu'on collecte, pourquoi, et quels sont tes droits.",
     "sections": [
       {
         "id": "biz",
@@ -326,7 +326,7 @@ export const privacy: Record<"tr" | "en" | "nl" | "de" | "fr" | "es" | "it", Leg
   es: {
     "title": "Política de privacidad",
     "updated": "Última actualización: 17 de octubre de 2026",
-    "intro": "En rotala solo usamos tus datos personales para encontrar tu vuelo, emitir tu billete y gestionar tu cuenta. Esta página explica qué recogemos, para qué y cuáles son tus derechos.",
+    "intro": "En {brand} solo usamos tus datos personales para encontrar tu vuelo, emitir tu billete y gestionar tu cuenta. Esta página explica qué recogemos, para qué y cuáles son tus derechos.",
     "sections": [
       {
         "id": "biz",
@@ -406,7 +406,7 @@ export const privacy: Record<"tr" | "en" | "nl" | "de" | "fr" | "es" | "it", Leg
   it: {
     "title": "Informativa sulla privacy",
     "updated": "Ultimo aggiornamento: 17 ottobre 2026",
-    "intro": "Su rotala usiamo i tuoi dati personali solo per trovare il tuo volo, emettere il tuo biglietto e gestire il tuo account. Questa pagina spiega cosa raccogliamo, perché e quali sono i tuoi diritti.",
+    "intro": "Su {brand} usiamo i tuoi dati personali solo per trovare il tuo volo, emettere il tuo biglietto e gestire il tuo account. Questa pagina spiega cosa raccogliamo, perché e quali sono i tuoi diritti.",
     "sections": [
       {
         "id": "biz",

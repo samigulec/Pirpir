@@ -73,7 +73,7 @@
     "nearbyDetail": "{list} · dans un rayon de {km} km"
   },
   "trust": {
-    "label": "Pourquoi rotala",
+    "label": "Pourquoi {brand}",
     "secure": "On ne conserve jamais les données de ta carte",
     "clear": "Bagages et frais affichés dès le départ",
     "manage": "Modifie, annule et ajoute des bagages en ligne"

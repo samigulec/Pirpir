@@ -1,6 +1,6 @@
-# rotala — Uçuş bileti platformu
+# pirpir — Uçuş bileti platformu
 
-Sade, sevimli, karakterli bir uçuş bileti sitesi. Hedef: kullanıcıya inanılmaz basit bir akış (Ara → Seç → Öde → Uç). Marka adı "rotala" geçicidir; tek bir yerden değiştirilebilir olmalı (`src/config/brand.ts`).
+Sade, sevimli, karakterli bir uçuş bileti sitesi. Hedef: kullanıcıya inanılmaz basit bir akış (Ara → Seç → Öde → Uç). Marka adı "pirpir"dir, logo işareti ana karakter Pırpır; ad tek bir yerden değiştirilir (`src/config/brand.ts`).
 
 ## Altın kural: tasarıma birebir sadakat
 

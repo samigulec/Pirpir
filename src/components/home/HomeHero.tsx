@@ -1,5 +1,6 @@
 "use client";
 
+import { brand } from "@/config/brand";
 import { useTranslations } from "next-intl";
 import { Pirpir } from "../characters";
 import { CloudShape, Check, Clock, Lock } from "../icons";
@@ -45,7 +46,7 @@ export function HomeHero({
       {afterHero}
 
       <ul
-        aria-label={t("trust.label")}
+        aria-label={t("trust.label", { brand: brand.name })}
         className="m-0 flex list-none flex-wrap justify-center gap-x-8 gap-y-[10px] px-2 pt-[22px] text-[15px] font-bold text-ink"
       >
         {/* Yalnızca sitenin gerçekten yaptığı şeyler (vaat yok) */}

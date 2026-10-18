@@ -1,5 +1,5 @@
 import path from "node:path";
-import { Circle, Document, Font, Image, Page, Path, StyleSheet, Svg, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import { Circle, Document, Ellipse, Font, Image, Page, Path, Rect, StyleSheet, Svg, Text, View, renderToBuffer } from "@react-pdf/renderer";
 
 // PDF'te tarayıcı yazı tipleri yok: Türkçe harfleri ve ₺ simgesini içeren Nunito dosyaları gömülür.
 // (Fredoka'nın dosyasında ğ, ş, İ ve ₺ olmadığı için başlıklarda da Nunito kullanılır.)
@@ -133,12 +133,25 @@ const s = StyleSheet.create({
   footer: { position: "absolute", bottom: 22, left: 36, right: 36, fontSize: 8, color: C.muted, borderTopWidth: 1, borderTopColor: C.line, paddingTop: 6 },
 });
 
-function LogoMark({ size = 24 }: { size?: number }) {
+/** Logo işareti: sevinen Pırpır (sitedeki logo ile aynı çizim). `size` yüksekliktir. */
+function LogoMark({ size = 22 }: { size?: number }) {
+  const line = { stroke: C.ink, strokeWidth: 4, strokeLinejoin: "round" as const };
   return (
-    <Svg width={size} height={size} viewBox="0 0 40 40">
-      <Circle cx="20" cy="20" r="18" fill={C.sun} />
-      <Path d="M9 23 C 15 12, 25 12, 31 18" fill="none" stroke={C.ink} strokeWidth={3} strokeLinecap="round" strokeDasharray="1 6" />
-      <Circle cx="31" cy="18" r="3.5" fill={C.coral} />
+    <Svg width={size * 1.57} height={size} viewBox="16 14 176 112">
+      <Path d="M70 52 L 95 18 L 118 22 L 108 54 Z" fill="#9CC3FF" {...line} />
+      <Path d="M34 58 L 20 26 L 40 26 L 58 52 Z" fill={C.coral} {...line} />
+      <Rect x="24" y="46" width="146" height="56" rx="28" fill="#FFFFFF" {...line} />
+      <Circle cx="52" cy="68" r="6" fill="#9CC3FF" />
+      <Circle cx="72" cy="68" r="6" fill="#9CC3FF" />
+      <Path d="M112 66 Q 118 60 124 66" fill="none" stroke={C.ink} strokeWidth={4} strokeLinecap="round" />
+      <Path d="M140 66 Q 146 60 152 66" fill="none" stroke={C.ink} strokeWidth={4} strokeLinecap="round" />
+      <Ellipse cx="110" cy="82" rx="7" ry="4.5" fill="#FFB4A2" />
+      <Ellipse cx="156" cy="82" rx="7" ry="4.5" fill="#FFB4A2" />
+      <Path d="M124 78 Q 132 94 140 78 Z" fill={C.ink} />
+      <Path d="M84 84 L 70 122 L 100 122 L 112 88 Z" fill="#5B8DEF" {...line} />
+      <Circle cx="176" cy="74" r="7" fill={C.sun} stroke={C.ink} strokeWidth={4} />
+      <Ellipse cx="184" cy="56" rx="4" ry="13" fill={C.sun} stroke={C.ink} strokeWidth={3} />
+      <Ellipse cx="184" cy="92" rx="4" ry="13" fill={C.sun} stroke={C.ink} strokeWidth={3} />
     </Svg>
   );
 }
@@ -173,7 +186,12 @@ export function TripPlanPdf({ d }: { d: PlanData }) {
         <View style={s.header}>
           <View style={s.brandRow}>
             <LogoMark />
-            <Text style={s.brand}>{d.brand}</Text>
+            {/* Yazı logosu: dördüncü harf mercan (sitedeki gibi) */}
+            <Text style={s.brand}>
+              {d.brand.slice(0, 3)}
+              <Text style={{ color: C.coral }}>{d.brand.slice(3, 4)}</Text>
+              {d.brand.slice(4)}
+            </Text>
           </View>
           <Text style={s.docTitle}>{up(d.docTitle)}</Text>
         </View>
