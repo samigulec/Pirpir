@@ -85,14 +85,14 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
         <section className={card}>
           <h2 className={h2}>{t("preferences")}</h2>
           <div className="flex flex-wrap gap-6">
-            <label className="flex flex-col gap-[6px] text-[15px] font-extrabold">
-              {t("language")}
-              <LanguageSelect />
-            </label>
-            <label className="flex flex-col gap-[6px] text-[15px] font-extrabold">
-              {t("currency")}
-              <CurrencySelect />
-            </label>
+            <div className="flex flex-col gap-[6px] text-[15px] font-extrabold">
+              <span id="pref-language">{t("language")}</span>
+              <LanguageSelect labelId="pref-language" />
+            </div>
+            <div className="flex flex-col gap-[6px] text-[15px] font-extrabold">
+              <span id="pref-currency">{t("currency")}</span>
+              <CurrencySelect labelId="pref-currency" />
+            </div>
           </div>
         </section>
 

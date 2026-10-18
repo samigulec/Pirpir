@@ -13,32 +13,44 @@ import {
 } from "@/config/markets";
 import { LOCALES, LOCALE_LABELS, isLocale, type Locale } from "@/i18n/config";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { Picker, type PickerItem } from "./Picker";
 
 const selectBase =
   "min-h-[44px] cursor-pointer rounded-pill border-0 bg-field font-extrabold text-ink";
 
-export function CurrencySelect({ compact = false }: { compact?: boolean }) {
-  const t = useTranslations("common");
+/** Dil listesi: kendi dilindeki adı, yanında sayfa dilindeki adı (Deutsch · Almanca) */
+function useLanguageItems(): PickerItem[] {
+  const locale = useLocale();
+  return useMemo(() => {
+    const names = new Intl.DisplayNames([locale], { type: "language" });
+    return LOCALES.map((l) => {
+      const here = names.of(l);
+      return { value: l, label: LOCALE_LABELS[l], hint: here && here.toLocaleLowerCase(locale) !== LOCALE_LABELS[l].toLocaleLowerCase(locale) ? here : undefined, icon: { text: l.toUpperCase() } };
+    });
+  }, [locale]);
+}
+
+function useCurrencyItems(): PickerItem[] {
+  const locale = useLocale();
+  return useMemo(() => {
+    const names = new Intl.DisplayNames([locale], { type: "currency" });
+    return CURRENCIES.map((c) => ({ value: c, label: c, hint: names.of(c), icon: { text: SYMBOLS[c] } }));
+  }, [locale]);
+}
+
+const pickerField = "min-h-[48px] rounded-[18px] border-2 border-solid border-line bg-field px-4 text-base font-bold text-ink";
+
+export function CurrencySelect({ labelId }: { labelId: string }) {
   const { cur, setCur } = useCurrency();
   return (
-    <select
-      aria-label={t("currency")}
-      value={cur}
-      onChange={(e) => isCurrency(e.target.value) && setCur(e.target.value)}
-      className={`${selectBase} ${compact ? "px-3 py-[10px] text-sm" : "px-[14px] py-[10px] text-[15px]"}`}
-    >
-      {CURRENCIES.map((c) => (
-        <option key={c} value={c}>
-          {SYMBOLS[c]} {c}
-        </option>
-      ))}
-    </select>
+    <div className="min-w-[220px]">
+      <Picker items={useCurrencyItems()} value={cur} onChange={(c) => isCurrency(c) && setCur(c)} labelId={labelId} className={pickerField} />
+    </div>
   );
 }
 
 /** Dil değişince aynı sayfanın o dildeki adresine gider (/ara → /en/search). */
-export function LanguageSelect() {
-  const t = useTranslations("common");
+export function LanguageSelect({ labelId }: { labelId: string }) {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -60,19 +72,16 @@ export function LanguageSelect() {
   };
 
   return (
-    <select
-      aria-label={t("language")}
-      value={locale}
-      disabled={pending}
-      onChange={(e) => isLocale(e.target.value) && change(e.target.value)}
-      className={`${selectBase} px-[14px] py-[10px] text-[15px]`}
-    >
-      {LOCALES.map((l) => (
-        <option key={l} value={l} lang={l}>
-          {LOCALE_LABELS[l]}
-        </option>
-      ))}
-    </select>
+    <div className="min-w-[220px]">
+      <Picker
+        items={useLanguageItems()}
+        value={locale}
+        onChange={(l) => isLocale(l) && l !== locale && change(l)}
+        labelId={labelId}
+        disabled={pending}
+        className={pickerField}
+      />
+    </div>
   );
 }
 
@@ -96,14 +105,12 @@ export function RegionSettings({ compact = false }: { compact?: boolean }) {
     locale: Locale;
     cur: Currency;
   }>({ market: "NL", locale: "tr", cur: "TRY" });
-  const countries = useMemo(
-    () => new Intl.DisplayNames([locale], { type: "region" }),
-    [locale],
-  );
-  const currencyNames = useMemo(
-    () => new Intl.DisplayNames([locale], { type: "currency" }),
-    [locale],
-  );
+  const countryItems = useMemo<PickerItem[]>(() => {
+    const names = new Intl.DisplayNames([locale], { type: "region" });
+    return MARKETS.map((m) => ({ value: m.id, label: names.of(m.id) ?? m.id, icon: { flag: m.id } }));
+  }, [locale]);
+  const languageItems = useLanguageItems();
+  const currencyItems = useCurrencyItems();
 
   const open = () => {
     setDraft({
@@ -138,8 +145,6 @@ export function RegionSettings({ compact = false }: { compact?: boolean }) {
   };
 
   const field = "flex flex-col gap-[6px] font-extrabold";
-  const select =
-    "min-h-[48px] w-full cursor-pointer rounded-[18px] border-2 border-solid border-line bg-field px-4 text-base font-bold text-ink";
 
   return (
     <>
@@ -179,68 +184,42 @@ export function RegionSettings({ compact = false }: { compact?: boolean }) {
           <h2 id={titleId} className="m-0 font-display text-2xl font-semibold">
             {t("title")}
           </h2>
-          <div className="flex flex-col gap-[6px]">
-            <label className={field}>
-              {t("country")}
-              <select aria-label={t("country")}
-                aria-describedby={hintId}
-                value={draft.market}
-                onChange={(e) => {
-                  const m = e.target.value;
-                  if (isMarketId(m))
-                    setDraft((d) => ({
-                      ...d,
-                      market: m,
-                      cur: marketById(m).currency,
-                    }));
-                }}
-                className={select}
-              >
-                {MARKETS.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {countries.of(m.id)}
-                  </option>
-                ))}
-              </select>
-            </label>
+          <div className={field}>
+            <span id={`${titleId}-country`}>{t("country")}</span>
+            <Picker
+              inline
+              items={countryItems}
+              value={draft.market}
+              onChange={(m) => isMarketId(m) && setDraft((d) => ({ ...d, market: m, cur: marketById(m).currency }))}
+              labelId={`${titleId}-country`}
+              className={pickerField}
+            />
             <span id={hintId} className="text-sm font-semibold text-muted">
               {t("countryHint")}
             </span>
           </div>
-          <label className={field}>
-            {t("language")}
-            <select aria-label={t("language")}
+          <div className={field}>
+            <span id={`${titleId}-language`}>{t("language")}</span>
+            <Picker
+              inline
+              items={languageItems}
               value={draft.locale}
-              onChange={(e) =>
-                isLocale(e.target.value) &&
-                setDraft((d) => ({ ...d, locale: e.target.value as Locale }))
-              }
-              className={select}
-            >
-              {LOCALES.map((l) => (
-                <option key={l} value={l} lang={l}>
-                  {LOCALE_LABELS[l]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className={field}>
-            {t("currency")}
-            <select aria-label={t("currency")}
+              onChange={(l) => isLocale(l) && setDraft((d) => ({ ...d, locale: l }))}
+              labelId={`${titleId}-language`}
+              className={pickerField}
+            />
+          </div>
+          <div className={field}>
+            <span id={`${titleId}-currency`}>{t("currency")}</span>
+            <Picker
+              inline
+              items={currencyItems}
               value={draft.cur}
-              onChange={(e) =>
-                isCurrency(e.target.value) &&
-                setDraft((d) => ({ ...d, cur: e.target.value as Currency }))
-              }
-              className={select}
-            >
-              {CURRENCIES.map((c) => (
-                <option key={c} value={c}>
-                  {SYMBOLS[c]} {c} · {currencyNames.of(c)}
-                </option>
-              ))}
-            </select>
-          </label>
+              onChange={(c) => isCurrency(c) && setDraft((d) => ({ ...d, cur: c }))}
+              labelId={`${titleId}-currency`}
+              className={pickerField}
+            />
+          </div>
           <div className="flex flex-wrap justify-end gap-2 pt-2">
             <button
               type="button"
