@@ -235,10 +235,11 @@
   },
   "alert": {
     "title": "Lass dir von Pırpır Bescheid geben, wenn die Preise fallen",
-    "email": "Deine E-Mail-Adresse",
-    "submit": "Benachrichtige mich",
-    "thanks": "Alles klar! Beim ersten Preisrutsch stupse ich dein Postfach an.",
-    "note": "Höchstens eine E-Mail pro Woche. Jederzeit abbestellbar."
+    "submit": "Alarm einrichten",
+    "note": "Kostenlos. Melde dich an, um ihn einzurichten; wir prüfen den Preis jeden Morgen, und du schaltest ihn mit einem Klick aus.",
+    "returnOptional": "Rückflug (optional)",
+    "needRoute": "Wähle Start und Ziel.",
+    "needDate": "Wähle ein Abflugdatum."
   },
   "faq": {
     "title": "Häufig gestellte Fragen",

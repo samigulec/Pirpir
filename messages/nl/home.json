@@ -235,10 +235,11 @@
   },
   "alert": {
     "title": "Laat Pırpır je waarschuwen als de prijs daalt",
-    "email": "Je e-mailadres",
-    "submit": "Houd me op de hoogte",
-    "thanks": "Geregeld! Bij de eerste prijsdaling krijg je een seintje.",
-    "note": "Maximaal één e-mail per week. Afmelden kan altijd."
+    "submit": "Alarm instellen",
+    "note": "Gratis. Log in om het in te stellen; we checken de prijs elke ochtend en je zet het met één klik uit.",
+    "returnOptional": "Terug (optioneel)",
+    "needRoute": "Kies van waar en naar waar je vliegt.",
+    "needDate": "Kies een vertrekdatum."
   },
   "faq": {
     "title": "Veelgestelde vragen",

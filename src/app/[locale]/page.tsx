@@ -43,7 +43,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <RoutesWithDates routes={market.routes} dates={routeDates} />
       </Suspense>
       <Steps />
-      <PriceAlert />
+      <PriceAlert defaultFrom={market.from} />
       <Faq />
       <SiteFooter />
       <MobileNav />

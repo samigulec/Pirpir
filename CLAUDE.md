@@ -70,7 +70,7 @@ Dokunma hedefleri en az 44px. Metin kontrastı en az 4.5:1.
 - **Dil seçici** (Türkçe / English / Nederlands): şimdilik arayüz; metinleri baştan `next-intl` gibi bir yapıyla anahtarlara koy.
 - **Arama kutusu:** Gidiş-dönüş / Tek yön (tek yönde dönüş tarihi gizlenir), Nereden ↔ Nereye değiştir butonu, yolcu seçimi (yetişkin / çocuk / bebek).
 - **Popüler uçuşlar filtresi:** Tümü / Türkiye / Avrupa / Deniz & güneş / Şehir turu.
-- **Fiyat alarmı formu:** gönderince teşekkür mesajı.
+- **Fiyat alarmı formu:** rota ve tarih seçilir; "Alarm kur" o aramayı açar ve alarm orada kurulur (giriş gerekir, e-posta yalnızca hesabın doğrulanmış adresine gider).
 - **SSS:** açılır/kapanır (`<details>`).
 - **Rota sayfası:** ay çubuğuna tıklayınca o ayın fiyatı ve en ucuz aya göre farkı gösterilir.
 - **Sonuçlar:** sıralama sekmeleri; "En ucuz" / "En hızlı" rozetleri otomatik hesaplanır; aktarmalı uçuşta aktarma yeri ve bekleme süresi gösterilir.

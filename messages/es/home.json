@@ -235,10 +235,11 @@
   },
   "alert": {
     "title": "Deja que Pırpır te avise cuando bajen los precios",
-    "email": "Tu correo electrónico",
-    "submit": "Avísame",
-    "thanks": "¡Listo! Te escribiré en cuanto baje el precio.",
-    "note": "Como mucho un correo a la semana. Date de baja cuando quieras."
+    "submit": "Crear alerta",
+    "note": "Gratis. Inicia sesión para crearla; revisamos el precio cada mañana y la desactivas con un clic.",
+    "returnOptional": "Vuelta (opcional)",
+    "needRoute": "Elige origen y destino.",
+    "needDate": "Elige una fecha de ida."
   },
   "faq": {
     "title": "Preguntas frecuentes",

@@ -235,10 +235,11 @@
   },
   "alert": {
     "title": "Let Pırpır tell you when prices drop",
-    "email": "Your email address",
-    "submit": "Notify me",
-    "thanks": "All set! I'll nudge your inbox at the first price drop.",
-    "note": "At most one email a week. Unsubscribe any time."
+    "submit": "Set alert",
+    "note": "Free. Sign in to set it; we check the price every morning and you can turn it off with one click.",
+    "returnOptional": "Return (optional)",
+    "needRoute": "Choose where you're flying from and to.",
+    "needDate": "Choose a departure date."
   },
   "faq": {
     "title": "Frequently asked questions",

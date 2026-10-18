@@ -234,10 +234,11 @@
   },
   "alert": {
     "title": "Fiyat düşünce Pırpır sana haber versin",
-    "email": "E-posta adresin",
-    "submit": "Haber ver",
-    "thanks": "Tamamdır! İlk indirimde e-postanı dürteceğim.",
-    "note": "Haftada en fazla bir e-posta. İstediğin zaman çık."
+    "submit": "Alarm kur",
+    "note": "Ücretsiz. Giriş yaparak kurarsın; fiyata her sabah bakarız, istediğin zaman tek tıkla kapatırsın.",
+    "returnOptional": "Dönüş (isteğe bağlı)",
+    "needRoute": "Nereden ve nereye uçacağını seç.",
+    "needDate": "Gidiş tarihini seç."
   },
   "faq": {
     "title": "Sıkça sorulanlar",
