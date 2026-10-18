@@ -199,5 +199,7 @@
     "payNow": "Jetzt fällig",
     "payLater": "Fällig bis {date}",
     "note": "Du kannst auf der Bestätigungsseite oder unter Meine Reisen bezahlen. Läuft die Zeit ab, wird die Reservierung storniert."
-  }
+  },
+  "loadingPage": "Wir bereiten deinen Flug vor…",
+  "loadingTicket": "Dein Ticket wird vorbereitet…"
 }

@@ -199,5 +199,7 @@
     "payNow": "Due now",
     "payLater": "Due by {date}",
     "note": "You can pay from the confirmation page or My trips. If time runs out, the reservation is cancelled."
-  }
+  },
+  "loadingPage": "Getting your flight ready…",
+  "loadingTicket": "Getting your ticket ready…"
 }

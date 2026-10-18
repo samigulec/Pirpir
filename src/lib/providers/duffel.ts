@@ -79,6 +79,13 @@ async function call<T>(path: string, init: RequestInit = {}, attempt = 0): Promi
   return body.data as T;
 }
 
+/** Son alınan teklifler (koltuk haritası aynı teklifi ikinci kez istemesin); bir dakika, en fazla 50 tane. */
+const recentOffers = new Map<string, { o: DOffer; at: number }>();
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of recentOffers) if (now - v.at > 60_000 || recentOffers.size > 50) recentOffers.delete(k);
+}, 60_000).unref?.();
+
 /** Yeni bir istekle tekrar denemek boşuna: sınır dolu ya da arka plan isteği ertelendi. */
 const rateLimited = (e: unknown) => isSkipped(e) || (e instanceof ProviderError && e.status === 429);
 
@@ -556,6 +563,7 @@ export const duffelProvider: FlightProvider = {
     if (!/^off_[A-Za-z0-9]+$/.test(id)) return null;
     try {
       const o = await call<DOffer>(`/air/offers/${id}?return_available_services=true`);
+      recentOffers.set(id, { o, at: Date.now() });
       return mapOffer(o, queryFromOffer(o));
     } catch (e) {
       if (e instanceof ProviderError && (e.status === 404 || e.status === 422)) return null;
@@ -565,7 +573,9 @@ export const duffelProvider: FlightProvider = {
 
   async seatMaps(offer) {
     if (!/^off_[A-Za-z0-9]+$/.test(offer.id)) return [];
-    const o = await call<DOffer>(`/air/offers/${offer.id}`);
+    // Rezervasyon sayfası teklifi az önce aldıysa yeniden istenmez
+    const recent = recentOffers.get(offer.id);
+    const o = recent && Date.now() - recent.at < 60_000 ? recent.o : await call<DOffer>(`/air/offers/${offer.id}`);
     return seatMapsFor(o);
   },
 

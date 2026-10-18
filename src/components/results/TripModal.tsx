@@ -55,6 +55,14 @@ export function TripModal({
     if (!group && d.open) d.close();
   }, [group]);
 
+  // Pencere açılınca paketlerin rezervasyon verisi (teklif + koltuk haritası) sunucuda hazırlanır:
+  // "… ile devam et"e basınca rezervasyon sayfası Duffel'ı beklemeden açılır. Sonuç beklenmez.
+  useEffect(() => {
+    for (const { offer: o } of group?.fares.slice(0, 3) ?? []) {
+      if (!o.id.startsWith("demo_")) fetch(`/api/offer-warm?id=${encodeURIComponent(o.id)}`, { method: "POST", keepalive: true }).catch(() => {});
+    }
+  }, [group]);
+
   const offer = group?.best.offer;
   const nights = offer?.inbound ? dayDiff(offer.outbound.date, offer.inbound.date) : 0;
   const bagsWanted = wantBags.cabin > 0 || wantBags.checked > 0;

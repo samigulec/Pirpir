@@ -199,5 +199,7 @@
     "payNow": "A pagar ahora",
     "payLater": "A pagar antes del {date}",
     "note": "Puedes pagar desde la página de confirmación o desde Mis viajes. Si se acaba el tiempo, la reserva se cancela."
-  }
+  },
+  "loadingPage": "Preparando tu vuelo…",
+  "loadingTicket": "Preparando tu billete…"
 }

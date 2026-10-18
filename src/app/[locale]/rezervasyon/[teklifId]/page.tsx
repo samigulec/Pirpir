@@ -6,10 +6,9 @@ import { BookingForm } from "@/components/booking/BookingForm";
 import { countryOptions, DEFAULT_NATIONALITY } from "@/data/countries";
 import { passengerSlots } from "@/lib/booking-validate";
 import { formatDayWithWeekday, minsParts } from "@/lib/dates";
-import { dataMode, getOffer } from "@/lib/flights";
+import { dataMode, getBookingData } from "@/lib/flights";
 import type { Leg } from "@/lib/providers/types";
 import { int, one, searchHref } from "@/lib/search";
-import { getProviderForOffer } from "@/lib/providers/select";
 import { cityByCode } from "@/data/airports";
 import { intlLocale } from "@/lib/intl";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -32,8 +31,8 @@ export default async function BookingPage({
   const sp = await searchParams;
   setRequestLocale(locale);
   const loc = intlLocale(locale);
-  const user = await getCurrentUser();
-  const offer = await getOffer(decodeURIComponent(teklifId));
+  // Oturum ve teklif paralel (teklif çoğunlukla paket penceresi açılınca önceden hazırlanmıştır)
+  const [user, { offer, seatMaps }] = await Promise.all([getCurrentUser(), getBookingData(decodeURIComponent(teklifId))]);
   const t = await getTranslations("booking");
   const tc = await getTranslations("common");
   const tr = await getTranslations("results");
@@ -69,13 +68,6 @@ export default async function BookingPage({
     ...(offer.inbound ? [{ title: t("inbound", { date: formatDayWithWeekday(offer.inbound.date, loc) }), leg: offer.inbound }] : []),
   ];
   const q = offer.query;
-  // Koltuk haritası alınamazsa (havayolu sunmuyorsa) koltuk seçimi gösterilmez, rezervasyon sürer.
-  const seatMaps = await getProviderForOffer(offer)
-    .seatMaps(offer)
-    .catch((e) => {
-      console.error("Koltuk haritası alınamadı:", e);
-      return [];
-    });
   const wantBags = { cabin: Math.min(1, Math.max(0, int(one(sp.cabin), 0))), checked: Math.min(3, Math.max(0, int(one(sp.checked), 0))) };
   const codes = new Set(seatMaps.flatMap((m) => [m.fromCode, m.toCode]));
   const cityNames = Object.fromEntries([...codes].map((c) => [c, cityByCode(c, locale)]));

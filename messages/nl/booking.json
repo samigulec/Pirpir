@@ -199,5 +199,7 @@
     "payNow": "Nu te betalen",
     "payLater": "Te betalen vóór {date}",
     "note": "Je kunt betalen via de bevestigingspagina of Mijn reizen. Verloopt de tijd, dan vervalt de reservering."
-  }
+  },
+  "loadingPage": "We zetten je vlucht klaar…",
+  "loadingTicket": "We zetten je ticket klaar…"
 }

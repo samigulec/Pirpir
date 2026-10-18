@@ -54,10 +54,11 @@ const reserve = () => Math.max(8, Math.ceil(state.limit * 0.4));
 
 let running = 0;
 const queue: (() => void)[] = [];
-const BACKGROUND_SLOTS = 2;
+/** Aynı anda en fazla bu kadar arka plan isteği; pay bolken 4, değilse 2 (fırsat kartları daha çabuk dolsun). */
+const backgroundSlots = () => (state.limit && state.remaining !== Infinity && state.remaining > 2 * reserve() ? 4 : 2);
 
 /**
- * İstekten önce çağrılır. Arka planda: sınır darsa SkippedError, değilse aynı anda en fazla iki istek.
+ * İstekten önce çağrılır. Arka planda: sınır darsa SkippedError, değilse aynı anda en fazla 2–4 istek.
  * Ziyaretçi isteğinde: 429 sonrası bekleme süresi dolana kadar bekler (en çok 8 sn). Dönen fonksiyon istek
  * bitince çağrılır.
  */
@@ -70,7 +71,7 @@ export async function acquire(): Promise<() => void> {
   }
   const tight = state.resetAt > now && state.remaining < reserve();
   if (state.cooldownUntil > now || tight) throw new SkippedError();
-  if (running >= BACKGROUND_SLOTS) await new Promise<void>((r) => queue.push(r));
+  if (running >= backgroundSlots()) await new Promise<void>((r) => queue.push(r));
   // Sırada beklerken sınır daralmış olabilir
   if (state.cooldownUntil > Date.now() || (state.resetAt > Date.now() && state.remaining < reserve())) {
     queue.shift()?.();

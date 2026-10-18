@@ -199,5 +199,7 @@
     "payNow": "À payer maintenant",
     "payLater": "À payer avant le {date}",
     "note": "Tu peux payer depuis la page de confirmation ou Mes voyages. Si le délai expire, la réservation est annulée."
-  }
+  },
+  "loadingPage": "On prépare ton vol…",
+  "loadingTicket": "On prépare ton billet…"
 }

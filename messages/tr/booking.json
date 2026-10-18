@@ -199,5 +199,7 @@
     "payNow": "Şimdi ödenecek",
     "payLater": "{date} tarihine kadar ödenecek",
     "note": "Ödemeyi onay sayfasından ya da Biletlerim'den yapabilirsin. Süre dolarsa ayırma iptal olur."
-  }
+  },
+  "loadingPage": "Seçtiğin uçuşu hazırlıyoruz…",
+  "loadingTicket": "Biletin hazırlanıyor…"
 }

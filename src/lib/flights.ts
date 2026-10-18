@@ -11,7 +11,8 @@ import type { FlightProvider, SearchOptions } from "./providers/types";
 import type { MultiQuery } from "./search";
 import { expandCombos } from "./search-server";
 import { recordPrice } from "./price-calendar";
-import type { Offer } from "./providers/types";
+import type { Offer, SeatMap } from "./providers/types";
+import { getProviderForOffer } from "./providers/select";
 
 export type DataMode = "demo" | "test" | "live";
 
@@ -165,6 +166,39 @@ export async function getOffer(id: string) {
   // Örnek teklif kimlikleri her modda açılabilir (eski bağlantılar bozulmasın).
   if (id.startsWith("demo_")) return demoProvider.getOffer(id);
   return provider().getOffer(id);
+}
+
+async function loadBookingData(id: string): Promise<{ offer: Offer | null; seatMaps: SeatMap[] }> {
+  const offer = await getOffer(id);
+  if (!offer) return { offer: null, seatMaps: [] };
+  // Koltuk haritası alınamazsa (havayolu sunmuyorsa) koltuk seçimi gösterilmez, rezervasyon sürer.
+  const seatMaps = await getProviderForOffer(offer)
+    .seatMaps(offer)
+    .catch((e) => {
+      if (!isSkipped(e)) console.error("Koltuk haritası alınamadı:", e);
+      return [] as SeatMap[];
+    });
+  return { offer, seatMaps };
+}
+
+/** Rezervasyon sayfası kısa süre bunu yeniden kullanır; ödeme anında teklif her zaman Duffel'dan yeniden alınır. */
+const BOOKING_TTL = 2 * 60;
+const cachedBookingData = unstable_cache(loadBookingData.bind(null), ["booking-data-v1"], { revalidate: BOOKING_TTL });
+const bookingInFlight = new Map<string, Promise<{ offer: Offer | null; seatMaps: SeatMap[] }>>();
+
+/**
+ * Rezervasyon sayfasının verisi: teklif ve koltuk haritası. Teklifin fiyatı kimliğine bağlıdır (değişmez), bu yüzden
+ * iki dakikalık önbellek fiyatı eskitmez. Paket penceresi açılınca önceden hazırlanır (/api/offer-warm).
+ */
+export function getBookingData(id: string) {
+  if (id.startsWith("demo_")) return loadBookingData(id);
+  let p = bookingInFlight.get(id);
+  if (!p) {
+    p = cachedBookingData(id).finally(() => bookingInFlight.delete(id));
+    bookingInFlight.set(id, p);
+  }
+  // Önceden hazırlama sınır yüzünden ertelendiyse ziyaretçi için yeniden dene
+  return isBackground() ? p : p.catch((e) => (isSkipped(e) ? cachedBookingData(id) : Promise.reject(e)));
 }
 
 /** "İki gün sonra uçarsan … daha ucuz" ipucu. Gerçek API'de ek arama maliyeti olduğu için yalnızca örnek modda. */
