@@ -2,19 +2,20 @@
 
 import { clearDemoItems } from "@/lib/user-items";
 
-import { headers } from "next/headers";
 import { redirect as externalRedirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { getPathname, redirect } from "@/i18n/navigation";
 import { enabledProviders, isSupabaseConfigured } from "@/lib/auth/config";
 import { clearSession, getCurrentUser, setDemoUser } from "@/lib/auth/session";
 import { supabaseServer } from "@/lib/auth/supabase-server";
+import { oauthUrl, siteOrigin, requestOrigin } from "@/lib/auth/origin";
 import { clearLocalBookings } from "@/lib/bookings";
 import { asLocale } from "@/lib/intl";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-export type OAuthProvider = "google" | "facebook" | "apple";
+export type { OAuthProvider } from "@/lib/auth/origin";
+import type { OAuthProvider } from "@/lib/auth/origin";
 const OAUTH: OAuthProvider[] = ["google", "facebook", "apple"];
 
 export type LoginState = {
@@ -24,16 +25,13 @@ export type LoginState = {
 };
 
 /**
- * Giriş dönüşü, girişin başladığı adrese gelmeli: Supabase'in güvenlik çerezi (PKCE) o adrese yazılır.
- * www.flypirpir.nl'de başlayıp flypirpir.nl'ye dönen giriş çerezi bulamaz ve ilk denemede "bağlantının süresi
- * doldu" hatası verir. Bu yüzden istekteki adres kullanılır; ayarlı site adresi yalnızca adres bilinmiyorsa.
- * Dönüş adresi Supabase → Authentication → URL Configuration → Redirect URLs listesinde olmalı.
+ * Giriş başka bir adreste (ör. www.flypirpir.nl) başladıysa ana adres; aynıysa null.
+ * Supabase'in güvenlik çerezi (PKCE) girişin başladığı adrese yazılır, dönüş ise ana adrese gelir: adresler farklıysa
+ * çerez bulunamaz ve giriş "bağlantının süresi doldu" der. Bu yüzden giriş önce ana adrese taşınır.
  */
-async function siteOrigin() {
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  if (host) return `${h.get("x-forwarded-proto") ?? "https"}://${host}`;
-  return (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
+async function otherOrigin(): Promise<string | null> {
+  const main = await siteOrigin();
+  return new URL(main).host === new URL(await requestOrigin()).host ? null : main;
 }
 
 /** Yalnızca site içi yollara dönülür (açık yönlendirme olmasın). */
@@ -53,6 +51,9 @@ export async function requestLogin(_prev: LoginState, form: FormData): Promise<L
     return { status: "signedIn", email };
   }
 
+  // Başka adresteyse (www) giriş ana adreste yapılır: e-postadaki bağlantı oraya döner, çerez de orada olmalı
+  const main = await otherOrigin();
+  if (main) externalRedirect(`${main}${getPathname({ href: { pathname: "/giris", query: { next: next ?? "" } }, locale })}`);
   const supabase = await supabaseServer();
   const callback = new URL("/auth/callback", await siteOrigin());
   callback.searchParams.set("next", next ?? getPathname({ href: "/biletlerim", locale }));
@@ -77,16 +78,14 @@ export async function signInWithProvider(_prev: LoginState, form: FormData): Pro
   if (!OAUTH.includes(provider)) return { status: "error", error: "provider" };
   if (!isSupabaseConfigured() || !enabledProviders().includes(provider)) return { status: "error", error: "notConfigured" };
   const next = safeNext(String(form.get("next") ?? "")) ?? "/";
-  const supabase = await supabaseServer();
-  const callback = new URL("/auth/callback", await siteOrigin());
-  callback.searchParams.set("next", next);
-  const { data, error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: callback.toString() } });
-  if (error || !data.url) {
-    console.error("Sosyal giriş başlatılamadı:", error?.message);
-    return { status: "error", error: "provider" };
-  }
-  externalRedirect(data.url);
+  // Başka adresteyse giriş ana adreste başlatılır (/auth/start aynı işi orada yapar)
+  const main = await otherOrigin();
+  if (main) externalRedirect(`${main}/auth/start?provider=${provider}&next=${encodeURIComponent(next)}`);
+  const url = await oauthUrl(provider, next);
+  if (!url) return { status: "error", error: "provider" };
+  externalRedirect(url);
 }
+
 
 export async function signOut() {
   await clearSession();
