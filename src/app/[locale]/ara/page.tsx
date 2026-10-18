@@ -221,7 +221,10 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
     }
   } catch (e) {
     console.error("Uçuş araması başarısız:", e);
-    return <SearchFailed q={q} />;
+    // Test modunda nedeni de gösterilir (sorunu bulmak için); canlıda müşteriye teknik ayrıntı gösterilmez
+    const status = (e as { status?: number } | null)?.status;
+    const detail = dataMode() === "test" ? [status, e instanceof Error ? e.message : String(e)].filter(Boolean).join(" · ").slice(0, 300) : undefined;
+    return <SearchFailed q={q} detail={detail} />;
   }
   const mode = dataMode();
   const modeNote = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : undefined;
@@ -231,12 +234,13 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
   );
 }
 
-async function SearchFailed({ q }: { q: MultiQuery }) {
+async function SearchFailed({ q, detail }: { q: MultiQuery; detail?: string }) {
   const t = await getTranslations("results");
   return (
     <div role="alert" className={panel}>
       <span className="font-display text-xl font-semibold">{t("failed.title")}</span>
       <span className="text-muted">{t("failed.text")}</span>
+      {detail && <code className="rounded-[10px] bg-white px-3 py-2 text-[13px] text-muted">{detail}</code>}
       <Link href={searchHref({ ...q, returnDate: q.returnDate ?? "" })} className={pill}>{t("failed.retry")}</Link>
     </div>
   );

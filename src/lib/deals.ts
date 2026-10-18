@@ -91,7 +91,8 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promis
   return out;
 }
 
-const concurrency = () => (dataMode() === "demo" ? 16 : 6);
+// Canlıda/testte az: ana sayfa fırsatları ziyaretçinin kendi aramasıyla aynı istek sınırını paylaşır
+const concurrency = () => (dataMode() === "demo" ? 16 : 3);
 
 // Ayrı bir fırsat önbelleği yok: kart fiyatı her seferinde sonuç sayfasının kullandığı arama önbelleğinden
 // hesaplanır. Böylece karta tıklayınca açılan aramadaki en ucuz fiyat, kartta yazanla aynıdır.

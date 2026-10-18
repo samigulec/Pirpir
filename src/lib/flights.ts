@@ -35,23 +35,39 @@ export async function searchFlights(q: MultiQuery, opts?: SearchOptions): Promis
   // Her ikilinin o ana kadarki teklifleri; biri ilerledikçe hepsinin birleşimi bildirilir.
   const partial: Offer[][] = combos.map(() => []);
   const onPartial = opts?.onPartial;
+  const run = (i: number) =>
+    p.search(combos[i], {
+      timeoutMs: opts?.timeoutMs,
+      onPartial:
+        onPartial &&
+        ((offers) => {
+          partial[i] = offers;
+          onPartial(merge(partial.flat()));
+        }),
+    });
   const settled = await Promise.allSettled(
-    combos.map((c, i) =>
-      p.search(c, {
-        timeoutMs: opts?.timeoutMs,
-        onPartial:
-          onPartial &&
-          ((offers) => {
-            partial[i] = offers;
-            onPartial(merge(partial.flat()));
-          }),
-      }),
-    ),
+    combos.map((_, i) => {
+      const started = Date.now();
+      // Geçici hata (istek sınırı, sağlayıcıda arıza, bağlantı) hızlı geldiyse bir kez daha denenir;
+      // uzun süren bir aramadan sonra yeniden denemek sayfa süresini aşar
+      return run(i).catch(async (e) => {
+        if (!isTransient(e) || Date.now() - started > 15_000) throw e;
+        console.error("Arama geçici hatayla kesildi, yeniden deneniyor:", combos[i].from, combos[i].to, e instanceof Error ? e.message : e);
+        await new Promise((r) => setTimeout(r, 1500));
+        return run(i);
+      });
+    }),
   );
   const ok = settled.filter((r): r is PromiseFulfilledResult<Offer[]> => r.status === "fulfilled");
   if (!ok.length && settled.length) throw (settled[0] as PromiseRejectedResult).reason;
   settled.forEach((r, i) => r.status === "rejected" && console.error("Arama ikilisi başarısız:", combos[i].from, combos[i].to, r.reason));
   return merge(ok.flatMap((r) => r.value));
+}
+
+/** İstek sınırı (429), sağlayıcı tarafı hata (5xx) ya da durum kodu olmayan bağlantı/zaman aşımı hatası */
+function isTransient(e: unknown): boolean {
+  const status = (e as { status?: number } | null)?.status;
+  return status === undefined || status === 429 || status >= 500;
 }
 
 const merge = (offers: Offer[]) => [...offers].sort((a, b) => a.price - b.price).slice(0, MAX_RESULTS);
