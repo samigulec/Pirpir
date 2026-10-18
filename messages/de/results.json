@@ -1,0 +1,202 @@
+{
+  "metaTitle": "Suchergebnisse",
+  "summaryMeta": "{dates} · {count, plural, one {# Reisender} other {# Reisende}}",
+  "change": "Ändern",
+  "sortLabel": "Sortieren nach",
+  "sort": {
+    "best": "Beste",
+    "cheap": "Günstigste",
+    "fast": "Schnellste",
+    "direct": "Nur Direktflüge"
+  },
+  "count": "{count, plural, one {# Flug gefunden} other {# Flüge gefunden}}",
+  "countNote": "Preise pro Person, hin und zurück, inkl. Steuern",
+  "countNoteOneWay": "Preise pro Person, nur Hinflug, inkl. Steuern",
+  "badge": {
+    "cheap": "Günstigste",
+    "fast": "Schnellste"
+  },
+  "select": "Auswählen",
+  "tip": {
+    "title": "Flieg zwei Tage später und spar <price></price>!",
+    "text": "Niedrigster Preis am {day}: <price></price>.",
+    "cta": "Anzeigen →"
+  },
+  "empty": "Keine Flüge passen zu diesem Filter.",
+  "demoNote": "Beispieldaten",
+  "testNote": "Testmodus",
+  "nextDay": "+{n}",
+  "invalid": {
+    "title": "Wir konnten diese Suche nicht durchführen",
+    "back": "Suche korrigieren"
+  },
+  "failed": {
+    "title": "Wir können die Flüge gerade nicht laden",
+    "text": "Bitte versuch es gleich noch einmal. Wenn das Problem bleibt, sag uns Bescheid.",
+    "retry": "Erneut versuchen"
+  },
+  "noResults": "Für diese Daten haben wir keine Flüge gefunden. Versuch ein anderes Datum.",
+  "loading": "Pırpır sucht die besten Flüge…",
+  "outbound": "Hinflug",
+  "inbound": "Rückflug",
+  "perPerson": "pro Person",
+  "totalFor": "{total} insgesamt für {count}",
+  "details": "Flug- und Gepäckdetails",
+  "hideDetails": "Details ausblenden",
+  "layover": "Stopp in {city} ({code}) · {wait} Aufenthalt",
+  "bags": {
+    "personal": "Persönlicher Gegenstand",
+    "cabin": "Handgepäck",
+    "checked": "Aufgabegepäck",
+    "included": "Im Preis inbegriffen",
+    "notIncluded": "Nicht inbegriffen, kann beim Buchen hinzugefügt werden"
+  },
+  "cabin": {
+    "economy": "Economy",
+    "premium_economy": "Premium Economy",
+    "business": "Business",
+    "first": "First"
+  },
+  "conditions": {
+    "refundable": "Erstattungsfähig",
+    "nonRefundable": "Nicht erstattungsfähig",
+    "changeable": "Umbuchung möglich",
+    "notChangeable": "Keine Umbuchung",
+    "changeFee": "Umbuchungsgebühr {fee} + ggf. Preisdifferenz",
+    "changeFree": "Kostenlose Umbuchung (ggf. Preisdifferenz)",
+    "refundFee": "Erstattungsfähig, abzüglich {fee} Gebühr",
+    "refundFree": "Kostenlose Erstattung"
+  },
+  "filters": {
+    "title": "Filter",
+    "show": "Filter",
+    "active": "Filter ({n})",
+    "reset": "Filter zurücksetzen",
+    "bagsTitle": "Gepäck",
+    "bagsNote": "Die Preise enthalten das Gepäck, das du wählst.",
+    "cabinBag": "Handgepäck",
+    "checkedBag": "Aufgabegepäck",
+    "add": "{label} hinzufügen",
+    "remove": "{label} entfernen",
+    "stopsTitle": "Stopps",
+    "stops": {
+      "any": "Egal",
+      "0": "Nur Direktflüge",
+      "1": "Bis zu 1 Stopp",
+      "2": "Bis zu 2 Stopps"
+    },
+    "overnight": "Übernachtungen beim Umstieg erlauben",
+    "airlinesTitle": "Airlines",
+    "allAirlines": "Alle auswählen",
+    "noAirlines": "Alle abwählen",
+    "from": "ab {price}",
+    "timesTitle": "Abflugzeiten",
+    "outTimes": "Hinflug",
+    "inTimes": "Rückflug",
+    "slots": {
+      "night": "Nacht 00–06",
+      "morning": "Morgen 06–12",
+      "afternoon": "Nachmittag 12–18",
+      "evening": "Abend 18–24"
+    },
+    "durationTitle": "Flugdauer",
+    "maxDuration": "Bis zu {h} Stunden (pro Strecke)",
+    "anyDuration": "Keine Begrenzung"
+  },
+  "withBags": "inkl. deines Gepäcks",
+  "fareOptions": "{n} Tarifoptionen",
+  "trip": {
+    "title": "Reisedetails",
+    "fareTitle": "Wähle deinen Tarif",
+    "close": "Schließen",
+    "nights": "{n} Nächte in {city}",
+    "nightsShort": "{n} Nächte",
+    "continue": "Weiter für {price}",
+    "personal": "Persönlicher Gegenstand",
+    "cabinIncluded": "Handgepäck inklusive",
+    "cabinAdd": "Handgepäck zubuchbar ({price})",
+    "cabinNo": "Kein Handgepäck",
+    "checkedIncluded": "{n}× Aufgabegepäck inklusive{kg}",
+    "checkedAdd": "Aufgabegepäck zubuchbar ({price})",
+    "checkedNo": "Aufgabegepäck nicht zubuchbar",
+    "changeable": "Umbuchung möglich",
+    "notChangeable": "Keine Umbuchung",
+    "refundable": "Erstattungsfähig",
+    "nonRefundable": "Nicht erstattungsfähig",
+    "conditionsUnknown": "Umbuchung und Erstattung: Es gelten die Regeln der Airline",
+    "bagsAdded": "Die Preise enthalten das von dir gewählte Gepäck.",
+    "flightNo": "Flug {no}",
+    "layover": "Umstieg in {city} · {wait}",
+    "cheapest": "Bester Preis",
+    "changeFee": "Umbuchungsgebühr {fee} + ggf. Preisdifferenz",
+    "changeFree": "Kostenlose Umbuchung (ggf. Preisdifferenz)",
+    "refundFee": "Erstattungsfähig, abzüglich {fee} Gebühr",
+    "refundFree": "Kostenlose Erstattung",
+    "heavyAdd": "Schweres Gepäck ({kg} kg) verfügbar: {price}",
+    "diff": {
+      "refundable": "Erstattungsfähig",
+      "changeable": "Umbuchbar",
+      "moreChecked": "Mehr Gepäck",
+      "hold": "Später bezahlen"
+    }
+  },
+  "dates": {
+    "label": "Flexible Daten",
+    "cheapest": "Günstigste"
+  },
+  "bagRules": {
+    "title": "Gepäckregeln (pro Person)",
+    "type": "Art",
+    "status": "Status",
+    "weight": "Gewicht",
+    "size": "Maße",
+    "kg": "bis {kg} kg",
+    "dims": "{dims} cm",
+    "linear": "insgesamt bis {cm} cm",
+    "included": "Inklusive",
+    "includedN": "{n} inklusive",
+    "addable": "Zubuchbar · {price}",
+    "notAvailable": "Nicht zubuchbar",
+    "unknown": "Keine Angabe der Airline",
+    "personalNote": "Muss unter den Sitz vor dir passen",
+    "note": "Gesamtmaß: Länge + Breite + Höhe. Es gelten die Regeln der Airline; wir empfehlen dir, vor dem Flug auf ihrer Website nachzusehen."
+  },
+  "live": {
+    "searching": "Wir suchen weitere Flüge… Die Liste wird aktualisiert, sobald die Airlines antworten.",
+    "incomplete": "Die Suche konnte nicht abgeschlossen werden; einige Flüge fehlen eventuell."
+  },
+  "bestHint": "Preis, Dauer und Stopps zusammen",
+  "flexLabel": "± {n} Tage",
+  "flexNote": "Flexible Daten: Flüge innerhalb von ± {n} Tagen zusammen",
+  "paxCount": "{count, plural, one {# Reisender} other {# Reisende}}",
+  "close": "Schließen",
+  "trends": {
+    "open": "Preistrends",
+    "title": "Preise nach Abflugtag ({nights} Nächte)",
+    "cheapest": "Günstigste",
+    "unknown": "noch kein Preis",
+    "empty": "Für diese Strecke gibt es noch nicht genug Preise. Das Diagramm füllt sich, je mehr Leute suchen.",
+    "legendCheapest": "Günstigster Tag",
+    "legendCurrent": "Gewählter Tag",
+    "note": "Pro Person, Preise, die wir in den letzten 24 Stunden gefunden haben; leere Tage wurden noch nicht gesucht. Klick auf einen Balken, um diesen Tag zu suchen.",
+    "noteBags": "Pro Person, ohne Gepäck, Preise, die wir in den letzten 24 Stunden gefunden haben; leere Tage wurden noch nicht gesucht. Klick auf einen Balken, um diesen Tag zu suchen.",
+    "table": "Als Tabelle anzeigen",
+    "colDate": "Abflug",
+    "colPrice": "Pro Person",
+    "titleOneWay": "Preise nach Abflugtag (nur Hinflug)"
+  },
+  "favorite": {
+    "add": "Zu Favoriten hinzufügen",
+    "remove": "Aus Favoriten entfernen",
+    "added": "Zu Favoriten hinzugefügt.",
+    "see": "Meine Favoriten",
+    "signIn": "Melde dich an, um Favoriten zu speichern.",
+    "error": "Speichern hat gerade nicht geklappt."
+  },
+  "alert": {
+    "create": "Preisalarm einrichten",
+    "done": "Alarm eingerichtet.",
+    "see": "Meine Preisalarme",
+    "error": "Der Alarm konnte gerade nicht eingerichtet werden."
+  }
+}

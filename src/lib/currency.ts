@@ -27,7 +27,7 @@ export function convert(amountTry: number, cur: Currency): number {
   return Math.round(amountTry * RATES[cur]);
 }
 
-/** ₺2.760 biçimi; binlik ayırıcı sayfa diline göre (tr/nl: nokta, en: virgül). */
+/** ₺2.760 biçimi; binlik ayırıcı sayfa diline göre (tr/nl/de: nokta, en: virgül). */
 export function formatPrice(amountTry: number, cur: Currency, intlLocale = "tr-TR"): string {
   return SYMBOLS[cur] + convert(amountTry, cur).toLocaleString(intlLocale);
 }

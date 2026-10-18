@@ -1,0 +1,83 @@
+{
+  "language": "Sprache",
+  "currency": "Währung",
+  "myTickets": "Meine Reisen",
+  "signIn": "Anmelden",
+  "mainNav": "Hauptmenü",
+  "nav": {
+    "popular": "Beliebte Flüge",
+    "routes": "Strecken",
+    "help": "Hilfe"
+  },
+  "bottomNav": {
+    "label": "Untere Navigation",
+    "search": "Suchen",
+    "tickets": "Meine Reisen",
+    "help": "Hilfe"
+  },
+  "duration": "{h} Std. {m} Min.",
+  "direct": "Direkt",
+  "oneStop": "1 Stopp",
+  "roundTrip": "Hin und zurück",
+  "footer": {
+    "company": "Unternehmen",
+    "about": "Über uns",
+    "careers": "Karriere",
+    "press": "Presse",
+    "help": "Hilfe",
+    "helpCenter": "Hilfe-Center",
+    "baggage": "Gepäckregeln",
+    "cancel": "Stornierung & Erstattung",
+    "popular": "Beliebt",
+    "istanbul": "Flüge nach Istanbul",
+    "antalya": "Flüge nach Antalya",
+    "izmir": "Flüge nach Izmir",
+    "privacy": "Datenschutz",
+    "terms": "AGB",
+    "cookies": "Cookies",
+    "tagline": "Der einfachste Weg zu fliegen."
+  },
+  "stops": "{n} Stopps",
+  "account": "Mein Konto",
+  "notFound": {
+    "title": "Diese Seite ist davongeflogen",
+    "text": "Wir konnten die Seite, die du suchst, nicht finden. Lass uns auf der Startseite neu anfangen.",
+    "cta": "Zur Startseite"
+  },
+  "characters": {
+    "pirpir": "Pırpır, ein kleines Flugzeug",
+    "pirpirHappy": "Pırpır, ein fröhliches kleines Flugzeug",
+    "bulut": "Bulut, die Wolke",
+    "valiz": "Valiz, der Koffer",
+    "pasi": "Pasi, der Reisepass",
+    "biletcik": "Biletçik, die Bordkarte",
+    "gunes": "Güneş, die Sonne",
+    "marti": "Martı, eine Möwe mit Matrosenmütze"
+  },
+  "region": {
+    "open": "Land, Sprache und Währung",
+    "title": "Land, Sprache und Währung",
+    "country": "Land",
+    "countryHint": "Legt den Abflugort und die beliebten Strecken auf der Startseite fest.",
+    "language": "Sprache",
+    "currency": "Währung",
+    "save": "Speichern",
+    "cancel": "Abbrechen"
+  },
+  "menu": {
+    "label": "Kontomenü",
+    "profile": "Profil",
+    "signIn": "Anmelden",
+    "signInText": "Melde dich an, um deine Reisen auf jedem Gerät zu sehen und schneller zu buchen.",
+    "hello": "Dein Konto",
+    "trips": "Meine Reisen",
+    "tripsText": "Buchungen, Änderungen und Stornierungen",
+    "account": "Konto und Profil",
+    "accountText": "Name, Sprache und Währung",
+    "help": "Hilfe und FAQ",
+    "signOut": "Abmelden",
+    "travellers": "Gespeicherte Reisende",
+    "alerts": "Meine Preisalarme",
+    "favorites": "Meine Favoriten"
+  }
+}

@@ -12,6 +12,7 @@ const T = {
   tr: { flight: "Uçuş", pnr: "Rezervasyon kodu", local: "Saatler yerel saattir.", day: "Yarın uçuşun var: online check-in'i kontrol et", hours: (h: number) => `${h} saat sonra uçuşun var` },
   en: { flight: "Flight", pnr: "Booking reference", local: "Times are local times.", day: "Your flight is tomorrow: check online check-in", hours: (h: number) => `Your flight leaves in ${h} hours` },
   nl: { flight: "Vlucht", pnr: "Boekingscode", local: "Tijden zijn lokale tijden.", day: "Morgen vlieg je: check online inchecken", hours: (h: number) => `Over ${h} uur vertrekt je vlucht` },
+  de: { flight: "Flug", pnr: "Buchungscode", local: "Alle Zeiten sind Ortszeiten.", day: "Morgen fliegst du: denk an den Online-Check-in", hours: (h: number) => `Dein Flug geht in ${h} Stunden` },
 };
 
 const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/([,;])/g, "\\$1").replace(/\n/g, "\\n");

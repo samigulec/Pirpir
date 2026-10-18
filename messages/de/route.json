@@ -1,0 +1,30 @@
+{
+  "breadcrumb": "Brotkrümelnavigation",
+  "home": "Startseite",
+  "heroFrom": "Ab {from}",
+  "heroTitle": "Flüge nach {to}",
+  "metaTitle": "Flüge von {from} nach {to}",
+  "fromPrice": "hin und zurück ab <price></price>",
+  "cta": "Daten wählen, Tickets finden",
+  "facts": {
+    "label": "Kurz und knapp",
+    "duration": "Flugzeit",
+    "durationValue": "{h} Std. {m} Min. direkt",
+    "airports": "Flughäfen",
+    "airlines": "Airlines",
+    "timeDiff": "Zeitunterschied"
+  },
+  "monthly": {
+    "title": "Welcher Monat ist am günstigsten?",
+    "subtitle": "Niedrigster Preis für Hin- und Rückflug pro Monat. Tippe auf einen Monat.",
+    "groupLabel": "Monat wählen",
+    "aria": "{month}: {price}",
+    "cheapest": "Günstigster Monat des Jahres!",
+    "diff": "{price} teurer als der günstigste Monat",
+    "note": "Beispielpreise. Echte Preise werden bei der Suche aktualisiert."
+  },
+  "deals": { "title": "Günstigste Termine demnächst", "select": "Auswählen" },
+  "airports": { "title": "Welcher Flughafen passt zu dir?" },
+  "tips": { "title": "Tipps für {city}" },
+  "others": { "title": "Wohin sonst in {country}?" }
+}

@@ -2,7 +2,7 @@
 // metin yayın öncesi bir hukukçuya (KVKK / GDPR) kontrol ettirilmelidir.
 import type { LegalDoc } from "./types";
 
-export const privacy: Record<"tr" | "en" | "nl", LegalDoc> = {
+export const privacy: Record<"tr" | "en" | "nl" | "de", LegalDoc> = {
   tr: {
     title: "Gizlilik Politikası",
     updated: "Son güncelleme: 17 Ekim 2026",
@@ -181,6 +181,66 @@ export const privacy: Record<"tr" | "en" | "nl", LegalDoc> = {
         ],
       },
       { id: "degisiklik", title: "Wijzigingen", body: ["Als we dit beleid aanpassen, publiceren we dat op deze pagina en melden we belangrijke wijzigingen per e-mail."] },
+    ],
+  },
+  de: {
+    title: "Datenschutzerklärung",
+    updated: "Zuletzt aktualisiert: 17. Oktober 2026",
+    intro: "Bei rotala nutzen wir deine personenbezogenen Daten nur, um deinen Flug zu finden, dein Ticket auszustellen und dein Konto zu verwalten. Hier erfährst du, was wir erheben, warum, und welche Rechte du hast.",
+    sections: [
+      { id: "biz", title: "Wer wir sind", body: ["Verantwortlicher: [ŞİRKET ADI], [ADRES].", "Bei Fragen zum Datenschutz: [İLETİŞİM E-POSTASI]."] },
+      {
+        id: "veriler",
+        title: "Welche Daten wir erheben",
+        body: [
+          "Kontodaten: deine E-Mail-Adresse und dein Name. Wenn du dich mit Google, Facebook oder Apple anmeldest, der Name und die E-Mail-Adresse, die dieser Dienst mit uns teilt.",
+          "Buchungsdaten: Name, Geburtsdatum, Geschlecht, Staatsangehörigkeit und Reisepassnummer der Reisenden; E-Mail-Adresse und Telefonnummer für den Kontakt. Airlines brauchen diese Angaben, um Tickets auszustellen.",
+          "Zahlungsdaten: Wir speichern keine Kartendaten auf unseren Servern. Zahlungen laufen über die sicheren Komponenten des Zahlungsanbieters.",
+          "Einstellungen: deine gewählte Sprache und Währung, in deinem Browser als Cookies und im lokalen Speicher abgelegt.",
+          "Technische Daten: IP-Adresse und Browserinformationen in Serverprotokollen, damit die Website sicher bleibt und funktioniert.",
+        ],
+      },
+      {
+        id: "amac",
+        title: "Wofür wir sie nutzen",
+        body: [
+          "Um Flüge zu suchen, dein Ticket auszustellen und deine Buchung zu verwalten.",
+          "Um dir dein Ticket und eventuelle Flugänderungen zu schicken.",
+          "Um dein Konto anzulegen, dich anmelden zu lassen und deine Tickets unter Meine Reisen anzuzeigen.",
+          "Um Betrug zu verhindern und unsere gesetzlichen Pflichten zu erfüllen.",
+          "Nachrichten wie Preisalarme schicken wir nur, wenn du sie anforderst, und du kannst sie jederzeit abbestellen.",
+        ],
+      },
+      {
+        id: "paylasim",
+        title: "Mit wem wir sie teilen",
+        body: [
+          "Airlines und unser Flugdatenanbieter (Duffel): die Reise- und Kontaktdaten, die zum Ausstellen der Tickets nötig sind.",
+          "Infrastrukturanbieter: Supabase (Konten und Datenbank), Vercel (Hosting der Website).",
+          "Anmeldeanbieter: Google, Facebook oder Apple, wenn du dich damit anmeldest.",
+          "Zahlungsanbieter: um deine Zahlung abzuwickeln.",
+          "Wir verkaufen deine personenbezogenen Daten nicht und geben sie nicht für Werbung weiter. Manche Anbieter verarbeiten Daten möglicherweise außerhalb des Europäischen Wirtschaftsraums; dann gelten gesetzliche Garantien (zum Beispiel Standardvertragsklauseln).",
+        ],
+      },
+      { id: "sure", title: "Wie lange wir sie speichern", body: ["Kontodaten speichern wir, bis du dein Konto löschst.", "Buchungsdaten speichern wir so lange, wie es gesetzlich vorgeschrieben ist: [SAKLAMA SÜRESİ]."] },
+      {
+        id: "cerezler",
+        title: "Cookies",
+        body: [
+          "Wir verwenden nur Cookies, die für den Betrieb der Website nötig sind: Sitzung (Anmeldung), Sprache, Währung und deine letzten Buchungen in diesem Browser.",
+          "Wir verwenden keine Werbe- oder Tracking-Cookies. Sollten wir das jemals tun, fragen wir dich vorher um deine Einwilligung.",
+        ],
+      },
+      {
+        id: "haklar",
+        title: "Deine Rechte",
+        body: [
+          "Nach der DSGVO (und dem türkischen KVKK) hast du das Recht auf Auskunft, Berichtigung und Löschung deiner Daten, auf Widerspruch gegen die Verarbeitung und auf Übertragung deiner Daten an einen anderen Dienst.",
+          "Schick deine Anfrage an [İLETİŞİM E-POSTASI]. Über dieselbe Adresse kannst du auch dein Konto löschen lassen.",
+          "Du kannst dich außerdem bei deiner zuständigen Datenschutzaufsichtsbehörde beschweren (in den Niederlanden: Autoriteit Persoonsgegevens).",
+        ],
+      },
+      { id: "degisiklik", title: "Änderungen", body: ["Wenn wir diese Erklärung aktualisieren, veröffentlichen wir sie auf dieser Seite und informieren dich per E-Mail über wichtige Änderungen."] },
     ],
   },
 };

@@ -2,7 +2,7 @@
 // bir hukukçuya kontrol ettirilmelidir.
 import type { LegalDoc } from "./types";
 
-export const terms: Record<"tr" | "en" | "nl", LegalDoc> = {
+export const terms: Record<"tr" | "en" | "nl" | "de", LegalDoc> = {
   tr: {
     title: "Kullanım Koşulları",
     updated: "Son güncelleme: 17 Ekim 2026",
@@ -46,6 +46,21 @@ export const terms: Record<"tr" | "en" | "nl", LegalDoc> = {
       { id: "sorumluluk", title: "Aansprakelijkheid", body: ["De maatschappij is verantwoordelijk voor annuleringen, vertragingen of wijzigingen van vluchten; we helpen je in die gevallen je rechten uit te oefenen.", "Voor zover de wet dat toestaat, is onze aansprakelijkheid beperkt tot het bedrag dat je voor onze dienst hebt betaald."] },
       { id: "hukuk", title: "Toepasselijk recht", body: ["Op deze voorwaarden is [UYGULANACAK HUKUK] van toepassing. Je dwingende consumentenrechten in je woonland blijven gelden."] },
       { id: "iletisim", title: "Contact", body: ["Vragen en suggesties: [İLETİŞİM E-POSTASI] · [DESTEK TELEFONU]"] },
+    ],
+  },
+  de: {
+    title: "Nutzungsbedingungen",
+    updated: "Zuletzt aktualisiert: 17. Oktober 2026",
+    intro: "Wenn du rotala nutzt, akzeptierst du diese Bedingungen. Wir haben versucht, sie kurz und verständlich zu halten.",
+    sections: [
+      { id: "hizmet", title: "Unser Service", body: ["rotala ist ein Vermittler, mit dem du Flüge von Airlines suchen, vergleichen und buchen kannst. Der Service wird von [ŞİRKET ADI] ([ADRES]) angeboten.", "Den Flug führt die Airline durch. Wenn du ein Ticket kaufst, schließt du den Beförderungsvertrag mit der Airline und es gelten ihre Beförderungsbedingungen."] },
+      { id: "fiyat", title: "Preise und Zahlung", body: ["Unsere Preise enthalten Steuern und Servicegebühren; Extras, die du wählst, zum Beispiel zusätzliches Gepäck, werden separat angezeigt.", "Airlines können Preise jederzeit ändern. Es gilt der Preis zum Zeitpunkt der Zahlung."] },
+      { id: "iptal", title: "Stornierung und Umbuchung", body: ["Innerhalb von 24 Stunden nach der Buchung kannst du kostenlos stornieren. Danach gelten die Regeln der Airline. [İPTAL KOŞULLARI]"] },
+      { id: "yolcu", title: "Pflichten der Reisenden", body: ["Du bist dafür verantwortlich, die Daten der Reisenden korrekt einzugeben, genau so wie im Reisepass.", "Reisende sind selbst für gültige Reisedokumente wie Reisepass, Visum und Gesundheitsnachweise verantwortlich."] },
+      { id: "hesap", title: "Dein Konto", body: ["Du bist dafür verantwortlich, dein Konto sicher zu halten. Teile deine Anmeldelinks mit niemandem.", "Du kannst dein Konto jederzeit löschen lassen: [İLETİŞİM E-POSTASI]."] },
+      { id: "sorumluluk", title: "Haftung", body: ["Für Annullierungen, Verspätungen oder Änderungen von Flügen ist die Airline verantwortlich; wir helfen dir in diesen Fällen, deine Rechte wahrzunehmen.", "Soweit gesetzlich zulässig, ist unsere Haftung auf den Betrag begrenzt, den du für unseren Service bezahlt hast."] },
+      { id: "hukuk", title: "Anwendbares Recht", body: ["Für diese Bedingungen gilt [UYGULANACAK HUKUK]. Deine zwingenden Verbraucherrechte in deinem Wohnsitzland bleiben unberührt."] },
+      { id: "iletisim", title: "Kontakt", body: ["Fragen und Feedback: [İLETİŞİM E-POSTASI] · [DESTEK TELEFONU]"] },
     ],
   },
 };

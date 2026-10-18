@@ -1,0 +1,276 @@
+{
+  "metaTitle": "Startseite",
+  "metaDescription": "Einfache, freundliche Flugsuche: suchen, wählen, bezahlen, fliegen.",
+  "hero": {
+    "title": "Wohin möchtest du fliegen?",
+    "subtitle": "Einfach eintippen. Wir finden das beste Ticket.",
+    "pirpirLabel": "Pırpır, ein lächelndes kleines Flugzeug"
+  },
+  "search": {
+    "roundTrip": "Hin und zurück",
+    "oneWay": "Nur Hinflug",
+    "from": "Von",
+    "to": "Nach",
+    "swap": "Abflug- und Zielort tauschen",
+    "when": "Wann",
+    "pax": "Reisende",
+    "submit": "Tickets finden",
+    "departDate": "Abflugdatum",
+    "returnDate": "Rückflugdatum",
+    "done": "Fertig",
+    "paxAdults": "{n, plural, one {# Erwachsener} other {# Erwachsene}}",
+    "paxChildren": "{n, plural, one {# Kind} other {# Kinder}}",
+    "paxInfants": "{n, plural, one {# Baby} other {# Babys}}",
+    "adults": "Erwachsene",
+    "adultsHint": "Ab 12 Jahren",
+    "children": "Kinder",
+    "childrenHint": "2–11 Jahre",
+    "infants": "Babys",
+    "infantsHint": "Unter 2, auf dem Schoß",
+    "paxNote": "Bis zu {max} Reisende. Jedes Baby muss mit einem Erwachsenen reisen.",
+    "errors": {
+      "from": "Wähle einen Abflugort aus der Liste.",
+      "to": "Wähle ein Ziel aus der Liste.",
+      "same": "Abflugort und Ziel dürfen nicht gleich sein.",
+      "date": "Wähle ein gültiges Abflugdatum.",
+      "past": "Das Abflugdatum darf nicht in der Vergangenheit liegen.",
+      "return": "Das Rückflugdatum darf nicht vor dem Abflug liegen.",
+      "pax": "Prüfe die Anzahl der Reisenden."
+    },
+    "cabinLabel": "Reiseklasse",
+    "cabins": {
+      "economy": "Economy",
+      "premium_economy": "Premium Economy",
+      "business": "Business",
+      "first": "First"
+    },
+    "pickReturn": "Rückflugdatum wählen",
+    "pickReturnHint": "Wähle jetzt dein Rückflugdatum",
+    "oneWayHint": "Nur Hinflug",
+    "nights": "{n, plural, one {# Nacht} other {# Nächte}}",
+    "prevMonth": "Vorheriger Monat",
+    "nextMonth": "Nächster Monat",
+    "paxTotal": "{n, plural, one {# Reisender} other {# Reisende}}",
+    "removePlace": "{place} entfernen",
+    "addPlace": "Stadt hinzufügen",
+    "placePlaceholder": "Stadt oder Flughafen",
+    "allAirports": "Alle Flughäfen",
+    "calendarNote": "Die Preise gelten pro Person und sind ungefähr: die niedrigsten Preise, die wir in den letzten 24 Stunden gefunden haben. Den genauen Preis siehst du, wenn du suchst.",
+    "flexLabel": "Flexibilität beim Datum",
+    "flexExact": "Genaues Datum",
+    "flexDays": "± {n} Tage",
+    "whenCheapest": "Wann · am günstigsten",
+    "pickDates": "Daten wählen",
+    "pickDate": "Tag wählen",
+    "bagsLabel": "Gepäck",
+    "bagsValue": "Pro Person {cabin} Handgepäck, {checked} Aufgabegepäck",
+    "cabinBags": "Handgepäck",
+    "cabinBagsHint": "Pro Person, bis zu 1",
+    "checkedBags": "Aufgabegepäck",
+    "checkedBagsHint": "Pro Person, bis zu 3",
+    "bagsNote": "Die Preise enthalten das gewählte Gepäck; Flüge, die es nicht anbieten, werden nicht angezeigt.",
+    "withNearby": "{city} + Flughäfen in der Nähe",
+    "nearbyDetail": "{list} · im Umkreis von {km} km"
+  },
+  "trust": {
+    "label": "Warum rotala",
+    "secure": "Wir speichern deine Kartendaten nie",
+    "clear": "Gepäck und Gebühren von Anfang an sichtbar",
+    "manage": "Umbuchen, stornieren und Gepäck hinzufügen – alles online"
+  },
+  "mobileDeal": {
+    "title": "Lust auf ein Wochenende in Rom?",
+    "price": "ab <price></price>",
+    "cta": "Zum Rom-Angebot",
+    "noPrice": "Preise ansehen"
+  },
+  "popular": {
+    "from": "Ab {city}",
+    "title": "Beliebte Flüge",
+    "categoryLabel": "Kategorie",
+    "categories": {
+      "all": "Alle",
+      "tr": "Türkei",
+      "eu": "Europa",
+      "sea": "Sonne & Meer",
+      "city": "Städtereisen"
+    },
+    "cards": {
+      "ist": {
+        "badge": "Eine Stadt, zwei Kontinente",
+        "alt": "Istanbul-Illustration: Moschee mit Kuppel, Minarette, Galataturm und eine Fähre"
+      },
+      "ayt": {
+        "badge": "Sonne & Meer",
+        "alt": "Antalya-Illustration: Sonne, Meer, Strand und eine Palme"
+      },
+      "fco": {
+        "badge": "Antike Stadt",
+        "alt": "Rom-Illustration: ein antikes Amphitheater mit Bögen"
+      },
+      "bcn": {
+        "badge": "Stadt + Strand",
+        "alt": "Barcelona-Illustration: eine Basilika mit spitzen Türmen und das Meer"
+      },
+      "lhr": {
+        "badge": "Städtetrip",
+        "alt": "London-Illustration: ein Uhrturm und ein roter Doppeldeckerbus"
+      },
+      "cdg": {
+        "badge": "Wochenende",
+        "alt": "Paris-Illustration: ein eiserner Turm und Bäume in einem Park"
+      },
+      "adb": {
+        "badge": "Perle der Ägäis",
+        "alt": "Izmir-Illustration: der Uhrturm, Palmen und eine Fähre in der Bucht"
+      },
+      "bjv": {
+        "badge": "Türkisblaue Buchten",
+        "alt": "Bodrum-Illustration: eine Burg auf dem Hügel, weiße Häuser und ein Segelboot"
+      },
+      "lis": {
+        "badge": "Straßenbahnen und Hügel",
+        "alt": "Lissabon-Illustration: bunte Häuser auf einem Hügel und eine gelbe Straßenbahn"
+      },
+      "ams": {
+        "badge": "Stadt der Grachten",
+        "alt": "Amsterdam-Illustration: Grachtenhäuser, eine Gracht und ein Boot"
+      },
+      "dxb": {
+        "badge": "Langstrecke",
+        "alt": "Dubai-Illustration: ein sehr hoher Wolkenkratzer, die Stadt und Sanddünen"
+      },
+      "nyc": {
+        "badge": "Über den Ozean",
+        "alt": "New-York-Illustration: Wolkenkratzer und ein gelbes Taxi"
+      },
+      "nav": {
+        "badge": "Ballons und Feenkamine",
+        "alt": "Kappadokien-Illustration: Feenkamine und Heißluftballons"
+      },
+      "asr": {
+        "badge": "Skifahren am Erciyes",
+        "alt": "Kayseri-Illustration: der verschneite Erciyes, ein Skifahrer und die Stadt"
+      },
+      "kya": {
+        "badge": "Stadt von Rumi",
+        "alt": "Konya-Illustration: ein grünes Grabmal mit Kegeldach, Kuppeln und ein tanzender Derwisch"
+      },
+      "tzx": {
+        "badge": "Grünes Hochland",
+        "alt": "Trabzon-Illustration: grünes Hochland, Teegärten und das Schwarze Meer"
+      },
+      "esb": {
+        "badge": "Die Hauptstadt",
+        "alt": "Ankara-Illustration: ein Denkmal mit Säulen auf einem Hügel und breite Treppen"
+      },
+      "gzt": {
+        "badge": "Stopp für Feinschmecker",
+        "alt": "Gaziantep-Illustration: eine Burg mit runden Türmen auf einem Hügel, ein Pistazienbaum und ein Blech Baklava"
+      }
+    },
+    "badges": {
+      "cheapest": "Günstigste",
+      "fastest": "Kürzester Flug"
+    },
+    "seePrices": "Preise ansehen",
+    "noteLive": "Preise pro Person, hin und zurück: die günstigste der Wochenend- und Einwochenreisen, die wir für die nächsten zwei Monate durchsuchen, daher kann jede Stadt andere Daten haben. Auf der Karte steht, wann der Preis gefunden wurde; ein Klick sucht den aktuellen Preis, der sich ändern kann, wenn Plätze verkauft werden.",
+    "noteSample": "Beispieldaten: Preise und Airlines sind nicht echt. Pro Person, hin und zurück; die günstigste Wochenend- oder Einwochenreise in den nächsten zwei Monaten.",
+    "showMore": "Mehr Städte ({n})",
+    "showLess": "Weniger anzeigen",
+    "seen": "gefunden {time}"
+  },
+  "tips": {
+    "title": "Tipps von unserem Team",
+    "subtitle": "Ein kleiner Helfer bei jedem Schritt deiner Reise.",
+    "bulut": {
+      "name": "Bulut · Schnäppchenjäger",
+      "quote": "“Wochenendtrip nach Rom? Ab <price></price>.”",
+      "quoteNoPrice": "“Wie wär’s mit einem Wochenende in Rom?”",
+      "cta": "Flüge nach Rom ansehen"
+    },
+    "valiz": {
+      "name": "Valiz · Gepäckexperte",
+      "quote": "“Buch dein Gepäck jetzt dazu, am Flughafen kostet es mehr.”",
+      "cta": "Gepäckregeln lesen"
+    },
+    "pirpir": {
+      "name": "Pırpır · Preiswächter",
+      "quote": "“Ich sag dir Bescheid, wenn der Preis fällt, versprochen!”",
+      "cta": "Preisalarm einrichten"
+    },
+    "pasi": {
+      "name": "Pasi · Dokumentenfreund",
+      "quote": "“Check das Ablaufdatum deines Reisepasses, damit es keine Überraschungen gibt.”",
+      "cta": "Zu Reisedokumenten"
+    },
+    "biletcik": {
+      "name": "Biletçik · Check-in-Guide",
+      "quote": "“Ich stupse dich an, sobald der Online-Check-in öffnet.”",
+      "cta": "Zu meinen Reisen"
+    },
+    "gunes": {
+      "name": "Güneş · Urlaubsfan",
+      "quote": "“Das Meer in Antalya wartet, ab <price></price>.”",
+      "quoteNoPrice": "“Das Meer in Antalya wartet auf dich.”",
+      "cta": "Flüge nach Antalya ansehen"
+    }
+  },
+  "routes": {
+    "title": "Beliebte Strecken"
+  },
+  "steps": {
+    "search": {
+      "title": "Suchen",
+      "text": "Von, nach, wann. Das war’s."
+    },
+    "pick": {
+      "title": "Wählen",
+      "text": "Wir markieren für dich die günstigsten und schnellsten Flüge."
+    },
+    "fly": {
+      "title": "Fliegen",
+      "text": "Dein Ticket landet sofort in deinem Postfach. Gute Reise!"
+    }
+  },
+  "alert": {
+    "title": "Lass dir von Pırpır Bescheid geben, wenn die Preise fallen",
+    "email": "Deine E-Mail-Adresse",
+    "submit": "Benachrichtige mich",
+    "thanks": "Alles klar! Beim ersten Preisrutsch stupse ich dein Postfach an.",
+    "note": "Höchstens eine E-Mail pro Woche. Jederzeit abbestellbar."
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "items": {
+      "when": {
+        "q": "Wann bekomme ich mein Ticket?",
+        "a": "Dein E-Ticket kommt per E-Mail, sobald die Zahlung bestätigt ist. Das dauert meist nur ein paar Minuten."
+      },
+      "cancel": {
+        "q": "Kann ich mein Ticket stornieren?",
+        "a": "Innerhalb von 24 Stunden nach der Buchung kannst du kostenlos stornieren. Danach gelten die Regeln der Airline. [İPTAL KOŞULLARI]"
+      },
+      "bags": {
+        "q": "Ist Gepäck im Preis inbegriffen?",
+        "a": "Für jeden Flug zeigen wir auf der Flugkarte und bei der Tarifwahl, ob ein persönlicher Gegenstand, Handgepäck und Aufgabegepäck inbegriffen sind, samt Gewicht und Maßen. Zusätzliches Gepäck (mehrere Stücke oder ein schwereres, falls angeboten) kannst du beim Buchen oder später über “Gepäck hinzufügen” dazubuchen; dort zeigen wir auch das Maximum der Airline."
+      },
+      "transfer": {
+        "q": "Muss ich mein Gepäck beim Umsteigen neu aufgeben?",
+        "a": "Bei Umstiegen auf demselben Ticket meist nicht. Bei Strecken, die verschiedene Airlines kombinieren, kann es nötig sein; darauf weisen wir auf der Flugkarte deutlich hin."
+      },
+      "payment": {
+        "q": "Welche Zahlungsmethoden akzeptiert ihr?",
+        "a": "Kredit- und Debitkarten, iDEAL, Apple Pay und Google Pay."
+      },
+      "change": {
+        "q": "Kann ich meinen Flug umbuchen?",
+        "a": "Wenn dein Tarif es erlaubt, ja: Wähle im Bereich “Flug umbuchen” auf deiner Buchungsseite einen neuen Tag. Die Umbuchungsgebühr der Airline und eine eventuelle Preisdifferenz siehst du, bevor du bestätigst. Manche günstigen Tarife lassen sich nicht umbuchen; das sagen wir dir bei der Tarifwahl."
+      },
+      "docs": {
+        "q": "Welche Dokumente brauche ich?",
+        "a": "Dein Reisepass oder Personalausweis muss für die gesamte Reise gültig sein; manche Länder verlangen noch einige Monate Gültigkeit nach der Rückkehr. Ob du ein Visum brauchst, hängt von deiner Staatsangehörigkeit und deinem Ziel ab; prüf das vor dem Flug bei der offiziellen Stelle des Ziellandes."
+      }
+    }
+  }
+}
