@@ -36,7 +36,9 @@
     "save": "Bu yolcuyu hesabıma kaydet (sonraki rezervasyonda tek tıkla dolar)",
     "nationalityPick": "Ülke seç",
     "nationalityCommon": "Sık seçilenler",
-    "nationalityAll": "Tüm ülkeler"
+    "nationalityAll": "Tüm ülkeler",
+    "nationalitySearch": "Ülke ara…",
+    "nationalityNone": "Bu adla bir ülke bulamadık."
   },
   "contact": {
     "title": "Sana nasıl ulaşalım?",

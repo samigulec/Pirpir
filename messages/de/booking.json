@@ -36,7 +36,9 @@
     "save": "Diese Person in meinem Konto speichern (beim nächsten Mal mit einem Klick ausgefüllt)",
     "nationalityPick": "Land wählen",
     "nationalityCommon": "Beliebt",
-    "nationalityAll": "Alle Länder"
+    "nationalityAll": "Alle Länder",
+    "nationalitySearch": "Land suchen…",
+    "nationalityNone": "Kein Land mit diesem Namen gefunden."
   },
   "contact": {
     "title": "Wie erreichen wir dich?",

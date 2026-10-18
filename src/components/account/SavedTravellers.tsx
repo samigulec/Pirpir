@@ -145,9 +145,10 @@ export function SavedTravellers({ initial, countries, defaultNationality }: { in
                 aria-invalid={error && !toIso(draft.birth) ? true : undefined}
               />
             </label>
-            <label className={label}>{tb("nationality")}
-              <NationalitySelect options={countries} value={draft.nationality} onChange={(e) => setDraft({ ...draft, nationality: e.target.value })} className={input} />
-            </label>
+            <div className={label}>
+              <span id="traveller-nationality">{tb("nationality")}</span>
+              <NationalitySelect labelId="traveller-nationality" options={countries} value={draft.nationality} onChange={(code) => setDraft({ ...draft, nationality: code })} className={input} />
+            </div>
             <label className={label}>{t("passportOptional")}
               <input value={draft.passport ?? ""} onChange={(e) => setDraft({ ...draft, passport: e.target.value })} className={`${input} uppercase`} autoComplete="off" />
             </label>

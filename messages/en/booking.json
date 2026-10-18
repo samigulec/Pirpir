@@ -36,7 +36,9 @@
     "save": "Save this traveller to my account (fills in with one click next time)",
     "nationalityPick": "Choose a country",
     "nationalityCommon": "Popular",
-    "nationalityAll": "All countries"
+    "nationalityAll": "All countries",
+    "nationalitySearch": "Search a country…",
+    "nationalityNone": "No country found with that name."
   },
   "contact": {
     "title": "How can we reach you?",

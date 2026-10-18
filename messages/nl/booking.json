@@ -36,7 +36,9 @@
     "save": "Bewaar deze reiziger in mijn account (de volgende keer met één klik ingevuld)",
     "nationalityPick": "Kies een land",
     "nationalityCommon": "Veelgekozen",
-    "nationalityAll": "Alle landen"
+    "nationalityAll": "Alle landen",
+    "nationalitySearch": "Zoek een land…",
+    "nationalityNone": "Geen land gevonden met die naam."
   },
   "contact": {
     "title": "Hoe bereiken we je?",

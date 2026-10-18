@@ -105,6 +105,7 @@ export function BookingForm({
   const { signedIn } = useAuthUi();
   const [travellers, setTravellers] = useState<Saved<Traveller>[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
+  const [nationalities, setNationalities] = useState(() => slots.map(() => defaultNationality));
   useEffect(() => {
     if (!signedIn) return;
     getTravellers().then((r) => r.ok && setTravellers(r.value)).catch(() => {});
@@ -122,7 +123,7 @@ export function BookingForm({
     set("gender", tr.gender);
     set("birth", `${d}.${m}.${y}`);
     const nat = toCountryCode(tr.nationality);
-    if (nat) set("nationality", nat);
+    if (nat) setNationalities((l) => l.map((x, k) => (k === i ? nat : x)));
     set("passport", tr.passport ?? "");
   };
   const [pending, startTransition] = useTransition();
@@ -225,10 +226,17 @@ export function BookingForm({
                   <input type="text" name={k("birth")} inputMode="numeric" placeholder={t("passenger.birthPlaceholder")} autoComplete={i === 0 ? "bday" : "off"} className={input} {...inv(k("birth"))} />
                   {errText(k("birth"))}
                 </label>
-                <label className={label}>
-                  {t("passenger.nationality")}
-                  <NationalitySelect name={k("nationality")} options={countries} defaultValue={defaultNationality} className={input} />
-                </label>
+                <div className={label}>
+                  <span id={k("nationality-label")}>{t("passenger.nationality")}</span>
+                  <NationalitySelect
+                    labelId={k("nationality-label")}
+                    name={k("nationality")}
+                    options={countries}
+                    value={nationalities[i]}
+                    onChange={(code) => setNationalities((l) => l.map((x, n) => (n === i ? code : x)))}
+                    className={input}
+                  />
+                </div>
                 <label className={label}>
                   {t("passenger.passport")}
                   <input type="text" name={k("passport")} placeholder="U12345678" autoComplete="off" className={`${input} uppercase`} {...inv(k("passport"))} />
