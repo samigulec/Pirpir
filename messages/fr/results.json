@@ -199,6 +199,24 @@
     "create": "Créer une alerte prix",
     "done": "Alerte créée.",
     "see": "Mes alertes prix",
-    "error": "Impossible de créer l'alerte pour le moment."
+    "error": "Impossible de créer l'alerte pour le moment.",
+    "title": "Qu'est-ce qu'on surveille ?",
+    "datesLabel": "Dates",
+    "exact": "Seulement {dates}",
+    "flex": "± 3 jours flexibles",
+    "flexHint": "Chaque matin, 7 jours sont vérifiés ; on t'indique le moins cher.",
+    "stopsLabel": "Escales",
+    "any": "Peu importe",
+    "direct": "Direct uniquement",
+    "bags": "Le prix est suivi avec les bagages que tu as choisis.",
+    "whenLabel": "Quand te prévenir ?",
+    "onDrop": "Quand le prix baisse nettement",
+    "onTarget": "Quand il passe sous mon prix cible",
+    "targetLabel": "Prix cible (par personne)",
+    "nowLabel": "Le moins cher en ce moment",
+    "none": "Aucun vol ne correspond pour l'instant.",
+    "confirm": "Créer l'alerte",
+    "cancel": "Annuler",
+    "open": "Réglages de l'alerte prix"
   }
 }

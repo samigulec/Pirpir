@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCurrency } from "../CurrencyProvider";
 import { removeAlert, removeFavorite, type AlertView } from "@/actions/user";
-import { formatRange } from "@/lib/dates";
+import { formatDayWithWeekday, formatRange } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 import { searchHref } from "@/lib/search";
 import type { Favorite, Saved } from "@/lib/user-types";
@@ -19,8 +19,10 @@ const small = "min-h-[44px] cursor-pointer rounded-pill border-0 bg-white px-5 f
  */
 export function SavedAlerts({ initial, names, notice }: { initial: AlertView[]; names: Record<string, string>; notice: "email" | "noEmail" | "demo" }) {
   const t = useTranslations("account.alerts");
+  const tc = useTranslations("common");
   const { fmt } = useCurrency();
   const loc = intlLocale(useLocale());
+  const stopsText = (n: number) => (n === 0 ? tc("direct") : n === 1 ? tc("oneStop") : tc("stops", { n }));
   const ago = (iso: string) => {
     const mins = Math.max(1, Math.round((Date.now() - Date.parse(iso)) / 60000));
     const rtf = new Intl.RelativeTimeFormat(loc, { numeric: "auto" });
@@ -36,11 +38,28 @@ export function SavedAlerts({ initial, names, notice }: { initial: AlertView[]; 
       {list.map((a) => {
         const d = a.data;
         const diff = a.now !== null && d.priceAt !== null ? a.now - d.priceAt : null;
+        const reached = !a.past && d.targetTry != null && a.now !== null && a.now <= d.targetTry;
+        const chips = [
+          d.flex ? t("chipFlex") : null,
+          d.direct ? t("chipDirect") : null,
+          d.bags ? t("chipBags") : null,
+          d.targetTry != null ? t("chipTarget", { price: fmt(d.targetTry) }) : null,
+        ].filter((x): x is string => !!x);
+        // Esnek alarmda "Ara", en ucuz bulunan güne gider
+        const searchDates = d.flex && d.best ? { date: d.best.date, returnDate: d.returnDate ? (d.best.returnDate ?? d.returnDate) : "" } : { date: d.date, returnDate: d.returnDate ?? "" };
         return (
           <div key={a.id} className={row}>
-            <span className="flex min-w-0 flex-col">
+            <span className="flex min-w-0 flex-col gap-[2px]">
               <span className="font-extrabold">{place(d.from)} → {place(d.to)}</span>
               <span className="text-sm font-semibold text-muted">{formatRange(d.date, d.returnDate, loc)}</span>
+              {chips.length > 0 && (
+                <span className="my-1 flex flex-wrap gap-[6px]">
+                  {chips.map((c) => (
+                    <span key={c} className="rounded-pill bg-white px-3 py-[2px] text-[12px] font-extrabold text-ink">{c}</span>
+                  ))}
+                  {reached && <span className="rounded-pill bg-green-soft px-3 py-[2px] text-[12px] font-extrabold text-green-text">✓ {t("targetReached")}</span>}
+                </span>
+              )}
               <span className="text-sm font-bold">
                 {a.past
                   ? t("past")
@@ -54,6 +73,12 @@ export function SavedAlerts({ initial, names, notice }: { initial: AlertView[]; 
                   </span>
                 )}
               </span>
+              {!a.past && d.best && (
+                <span className="text-[13px] font-bold text-ink">
+                  {t("best", { flight: [d.best.airline, stopsText(d.best.stops), `${formatDayWithWeekday(d.best.date, loc)} ${d.best.dep}`].join(" · ") })}
+                </span>
+              )}
+              {!a.past && (d.history?.length ?? 0) >= 2 && <Sparkline points={d.history!.map((h) => h.price)} label={t("history", { n: d.history!.length })} />}
               {!a.past && (d.lastCheckedAt || d.notifiedPrice != null) && (
                 <span suppressHydrationWarning className="text-[13px] font-semibold text-muted">
                   {[d.lastCheckedAt && t("checked", { time: ago(d.lastCheckedAt) }), d.notifiedPrice != null && t("notified", { price: fmt(d.notifiedPrice) })]
@@ -64,7 +89,7 @@ export function SavedAlerts({ initial, names, notice }: { initial: AlertView[]; 
             </span>
             <span className="flex gap-2">
               {!a.past && (
-                <Link href={searchHref({ ...d, returnDate: d.returnDate ?? "" })} className={`${small} inline-flex items-center text-ink`}>
+                <Link href={searchHref({ from: d.from, to: d.to, pax: d.pax, cabin: d.cabin, bags: d.bags, ...searchDates })} className={`${small} inline-flex items-center text-ink`}>
                   {t("search")}
                 </Link>
               )}
@@ -133,5 +158,24 @@ export function SavedFavorites({ initial, names, today }: { initial: Saved<Favor
         );
       })}
     </div>
+  );
+}
+
+/** Son kontrollerin fiyatı: küçük çizgi grafik (en düşük nokta yeşil). */
+function Sparkline({ points, label }: { points: number[]; label: string }) {
+  const w = 120;
+  const h = 28;
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const x = (i: number) => (i / (points.length - 1)) * (w - 6) + 3;
+  const y = (v: number) => (max === min ? h / 2 : h - 4 - ((v - min) / (max - min)) * (h - 8));
+  const d = points.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
+  const low = points.lastIndexOf(min);
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} role="img" aria-label={label} className="mt-1">
+      <path d={d} fill="none" stroke="#2F5BD3" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={x(low)} cy={y(min)} r="3.5" fill="#2E7A4D" />
+      <circle cx={x(points.length - 1)} cy={y(points[points.length - 1])} r="3" fill="#1E2A44" />
+    </svg>
   );
 }

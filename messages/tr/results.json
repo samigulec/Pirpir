@@ -199,6 +199,24 @@
     "create": "Fiyat alarmı kur",
     "done": "Alarm kuruldu.",
     "see": "Fiyat alarmlarım",
-    "error": "Alarm şu an kurulamadı."
+    "error": "Alarm şu an kurulamadı.",
+    "title": "Neyi takip edelim?",
+    "datesLabel": "Tarihler",
+    "exact": "Sadece {dates}",
+    "flex": "± 3 gün esnek",
+    "flexHint": "Her sabah 7 gün taranır; en ucuz gün bildirilir.",
+    "stopsLabel": "Aktarma",
+    "any": "Fark etmez",
+    "direct": "Sadece direkt",
+    "bags": "Fiyat, seçtiğin bagajla birlikte takip edilir.",
+    "whenLabel": "Ne zaman haber verelim?",
+    "onDrop": "Fiyat belirgin düşünce",
+    "onTarget": "Hedef fiyatın altına inince",
+    "targetLabel": "Hedef fiyat (kişi başı)",
+    "nowLabel": "Şu an en ucuz",
+    "none": "Bu seçimle şu an uçuş yok.",
+    "confirm": "Alarmı kur",
+    "cancel": "Vazgeç",
+    "open": "Fiyat alarmı ayarları"
   }
 }

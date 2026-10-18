@@ -199,6 +199,24 @@
     "create": "Set a price alert",
     "done": "Alert set.",
     "see": "My price alerts",
-    "error": "Couldn't set the alert right now."
+    "error": "Couldn't set the alert right now.",
+    "title": "What should we watch?",
+    "datesLabel": "Dates",
+    "exact": "Only {dates}",
+    "flex": "± 3 days flexible",
+    "flexHint": "Every morning 7 days are checked; we tell you the cheapest one.",
+    "stopsLabel": "Stops",
+    "any": "Any",
+    "direct": "Direct only",
+    "bags": "The price is tracked with the bags you picked.",
+    "whenLabel": "When should we tell you?",
+    "onDrop": "When the price drops noticeably",
+    "onTarget": "When it falls below my target",
+    "targetLabel": "Target price (per person)",
+    "nowLabel": "Cheapest right now",
+    "none": "No flights match this right now.",
+    "confirm": "Set alert",
+    "cancel": "Cancel",
+    "open": "Price alert settings"
   }
 }

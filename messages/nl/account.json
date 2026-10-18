@@ -133,7 +133,14 @@
     "checked": "Laatst gecontroleerd {time}",
     "notified": "E-mail verstuurd voor {price}",
     "noteNoEmail": "Pırpır kijkt elke ochtend naar de prijzen en toont ze hier. Meldingen per e-mail komen binnenkort. De exacte prijs zie je bij “Zoeken”.",
-    "noteDemo": "In de demomodus worden alarmen alleen in deze browser bewaard en niet automatisch gecontroleerd; de huidige prijs komt uit zoekopdrachten van de afgelopen 24 uur."
+    "noteDemo": "In de demomodus worden alarmen alleen in deze browser bewaard en niet automatisch gecontroleerd; de huidige prijs komt uit zoekopdrachten van de afgelopen 24 uur.",
+    "chipFlex": "± 3 dagen flexibel",
+    "chipDirect": "Alleen direct",
+    "chipBags": "Prijs met bagage",
+    "chipTarget": "Doel {price}",
+    "targetReached": "Doel bereikt",
+    "best": "Goedkoopst: {flight}",
+    "history": "Prijs bij de laatste {n} controles"
   },
   "favorites": {
     "title": "Mijn favorieten",

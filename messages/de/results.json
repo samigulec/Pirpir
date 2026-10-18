@@ -199,6 +199,24 @@
     "create": "Preisalarm einrichten",
     "done": "Alarm eingerichtet.",
     "see": "Meine Preisalarme",
-    "error": "Der Alarm konnte gerade nicht eingerichtet werden."
+    "error": "Der Alarm konnte gerade nicht eingerichtet werden.",
+    "title": "Was sollen wir beobachten?",
+    "datesLabel": "Daten",
+    "exact": "Nur {dates}",
+    "flex": "± 3 Tage flexibel",
+    "flexHint": "Jeden Morgen werden 7 Tage geprüft; wir melden den günstigsten.",
+    "stopsLabel": "Umstiege",
+    "any": "Egal",
+    "direct": "Nur direkt",
+    "bags": "Der Preis wird mit dem gewählten Gepäck verfolgt.",
+    "whenLabel": "Wann sollen wir dir schreiben?",
+    "onDrop": "Wenn der Preis deutlich sinkt",
+    "onTarget": "Wenn er unter meinen Zielpreis fällt",
+    "targetLabel": "Zielpreis (pro Person)",
+    "nowLabel": "Gerade am günstigsten",
+    "none": "Mit dieser Auswahl gibt es gerade keine Flüge.",
+    "confirm": "Alarm einrichten",
+    "cancel": "Abbrechen",
+    "open": "Einstellungen Preisalarm"
   }
 }

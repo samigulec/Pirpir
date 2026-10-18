@@ -199,6 +199,24 @@
     "create": "Crea un avviso di prezzo",
     "done": "Avviso creato.",
     "see": "I miei avvisi di prezzo",
-    "error": "Al momento non è possibile creare l'avviso."
+    "error": "Al momento non è possibile creare l'avviso.",
+    "title": "Cosa teniamo d'occhio?",
+    "datesLabel": "Date",
+    "exact": "Solo {dates}",
+    "flex": "± 3 giorni flessibili",
+    "flexHint": "Ogni mattina controlliamo 7 giorni e ti segnaliamo il più economico.",
+    "stopsLabel": "Scali",
+    "any": "Indifferente",
+    "direct": "Solo diretti",
+    "bags": "Il prezzo viene seguito con i bagagli che hai scelto.",
+    "whenLabel": "Quando ti avvisiamo?",
+    "onDrop": "Quando il prezzo scende in modo evidente",
+    "onTarget": "Quando scende sotto il mio obiettivo",
+    "targetLabel": "Prezzo obiettivo (a persona)",
+    "nowLabel": "Il più economico adesso",
+    "none": "Al momento nessun volo con questa scelta.",
+    "confirm": "Crea avviso",
+    "cancel": "Annulla",
+    "open": "Impostazioni avviso prezzo"
   }
 }

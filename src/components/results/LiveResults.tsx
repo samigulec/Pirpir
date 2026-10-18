@@ -8,6 +8,7 @@ import { PriceTrends } from "./PriceTrends";
 import { PriceAlertButton } from "./PriceAlertButton";
 import { ResultsView, type ResultsTip } from "./ResultsView";
 import type { Offer } from "@/lib/providers/types";
+import { DEFAULT_FILTERS, type Filters } from "@/lib/results-filter";
 import type { MultiQuery, searchHref } from "@/lib/search";
 
 export type LiveChunk = {
@@ -45,6 +46,8 @@ export function LiveResults({
   const t = useTranslations("results");
   const [chunk, setChunk] = useState(first);
   const [failed, setFailed] = useState(false);
+  // Fiyat alarmı, sonuç filtresindeki aktarma ve bagaj seçimiyle açılsın
+  const [filters, setFilters] = useState<Filters>(() => (initialBags ? { ...DEFAULT_FILTERS, bags: initialBags } : DEFAULT_FILTERS));
 
   useEffect(() => {
     let alive = true;
@@ -71,7 +74,7 @@ export function LiveResults({
   return (
     <>
       {chunk.done && <DateStrip q={q} current={cheapest} />}
-      {chunk.done && <PriceTrends q={q} actions={<PriceAlertButton q={q} />} />}
+      {chunk.done && <PriceTrends q={q} actions={<PriceAlertButton q={q} offers={chunk.offers} filters={filters} />} />}
       {!chunk.done && !failed && (
         <p role="status" className="m-0 flex items-center gap-3 rounded-[20px] bg-sky px-5 py-3 font-bold">
           <span aria-hidden="true" className="h-4 w-4 flex-none animate-spin rounded-full border-[3px] border-solid border-primary border-t-transparent" />
@@ -92,6 +95,7 @@ export function LiveResults({
         cityNames={chunk.cityNames}
         settled={chunk.done}
         initialBags={initialBags}
+        onFiltersChange={setFilters}
       />
     </>
   );

@@ -133,7 +133,14 @@
     "checked": "Son kontrol {time}",
     "notified": "{price} için e-posta gönderildi",
     "noteNoEmail": "Pırpır her sabah fiyatlara bakar ve burada gösterir. E-postayla haber verme yakında başlayacak. Kesin fiyatı “Ara”da görürsün.",
-    "noteDemo": "Örnek modda alarmlar yalnızca bu tarayıcıda tutulur ve otomatik kontrol edilmez; güncel fiyat son 24 saatteki aramalardan gelir."
+    "noteDemo": "Örnek modda alarmlar yalnızca bu tarayıcıda tutulur ve otomatik kontrol edilmez; güncel fiyat son 24 saatteki aramalardan gelir.",
+    "chipFlex": "± 3 gün esnek",
+    "chipDirect": "Sadece direkt",
+    "chipBags": "Bagajlı fiyat",
+    "chipTarget": "Hedef {price}",
+    "targetReached": "Hedefe ulaştı",
+    "best": "En ucuz: {flight}",
+    "history": "Son {n} kontrolde fiyat"
   },
   "favorites": {
     "title": "Favorilerim",

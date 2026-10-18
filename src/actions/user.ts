@@ -6,9 +6,9 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { serverCurrency } from "@/lib/currency-server";
 import { deleteItem, listItems, NotSignedInError, saveItem } from "@/lib/user-items";
 import { searchFlightsCached } from "@/lib/flights";
-import { cheapestWithBags } from "@/lib/extras";
 import { knownDayPrice } from "@/lib/price-calendar";
 import { isKnownPlace } from "@/data/airports";
+import { cheapestFor, criteriaKey, type AlertCriteria } from "@/lib/alert-criteria";
 import { favoriteKey, type Favorite, type PriceAlert, type Saved, type Traveller } from "@/lib/user-types";
 import { CABINS, todayIso, validateSearch, type MultiQuery } from "@/lib/search";
 
@@ -77,17 +77,33 @@ function parseAlertQuery(q: MultiQuery): MultiQuery | null {
   return validateSearch(c, isKnownPlace) ? null : c;
 }
 
-export async function createAlert(q: MultiQuery): Promise<UserResult<Saved<PriceAlert>>> {
+/** Kullanıcıdan gelen kriterleri sınırla (hedef fiyat makul aralıkta, bagaj üst sınırları). */
+function parseCriteria(raw: AlertCriteria | undefined): AlertCriteria {
+  const c: AlertCriteria = {};
+  if (raw?.flex === 3) c.flex = 3;
+  if (raw?.direct) c.direct = true;
+  const cabin = Math.min(1, Math.max(0, Math.round(Number(raw?.bags?.cabin) || 0)));
+  const checked = Math.min(3, Math.max(0, Math.round(Number(raw?.bags?.checked) || 0)));
+  if (cabin || checked) c.bags = { cabin, checked };
+  const target = Math.round(Number(raw?.targetTry));
+  if (Number.isFinite(target) && target >= 100 && target <= 2_000_000) c.targetTry = target;
+  return c;
+}
+
+export async function createAlert(q: MultiQuery, rawCriteria?: AlertCriteria): Promise<UserResult<Saved<PriceAlert>>> {
   const c = parseAlertQuery(q);
   if (!c) return { ok: false, error: "invalid" };
+  const crit = parseCriteria(rawCriteria);
   try {
     const existing = (await listItems<PriceAlert>("alert")).find(
-      (a) => a.data.from.join() === c.from.join() && a.data.to.join() === c.to.join() && a.data.date === c.date && a.data.returnDate === c.returnDate,
+      (a) =>
+        a.data.from.join() === c.from.join() && a.data.to.join() === c.to.join() && a.data.date === c.date &&
+        a.data.returnDate === c.returnDate && criteriaKey(a.data) === criteriaKey(crit),
     );
     if (existing) return { ok: true, value: existing };
-    // Fiyat, sonuç sayfasının az önce yaptığı (önbellekteki) aramadan
-    const [priceAt, user, lang, cur] = await Promise.all([
-      searchFlightsCached(c).then((o) => cheapestWithBags(o)).catch(() => null),
+    // Fiyat, sonuç sayfasının az önce yaptığı (önbellekteki) aramadan, alarmın kriterleriyle
+    const [best, user, lang, cur] = await Promise.all([
+      searchFlightsCached(c).then((o) => cheapestFor(o, crit)).catch(() => null),
       getCurrentUser(),
       getLocale(),
       serverCurrency(),
@@ -96,7 +112,8 @@ export async function createAlert(q: MultiQuery): Promise<UserResult<Saved<Price
     return {
       ok: true,
       value: await saveItem<PriceAlert>("alert", {
-        from: c.from, to: c.to, date: c.date, returnDate: c.returnDate, cabin: c.cabin ?? "economy", pax: c.pax, priceAt,
+        from: c.from, to: c.to, date: c.date, returnDate: c.returnDate, cabin: c.cabin ?? "economy", pax: c.pax,
+        priceAt: best?.price ?? null, ...(best && { best }), ...crit,
         email: user?.email, lang, cur,
       }),
     };
@@ -119,7 +136,10 @@ export async function getAlerts(): Promise<UserResult<AlertView[]>> {
     list.map(async (a) => {
       const past = a.data.date < today;
       const recent = a.data.lastCheckedAt && Date.now() - Date.parse(a.data.lastCheckedAt) < 30 * 3600 * 1000 ? (a.data.lastPrice ?? null) : null;
-      const now = past ? null : ((await knownDayPrice({ ...a.data }).catch(() => null)) ?? recent);
+      // Kriterli (esnek, direkt, bagajlı) alarmda takvimdeki genel en düşük fiyat yanıltır: yalnızca kontrolün bulduğu
+      const plain = !a.data.flex && !a.data.direct && !a.data.bags;
+      const known = plain && !past ? await knownDayPrice({ ...a.data }).catch(() => null) : null;
+      const now = past ? null : (known ?? recent);
       return { ...a, now, past };
     }),
   );

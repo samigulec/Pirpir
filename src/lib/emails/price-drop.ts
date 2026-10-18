@@ -3,11 +3,23 @@
 import "server-only";
 import { brand, siteUrl } from "@/config/brand";
 import { isCurrency, formatPrice, type Currency } from "../currency";
-import { formatRange } from "../dates";
+import { formatDayWithWeekday, formatRange } from "../dates";
+import type { AlertBest, AlertCriteria } from "../alert-criteria";
 import { intlLocale } from "../intl";
 import { isLocale, type Locale } from "@/i18n/config";
 
 type Texts = {
+  subjectTarget: string;
+  headingTarget: string;
+  quoteTarget: string;
+  bestLabel: string;
+  direct: string;
+  oneStop: string;
+  stops: string;
+  chipFlex: string;
+  chipDirect: string;
+  chipBags: string;
+  chipTarget: string;
   subject: string;
   heading: string;
   quote: string;
@@ -25,6 +37,17 @@ type Texts = {
 
 export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
   tr: {
+    subjectTarget: "Hedef fiyata ulaştı: {route} şimdi {price}",
+    headingTarget: "Hedef fiyatın geldi!",
+    quoteTarget: "“Beklediğin fiyat geldi, kaçırma!”",
+    bestLabel: "En ucuz uçuş",
+    direct: "Direkt",
+    oneStop: "1 aktarma",
+    stops: "{n} aktarma",
+    chipFlex: "± 3 gün esnek",
+    chipDirect: "Sadece direkt",
+    chipBags: "Bagajlı fiyat",
+    chipTarget: "Hedef {price}",
     subject: "Fiyat düştü: {route} şimdi {price}",
     heading: "Fiyat düştü!",
     quote: "“Takip ettiğin uçuş ucuzladı, kaçırma!”",
@@ -40,6 +63,17 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     stop: "Bu alarmı kapat",
   },
   en: {
+    subjectTarget: "Target price reached: {route} now {price}",
+    headingTarget: "Your target price is here!",
+    quoteTarget: "“The price you were waiting for is here. Don't miss it!”",
+    bestLabel: "Cheapest flight",
+    direct: "Direct",
+    oneStop: "1 stop",
+    stops: "{n} stops",
+    chipFlex: "± 3 days flexible",
+    chipDirect: "Direct only",
+    chipBags: "Price with bags",
+    chipTarget: "Target {price}",
     subject: "Price drop: {route} now {price}",
     heading: "The price dropped!",
     quote: "“The flight you're watching just got cheaper. Don't miss it!”",
@@ -55,6 +89,17 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     stop: "Turn off this alert",
   },
   nl: {
+    subjectTarget: "Doelprijs bereikt: {route} nu {price}",
+    headingTarget: "Je doelprijs is bereikt!",
+    quoteTarget: "“De prijs waarop je wachtte is er. Mis het niet!”",
+    bestLabel: "Goedkoopste vlucht",
+    direct: "Direct",
+    oneStop: "1 overstap",
+    stops: "{n} overstappen",
+    chipFlex: "± 3 dagen flexibel",
+    chipDirect: "Alleen direct",
+    chipBags: "Prijs met bagage",
+    chipTarget: "Doel {price}",
     subject: "Prijsdaling: {route} nu {price}",
     heading: "De prijs is gedaald!",
     quote: "“De vlucht die je volgt is goedkoper geworden. Mis het niet!”",
@@ -70,6 +115,17 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     stop: "Dit alarm uitzetten",
   },
   de: {
+    subjectTarget: "Zielpreis erreicht: {route} jetzt {price}",
+    headingTarget: "Dein Zielpreis ist da!",
+    quoteTarget: "„Der Preis, auf den du gewartet hast, ist da. Nicht verpassen!“",
+    bestLabel: "Günstigster Flug",
+    direct: "Direkt",
+    oneStop: "1 Umstieg",
+    stops: "{n} Umstiege",
+    chipFlex: "± 3 Tage flexibel",
+    chipDirect: "Nur direkt",
+    chipBags: "Preis mit Gepäck",
+    chipTarget: "Ziel {price}",
     subject: "Preis gesunken: {route} jetzt {price}",
     heading: "Der Preis ist gesunken!",
     quote: "„Der Flug, den du beobachtest, ist günstiger geworden. Nicht verpassen!“",
@@ -85,6 +141,17 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     stop: "Diesen Alarm ausschalten",
   },
   fr: {
+    subjectTarget: "Prix cible atteint : {route} maintenant à {price}",
+    headingTarget: "Ton prix cible est atteint !",
+    quoteTarget: "« Le prix que tu attendais est là. Ne le rate pas ! »",
+    bestLabel: "Vol le moins cher",
+    direct: "Direct",
+    oneStop: "1 escale",
+    stops: "{n} escales",
+    chipFlex: "± 3 jours flexibles",
+    chipDirect: "Direct uniquement",
+    chipBags: "Prix avec bagages",
+    chipTarget: "Cible {price}",
     subject: "Baisse de prix : {route} maintenant à {price}",
     heading: "Le prix a baissé !",
     quote: "« Le vol que tu surveilles est moins cher. Ne le rate pas ! »",
@@ -100,6 +167,17 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     stop: "Désactiver cette alerte",
   },
   es: {
+    subjectTarget: "Precio objetivo alcanzado: {route} ahora a {price}",
+    headingTarget: "¡Ha llegado tu precio objetivo!",
+    quoteTarget: "«El precio que esperabas ya está aquí. ¡No te lo pierdas!»",
+    bestLabel: "Vuelo más barato",
+    direct: "Directo",
+    oneStop: "1 escala",
+    stops: "{n} escalas",
+    chipFlex: "± 3 días flexibles",
+    chipDirect: "Solo directos",
+    chipBags: "Precio con equipaje",
+    chipTarget: "Objetivo {price}",
     subject: "Bajada de precio: {route} ahora a {price}",
     heading: "¡El precio ha bajado!",
     quote: "«El vuelo que sigues está más barato. ¡No te lo pierdas!»",
@@ -115,6 +193,17 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     stop: "Desactivar esta alerta",
   },
   it: {
+    subjectTarget: "Prezzo obiettivo raggiunto: {route} ora a {price}",
+    headingTarget: "Il tuo prezzo obiettivo è arrivato!",
+    quoteTarget: "«Il prezzo che aspettavi è arrivato. Non perderlo!»",
+    bestLabel: "Volo più economico",
+    direct: "Diretto",
+    oneStop: "1 scalo",
+    stops: "{n} scali",
+    chipFlex: "± 3 giorni flessibili",
+    chipDirect: "Solo diretti",
+    chipBags: "Prezzo con bagagli",
+    chipTarget: "Obiettivo {price}",
     subject: "Prezzo sceso: {route} ora a {price}",
     heading: "Il prezzo è sceso!",
     quote: "«Il volo che segui è più economico. Non perderlo!»",
@@ -148,6 +237,10 @@ export type PriceDrop = {
   alertsUrl: string;
   stopUrl: string | null;
   testMode: boolean;
+  /** Bulunan en ucuz uçuş ve e-postanın nedeni */
+  best?: AlertBest;
+  reason?: "target" | "drop";
+  criteria?: AlertCriteria;
 };
 
 export function priceDropEmail(d: PriceDrop) {
@@ -157,16 +250,32 @@ export function priceDropEmail(d: PriceDrop) {
   const loc = intlLocale(lang);
   const price = (v: number) => formatPrice(v, cur, loc);
   const dates = formatRange(d.date, d.returnDate, loc);
-  const subject = fill(t.subject, { route: d.route, price: price(d.now) });
+  const target = d.reason === "target";
+  const subject = fill(target ? t.subjectTarget : t.subject, { route: d.route, price: price(d.now) });
+  const heading = target ? t.headingTarget : t.heading;
+  const quote = target ? t.quoteTarget : t.quote;
+  const c = d.criteria ?? {};
+  const chips = [
+    c.flex ? t.chipFlex : null,
+    c.direct ? t.chipDirect : null,
+    c.bags && (c.bags.cabin || c.bags.checked) ? t.chipBags : null,
+    c.targetTry != null ? fill(t.chipTarget, { price: price(c.targetTry) }) : null,
+  ].filter((x): x is string => !!x);
+  const stopsText = (n: number) => (n === 0 ? t.direct : n === 1 ? t.oneStop : fill(t.stops, { n: String(n) }));
+  const bestLine = d.best
+    ? [d.best.airline, stopsText(d.best.stops), `${formatDayWithWeekday(d.best.date, loc)} ${d.best.dep}`].join(" · ")
+    : null;
   const saving = fill(t.saving, { price: price(d.was - d.now) });
   const why = fill(t.why, { brand: brand.name });
   const base = siteUrl();
 
   const text = [
-    t.heading,
+    heading,
     "",
     `${d.route} · ${dates}`,
+    ...(chips.length ? [chips.join(" · ")] : []),
     `${t.was}: ${price(d.was)} → ${t.now}: ${price(d.now)} (${t.perPerson}, ${saving})`,
+    ...(bestLine ? [`${t.bestLabel}: ${bestLine}`] : []),
     "",
     `${t.cta}: ${d.searchUrl}`,
     "",
@@ -188,14 +297,15 @@ export function priceDropEmail(d: PriceDrop) {
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EAF3FF;border-radius:24px"><tr>
       <td style="padding:20px 0 20px 20px;width:120px" valign="middle"><img src="${base}/email/pirpir.png" width="120" height="84" alt="" style="display:block;border:0"></td>
       <td style="padding:20px" valign="middle">
-        <div style="font-size:26px;font-weight:800;line-height:1.15">${esc(t.heading)}</div>
-        <div style="font-size:16px;font-weight:700;color:#56607A;margin-top:6px">${esc(t.quote)}</div>
+        <div style="font-size:26px;font-weight:800;line-height:1.15">${esc(heading)}</div>
+        <div style="font-size:16px;font-weight:700;color:#56607A;margin-top:6px">${esc(quote)}</div>
       </td>
     </tr></table>
   </td></tr>
   <tr><td style="padding:20px 28px 0">
     <div style="font-size:20px;font-weight:800">${esc(d.route)}</div>
     <div style="font-size:15px;font-weight:600;color:#56607A;margin-top:2px">${esc(dates)}</div>
+    ${chips.length ? `<div style="margin-top:8px">${chips.map((x) => `<span style="display:inline-block;background:#EAF3FF;color:#1E2A44;border-radius:999px;padding:4px 12px;margin:0 6px 6px 0;font-size:13px;font-weight:800">${esc(x)}</span>`).join("")}</div>` : ""}
   </td></tr>
   <tr><td style="padding:16px 28px 0">
     <table role="presentation" cellpadding="0" cellspacing="0"><tr>
@@ -209,6 +319,7 @@ export function priceDropEmail(d: PriceDrop) {
       </td>
     </tr></table>
     <div style="display:inline-block;margin-top:10px;background:#E4F4EA;color:#2E7A4D;border-radius:999px;padding:6px 14px;font-size:14px;font-weight:800">↓ ${esc(saving)}</div>
+    ${bestLine ? `<div style="margin-top:14px;background:#F5F8FD;border-radius:16px;padding:12px 16px"><div style="font-size:13px;font-weight:800;color:#56607A">${esc(t.bestLabel)}</div><div style="font-size:16px;font-weight:800;margin-top:2px">${esc(bestLine)}</div></div>` : ""}
   </td></tr>
   <tr><td style="padding:22px 28px 0">
     <a href="${esc(d.searchUrl)}" style="display:inline-block;background:#2F5BD3;color:#FFFFFF;text-decoration:none;border-radius:999px;padding:14px 28px;font-size:18px;font-weight:800">${esc(t.cta)}</a>

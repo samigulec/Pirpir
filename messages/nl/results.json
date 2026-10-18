@@ -199,6 +199,24 @@
     "create": "Prijsalarm instellen",
     "done": "Alarm ingesteld.",
     "see": "Mijn prijsalarmen",
-    "error": "Alarm instellen lukt nu niet."
+    "error": "Alarm instellen lukt nu niet.",
+    "title": "Wat zullen we volgen?",
+    "datesLabel": "Data",
+    "exact": "Alleen {dates}",
+    "flex": "± 3 dagen flexibel",
+    "flexHint": "Elke ochtend worden 7 dagen bekeken; we melden de goedkoopste.",
+    "stopsLabel": "Overstappen",
+    "any": "Maakt niet uit",
+    "direct": "Alleen direct",
+    "bags": "De prijs wordt gevolgd met de bagage die je koos.",
+    "whenLabel": "Wanneer laten we het weten?",
+    "onDrop": "Als de prijs duidelijk daalt",
+    "onTarget": "Als hij onder mijn doelprijs komt",
+    "targetLabel": "Doelprijs (per persoon)",
+    "nowLabel": "Nu het goedkoopst",
+    "none": "Er zijn nu geen vluchten met deze keuze.",
+    "confirm": "Alarm instellen",
+    "cancel": "Annuleren",
+    "open": "Instellingen prijsalarm"
   }
 }

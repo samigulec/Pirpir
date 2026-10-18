@@ -59,8 +59,11 @@ export function ResultsView({
   cityNames,
   settled = true,
   initialBags,
+  onFiltersChange,
 }: {
   initialBags?: { cabin: number; checked: number };
+  /** Filtre değişince (ör. fiyat alarmı penceresi aynı aktarma ve bagaj seçimiyle açılsın) */
+  onFiltersChange?: (f: Filters) => void;
   offers: Offer[];
   oneWay: boolean;
   tip: ResultsTip;
@@ -77,6 +80,7 @@ export function ResultsView({
   const [filters, setFilters] = useState<Filters>(() => (initialBags ? { ...DEFAULT_FILTERS, bags: initialBags } : DEFAULT_FILTERS));
   const [showFilters, setShowFilters] = useState(false);
   const [selected, setSelected] = useState<Group | null>(null);
+  useEffect(() => onFiltersChange?.(filters), [filters, onFiltersChange]);
 
   // Favoriler (girişliyse): kalbe basınca hesaba eklenir/çıkarılır; girişsizse giriş penceresi açılır
   const { signedIn, openLogin } = useAuthUi();

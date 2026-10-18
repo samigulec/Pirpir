@@ -133,7 +133,14 @@
     "checked": "Last checked {time}",
     "notified": "Email sent for {price}",
     "noteNoEmail": "Pırpır checks prices every morning and shows them here. Email alerts are coming soon. You'll see the exact price under “Search”.",
-    "noteDemo": "In demo mode, alerts are only kept in this browser and aren't checked automatically; the current price comes from searches in the last 24 hours."
+    "noteDemo": "In demo mode, alerts are only kept in this browser and aren't checked automatically; the current price comes from searches in the last 24 hours.",
+    "chipFlex": "± 3 days flexible",
+    "chipDirect": "Direct only",
+    "chipBags": "Price with bags",
+    "chipTarget": "Target {price}",
+    "targetReached": "Target reached",
+    "best": "Cheapest: {flight}",
+    "history": "Price over the last {n} checks"
   },
   "favorites": {
     "title": "My favourites",

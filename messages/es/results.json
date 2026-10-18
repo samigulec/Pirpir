@@ -199,6 +199,24 @@
     "create": "Crear alerta de precio",
     "done": "Alerta creada.",
     "see": "Mis alertas de precio",
-    "error": "Ahora mismo no se ha podido crear la alerta."
+    "error": "Ahora mismo no se ha podido crear la alerta.",
+    "title": "¿Qué vigilamos?",
+    "datesLabel": "Fechas",
+    "exact": "Solo {dates}",
+    "flex": "± 3 días flexibles",
+    "flexHint": "Cada mañana se revisan 7 días; te avisamos del más barato.",
+    "stopsLabel": "Escalas",
+    "any": "Da igual",
+    "direct": "Solo directos",
+    "bags": "El precio se sigue con el equipaje que elegiste.",
+    "whenLabel": "¿Cuándo te avisamos?",
+    "onDrop": "Cuando el precio baje claramente",
+    "onTarget": "Cuando baje de mi precio objetivo",
+    "targetLabel": "Precio objetivo (por persona)",
+    "nowLabel": "Lo más barato ahora",
+    "none": "Ahora no hay vuelos con esta selección.",
+    "confirm": "Crear alerta",
+    "cancel": "Cancelar",
+    "open": "Ajustes de la alerta de precio"
   }
 }

@@ -1,6 +1,7 @@
 // Hesaba bağlı kayıtların biçimleri (tarayıcı ve sunucu ortak).
 import type { CabinClass, Passengers } from "./search";
 import type { Leg } from "./providers/types";
+import type { AlertBest, AlertCriteria } from "./alert-criteria";
 
 export type Traveller = {
   givenName: string;
@@ -12,7 +13,7 @@ export type Traveller = {
   passport?: string;
 };
 
-export type PriceAlert = {
+export type PriceAlert = AlertCriteria & {
   from: string[];
   to: string[];
   date: string;
@@ -33,6 +34,8 @@ export type PriceAlert = {
   notifiedAt?: string;
   /** Son kontrollerin fiyatları (en fazla 14) */
   history?: { at: string; price: number }[];
+  /** Kriterlere uyan son bulunan en ucuz uçuş (esnek aramada hangi gün olduğu dahil) */
+  best?: AlertBest;
 };
 
 export type Favorite = {

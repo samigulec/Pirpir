@@ -133,7 +133,14 @@
     "checked": "Zuletzt geprüft {time}",
     "notified": "E-Mail gesendet für {price}",
     "noteNoEmail": "Pırpır schaut jeden Morgen nach den Preisen und zeigt sie hier. Benachrichtigungen per E-Mail kommen bald. Den genauen Preis siehst du unter „Suchen“.",
-    "noteDemo": "Im Demomodus werden Alarme nur in diesem Browser gespeichert und nicht automatisch geprüft; der aktuelle Preis stammt aus Suchen der letzten 24 Stunden."
+    "noteDemo": "Im Demomodus werden Alarme nur in diesem Browser gespeichert und nicht automatisch geprüft; der aktuelle Preis stammt aus Suchen der letzten 24 Stunden.",
+    "chipFlex": "± 3 Tage flexibel",
+    "chipDirect": "Nur direkt",
+    "chipBags": "Preis mit Gepäck",
+    "chipTarget": "Ziel {price}",
+    "targetReached": "Ziel erreicht",
+    "best": "Am günstigsten: {flight}",
+    "history": "Preis der letzten {n} Prüfungen"
   },
   "favorites": {
     "title": "Meine Favoriten",

@@ -11,10 +11,11 @@ import { supabaseAdmin } from "./auth/supabase-server";
 import { alertToken } from "./alert-token";
 import { emailEnabled, sendEmail } from "./email";
 import { priceDropEmail } from "./emails/price-drop";
-import { cheapestWithBags } from "./extras";
+import { cheapestFor, type AlertBest } from "./alert-criteria";
+import { flexQueries } from "./search-server";
 import { dataMode, searchFlightsCached } from "./flights";
 import { inBackground, isSkipped } from "./providers/rate-limit";
-import { searchHref, todayIso } from "./search";
+import { searchHref, todayIso, type MultiQuery } from "./search";
 import type { PriceAlert } from "./user-types";
 
 /** E-posta için fiyat en az bu kadar düşmeli (son bildirilen ya da kurulduğu andaki fiyata göre). */
@@ -22,7 +23,8 @@ export const DROP_MIN_RATIO = 0.03;
 export const DROP_MIN_TRY = 150;
 /** Bir alarm en fazla bu sıklıkta kontrol edilir. */
 const RECHECK_MS = 20 * 3600 * 1000;
-const MAX_PER_RUN = 40;
+/** Çalışma başına en fazla bu kadar arama (esnek alarm 7 arama sayılır) */
+const MAX_SEARCHES_PER_RUN = 60;
 const HISTORY = 14;
 
 export type AlertRunSummary = {
@@ -40,6 +42,30 @@ export function isNotableDrop(ref: number, now: number) {
   return now <= ref * (1 - DROP_MIN_RATIO) && ref - now >= DROP_MIN_TRY;
 }
 
+/**
+ * E-posta nedeni: hedef fiyat verildiyse fiyat hedefin altına inince (sonra yalnızca belirgin daha da düşerse);
+ * verilmediyse son bildirilen (ya da kurulduğu andaki) fiyattan belirgin düşüşte.
+ */
+export function notifyReason(a: Pick<PriceAlert, "targetTry" | "notifiedPrice" | "priceAt">, now: number): "target" | "drop" | null {
+  if (a.targetTry != null) {
+    if (now > a.targetTry) return null;
+    return a.notifiedPrice == null || isNotableDrop(a.notifiedPrice, now) ? "target" : null;
+  }
+  const ref = a.notifiedPrice ?? a.priceAt;
+  return ref != null && isNotableDrop(ref, now) ? "drop" : null;
+}
+
+/** Esnek alarmda seçilen günün ±3 günü de aranır (yolculuk süresi aynı); en ucuz gün kazanır. */
+async function evaluate(a: PriceAlert): Promise<AlertBest | null> {
+  const base: MultiQuery = { from: a.from, to: a.to, date: a.date, returnDate: a.returnDate, pax: a.pax, cabin: a.cabin };
+  const days = [base, ...(a.flex ? flexQueries({ ...base, flex: a.flex }) : [])];
+  const lists = await Promise.allSettled(days.map((q) => inBackground(() => searchFlightsCached(q))));
+  const ok = lists.flatMap((l) => (l.status === "fulfilled" ? [l.value] : []));
+  // Hiçbir gün aranamadıysa (ör. istek sınırı) hata yukarı gider, kalanlar sonraki çalışmaya kalır
+  if (!ok.length) throw (lists[0] as PromiseRejectedResult).reason;
+  return cheapestFor(ok.flat(), a);
+}
+
 export async function checkPriceAlerts({ deadlineMs = 45_000 } = {}): Promise<AlertRunSummary> {
   const sum: AlertRunSummary = { checked: 0, dropped: 0, emailed: 0, skipped: 0, failed: 0, remaining: 0, email: emailEnabled() };
   const admin = supabaseAdmin();
@@ -54,7 +80,8 @@ export async function checkPriceAlerts({ deadlineMs = 45_000 } = {}): Promise<Al
     // Tarihi geçmemiş, son 20 saatte kontrol edilmemiş olanlar; en uzun süredir bakılmayan önce
     .filter((r) => r.alert.date > today && (!r.alert.lastCheckedAt || Date.now() - Date.parse(r.alert.lastCheckedAt) > RECHECK_MS))
     .sort((a, b) => (a.alert.lastCheckedAt ?? "").localeCompare(b.alert.lastCheckedAt ?? ""));
-  const batch = due.slice(0, MAX_PER_RUN);
+  let cost = 0;
+  const batch = due.filter((r) => (cost += r.alert.flex ? 1 + 2 * r.alert.flex : 1) <= MAX_SEARCHES_PER_RUN);
   sum.remaining = due.length - batch.length;
 
   let stop = false;
@@ -64,12 +91,9 @@ export async function checkPriceAlerts({ deadlineMs = 45_000 } = {}): Promise<Al
       return;
     }
     const a = r.alert;
-    let now: number | null;
+    let best: AlertBest | null;
     try {
-      const offers = await inBackground(() =>
-        searchFlightsCached({ from: a.from, to: a.to, date: a.date, returnDate: a.returnDate, pax: a.pax, cabin: a.cabin }),
-      );
-      now = cheapestWithBags(offers);
+      best = await evaluate(a);
     } catch (e) {
       if (isSkipped(e)) {
         // İstek sınırı dar: kalanlar sonraki çalışmaya
@@ -83,15 +107,17 @@ export async function checkPriceAlerts({ deadlineMs = 45_000 } = {}): Promise<Al
     }
     sum.checked++;
     const at = new Date().toISOString();
-    const next: PriceAlert = { ...a, lastPrice: now, lastCheckedAt: at };
+    const now = best?.price ?? null;
+    const next: PriceAlert = { ...a, lastPrice: now, lastCheckedAt: at, ...(best && { best }) };
     if (now !== null) {
       next.history = [...(a.history ?? []), { at, price: now }].slice(-HISTORY);
       const ref = a.notifiedPrice ?? a.priceAt;
-      if (ref == null) next.priceAt = now; // kurulduğunda fiyat bilinmiyordu: ilk bulunan fiyat başlangıç olur
-      else if (isNotableDrop(ref, now)) {
+      const reason = notifyReason(a, now);
+      if (ref == null && a.targetTry == null) next.priceAt = now; // kurulduğunda fiyat bilinmiyordu: ilk bulunan fiyat başlangıç olur
+      else if (reason) {
         sum.dropped++;
         const email = a.email ?? (await admin.auth.admin.getUserById(r.userId)).data.user?.email;
-        if (email && (await sendDropEmail(r.id, { ...a, email }, ref, now))) {
+        if (email && (await sendDropEmail(r.id, { ...a, email }, ref ?? now, best!, reason))) {
           sum.emailed++;
           next.notifiedPrice = now;
           next.notifiedAt = at;
@@ -111,12 +137,14 @@ export async function checkPriceAlerts({ deadlineMs = 45_000 } = {}): Promise<Al
   return sum;
 }
 
-async function sendDropEmail(id: string, a: PriceAlert & { email: string }, was: number, now: number): Promise<boolean> {
+async function sendDropEmail(id: string, a: PriceAlert & { email: string }, was: number, best: AlertBest, reason: "target" | "drop"): Promise<boolean> {
+  const now = best.price;
   if (!emailEnabled()) return false;
   const lang = a.lang && isLocale(a.lang) ? a.lang : "tr";
   const base = siteUrl();
   const place = (codes: string[]) => codes.map((c) => cityByCode(c, lang)).join(", ");
-  const s = searchHref({ from: a.from, to: a.to, date: a.date, returnDate: a.returnDate ?? "", pax: a.pax, cabin: a.cabin });
+  // Esnek alarmda bağlantı, en ucuz bulunan güne gider
+  const s = searchHref({ from: a.from, to: a.to, date: best.date, returnDate: a.returnDate ? (best.returnDate ?? a.returnDate) : "", pax: a.pax, cabin: a.cabin, bags: a.bags });
   const searchUrl = `${base}${getPathname({ href: "/ara", locale: lang })}?${new URLSearchParams(s.query)}`;
   const alertsUrl = `${base}${getPathname({ href: "/hesap", locale: lang })}#alarmlar`;
   const token = alertToken(id);
@@ -125,10 +153,13 @@ async function sendDropEmail(id: string, a: PriceAlert & { email: string }, was:
     lang,
     cur: a.cur ?? "EUR",
     route: `${place(a.from)} → ${place(a.to)}`,
-    date: a.date,
-    returnDate: a.returnDate,
+    date: best.date,
+    returnDate: a.returnDate ? best.returnDate : undefined,
     was,
     now,
+    best,
+    reason,
+    criteria: { flex: a.flex, direct: a.direct, bags: a.bags, targetTry: a.targetTry },
     searchUrl,
     alertsUrl,
     stopUrl,
