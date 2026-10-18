@@ -21,6 +21,18 @@ export type PriceAlert = {
   pax: Passengers;
   /** Alarm kurulduğunda kişi başı en düşük fiyat (TRY); bilinmiyorsa null */
   priceAt: number | null;
+  /** Bildirim için: alarmı kuranın e-postası, dili ve para birimi (kurulduğu andaki) */
+  email?: string;
+  lang?: string;
+  cur?: string;
+  /** Günlük kontrolün bulduğu son fiyat (TRY) ve zamanı */
+  lastPrice?: number | null;
+  lastCheckedAt?: string;
+  /** Son e-postada bildirilen fiyat; bir sonraki e-posta bundan belirgin düşükse gider */
+  notifiedPrice?: number;
+  notifiedAt?: string;
+  /** Son kontrollerin fiyatları (en fazla 14) */
+  history?: { at: string; price: number }[];
 };
 
 export type Favorite = {

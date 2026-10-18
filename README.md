@@ -233,7 +233,7 @@ supabase/migrations/    database schema
 - [x] PDF travel plan, calendar reminders, date change and cancellation
 - [x] 7 languages, 16 countries, 12 currencies
 - [ ] Payments with Mollie
-- [ ] Price-drop emails: "Fiyat düşünce Pırpır sana haber versin"
+- [x] Price-drop emails: "Fiyat düşünce Pırpır sana haber versin" (daily check, 7 languages, one-click off)
 - [ ] Live exchange rates
 - [ ] Launch
 

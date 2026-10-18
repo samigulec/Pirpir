@@ -58,6 +58,25 @@ Ana adres `src/config/brand.ts` içindeki `domain`; site haritası (`/sitemap.xm
 5. `flypirpir.com` alınınca: Vercel'e ekle, ana adres yap, `.nl`'yi ona yönlendir (308); `brand.ts`'teki `domain`'i ve
    `NEXT_PUBLIC_SITE_URL`'i güncelle, Supabase adreslerine `.com`'u ekle.
 
+## Fiyat alarmı bildirimleri
+
+Kullanıcı sonuç sayfasında "Fiyat alarmı kur"a basınca alarm hesabına kaydedilir (e-postası, dili ve para birimiyle).
+Her sabah 05:00 UTC'de Vercel Cron `/api/cron/price-alerts`'i çağırır (`vercel.json`):
+
+- Tarihi geçmemiş ve son 20 saatte bakılmamış alarmlar için sonuç sayfasıyla aynı arama yapılır (çalışma başına en fazla 40;
+  arka plan önceliğinde, ziyaretçinin aramasından pay almaz; istek sınırı darsa kalanlar ertesi güne kalır).
+- Fiyat, son bildirilen (yoksa kurulduğu andaki) fiyattan **en az %3 ve en az ₺150** düşükse e-posta gider (`src/lib/price-alerts.ts`).
+- E-posta 7 dilde, kullanıcının para biriminde (`src/lib/emails/price-drop.ts`); "Bu alarmı kapat" bağlantısı giriş gerektirmez
+  (imzalı, `/api/alarm-kapat`) ve Gmail/Outlook'un tek tık "abonelikten çık" düğmesiyle çalışır.
+- Hesap sayfasında son kontrol zamanı ve gönderilen e-posta görünür. Örnek moddaki (çerezdeki) alarmlar kontrol edilmez.
+
+Kurulum:
+1. Vercel → Environment Variables: `CRON_SECRET` (uzun rastgele değer), `SUPABASE_SERVICE_ROLE_KEY` (zaten varsa tamam).
+2. E-posta için resend.com'da hesap aç → Domains → `flypirpir.nl` ekle → gösterilen DNS kayıtlarını (SPF/DKIM) alan adına gir →
+   doğrulanınca API Keys'ten anahtar al → Vercel'e `RESEND_API_KEY` ve `EMAIL_FROM` (ör. `pirpir <alarm@flypirpir.nl>`).
+3. Yeniden yayınla. Vercel → Settings → Cron Jobs'ta görev görünür; "Run" ile elle de çalıştırılabilir.
+   Hobby planında cron günde bir kez çalışır.
+
 ## Sayfalar
 
 | Rota | Tasarım |

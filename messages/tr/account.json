@@ -129,7 +129,11 @@
     "past": "Bu tarih geçti",
     "search": "Ara",
     "remove": "Sil",
-    "note": "Güncel fiyat, son 24 saatte yapılan aramalardan gelir; kesin fiyatı “Ara”da görürsün. Fiyat düşünce e-postayla haber verme, e-posta servisi bağlandığında başlayacak."
+    "note": "Pırpır her sabah fiyatlara bakar; fiyat belirgin düşünce (en az %3) e-postayla haber verir. Kesin fiyatı “Ara”da görürsün.",
+    "checked": "Son kontrol {time}",
+    "notified": "{price} için e-posta gönderildi",
+    "noteNoEmail": "Pırpır her sabah fiyatlara bakar ve burada gösterir. E-postayla haber verme yakında başlayacak. Kesin fiyatı “Ara”da görürsün.",
+    "noteDemo": "Örnek modda alarmlar yalnızca bu tarayıcıda tutulur ve otomatik kontrol edilmez; güncel fiyat son 24 saatteki aramalardan gelir."
   },
   "favorites": {
     "title": "Favorilerim",

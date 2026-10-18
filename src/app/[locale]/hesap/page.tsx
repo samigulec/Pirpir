@@ -8,6 +8,7 @@ import { Link, redirect } from "@/i18n/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { asLocale } from "@/lib/intl";
 import { getAlerts, getFavorites, getTravellers } from "@/actions/user";
+import { emailEnabled } from "@/lib/email";
 import { SavedTravellers } from "@/components/account/SavedTravellers";
 import { countryOptions, DEFAULT_NATIONALITY } from "@/data/countries";
 import { SavedAlerts, SavedFavorites } from "@/components/account/SavedLists";
@@ -73,7 +74,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
         <section id="alarmlar" className={card}>
           <h2 className={h2}>{tl("alerts.title")}</h2>
           <p className={sub}>{tl("alerts.text")}</p>
-          <SavedAlerts initial={alertList} names={names} />
+          <SavedAlerts initial={alertList} names={names} notice={u.mode === "demo" ? "demo" : emailEnabled() ? "email" : "noEmail"} />
         </section>
 
         <section id="favoriler" className={card}>

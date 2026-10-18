@@ -1,7 +1,9 @@
 "use server";
 
 import { toCountryCode } from "@/data/countries";
+import { getLocale } from "next-intl/server";
 import { getCurrentUser } from "@/lib/auth/session";
+import { serverCurrency } from "@/lib/currency-server";
 import { deleteItem, listItems, NotSignedInError, saveItem } from "@/lib/user-items";
 import { searchFlightsCached } from "@/lib/flights";
 import { cheapestWithBags } from "@/lib/extras";
@@ -84,8 +86,20 @@ export async function createAlert(q: MultiQuery): Promise<UserResult<Saved<Price
     );
     if (existing) return { ok: true, value: existing };
     // Fiyat, sonuç sayfasının az önce yaptığı (önbellekteki) aramadan
-    const priceAt = await searchFlightsCached(c).then((o) => cheapestWithBags(o)).catch(() => null);
-    return { ok: true, value: await saveItem<PriceAlert>("alert", { from: c.from, to: c.to, date: c.date, returnDate: c.returnDate, cabin: c.cabin ?? "economy", pax: c.pax, priceAt }) };
+    const [priceAt, user, lang, cur] = await Promise.all([
+      searchFlightsCached(c).then((o) => cheapestWithBags(o)).catch(() => null),
+      getCurrentUser(),
+      getLocale(),
+      serverCurrency(),
+    ]);
+    // E-posta, dil ve para birimi: fiyat düşünce gidecek e-posta bunlarla yazılır
+    return {
+      ok: true,
+      value: await saveItem<PriceAlert>("alert", {
+        from: c.from, to: c.to, date: c.date, returnDate: c.returnDate, cabin: c.cabin ?? "economy", pax: c.pax, priceAt,
+        email: user?.email, lang, cur,
+      }),
+    };
   } catch (e) {
     return fail(e);
   }
@@ -93,7 +107,10 @@ export async function createAlert(q: MultiQuery): Promise<UserResult<Saved<Price
 
 export type AlertView = Saved<PriceAlert> & { now: number | null; past: boolean };
 
-/** Alarmlar ve bilinen güncel fiyat (yeni arama yapılmaz; son 24 saatte bulunan fiyat). */
+/**
+ * Alarmlar ve bilinen güncel fiyat (yeni arama yapılmaz): günlük kontrolün bulduğu fiyat, yoksa ya da daha
+ * yenisi varsa son 24 saatte aramalarda görülen fiyat.
+ */
 export async function getAlerts(): Promise<UserResult<AlertView[]>> {
   if (!(await getCurrentUser())) return { ok: false, error: "signIn" };
   const list = await listItems<PriceAlert>("alert");
@@ -101,7 +118,8 @@ export async function getAlerts(): Promise<UserResult<AlertView[]>> {
   const views = await Promise.all(
     list.map(async (a) => {
       const past = a.data.date < today;
-      const now = past ? null : await knownDayPrice({ ...a.data }).catch(() => null);
+      const recent = a.data.lastCheckedAt && Date.now() - Date.parse(a.data.lastCheckedAt) < 30 * 3600 * 1000 ? (a.data.lastPrice ?? null) : null;
+      const now = past ? null : ((await knownDayPrice({ ...a.data }).catch(() => null)) ?? recent);
       return { ...a, now, past };
     }),
   );

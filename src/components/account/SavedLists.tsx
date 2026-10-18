@@ -13,11 +13,19 @@ import type { Favorite, Saved } from "@/lib/user-types";
 const row = "flex flex-wrap items-center justify-between gap-3 rounded-[20px] bg-field px-5 py-3";
 const small = "min-h-[44px] cursor-pointer rounded-pill border-0 bg-white px-5 font-display text-base font-semibold no-underline";
 
-/** Fiyat alarmları: kurulduğu andaki ve bilinen güncel fiyat (son 24 saatte bulunan) yan yana. */
-export function SavedAlerts({ initial, names }: { initial: AlertView[]; names: Record<string, string> }) {
+/**
+ * Fiyat alarmları: kurulduğu andaki ve bilinen güncel fiyat yan yana, son kontrol zamanı ve gönderilen e-posta.
+ * `notice`: altta hangi açıklama (e-posta açık / henüz yok / örnek mod).
+ */
+export function SavedAlerts({ initial, names, notice }: { initial: AlertView[]; names: Record<string, string>; notice: "email" | "noEmail" | "demo" }) {
   const t = useTranslations("account.alerts");
   const { fmt } = useCurrency();
   const loc = intlLocale(useLocale());
+  const ago = (iso: string) => {
+    const mins = Math.max(1, Math.round((Date.now() - Date.parse(iso)) / 60000));
+    const rtf = new Intl.RelativeTimeFormat(loc, { numeric: "auto" });
+    return mins < 60 ? rtf.format(-mins, "minute") : mins < 48 * 60 ? rtf.format(-Math.round(mins / 60), "hour") : rtf.format(-Math.round(mins / 1440), "day");
+  };
   const [list, setList] = useState(initial);
   const [pending, start] = useTransition();
   const place = (codes: string[]) => codes.map((c) => names[c] ?? c).join(", ");
@@ -46,6 +54,13 @@ export function SavedAlerts({ initial, names }: { initial: AlertView[]; names: R
                   </span>
                 )}
               </span>
+              {!a.past && (d.lastCheckedAt || d.notifiedPrice != null) && (
+                <span suppressHydrationWarning className="text-[13px] font-semibold text-muted">
+                  {[d.lastCheckedAt && t("checked", { time: ago(d.lastCheckedAt) }), d.notifiedPrice != null && t("notified", { price: fmt(d.notifiedPrice) })]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </span>
+              )}
             </span>
             <span className="flex gap-2">
               {!a.past && (
@@ -65,7 +80,7 @@ export function SavedAlerts({ initial, names }: { initial: AlertView[]; names: R
           </div>
         );
       })}
-      <p className="m-0 text-sm text-muted">{t("note")}</p>
+      <p className="m-0 text-sm text-muted">{t(notice === "email" ? "note" : notice === "noEmail" ? "noteNoEmail" : "noteDemo")}</p>
     </div>
   );
 }

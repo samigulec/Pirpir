@@ -129,7 +129,11 @@
     "past": "Dieses Datum ist vorbei",
     "search": "Suchen",
     "remove": "Löschen",
-    "note": "Der aktuelle Preis stammt aus Suchen der letzten 24 Stunden; den genauen Preis siehst du, wenn du suchst. E-Mail-Benachrichtigungen bei sinkenden Preisen starten, sobald der E-Mail-Dienst angebunden ist."
+    "note": "Pırpır schaut jeden Morgen nach den Preisen und schreibt dir, wenn der Preis deutlich sinkt (mindestens 3 %). Den genauen Preis siehst du unter „Suchen“.",
+    "checked": "Zuletzt geprüft {time}",
+    "notified": "E-Mail gesendet für {price}",
+    "noteNoEmail": "Pırpır schaut jeden Morgen nach den Preisen und zeigt sie hier. Benachrichtigungen per E-Mail kommen bald. Den genauen Preis siehst du unter „Suchen“.",
+    "noteDemo": "Im Demomodus werden Alarme nur in diesem Browser gespeichert und nicht automatisch geprüft; der aktuelle Preis stammt aus Suchen der letzten 24 Stunden."
   },
   "favorites": {
     "title": "Meine Favoriten",

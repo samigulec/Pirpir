@@ -129,7 +129,11 @@
     "past": "This date has passed",
     "search": "Search",
     "remove": "Delete",
-    "note": "The current price comes from searches in the last 24 hours; you'll see the exact price when you search. Email notifications when the price drops will start once the email service is connected."
+    "note": "Pırpır checks prices every morning and emails you when the price drops noticeably (at least 3%). You'll see the exact price under “Search”.",
+    "checked": "Last checked {time}",
+    "notified": "Email sent for {price}",
+    "noteNoEmail": "Pırpır checks prices every morning and shows them here. Email alerts are coming soon. You'll see the exact price under “Search”.",
+    "noteDemo": "In demo mode, alerts are only kept in this browser and aren't checked automatically; the current price comes from searches in the last 24 hours."
   },
   "favorites": {
     "title": "My favourites",

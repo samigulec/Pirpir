@@ -129,7 +129,11 @@
     "past": "Esta fecha ya ha pasado",
     "search": "Buscar",
     "remove": "Eliminar",
-    "note": "El precio actual viene de las búsquedas de las últimas 24 horas; verás el precio exacto al buscar. Los avisos por correo cuando baje el precio empezarán en cuanto se conecte el servicio de correo."
+    "note": "Pırpır revisa los precios cada mañana y te escribe cuando el precio baja claramente (al menos un 3 %). Verás el precio exacto en «Buscar».",
+    "checked": "Última comprobación {time}",
+    "notified": "Correo enviado por {price}",
+    "noteNoEmail": "Pırpır revisa los precios cada mañana y los muestra aquí. Los avisos por correo llegarán pronto. Verás el precio exacto en «Buscar».",
+    "noteDemo": "En modo demo, las alertas solo se guardan en este navegador y no se revisan automáticamente; el precio actual viene de las búsquedas de las últimas 24 horas."
   },
   "favorites": {
     "title": "Mis favoritos",
