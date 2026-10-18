@@ -46,6 +46,18 @@ Tarayıcı dili desteklenen bir dilse `/`'e gelen ziyaretçi o dile yönlenir; s
   `.env.example`'daki üç Supabase değişkenini Vercel'e gir.
 - Giriş: "Giriş yap"a basınca sayfa değişmeden açılan pencere (`src/components/auth/LoginModal.tsx`): Google / Facebook / Apple ve e-postaya tek kullanımlık bağlantı. Sosyal sağlayıcılar Supabase → Authentication → Providers'ta açılıp `NEXT_PUBLIC_AUTH_PROVIDERS`'a yazılır. Biletler hesaba ve aynı e-postaya bağlanır (RLS).
 
+## Alan adı (flypirpir.nl)
+
+Ana adres `src/config/brand.ts` içindeki `domain`; site haritası (`/sitemap.xml`), `robots.txt` ve paylaşım önizlemeleri bunu kullanır.
+
+1. Vercel → proje → Settings → Domains → `flypirpir.nl` ve `www.flypirpir.nl` ekle; `www`'yi ana adrese yönlendir.
+2. Alan adını aldığın yerde Vercel'in gösterdiği DNS kayıtlarını gir (genelde kök için `A 76.76.21.21`, `www` için `CNAME cname.vercel-dns.com`; Vercel'deki değerler geçerlidir).
+3. Vercel → Environment Variables: `NEXT_PUBLIC_SITE_URL=https://flypirpir.nl`, sonra yeniden yayınla.
+4. Supabase → Authentication → URL Configuration: Site URL `https://flypirpir.nl`, Redirect URLs'e `https://flypirpir.nl/auth/callback`.
+   Google/Facebook/Apple girişinde sağlayıcı panellerindeki izinli adreslere de aynı alan adı eklenir.
+5. `flypirpir.com` alınınca: Vercel'e ekle, ana adres yap, `.nl`'yi ona yönlendir (308); `brand.ts`'teki `domain`'i ve
+   `NEXT_PUBLIC_SITE_URL`'i güncelle, Supabase adreslerine `.com`'u ekle.
+
 ## Sayfalar
 
 | Rota | Tasarım |

@@ -4,7 +4,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
 import { LoginModalProvider } from "@/components/auth/LoginModal";
-import { brand } from "@/config/brand";
+import { brand, siteUrl } from "@/config/brand";
 import { baloo, fredoka, nunito } from "@/config/fonts";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
@@ -17,6 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "home" });
   return {
+    metadataBase: new URL(siteUrl()),
     title: { default: `${brand.name} — ${t("metaTitle")}`, template: `${brand.name} — %s` },
     description: t("metaDescription"),
   };
