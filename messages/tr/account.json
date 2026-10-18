@@ -107,7 +107,15 @@
     "cancel": "Vazgeç",
     "passportShort": "Pasaport",
     "privacy": "Bilgiler yalnızca hesabında tutulur ve yalnızca sen görebilirsin. Rezervasyonda alanları doldurmak için kullanılır.",
-    "error": "Ad, soyad ve geçerli bir doğum tarihi gerekli."
+    "error": "Ad, soyad ve geçerli bir doğum tarihi gerekli.",
+    "newTitle": "Yeni yolcu",
+    "editTitle": "Yolcuyu düzenle",
+    "firstName": "Ad",
+    "lastName": "Soyad",
+    "nameHint": "Ad ve soyadı pasaportta yazdığı gibi yaz.",
+    "gender": "Cinsiyet (pasaporttaki gibi)",
+    "birth": "Doğum tarihi",
+    "passportOptional": "Pasaport no (isteğe bağlı)"
   },
   "alerts": {
     "title": "Fiyat alarmlarım",

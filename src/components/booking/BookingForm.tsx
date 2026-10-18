@@ -23,7 +23,9 @@ import {
 import { useAuthUi } from "../auth/LoginModal";
 import { getTravellers } from "@/actions/user";
 import type { Saved, Traveller } from "@/lib/user-types";
-import { idealBanks, nationalities, paymentMethods, phoneCodes, promoDiscount, type PaymentId } from "@/data/mock/booking";
+import { toCountryCode } from "@/data/countries";
+import { NationalitySelect, type CountryOptions } from "./NationalitySelect";
+import { idealBanks, paymentMethods, phoneCodes, promoDiscount, type PaymentId } from "@/data/mock/booking";
 import { placeOrder, type PlaceOrderState } from "@/actions/booking";
 import type { PassengerSlot } from "@/lib/booking-validate";
 import type { BagChoice, BagOffer, Offer, SeatChoice, SeatMap } from "@/lib/providers/types";
@@ -65,6 +67,8 @@ export function BookingForm({
   seatMaps,
   wantBags,
   cityNames,
+  countries,
+  defaultNationality,
 }: {
   offer: Offer;
   slots: PassengerSlot[];
@@ -78,6 +82,9 @@ export function BookingForm({
   /** Sonuçlardaki bagaj filtresi: her yolcu için önceden seçilir. */
   wantBags: BagChoice;
   cityNames: Record<string, string>;
+  /** Uyruk listesi (sunucuda sayfa dilinde hazırlanır) ve önceden seçili ülke */
+  countries: CountryOptions;
+  defaultNationality: string;
 }) {
   const t = useTranslations("booking");
   const { fmt } = useCurrency();
@@ -114,7 +121,8 @@ export function BookingForm({
     set("family", tr.familyName);
     set("gender", tr.gender);
     set("birth", `${d}.${m}.${y}`);
-    if (nationalities.includes(tr.nationality)) set("nationality", tr.nationality);
+    const nat = toCountryCode(tr.nationality);
+    if (nat) set("nationality", nat);
     set("passport", tr.passport ?? "");
   };
   const [pending, startTransition] = useTransition();
@@ -219,11 +227,7 @@ export function BookingForm({
                 </label>
                 <label className={label}>
                   {t("passenger.nationality")}
-                  <select name={k("nationality")} className={input}>
-                    {nationalities.map((n) => (
-                      <option key={n}>{n}</option>
-                    ))}
-                  </select>
+                  <NationalitySelect name={k("nationality")} options={countries} defaultValue={defaultNationality} className={input} />
                 </label>
                 <label className={label}>
                   {t("passenger.passport")}

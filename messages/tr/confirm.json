@@ -169,7 +169,11 @@
       "priceChanged": "Tutar değişti: artık {price}. Seçenekleri yeniden göster."
     },
     "changed": "Uçuş {date} tarihinde değiştirildi.",
-    "changedPaid": "Uçuş {date} tarihinde değiştirildi; ödenen fark <price></price>."
+    "changedPaid": "Uçuş {date} tarihinde değiştirildi; ödenen fark <price></price>.",
+    "stepOut": "1. Yeni gidiş uçuşunu seç",
+    "stepIn": "2. Bu gidişle birlikte dönüş uçuşunu seç",
+    "fromAmount": "En uygun: {amount}",
+    "cheapest": "En uygun"
   },
   "printView": "Yazdırılabilir görünüm",
   "bagsText": {

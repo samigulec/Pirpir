@@ -1,5 +1,6 @@
 "use server";
 
+import { toCountryCode } from "@/data/countries";
 import { getCurrentUser } from "@/lib/auth/session";
 import { deleteItem, listItems, NotSignedInError, saveItem } from "@/lib/user-items";
 import { searchFlightsCached } from "@/lib/flights";
@@ -28,7 +29,7 @@ function parseTraveller(raw: Traveller): Traveller | null {
     familyName: clean(raw.familyName),
     gender: raw.gender === "m" ? "m" : "f",
     bornOn: clean(raw.bornOn, 10),
-    nationality: clean(raw.nationality, 40),
+    nationality: toCountryCode(clean(raw.nationality, 40)),
     passport: clean(raw.passport, 20).toUpperCase() || undefined,
   };
   if (!t.givenName || !t.familyName || !ISO.test(t.bornOn) || t.bornOn > todayIso()) return null;

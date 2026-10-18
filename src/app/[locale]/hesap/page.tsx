@@ -9,6 +9,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { asLocale } from "@/lib/intl";
 import { getAlerts, getFavorites, getTravellers } from "@/actions/user";
 import { SavedTravellers } from "@/components/account/SavedTravellers";
+import { countryOptions, DEFAULT_NATIONALITY } from "@/data/countries";
 import { SavedAlerts, SavedFavorites } from "@/components/account/SavedLists";
 import { cityByCode } from "@/data/airports";
 import { todayIso } from "@/lib/search";
@@ -66,7 +67,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
         <section id="yolcular" className={card}>
           <h2 className={h2}>{tl("travellers.title")}</h2>
           <p className={sub}>{tl("travellers.text")}</p>
-          <SavedTravellers initial={travellers.ok ? travellers.value : []} />
+          <SavedTravellers initial={travellers.ok ? travellers.value : []} countries={countryOptions(locale)} defaultNationality={DEFAULT_NATIONALITY[locale] ?? ""} />
         </section>
 
         <section id="alarmlar" className={card}>

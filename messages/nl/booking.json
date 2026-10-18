@@ -33,7 +33,10 @@
       "infant": "Baby"
     },
     "savedFill": "Opgeslagen reiziger:",
-    "save": "Bewaar deze reiziger in mijn account (de volgende keer met één klik ingevuld)"
+    "save": "Bewaar deze reiziger in mijn account (de volgende keer met één klik ingevuld)",
+    "nationalityPick": "Kies een land",
+    "nationalityCommon": "Veelgekozen",
+    "nationalityAll": "Alle landen"
   },
   "contact": {
     "title": "Hoe bereiken we je?",

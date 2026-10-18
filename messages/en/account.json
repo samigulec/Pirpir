@@ -107,7 +107,15 @@
     "cancel": "Cancel",
     "passportShort": "Passport",
     "privacy": "These details are kept only in your account and only you can see them. They are used to fill in booking forms.",
-    "error": "First name, last name and a valid date of birth are required."
+    "error": "First name, last name and a valid date of birth are required.",
+    "newTitle": "New traveller",
+    "editTitle": "Edit traveller",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "nameHint": "Write the names exactly as in the passport.",
+    "gender": "Gender (as in passport)",
+    "birth": "Date of birth",
+    "passportOptional": "Passport number (optional)"
   },
   "alerts": {
     "title": "My price alerts",

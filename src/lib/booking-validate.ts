@@ -1,4 +1,5 @@
 // Rezervasyon formu doğrulaması (sunucuda çalışır; istemci de aynı kuralları gösterir).
+import { toCountryCode } from "@/data/countries";
 import type { BagChoice, Offer, PassengerInput, SeatChoice } from "./providers/types";
 import { bagChoiceValid, NO_BAGS } from "./extras";
 
@@ -75,7 +76,7 @@ export function validateBookingForm(form: FormData, offer: Offer): { data?: Pars
       familyName,
       gender,
       bornOn: bornOn ?? "",
-      nationality: get(k("nationality")),
+      nationality: toCountryCode(get(k("nationality"))),
       passport: passport || undefined,
     };
   });

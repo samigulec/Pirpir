@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
 import { BookingForm } from "@/components/booking/BookingForm";
+import { countryOptions, DEFAULT_NATIONALITY } from "@/data/countries";
 import { passengerSlots } from "@/lib/booking-validate";
 import { formatDayWithWeekday, minsParts } from "@/lib/dates";
 import { dataMode, getOffer } from "@/lib/flights";
@@ -126,7 +127,7 @@ export default async function BookingPage({
           </div>
         </div>
 
-        <BookingForm offer={offer} slots={passengerSlots(offer)} testMode={dataMode() !== "live"} defaultEmail={user?.email}
+        <BookingForm countries={countryOptions(locale)} defaultNationality={DEFAULT_NATIONALITY[locale] ?? ""} offer={offer} slots={passengerSlots(offer)} testMode={dataMode() !== "live"} defaultEmail={user?.email}
           viaCity={offer.outbound.via ? cityByCode(offer.outbound.via.code, locale, offer.outbound.via.city) : undefined}
           seatMaps={seatMaps}
           wantBags={wantBags}

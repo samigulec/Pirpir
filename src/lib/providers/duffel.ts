@@ -3,6 +3,7 @@
 // Canlı anahtarla sipariş, ödeme altyapısı (Mollie) bağlanana kadar kapalıdır.
 import "server-only";
 import { findAirport } from "@/data/airports";
+import { uniqueChangeOptions } from "../change-options";
 import { toTry } from "../currency";
 import { mergeBags } from "../extras";
 import type { SearchQuery } from "../search";
@@ -701,11 +702,12 @@ export const duffelProvider: FlightProvider = {
     const offers = r.order_change_offers?.length
       ? r.order_change_offers
       : await call<DChangeOffer[]>(`/air/order_change_offers?order_change_request_id=${r.id}&limit=50`);
-    return offers
-      .map((o) => mapChangeOffer(o, req))
-      .filter((o) => (!req.outDate || o.outbound) && (!req.inDate || o.inbound))
-      .sort((a, b) => a.changeTotal - b.changeTotal)
-      .slice(0, 12);
+    return uniqueChangeOptions(
+      offers
+        .map((o) => mapChangeOffer(o, req))
+        .filter((o) => (!req.outDate || o.outbound) && (!req.inDate || o.inbound))
+        .sort((a, b) => a.changeTotal - b.changeTotal || (a.outbound?.dep ?? "").localeCompare(b.outbound?.dep ?? "")),
+    ).slice(0, 40);
   },
 
   async changeConfirm(booking, req, optionId, expectedTotal) {

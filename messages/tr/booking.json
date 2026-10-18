@@ -33,7 +33,10 @@
       "infant": "Bebek"
     },
     "savedFill": "Kayıtlı yolcu:",
-    "save": "Bu yolcuyu hesabıma kaydet (sonraki rezervasyonda tek tıkla dolar)"
+    "save": "Bu yolcuyu hesabıma kaydet (sonraki rezervasyonda tek tıkla dolar)",
+    "nationalityPick": "Ülke seç",
+    "nationalityCommon": "Sık seçilenler",
+    "nationalityAll": "Tüm ülkeler"
   },
   "contact": {
     "title": "Sana nasıl ulaşalım?",

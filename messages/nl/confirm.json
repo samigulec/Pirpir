@@ -169,7 +169,11 @@
       "priceChanged": "Het bedrag is veranderd: nu {price}. Toon de opties opnieuw."
     },
     "changed": "Vlucht gewijzigd op {date}.",
-    "changedPaid": "Vlucht gewijzigd op {date}; je betaalde <price></price>."
+    "changedPaid": "Vlucht gewijzigd op {date}; je betaalde <price></price>.",
+    "stepOut": "1. Kies je nieuwe heenvlucht",
+    "stepIn": "2. Kies de terugvlucht die erbij hoort",
+    "fromAmount": "Vanaf: {amount}",
+    "cheapest": "Voordeligst"
   },
   "printView": "Afdrukweergave",
   "bagsText": {

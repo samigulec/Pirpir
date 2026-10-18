@@ -19,7 +19,8 @@ import {
   type CancelState,
   type ChangeState,
 } from "@/actions/booking";
-import { formatDayWithWeekday } from "@/lib/dates";
+import { legKey } from "@/lib/change-options";
+import { formatDayWithWeekday, minsParts } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 import { BagPicker } from "./BookingForm";
 import { bagsCost, NO_BAGS } from "@/lib/extras";
@@ -198,16 +199,55 @@ export function ChangeFlight({
   const [dates, setDates] = useState({ out: outDate, in: inDate ?? "" });
   const [state, setState] = useState<ChangeState>({});
   const [picked, setPicked] = useState<string | null>(null);
+  const [pickedOut, setPickedOut] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const button = "min-h-[48px] cursor-pointer rounded-pill border-0 px-6 py-3 font-display text-lg font-semibold leading-[normal] disabled:cursor-not-allowed disabled:opacity-60";
   const input = "min-h-[48px] rounded-[16px] border-2 border-solid border-line bg-field px-4 font-bold text-ink";
 
   const req: ChangeRequest = { outDate: legs.out ? dates.out : undefined, inDate: legs.in && inDate ? dates.in : undefined };
   const option = state.options?.find((o) => o.id === picked);
-  const legText = (l: Leg) =>
-    `${formatDayWithWeekday(l.date, loc)} · ${l.dep} ${l.fromCode} → ${l.arr}${l.arrDayOffset > 0 ? `+${l.arrDayOffset}` : ""} ${l.toCode} · ${l.airline} · ${
-      l.stops === 0 ? tc("direct") : l.stops === 1 ? tc("oneStop") : tc("stops", { n: l.stops })
+  // İki bacak birden değişiyorsa önce gidiş, sonra o gidişle gelen dönüşler seçilir (her biri bir kez listelenir)
+  const both = !!(state.options?.length && state.options.every((o) => o.outbound && o.inbound));
+  const outGroups = both
+    ? state.options!.reduce<[string, ChangeOption[]][]>((acc, o) => {
+        const k = legKey(o.outbound);
+        const g = acc.find(([x]) => x === k);
+        if (g) g[1].push(o);
+        else acc.push([k, [o]]);
+        return acc;
+      }, [])
+    : [];
+  const optionClass = (on: boolean) =>
+    `flex w-full cursor-pointer flex-wrap items-center justify-between gap-3 rounded-[20px] border-[3px] border-solid px-4 py-3 text-left text-ink ${
+      on ? "border-primary bg-sky" : "border-line bg-white"
     }`;
+  const flightLine = (l: Leg) => (
+    <span className="flex flex-col">
+      <span className="font-display text-[18px] font-semibold">
+        {l.dep} {l.fromCode} → {l.arr}
+        {l.arrDayOffset > 0 && <sup className="ml-[1px] text-[11px] font-extrabold text-coral-text">+{l.arrDayOffset}</sup>} {l.toCode}
+      </span>
+      <span className="text-[13px] font-semibold text-muted">
+        {[
+          formatDayWithWeekday(l.date, loc),
+          l.airline,
+          l.segments?.map((g) => g.flightNumber).filter(Boolean).join(", "),
+          l.stops === 0 ? tc("direct") : l.stops === 1 ? tc("oneStop") : tc("stops", { n: l.stops }),
+          l.mins > 0 ? tc("duration", minsParts(l.mins)) : "",
+        ]
+          .filter(Boolean)
+          .join(" · ")}
+      </span>
+    </span>
+  );
+  const optionNotes = (o: ChangeOption, best?: boolean) =>
+    o.fareBrand || (o.penalty ?? 0) > 0 || best ? (
+      <span className="flex flex-wrap gap-2 text-[13px] font-semibold text-muted">
+        {best && <span className="rounded-pill bg-green-soft px-2 font-extrabold text-green-text">{t("cheapest")}</span>}
+        {o.fareBrand && <span className="rounded-pill bg-field px-2 font-extrabold text-ink">{o.fareBrand}</span>}
+        {(o.penalty ?? 0) > 0 && <span>{t("includesFee", { price: fmt(o.penalty!) })}</span>}
+      </span>
+    ) : null;
   const amountText = (o: ChangeOption) => (o.changeTotal > 0 ? t("pay", { price: fmt(o.changeTotal) }) : o.changeTotal < 0 ? t("refund", { price: fmt(-o.changeTotal) }) : t("free"));
 
   if (state.done) return <p role="status" className="m-0 font-bold text-green-text">{t("done")}</p>;
@@ -269,6 +309,7 @@ export function ChangeFlight({
               onClick={() =>
                 start(async () => {
                   setPicked(null);
+                  setPickedOut(null);
                   setState(await getChangeOptions(bookingId, req));
                 })
               }
@@ -282,29 +323,58 @@ export function ChangeFlight({
           </div>
 
           {state.options && (
-            <div role="radiogroup" aria-label={t("options")} className="flex flex-col gap-2">
-              {state.options.map((o) => (
-                <button
-                  key={o.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={picked === o.id}
-                  onClick={() => setPicked(o.id)}
-                  className={`flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-[20px] border-[3px] border-solid px-4 py-3 text-left text-ink ${
-                    picked === o.id ? "border-primary bg-sky" : "border-line bg-white"
-                  }`}
-                >
-                  <span className="flex flex-col gap-1 text-[15px] font-bold">
-                    {o.outbound && <span>{t("outbound")}: {legText(o.outbound)}</span>}
-                    {o.inbound && <span>{t("inbound")}: {legText(o.inbound)}</span>}
-                    {o.fareBrand && <span className="text-[13px] font-semibold text-muted">{o.fareBrand}</span>}
-                    {o.penalty !== undefined && o.penalty > 0 && (
-                      <span className="text-[13px] font-semibold text-muted">{t("includesFee", { price: fmt(o.penalty) })}</span>
-                    )}
-                  </span>
-                  <span className="font-display text-lg font-semibold">{amountText(o)}</span>
-                </button>
-              ))}
+            <div className="flex flex-col gap-2">
+              {both ? (
+                <>
+                  <h3 className="m-0 mt-1 text-[15px] font-extrabold">{t("stepOut")}</h3>
+                  <div role="radiogroup" aria-label={t("stepOut")} className="flex flex-col gap-2">
+                    {outGroups.map(([key, list]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        role="radio"
+                        aria-checked={pickedOut === key}
+                        onClick={() => {
+                          setPickedOut(key);
+                          setPicked(list.length === 1 ? list[0].id : null);
+                        }}
+                        className={optionClass(pickedOut === key)}
+                      >
+                        {flightLine(list[0].outbound!)}
+                        <span className="font-display text-[17px] font-semibold">{t("fromAmount", { amount: amountText(list[0]) })}</span>
+                      </button>
+                    ))}
+                  </div>
+                  {pickedOut && (
+                    <>
+                      <h3 className="m-0 mt-2 text-[15px] font-extrabold">{t("stepIn")}</h3>
+                      <div role="radiogroup" aria-label={t("stepIn")} className="flex flex-col gap-2">
+                        {(outGroups.find(([k]) => k === pickedOut)?.[1] ?? []).map((o) => (
+                          <button key={o.id} type="button" role="radio" aria-checked={picked === o.id} onClick={() => setPicked(o.id)} className={optionClass(picked === o.id)}>
+                            <span className="flex flex-col gap-1">
+                              {o.inbound && flightLine(o.inbound)}
+                              {optionNotes(o)}
+                            </span>
+                            <span className="font-display text-lg font-semibold">{amountText(o)}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </>
+              ) : (
+                <div role="radiogroup" aria-label={t("options")} className="flex flex-col gap-2">
+                  {state.options.map((o, i) => (
+                    <button key={o.id} type="button" role="radio" aria-checked={picked === o.id} onClick={() => setPicked(o.id)} className={optionClass(picked === o.id)}>
+                      <span className="flex flex-col gap-1">
+                        {(o.outbound ?? o.inbound) && flightLine((o.outbound ?? o.inbound)!)}
+                        {optionNotes(o, i === 0 && state.options!.length > 1)}
+                      </span>
+                      <span className="font-display text-lg font-semibold">{amountText(o)}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
               <p className="m-0 text-[13px] font-semibold text-muted">{t("note")}</p>
               <button
                 type="button"

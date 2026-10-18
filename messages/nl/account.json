@@ -107,7 +107,15 @@
     "cancel": "Annuleren",
     "passportShort": "Paspoort",
     "privacy": "Deze gegevens staan alleen in jouw account en alleen jij ziet ze. Ze worden gebruikt om boekingsformulieren in te vullen.",
-    "error": "Voornaam, achternaam en een geldige geboortedatum zijn verplicht."
+    "error": "Voornaam, achternaam en een geldige geboortedatum zijn verplicht.",
+    "newTitle": "Nieuwe reiziger",
+    "editTitle": "Reiziger bewerken",
+    "firstName": "Voornaam",
+    "lastName": "Achternaam",
+    "nameHint": "Schrijf de namen precies zoals in het paspoort.",
+    "gender": "Geslacht (zoals in paspoort)",
+    "birth": "Geboortedatum",
+    "passportOptional": "Paspoortnummer (optioneel)"
   },
   "alerts": {
     "title": "Mijn prijsalarmen",

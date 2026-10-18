@@ -169,7 +169,11 @@
       "priceChanged": "The amount changed: it's now {price}. Show the options again."
     },
     "changed": "Flight changed on {date}.",
-    "changedPaid": "Flight changed on {date}; you paid <price></price>."
+    "changedPaid": "Flight changed on {date}; you paid <price></price>.",
+    "stepOut": "1. Pick your new outbound flight",
+    "stepIn": "2. Pick the return flight to go with it",
+    "fromAmount": "From: {amount}",
+    "cheapest": "Best price"
   },
   "printView": "Printable view",
   "bagsText": {

@@ -5,7 +5,7 @@ export const SAMPLE_BOOKING_ID = "ornek";
 
 export const idealBanks = ["ING", "ABN AMRO", "Rabobank", "SNS", "ASN Bank", "bunq", "Knab", "Revolut"];
 
-export const nationalities = ["Türkiye", "Hollanda", "Belçika", "Almanya", "Diğer"];
+
 export const phoneCodes = ["+31", "+90", "+32", "+49"];
 
 export type PaymentId = "card" | "ideal" | "apple" | "google";

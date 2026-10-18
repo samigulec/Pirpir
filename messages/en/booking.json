@@ -33,7 +33,10 @@
       "infant": "Infant"
     },
     "savedFill": "Saved traveller:",
-    "save": "Save this traveller to my account (fills in with one click next time)"
+    "save": "Save this traveller to my account (fills in with one click next time)",
+    "nationalityPick": "Choose a country",
+    "nationalityCommon": "Popular",
+    "nationalityAll": "All countries"
   },
   "contact": {
     "title": "How can we reach you?",
