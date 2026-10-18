@@ -85,3 +85,7 @@ export async function acquire(): Promise<() => void> {
 
 /** 429 sonrası ziyaretçi isteğinin yeniden denemeden önce bekleyeceği süre (ms). */
 export const retryWait = () => Math.min(8000, Math.max(800, state.resetAt - Date.now()));
+
+/** Ertelenen arka plan isteğinin ne zaman yeniden denenebileceği (ms, küçük rastgele kaydırmayla). */
+export const backgroundRetryIn = () =>
+  Math.min(30_000, Math.max(1500, Math.max(state.cooldownUntil, state.resetAt) - Date.now() + 300 + Math.random() * 700));

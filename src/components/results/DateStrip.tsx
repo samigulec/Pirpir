@@ -23,6 +23,9 @@ const known = {
   set: (k: string, price: number | null) => cache.set(k, { price, at: Date.now() }),
 };
 
+/** İstek sınırı darken en fazla bu kadar yeniden sorulur; aralığı sunucu söyler (yoksa bunlar), sonra gün "—" kalır. */
+const RETRY_MS = [2500, 5000, 9000, 15000];
+
 const dayQuery = (q: MultiQuery, d: Day) => new URLSearchParams(searchHref({ ...q, ...d, returnDate: d.returnDate ?? "" }).query).toString();
 
 /**
@@ -48,19 +51,27 @@ export function DateStrip({ q, current }: { q: MultiQuery; current: number | nul
     known.set(currentKey, current);
     const ctrl = new AbortController();
     setPrices(Object.fromEntries(signature.split("|").filter((k) => known.has(k)).map((k) => [k, known.get(k)!])));
-    for (const key of signature.split("|")) {
-      if (known.has(key)) continue;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    // Sunucu "busy" derse (istek sınırı) gün yükleniyor görünür ve artan aralıklarla yeniden sorulur
+    const load = (key: string, attempt: number) =>
       fetch(`/api/date-prices?${key}`, { signal: ctrl.signal })
         .then((r) => (r.ok ? r.json() : { price: null }))
-        .then((res: { price: number | null }) => {
-          known.set(key, res.price);
+        .then((res: { price: number | null; busy?: boolean; retryMs?: number }) => {
+          if (res.busy && attempt < RETRY_MS.length) {
+            timers.push(setTimeout(() => load(key, attempt + 1), res.retryMs ?? RETRY_MS[attempt]));
+            return;
+          }
+          if (!res.busy) known.set(key, res.price);
           setPrices((p) => ({ ...p, [key]: res.price }));
         })
         .catch(() => {
           if (!ctrl.signal.aborted) setPrices((p) => ({ ...p, [key]: null }));
         });
-    }
-    return () => ctrl.abort();
+    for (const key of signature.split("|")) if (!known.has(key)) load(key, 0);
+    return () => {
+      ctrl.abort();
+      timers.forEach(clearTimeout);
+    };
   }, [signature, currentKey, current]);
 
   const found = Object.values(prices).filter((p): p is number => typeof p === "number");

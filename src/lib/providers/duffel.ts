@@ -26,6 +26,13 @@ function token(): string {
   return t;
 }
 
+/** Duffel başarılı yanıt verdi ama içinde veri yok. */
+class EmptyResponseError extends ProviderError {
+  constructor(status: number) {
+    super(`Duffel boş yanıt döndü (${status})`, status);
+  }
+}
+
 /** Ayrılmış rezervasyonun güncel tutarı değişti (TRY). */
 export class PriceChangedError extends ProviderError {
   constructor(readonly newTotal: number) {
@@ -67,6 +74,8 @@ async function call<T>(path: string, init: RequestInit = {}, attempt = 0): Promi
     const msg = body?.errors?.[0]?.message ?? `Duffel isteği başarısız (${res.status})`;
     throw new ProviderError(msg, res.status);
   }
+  // Başarılı ama gövdesiz yanıt (ör. parça parça aramada boş dönen yoklama): çağıran karar verir
+  if (body?.data == null) throw new EmptyResponseError(res.status);
   return body.data as T;
 }
 
@@ -102,7 +111,13 @@ async function batchSearch(
     while (remaining > 0) {
       if (Date.now() > deadline) throw new ProviderError("Parça parça arama zamanında bitmedi.");
       // Kendi sinyali olan istek Next.js'in aynı adres birleştirmesine takılmaz (her yoklama gerçekten gider)
-      const b = await call<DBatch>(`/air/batch_offer_requests/${created.id}`, { signal: AbortSignal.timeout(Math.max(1000, deadline - Date.now())) });
+      const b = await call<DBatch>(`/air/batch_offer_requests/${created.id}`, { signal: AbortSignal.timeout(Math.max(1000, deadline - Date.now())) }).catch(
+        (e) => {
+          // Uzun bekleyen yoklama bazen gövdesiz döner: yeni parti yok sayılıp yeniden yoklanır
+          if (e instanceof EmptyResponseError) return { id: created.id, total_batches: created.total_batches, remaining_batches: remaining, offers: [] } as DBatch;
+          throw e;
+        },
+      );
       const before = byId.size;
       for (const o of b.offers ?? []) byId.set(o.id, o);
       remaining = b.remaining_batches;
