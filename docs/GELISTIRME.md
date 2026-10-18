@@ -53,7 +53,9 @@ Ana adres `src/config/brand.ts` içindeki `domain`; site haritası (`/sitemap.xm
 1. Vercel → proje → Settings → Domains → `flypirpir.nl` ve `www.flypirpir.nl` ekle; `www`'yi ana adrese yönlendir.
 2. Alan adını aldığın yerde Vercel'in gösterdiği DNS kayıtlarını gir (genelde kök için `A 76.76.21.21`, `www` için `CNAME cname.vercel-dns.com`; Vercel'deki değerler geçerlidir).
 3. Vercel → Environment Variables: `NEXT_PUBLIC_SITE_URL=https://flypirpir.nl`, sonra yeniden yayınla.
-4. Supabase → Authentication → URL Configuration: Site URL `https://flypirpir.nl`, Redirect URLs'e `https://flypirpir.nl/auth/callback`.
+4. Supabase → Authentication → URL Configuration: Site URL `https://flypirpir.nl`; Redirect URLs'e sitenin açıldığı **her** adresin
+   dönüşü: `https://flypirpir.nl/**`, `https://www.flypirpir.nl/**`, `https://pirpir.vercel.app/**`. Giriş, başladığı adrese döner
+   (güvenlik çerezi o adrestedir); listede olmayan adres Site URL'ye düşer ve ilk denemede "bağlantının süresi doldu" hatası verir.
    Google/Facebook/Apple girişinde sağlayıcı panellerindeki izinli adreslere de aynı alan adı eklenir.
 5. `flypirpir.com` alınınca: Vercel'e ekle, ana adres yap, `.nl`'yi ona yönlendir (308); `brand.ts`'teki `domain`'i ve
    `NEXT_PUBLIC_SITE_URL`'i güncelle, Supabase adreslerine `.com`'u ekle.

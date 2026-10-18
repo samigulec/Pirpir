@@ -23,12 +23,17 @@ export type LoginState = {
   email?: string;
 };
 
+/**
+ * Giriş dönüşü, girişin başladığı adrese gelmeli: Supabase'in güvenlik çerezi (PKCE) o adrese yazılır.
+ * www.flypirpir.nl'de başlayıp flypirpir.nl'ye dönen giriş çerezi bulamaz ve ilk denemede "bağlantının süresi
+ * doldu" hatası verir. Bu yüzden istekteki adres kullanılır; ayarlı site adresi yalnızca adres bilinmiyorsa.
+ * Dönüş adresi Supabase → Authentication → URL Configuration → Redirect URLs listesinde olmalı.
+ */
 async function siteOrigin() {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
   const h = await headers();
   const host = h.get("x-forwarded-host") ?? h.get("host");
-  const proto = h.get("x-forwarded-proto") ?? "https";
-  return `${proto}://${host}`;
+  if (host) return `${h.get("x-forwarded-proto") ?? "https"}://${host}`;
+  return (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
 }
 
 /** Yalnızca site içi yollara dönülür (açık yönlendirme olmasın). */
