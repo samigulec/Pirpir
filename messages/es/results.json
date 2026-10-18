@@ -1,0 +1,202 @@
+{
+  "metaTitle": "Resultados de búsqueda",
+  "summaryMeta": "{dates} · {count, plural, one {# viajero} other {# viajeros}}",
+  "change": "Cambiar",
+  "sortLabel": "Ordenar por",
+  "sort": {
+    "best": "Mejores",
+    "cheap": "Más baratos",
+    "fast": "Más rápidos",
+    "direct": "Solo directos"
+  },
+  "count": "{count, plural, one {# vuelo encontrado} other {# vuelos encontrados}}",
+  "countNote": "precios por persona, ida y vuelta, impuestos incluidos",
+  "countNoteOneWay": "precios por persona, solo ida, impuestos incluidos",
+  "badge": {
+    "cheap": "El más barato",
+    "fast": "El más rápido"
+  },
+  "select": "Elegir",
+  "tip": {
+    "title": "¡Vuela dos días más tarde y ahorra <price></price>!",
+    "text": "Precio más bajo el {day}: <price></price>.",
+    "cta": "Ver →"
+  },
+  "empty": "Ningún vuelo coincide con este filtro.",
+  "demoNote": "datos de ejemplo",
+  "testNote": "modo de prueba",
+  "nextDay": "+{n}",
+  "invalid": {
+    "title": "No hemos podido hacer esta búsqueda",
+    "back": "Corregir la búsqueda"
+  },
+  "failed": {
+    "title": "Ahora mismo no podemos cargar los vuelos",
+    "text": "Inténtalo de nuevo en un momento. Si el problema continúa, avísanos.",
+    "retry": "Reintentar"
+  },
+  "noResults": "No hemos encontrado vuelos para estas fechas. Prueba otra fecha.",
+  "loading": "Pırpır está buscando los mejores vuelos…",
+  "outbound": "Ida",
+  "inbound": "Vuelta",
+  "perPerson": "por persona",
+  "totalFor": "{total} en total para {count}",
+  "details": "Detalles del vuelo y del equipaje",
+  "hideDetails": "Ocultar detalles",
+  "layover": "Escala en {city} ({code}) · {wait} de espera",
+  "bags": {
+    "personal": "Artículo personal",
+    "cabin": "Maleta de cabina",
+    "checked": "Maleta facturada",
+    "included": "Incluido en el precio",
+    "notIncluded": "No incluido, se puede añadir al reservar"
+  },
+  "cabin": {
+    "economy": "Turista",
+    "premium_economy": "Turista premium",
+    "business": "Business",
+    "first": "Primera"
+  },
+  "conditions": {
+    "refundable": "Reembolsable",
+    "nonRefundable": "No reembolsable",
+    "changeable": "Cambios permitidos",
+    "notChangeable": "Sin cambios",
+    "changeFee": "Cargo por cambio de {fee} + posible diferencia de tarifa",
+    "changeFree": "Cambios gratis (se aplica la posible diferencia de tarifa)",
+    "refundFee": "Reembolsable, menos un cargo de {fee}",
+    "refundFree": "Reembolso gratis"
+  },
+  "filters": {
+    "title": "Filtros",
+    "show": "Filtros",
+    "active": "Filtros ({n})",
+    "reset": "Borrar filtros",
+    "bagsTitle": "Equipaje",
+    "bagsNote": "Los precios incluyen el equipaje que elijas.",
+    "cabinBag": "Maleta de cabina",
+    "checkedBag": "Maleta facturada",
+    "add": "Añadir {label}",
+    "remove": "Quitar {label}",
+    "stopsTitle": "Escalas",
+    "stops": {
+      "any": "Cualquiera",
+      "0": "Solo directos",
+      "1": "Hasta 1 escala",
+      "2": "Hasta 2 escalas"
+    },
+    "overnight": "Permitir escalas nocturnas",
+    "airlinesTitle": "Aerolíneas",
+    "allAirlines": "Seleccionar todas",
+    "noAirlines": "Quitar todas",
+    "from": "desde {price}",
+    "timesTitle": "Horarios de salida",
+    "outTimes": "Ida",
+    "inTimes": "Vuelta",
+    "slots": {
+      "night": "Madrugada 00–06",
+      "morning": "Mañana 06–12",
+      "afternoon": "Tarde 12–18",
+      "evening": "Noche 18–24"
+    },
+    "durationTitle": "Duración del vuelo",
+    "maxDuration": "Hasta {h} horas (por trayecto)",
+    "anyDuration": "Sin límite de duración"
+  },
+  "withBags": "con tu equipaje",
+  "fareOptions": "{n} opciones de tarifa",
+  "trip": {
+    "title": "Detalles del viaje",
+    "fareTitle": "Elige tu tarifa",
+    "close": "Cerrar",
+    "nights": "{n} noches en {city}",
+    "nightsShort": "{n} noches",
+    "continue": "Continuar por {price}",
+    "personal": "Artículo personal",
+    "cabinIncluded": "Maleta de cabina incluida",
+    "cabinAdd": "Se puede añadir maleta de cabina ({price})",
+    "cabinNo": "Sin maleta de cabina",
+    "checkedIncluded": "{n}× maleta facturada incluida{kg}",
+    "checkedAdd": "Se puede añadir maleta facturada ({price})",
+    "checkedNo": "No se puede añadir maleta facturada",
+    "changeable": "Cambios permitidos",
+    "notChangeable": "Sin cambios",
+    "refundable": "Reembolsable",
+    "nonRefundable": "No reembolsable",
+    "conditionsUnknown": "Cambios y reembolsos: se aplican las normas de la aerolínea",
+    "bagsAdded": "Los precios incluyen el equipaje que has elegido.",
+    "flightNo": "Vuelo {no}",
+    "layover": "Escala en {city} · {wait}",
+    "cheapest": "Mejor precio",
+    "changeFee": "Cargo por cambio de {fee} + posible diferencia de tarifa",
+    "changeFree": "Cambios gratis (se aplica la posible diferencia de tarifa)",
+    "refundFee": "Reembolsable, menos un cargo de {fee}",
+    "refundFree": "Reembolso gratis",
+    "heavyAdd": "Maleta pesada ({kg} kg) disponible: {price}",
+    "diff": {
+      "refundable": "Reembolsable",
+      "changeable": "Modificable",
+      "moreChecked": "Más equipaje",
+      "hold": "Paga después"
+    }
+  },
+  "dates": {
+    "label": "Fechas flexibles",
+    "cheapest": "El más barato"
+  },
+  "bagRules": {
+    "title": "Normas de equipaje (por pasajero)",
+    "type": "Tipo",
+    "status": "Estado",
+    "weight": "Peso",
+    "size": "Medidas",
+    "kg": "hasta {kg} kg",
+    "dims": "{dims} cm",
+    "linear": "hasta {cm} cm en total",
+    "included": "Incluido",
+    "includedN": "{n} incluidas",
+    "addable": "Se puede añadir · {price}",
+    "notAvailable": "No se puede añadir",
+    "unknown": "La aerolínea no lo indica",
+    "personalNote": "Debe caber debajo del asiento de delante",
+    "note": "Medida total: largo + ancho + alto. Se aplican las normas de la aerolínea; te recomendamos consultar su web antes de volar."
+  },
+  "live": {
+    "searching": "Buscando más vuelos… La lista se actualiza a medida que responden las aerolíneas.",
+    "incomplete": "La búsqueda no ha podido terminar; puede que falten algunos vuelos."
+  },
+  "bestHint": "Precio, duración y escalas a la vez",
+  "flexLabel": "± {n} días",
+  "flexNote": "Fechas flexibles: vuelos en ± {n} días a la vez",
+  "paxCount": "{count, plural, one {# viajero} other {# viajeros}}",
+  "close": "Cerrar",
+  "trends": {
+    "open": "Tendencias de precio",
+    "title": "Precios por día de salida ({nights} noches)",
+    "cheapest": "El más barato",
+    "unknown": "aún sin precio",
+    "empty": "Todavía no hay suficientes precios para esta ruta. El gráfico se va llenando a medida que la gente busca.",
+    "legendCheapest": "Día más barato",
+    "legendCurrent": "Día elegido",
+    "note": "Por persona, precios que hemos encontrado en las últimas 24 horas; los días vacíos aún no se han buscado. Haz clic en una barra para buscar ese día.",
+    "noteBags": "Por persona, sin equipaje, precios que hemos encontrado en las últimas 24 horas; los días vacíos aún no se han buscado. Haz clic en una barra para buscar ese día.",
+    "table": "Ver como tabla",
+    "colDate": "Salida",
+    "colPrice": "Por persona",
+    "titleOneWay": "Precios por día de salida (solo ida)"
+  },
+  "favorite": {
+    "add": "Añadir a favoritos",
+    "remove": "Quitar de favoritos",
+    "added": "Añadido a favoritos.",
+    "see": "Mis favoritos",
+    "signIn": "Inicia sesión para guardar favoritos.",
+    "error": "Ahora mismo no se ha podido guardar."
+  },
+  "alert": {
+    "create": "Crear alerta de precio",
+    "done": "Alerta creada.",
+    "see": "Mis alertas de precio",
+    "error": "Ahora mismo no se ha podido crear la alerta."
+  }
+}

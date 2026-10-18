@@ -62,7 +62,10 @@
     "language": "Langue",
     "currency": "Devise",
     "save": "Enregistrer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "countrySearch": "Rechercher un pays…",
+    "currencySearch": "Rechercher une devise…",
+    "none": "Aucun résultat."
   },
   "menu": {
     "label": "Menu du compte",

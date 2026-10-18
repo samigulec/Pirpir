@@ -2,7 +2,7 @@
 // metin yayın öncesi bir hukukçuya (KVKK / GDPR) kontrol ettirilmelidir.
 import type { LegalDoc } from "./types";
 
-export const privacy: Record<"tr" | "en" | "nl" | "de", LegalDoc> = {
+export const privacy: Record<"tr" | "en" | "nl" | "de" | "fr" | "es" | "it", LegalDoc> = {
   tr: {
     title: "Gizlilik Politikası",
     updated: "Son güncelleme: 17 Ekim 2026",
@@ -242,5 +242,245 @@ export const privacy: Record<"tr" | "en" | "nl" | "de", LegalDoc> = {
       },
       { id: "degisiklik", title: "Änderungen", body: ["Wenn wir diese Erklärung aktualisieren, veröffentlichen wir sie auf dieser Seite und informieren dich per E-Mail über wichtige Änderungen."] },
     ],
+  },
+  fr: {
+    "title": "Politique de confidentialité",
+    "updated": "Dernière mise à jour : 17 octobre 2026",
+    "intro": "Chez rotala, on utilise tes données personnelles uniquement pour trouver ton vol, émettre ton billet et gérer ton compte. Cette page explique ce qu'on collecte, pourquoi, et quels sont tes droits.",
+    "sections": [
+      {
+        "id": "biz",
+        "title": "Qui sommes-nous",
+        "body": [
+          "Responsable du traitement : [ŞİRKET ADI], [ADRES].",
+          "Pour toute question sur la confidentialité : [İLETİŞİM E-POSTASI]."
+        ]
+      },
+      {
+        "id": "veriler",
+        "title": "Ce qu'on collecte",
+        "body": [
+          "Données de compte : ton adresse e-mail et ton nom. Si tu te connectes avec Google, Facebook ou Apple, le nom et l'adresse e-mail que ce service nous transmet.",
+          "Données de réservation : nom, date de naissance, sexe, nationalité et numéro de passeport des voyageurs ; adresse e-mail et numéro de téléphone pour le contact. Les compagnies aériennes en ont besoin pour émettre les billets.",
+          "Données de paiement : on ne conserve pas les données de carte sur nos serveurs. Les paiements passent par les composants sécurisés du prestataire de paiement.",
+          "Préférences : la langue et la devise que tu as choisies, enregistrées dans ton navigateur sous forme de cookies et de stockage local.",
+          "Données techniques : adresse IP et informations sur le navigateur dans les journaux du serveur, pour assurer la sécurité et le bon fonctionnement du site."
+        ]
+      },
+      {
+        "id": "amac",
+        "title": "Comment on les utilise",
+        "body": [
+          "Pour rechercher des vols, émettre ton billet et gérer ta réservation.",
+          "Pour t'envoyer ton billet et t'informer de tout changement de vol.",
+          "Pour créer ton compte, te permettre de te connecter et afficher tes billets dans Mes voyages.",
+          "Pour prévenir la fraude et respecter nos obligations légales.",
+          "On t'envoie des nouvelles comme les alertes prix uniquement si tu les demandes, et tu peux te désinscrire à tout moment."
+        ]
+      },
+      {
+        "id": "paylasim",
+        "title": "Avec qui on les partage",
+        "body": [
+          "Les compagnies aériennes et notre fournisseur de vols (Duffel) : les données des voyageurs et de contact nécessaires à l'émission des billets.",
+          "Les prestataires d'infrastructure : Supabase (comptes et base de données), Vercel (hébergement du site).",
+          "Les services de connexion : Google, Facebook ou Apple, si tu choisis de te connecter avec eux.",
+          "Le prestataire de paiement : pour encaisser ton paiement.",
+          "On ne vend pas tes données personnelles et on ne les partage pas à des fins publicitaires. Certains prestataires peuvent traiter des données en dehors de l'Espace économique européen ; dans ce cas, des garanties juridiques (comme les clauses contractuelles types) s'appliquent."
+        ]
+      },
+      {
+        "id": "sure",
+        "title": "Combien de temps on les garde",
+        "body": [
+          "On conserve les données de compte jusqu'à ce que tu supprimes ton compte.",
+          "On conserve les dossiers de réservation pendant la durée exigée par la loi : [SAKLAMA SÜRESİ]."
+        ]
+      },
+      {
+        "id": "cerezler",
+        "title": "Cookies",
+        "body": [
+          "On utilise uniquement les cookies nécessaires au fonctionnement du site : session (connexion), langue, devise et tes réservations récentes dans ce navigateur.",
+          "On n'utilise pas de cookies publicitaires ni de suivi. Si un jour c'est le cas, on te demandera d'abord ton consentement."
+        ]
+      },
+      {
+        "id": "haklar",
+        "title": "Tes droits",
+        "body": [
+          "En vertu du RGPD (et de la loi turque KVKK), tu as le droit d'accéder à tes données, de les rectifier et de les supprimer, de t'opposer à leur traitement et de les transférer vers un autre service.",
+          "Pour faire une demande, écris à [İLETİŞİM E-POSTASI]. Tu peux utiliser la même adresse pour supprimer ton compte.",
+          "Tu peux aussi déposer une réclamation auprès de l'autorité de protection des données de ton pays (aux Pays-Bas : Autoriteit Persoonsgegevens)."
+        ]
+      },
+      {
+        "id": "degisiklik",
+        "title": "Modifications",
+        "body": [
+          "Si on met à jour cette politique, on la publiera sur cette page et on t'informera des changements importants par e-mail."
+        ]
+      }
+    ]
+  },
+  es: {
+    "title": "Política de privacidad",
+    "updated": "Última actualización: 17 de octubre de 2026",
+    "intro": "En rotala solo usamos tus datos personales para encontrar tu vuelo, emitir tu billete y gestionar tu cuenta. Esta página explica qué recogemos, para qué y cuáles son tus derechos.",
+    "sections": [
+      {
+        "id": "biz",
+        "title": "Quiénes somos",
+        "body": [
+          "Responsable del tratamiento: [ŞİRKET ADI], [ADRES].",
+          "Para cualquier duda sobre privacidad: [İLETİŞİM E-POSTASI]."
+        ]
+      },
+      {
+        "id": "veriler",
+        "title": "Qué datos recogemos",
+        "body": [
+          "Datos de la cuenta: tu correo electrónico y tu nombre. Si inicias sesión con Google, Facebook o Apple, el nombre y el correo electrónico que ese servicio comparte con nosotros.",
+          "Datos de la reserva: nombre y apellidos, fecha de nacimiento, sexo, nacionalidad y número de pasaporte de los viajeros; correo electrónico y número de teléfono de contacto. Las aerolíneas los exigen para emitir los billetes.",
+          "Datos de pago: no guardamos los datos de tu tarjeta en nuestros servidores. Los pagos se hacen a través de los componentes seguros del proveedor de pagos.",
+          "Preferencias: el idioma y la moneda que eliges, guardados en tu navegador como cookies y almacenamiento local.",
+          "Datos técnicos: la dirección IP y la información del navegador en los registros del servidor, para mantener el sitio seguro y en funcionamiento."
+        ]
+      },
+      {
+        "id": "amac",
+        "title": "Para qué los usamos",
+        "body": [
+          "Para buscar vuelos, emitir tu billete y gestionar tu reserva.",
+          "Para enviarte tu billete y cualquier cambio en tu vuelo.",
+          "Para crear tu cuenta, permitirte iniciar sesión y mostrar tus billetes en Mis viajes.",
+          "Para prevenir el fraude y cumplir nuestras obligaciones legales.",
+          "Solo te enviamos avisos como las alertas de precio si los pides, y puedes darte de baja cuando quieras."
+        ]
+      },
+      {
+        "id": "paylasim",
+        "title": "Con quién los compartimos",
+        "body": [
+          "Las aerolíneas y nuestro proveedor de vuelos (Duffel): los datos de los viajeros y de contacto necesarios para emitir los billetes.",
+          "Proveedores de infraestructura: Supabase (cuentas y base de datos), Vercel (alojamiento del sitio web).",
+          "Proveedores de inicio de sesión: Google, Facebook o Apple, si eliges iniciar sesión con ellos.",
+          "Proveedor de pagos: para cobrar tu pago.",
+          "No vendemos tus datos personales ni los compartimos con fines publicitarios. Algunos proveedores pueden tratar datos fuera del Espacio Económico Europeo; en ese caso se aplican garantías legales (como las cláusulas contractuales tipo)."
+        ]
+      },
+      {
+        "id": "sure",
+        "title": "Cuánto tiempo los guardamos",
+        "body": [
+          "Guardamos los datos de la cuenta hasta que la eliminas.",
+          "Guardamos los registros de reservas durante el plazo exigido por la ley: [SAKLAMA SÜRESİ]."
+        ]
+      },
+      {
+        "id": "cerezler",
+        "title": "Cookies",
+        "body": [
+          "Solo usamos las cookies necesarias para que el sitio funcione: sesión (inicio de sesión), idioma, moneda y tus reservas recientes en este navegador.",
+          "No usamos cookies publicitarias ni de seguimiento. Si algún día lo hacemos, primero te pediremos tu consentimiento."
+        ]
+      },
+      {
+        "id": "haklar",
+        "title": "Tus derechos",
+        "body": [
+          "Según el RGPD (y la KVKK turca) tienes derecho a acceder a tus datos, corregirlos y eliminarlos, a oponerte a su tratamiento y a llevarlos a otro servicio.",
+          "Para hacer una solicitud, escribe a [İLETİŞİM E-POSTASI]. Puedes usar la misma dirección para eliminar tu cuenta.",
+          "También puedes presentar una reclamación ante la autoridad de protección de datos de tu país (en los Países Bajos: Autoriteit Persoonsgegevens)."
+        ]
+      },
+      {
+        "id": "degisiklik",
+        "title": "Cambios",
+        "body": [
+          "Si actualizamos esta política, la publicaremos en esta página y te avisaremos por correo de los cambios importantes."
+        ]
+      }
+    ]
+  },
+  it: {
+    "title": "Informativa sulla privacy",
+    "updated": "Ultimo aggiornamento: 17 ottobre 2026",
+    "intro": "Su rotala usiamo i tuoi dati personali solo per trovare il tuo volo, emettere il tuo biglietto e gestire il tuo account. Questa pagina spiega cosa raccogliamo, perché e quali sono i tuoi diritti.",
+    "sections": [
+      {
+        "id": "biz",
+        "title": "Chi siamo",
+        "body": [
+          "Titolare del trattamento: [ŞİRKET ADI], [ADRES].",
+          "Per qualsiasi domanda sulla privacy: [İLETİŞİM E-POSTASI]."
+        ]
+      },
+      {
+        "id": "veriler",
+        "title": "Quali dati raccogliamo",
+        "body": [
+          "Dati dell'account: il tuo indirizzo email e il tuo nome. Se accedi con Google, Facebook o Apple, il nome e l'indirizzo email che quel servizio condivide con noi.",
+          "Dati della prenotazione: nome dei viaggiatori, data di nascita, sesso, nazionalità e numero di passaporto; indirizzo email e numero di telefono per i contatti. Le compagnie aeree li richiedono per emettere i biglietti.",
+          "Dati di pagamento: non conserviamo i dati delle carte sui nostri server. I pagamenti avvengono tramite i componenti sicuri del fornitore dei pagamenti.",
+          "Preferenze: la lingua e la valuta che hai scelto, salvate nel tuo browser come cookie e nella memoria locale.",
+          "Dati tecnici: indirizzo IP e informazioni sul browser nei log del server, per mantenere il sito sicuro e funzionante."
+        ]
+      },
+      {
+        "id": "amac",
+        "title": "Come li usiamo",
+        "body": [
+          "Per cercare voli, emettere il tuo biglietto e gestire la tua prenotazione.",
+          "Per inviarti il biglietto ed eventuali modifiche al volo.",
+          "Per creare il tuo account, farti accedere e mostrare i tuoi biglietti in I miei viaggi.",
+          "Per prevenire le frodi e rispettare i nostri obblighi di legge.",
+          "Ti inviamo aggiornamenti come gli avvisi di prezzo solo se li richiedi, e puoi disiscriverti in qualsiasi momento."
+        ]
+      },
+      {
+        "id": "paylasim",
+        "title": "Con chi li condividiamo",
+        "body": [
+          "Compagnie aeree e il nostro fornitore di voli (Duffel): i dati dei viaggiatori e di contatto necessari per emettere i biglietti.",
+          "Fornitori di infrastruttura: Supabase (account e database), Vercel (hosting del sito).",
+          "Fornitori di accesso: Google, Facebook o Apple, se scegli di accedere con loro.",
+          "Fornitore dei pagamenti: per ricevere il tuo pagamento.",
+          "Non vendiamo i tuoi dati personali e non li condividiamo per fini pubblicitari. Alcuni fornitori potrebbero trattare i dati al di fuori dello Spazio economico europeo; in tal caso si applicano garanzie previste dalla legge (come le clausole contrattuali standard)."
+        ]
+      },
+      {
+        "id": "sure",
+        "title": "Per quanto tempo li conserviamo",
+        "body": [
+          "Conserviamo i dati dell'account finché non elimini il tuo account.",
+          "Conserviamo i dati delle prenotazioni per il periodo previsto dalla legge: [SAKLAMA SÜRESİ]."
+        ]
+      },
+      {
+        "id": "cerezler",
+        "title": "Cookie",
+        "body": [
+          "Usiamo solo i cookie necessari al funzionamento del sito: sessione (accesso), lingua, valuta e le tue prenotazioni recenti in questo browser.",
+          "Non usiamo cookie pubblicitari o di tracciamento. Se mai lo faremo, ti chiederemo prima il consenso."
+        ]
+      },
+      {
+        "id": "haklar",
+        "title": "I tuoi diritti",
+        "body": [
+          "In base al GDPR (e alla legge turca KVKK) hai il diritto di accedere ai tuoi dati, correggerli e cancellarli, di opporti al trattamento e di trasferire i tuoi dati a un altro servizio.",
+          "Per fare una richiesta, scrivi a [İLETİŞİM E-POSTASI]. Puoi usare lo stesso indirizzo per eliminare il tuo account.",
+          "Puoi anche presentare un reclamo all'autorità per la protezione dei dati del tuo paese (nei Paesi Bassi: Autoriteit Persoonsgegevens)."
+        ]
+      },
+      {
+        "id": "degisiklik",
+        "title": "Modifiche",
+        "body": [
+          "Se aggiorniamo questa informativa, la pubblichiamo su questa pagina e ti avvisiamo via email delle modifiche importanti."
+        ]
+      }
+    ]
   },
 };

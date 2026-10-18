@@ -128,7 +128,7 @@ export function marketById(id: MarketId): Market {
 }
 
 /** Konum yoksa dilden tahmin: Türkçe → Türkiye, Hollandaca → Hollanda, İngilizce → Hollanda (sitenin ana pazarı). */
-const BY_LOCALE: Record<Locale, MarketId> = { tr: "TR", nl: "NL", en: "NL", de: "DE" };
+const BY_LOCALE: Record<Locale, MarketId> = { tr: "TR", nl: "NL", en: "NL", de: "DE", fr: "FR", es: "ES", it: "IT" };
 
 /** Öncelik: kayıtlı seçim → ziyaretçinin konumu (desteklenen bir ülkeyse) → dil. */
 export function resolveMarket(saved: string | undefined | null, geoCountry: string | undefined | null, locale: Locale): MarketId {

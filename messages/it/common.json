@@ -62,7 +62,10 @@
     "language": "Lingua",
     "currency": "Valuta",
     "save": "Salva",
-    "cancel": "Annulla"
+    "cancel": "Annulla",
+    "countrySearch": "Cerca un paese…",
+    "currencySearch": "Cerca una valuta…",
+    "none": "Nessun risultato."
   },
   "menu": {
     "label": "Menu account",

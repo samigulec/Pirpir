@@ -13,6 +13,9 @@ const T = {
   en: { flight: "Flight", pnr: "Booking reference", local: "Times are local times.", day: "Your flight is tomorrow: check online check-in", hours: (h: number) => `Your flight leaves in ${h} hours` },
   nl: { flight: "Vlucht", pnr: "Boekingscode", local: "Tijden zijn lokale tijden.", day: "Morgen vlieg je: check online inchecken", hours: (h: number) => `Over ${h} uur vertrekt je vlucht` },
   de: { flight: "Flug", pnr: "Buchungscode", local: "Alle Zeiten sind Ortszeiten.", day: "Morgen fliegst du: denk an den Online-Check-in", hours: (h: number) => `Dein Flug geht in ${h} Stunden` },
+  fr: { flight: "Vol", pnr: "Code de réservation", local: "Les heures sont en heure locale.", day: "Tu voles demain : pense à l'enregistrement en ligne", hours: (h: number) => `Ton vol part dans ${h} heures` },
+  es: { flight: "Vuelo", pnr: "Código de reserva", local: "Las horas son locales.", day: "Mañana vuelas: revisa el check-in online", hours: (h: number) => `Tu vuelo sale en ${h} horas` },
+  it: { flight: "Volo", pnr: "Codice di prenotazione", local: "Gli orari sono locali.", day: "Domani voli: controlla il check-in online", hours: (h: number) => `Il tuo volo parte tra ${h} ore` },
 };
 
 const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/([,;])/g, "\\$1").replace(/\n/g, "\\n");

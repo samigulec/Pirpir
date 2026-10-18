@@ -1,0 +1,276 @@
+{
+  "metaTitle": "Home",
+  "metaDescription": "Ricerca voli semplice e simpatica: cerca, scegli, paga, vola.",
+  "hero": {
+    "title": "Dove vuoi volare?",
+    "subtitle": "Scrivilo e basta. Il biglietto migliore lo troviamo noi.",
+    "pirpirLabel": "Pırpır, un piccolo aereo sorridente"
+  },
+  "search": {
+    "roundTrip": "Andata e ritorno",
+    "oneWay": "Solo andata",
+    "from": "Da",
+    "to": "A",
+    "swap": "Scambia partenza e destinazione",
+    "when": "Quando",
+    "pax": "Viaggiatori",
+    "submit": "Trova biglietti",
+    "departDate": "Data di partenza",
+    "returnDate": "Data di ritorno",
+    "done": "Fatto",
+    "paxAdults": "{n, plural, one {# adulto} other {# adulti}}",
+    "paxChildren": "{n, plural, one {# bambino} other {# bambini}}",
+    "paxInfants": "{n, plural, one {# neonato} other {# neonati}}",
+    "adults": "Adulti",
+    "adultsHint": "Da 12 anni in su",
+    "children": "Bambini",
+    "childrenHint": "2–11 anni",
+    "infants": "Neonati",
+    "infantsHint": "Sotto i 2 anni, in braccio",
+    "paxNote": "Fino a {max} viaggiatori. Ogni neonato deve viaggiare con un adulto.",
+    "errors": {
+      "from": "Scegli una città di partenza dall'elenco.",
+      "to": "Scegli una destinazione dall'elenco.",
+      "same": "Partenza e destinazione non possono essere uguali.",
+      "date": "Scegli una data di partenza valida.",
+      "past": "La data di partenza non può essere nel passato.",
+      "return": "La data di ritorno non può essere prima della partenza.",
+      "pax": "Controlla il numero di viaggiatori."
+    },
+    "cabinLabel": "Classe",
+    "cabins": {
+      "economy": "Economy",
+      "premium_economy": "Premium economy",
+      "business": "Business",
+      "first": "Prima classe"
+    },
+    "pickReturn": "Scegli la data di ritorno",
+    "pickReturnHint": "Ora scegli la data di ritorno",
+    "oneWayHint": "Volo di sola andata",
+    "nights": "{n, plural, one {# notte} other {# notti}}",
+    "prevMonth": "Mese precedente",
+    "nextMonth": "Mese successivo",
+    "paxTotal": "{n, plural, one {# viaggiatore} other {# viaggiatori}}",
+    "removePlace": "Rimuovi {place}",
+    "addPlace": "Aggiungi città",
+    "placePlaceholder": "Città o aeroporto",
+    "allAirports": "Tutti gli aeroporti",
+    "calendarNote": "I prezzi sono a persona e indicativi: le tariffe più basse che abbiamo trovato nelle ultime 24 ore. Vedrai il prezzo esatto quando cerchi.",
+    "flexLabel": "Flessibilità sulle date",
+    "flexExact": "Data esatta",
+    "flexDays": "± {n} giorni",
+    "whenCheapest": "Quando · più economico",
+    "pickDates": "Scegli le date",
+    "pickDate": "Scegli un giorno",
+    "bagsLabel": "Bagagli",
+    "bagsValue": "Per viaggiatore {cabin} a mano, {checked} da stiva",
+    "cabinBags": "Bagaglio a mano",
+    "cabinBagsHint": "Per viaggiatore, fino a 1",
+    "checkedBags": "Bagaglio da stiva",
+    "checkedBagsHint": "Per viaggiatore, fino a 3",
+    "bagsNote": "I prezzi includono i bagagli che scegli; i voli che non li vendono non vengono mostrati.",
+    "withNearby": "{city} + aeroporti vicini",
+    "nearbyDetail": "{list} · entro {km} km"
+  },
+  "trust": {
+    "label": "Perché rotala",
+    "secure": "Non salviamo mai i dati della tua carta",
+    "clear": "Bagagli e costi mostrati fin da subito",
+    "manage": "Modifica, cancella e aggiungi bagagli online"
+  },
+  "mobileDeal": {
+    "title": "Che ne dici di un weekend a Roma?",
+    "price": "da <price></price>",
+    "cta": "Vedi l'offerta per Roma",
+    "noPrice": "Vedi i prezzi"
+  },
+  "popular": {
+    "from": "Da {city}",
+    "title": "Voli popolari",
+    "categoryLabel": "Categoria",
+    "categories": {
+      "all": "Tutti",
+      "tr": "Turchia",
+      "eu": "Europa",
+      "sea": "Mare e sole",
+      "city": "City break"
+    },
+    "cards": {
+      "ist": {
+        "badge": "Una città, due continenti",
+        "alt": "Illustrazione di Istanbul: moschea con cupola, minareti, Torre di Galata e un traghetto"
+      },
+      "ayt": {
+        "badge": "Mare e sole",
+        "alt": "Illustrazione di Antalya: sole, mare, spiaggia e una palma"
+      },
+      "fco": {
+        "badge": "Città antica",
+        "alt": "Illustrazione di Roma: un antico anfiteatro ad archi"
+      },
+      "bcn": {
+        "badge": "Città + spiaggia",
+        "alt": "Illustrazione di Barcellona: una basilica con guglie e il mare"
+      },
+      "lhr": {
+        "badge": "City break",
+        "alt": "Illustrazione di Londra: una torre dell'orologio e un autobus rosso a due piani"
+      },
+      "cdg": {
+        "badge": "Weekend",
+        "alt": "Illustrazione di Parigi: una torre di ferro e alberi in un parco"
+      },
+      "adb": {
+        "badge": "La perla dell'Egeo",
+        "alt": "Illustrazione di Smirne: la torre dell'orologio, palme e un traghetto nella baia"
+      },
+      "bjv": {
+        "badge": "Baie turchesi",
+        "alt": "Illustrazione di Bodrum: un castello su una collina, case bianche e una barca a vela"
+      },
+      "lis": {
+        "badge": "Tram e colline",
+        "alt": "Illustrazione di Lisbona: case colorate su una collina e un tram giallo"
+      },
+      "ams": {
+        "badge": "Città dei canali",
+        "alt": "Illustrazione di Amsterdam: case sui canali, un canale e una barca"
+      },
+      "dxb": {
+        "badge": "Lungo raggio",
+        "alt": "Illustrazione di Dubai: un grattacielo altissimo, la città e dune di sabbia"
+      },
+      "nyc": {
+        "badge": "Oltre l'oceano",
+        "alt": "Illustrazione di New York: grattacieli e un taxi giallo"
+      },
+      "nav": {
+        "badge": "Mongolfiere e camini delle fate",
+        "alt": "Illustrazione della Cappadocia: camini delle fate e mongolfiere"
+      },
+      "asr": {
+        "badge": "Sci sull'Erciyes",
+        "alt": "Illustrazione di Kayseri: il monte Erciyes innevato, uno sciatore e la città"
+      },
+      "kya": {
+        "badge": "La città di Rumi",
+        "alt": "Illustrazione di Konya: una tomba conica verde, cupole e un derviscio rotante"
+      },
+      "tzx": {
+        "badge": "Altipiani verdi",
+        "alt": "Illustrazione di Trabzon: altipiani verdi, piantagioni di tè e il Mar Nero"
+      },
+      "esb": {
+        "badge": "La capitale",
+        "alt": "Illustrazione di Ankara: un monumento con colonnato su una collina e ampie scalinate"
+      },
+      "gzt": {
+        "badge": "Tappa per buongustai",
+        "alt": "Illustrazione di Gaziantep: un castello su una collina con torri rotonde, un albero di pistacchio e un vassoio di baklava"
+      }
+    },
+    "badges": {
+      "cheapest": "Il più economico",
+      "fastest": "Volo più breve"
+    },
+    "seePrices": "Vedi i prezzi",
+    "noteLive": "Prezzi a persona, andata e ritorno: il più economico tra i viaggi di un weekend e di una settimana che controlliamo nei prossimi due mesi, quindi ogni città può avere date diverse. La scheda indica quando è stato trovato il prezzo; cliccando cerchi il prezzo attuale, che può cambiare man mano che i posti si vendono.",
+    "noteSample": "Dati di esempio: prezzi e compagnie aeree non sono reali. A persona, andata e ritorno; il viaggio di un weekend o di una settimana più economico nei prossimi due mesi.",
+    "showMore": "Altre città ({n})",
+    "showLess": "Mostra meno",
+    "seen": "trovato {time}"
+  },
+  "tips": {
+    "title": "I consigli della nostra squadra",
+    "subtitle": "Un piccolo aiutante a ogni tappa del tuo viaggio.",
+    "bulut": {
+      "name": "Bulut · cacciatrice di offerte",
+      "quote": "“Fuga di un weekend a Roma? Da <price></price>.”",
+      "quoteNoPrice": "“Fuga di un weekend a Roma?”",
+      "cta": "Vedi i voli per Roma"
+    },
+    "valiz": {
+      "name": "Valiz · esperta di bagagli",
+      "quote": "“Aggiungi i bagagli ora, in aeroporto costano di più.”",
+      "cta": "Leggi le regole sui bagagli"
+    },
+    "pirpir": {
+      "name": "Pırpır · guardiano dei prezzi",
+      "quote": "“Ti avviso io quando il prezzo scende, promesso!”",
+      "cta": "Crea un avviso di prezzo"
+    },
+    "pasi": {
+      "name": "Pasi · amico dei documenti",
+      "quote": "“Controlla la scadenza del passaporto, così niente sorprese.”",
+      "cta": "Sui documenti di viaggio"
+    },
+    "biletcik": {
+      "name": "Biletçik · guida al check-in",
+      "quote": "“Ti avviso appena apre il check-in online.”",
+      "cta": "Vai ai miei viaggi"
+    },
+    "gunes": {
+      "name": "Güneş · amante delle vacanze",
+      "quote": "“Il mare di Antalya ti aspetta, da <price></price>.”",
+      "quoteNoPrice": "“Il mare di Antalya ti aspetta.”",
+      "cta": "Vedi i voli per Antalya"
+    }
+  },
+  "routes": {
+    "title": "Rotte popolari"
+  },
+  "steps": {
+    "search": {
+      "title": "Cerca",
+      "text": "Da dove, per dove, quando. Tutto qui."
+    },
+    "pick": {
+      "title": "Scegli",
+      "text": "Ti segnaliamo noi il più economico e il più veloce."
+    },
+    "fly": {
+      "title": "Vola",
+      "text": "Il biglietto arriva subito nella tua casella di posta. Buon viaggio!"
+    }
+  },
+  "alert": {
+    "title": "Lascia che Pırpır ti avvisi quando i prezzi scendono",
+    "email": "Il tuo indirizzo email",
+    "submit": "Avvisami",
+    "thanks": "Fatto! Ti scrivo al primo calo di prezzo.",
+    "note": "Al massimo un'email a settimana. Puoi disiscriverti quando vuoi."
+  },
+  "faq": {
+    "title": "Domande frequenti",
+    "items": {
+      "when": {
+        "q": "Quando riceverò il biglietto?",
+        "a": "Il tuo biglietto elettronico arriva via email appena il pagamento è confermato. Di solito ci vogliono pochi minuti."
+      },
+      "cancel": {
+        "q": "Posso cancellare il biglietto?",
+        "a": "Puoi cancellare gratuitamente entro 24 ore dalla prenotazione. Dopo valgono le regole della compagnia aerea. [İPTAL KOŞULLARI]"
+      },
+      "bags": {
+        "q": "Il bagaglio è incluso nel prezzo?",
+        "a": "Per ogni volo mostriamo se sono inclusi oggetto personale, bagaglio a mano e bagaglio da stiva, con pesi e dimensioni, sulla scheda del volo e quando scegli la tariffa. Puoi aggiungere bagagli extra (più di uno, o uno più pesante se disponibile) quando prenoti o dopo con “Aggiungi bagagli”; lì ti mostriamo anche il massimo della compagnia aerea."
+      },
+      "transfer": {
+        "q": "Con un volo con scalo devo imbarcare di nuovo i bagagli?",
+        "a": "Di solito no, se i voli sono sullo stesso biglietto. Le rotte che combinano compagnie aeree diverse potrebbero richiederlo; lo indichiamo chiaramente sulla scheda del volo."
+      },
+      "payment": {
+        "q": "Quali metodi di pagamento accettate?",
+        "a": "Carte di credito e di debito, iDEAL, Apple Pay e Google Pay."
+      },
+      "change": {
+        "q": "Posso cambiare il mio volo?",
+        "a": "Se la tua tariffa lo consente, sì: scegli un nuovo giorno nella sezione “Cambia volo” della pagina della prenotazione. La penale di modifica della compagnia aerea e l'eventuale differenza tariffaria vengono mostrate prima della conferma. Alcune tariffe economiche non si possono modificare; te lo diciamo quando scegli la tariffa."
+      },
+      "docs": {
+        "q": "Di quali documenti ho bisogno?",
+        "a": "Il passaporto o la carta d'identità devono essere validi per tutto il viaggio; alcuni paesi richiedono qualche mese di validità in più dopo il ritorno. Se ti serve un visto dipende dalla tua nazionalità e dalla destinazione; controlla la fonte ufficiale della destinazione prima di partire."
+      }
+    }
+  }
+}

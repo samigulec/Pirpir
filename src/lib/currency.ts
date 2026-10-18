@@ -49,7 +49,8 @@ export function convert(amountTry: number, cur: Currency): number {
 
 /** ₺2.760 biçimi; binlik ayırıcı sayfa diline göre (tr/nl/de: nokta, en: virgül). */
 export function formatPrice(amountTry: number, cur: Currency, intlLocale = "tr-TR"): string {
-  return withSymbol(cur, convert(amountTry, cur).toLocaleString(intlLocale));
+  // Binlik ayırıcı her zaman (İspanyolca/İtalyancada 4 haneli sayılar gruplanmayabilir; sunucu ve tarayıcı farklı davranır)
+  return withSymbol(cur, convert(amountTry, cur).toLocaleString(intlLocale, { useGrouping: "always" } as Intl.NumberFormatOptions));
 }
 
 /** Grafik etiketleri için kısa biçim: ₺2,9B · ₺2.9K · ₺2,9K */

@@ -2,7 +2,7 @@
 // bir hukukçuya kontrol ettirilmelidir.
 import type { LegalDoc } from "./types";
 
-export const terms: Record<"tr" | "en" | "nl" | "de", LegalDoc> = {
+export const terms: Record<"tr" | "en" | "nl" | "de" | "fr" | "es" | "it", LegalDoc> = {
   tr: {
     title: "Kullanım Koşulları",
     updated: "Son güncelleme: 17 Ekim 2026",
@@ -62,5 +62,209 @@ export const terms: Record<"tr" | "en" | "nl" | "de", LegalDoc> = {
       { id: "hukuk", title: "Anwendbares Recht", body: ["Für diese Bedingungen gilt [UYGULANACAK HUKUK]. Deine zwingenden Verbraucherrechte in deinem Wohnsitzland bleiben unberührt."] },
       { id: "iletisim", title: "Kontakt", body: ["Fragen und Feedback: [İLETİŞİM E-POSTASI] · [DESTEK TELEFONU]"] },
     ],
+  },
+  fr: {
+    "title": "Conditions d'utilisation",
+    "updated": "Dernière mise à jour : 17 octobre 2026",
+    "intro": "En utilisant rotala, tu acceptes ces conditions. On a essayé de les garder courtes et claires.",
+    "sections": [
+      {
+        "id": "hizmet",
+        "title": "Notre service",
+        "body": [
+          "rotala est un intermédiaire qui te permet de rechercher, comparer et réserver des vols. Le service est fourni par [ŞİRKET ADI] ([ADRES]).",
+          "C'est la compagnie aérienne qui opère le vol. Quand tu achètes un billet, ton contrat de transport est conclu avec la compagnie et ses conditions de transport s'appliquent."
+        ]
+      },
+      {
+        "id": "fiyat",
+        "title": "Prix et paiement",
+        "body": [
+          "Nos prix incluent les taxes et les frais de service ; les options que tu choisis, comme les bagages supplémentaires, sont affichées à part.",
+          "Les compagnies aériennes peuvent modifier leurs prix à tout moment. C'est le prix au moment du paiement qui s'applique."
+        ]
+      },
+      {
+        "id": "iptal",
+        "title": "Annulations et modifications",
+        "body": [
+          "Tu peux annuler gratuitement dans les 24 heures suivant la réservation. Ensuite, ce sont les règles de la compagnie qui s'appliquent. [İPTAL KOŞULLARI]"
+        ]
+      },
+      {
+        "id": "yolcu",
+        "title": "Responsabilités des voyageurs",
+        "body": [
+          "Tu es responsable de saisir correctement les informations des voyageurs, exactement comme sur le passeport.",
+          "Les voyageurs sont responsables de disposer de documents de voyage valides, comme le passeport, le visa et les documents sanitaires."
+        ]
+      },
+      {
+        "id": "hesap",
+        "title": "Ton compte",
+        "body": [
+          "Tu es responsable de la sécurité de ton compte. Ne partage pas tes liens de connexion.",
+          "Tu peux supprimer ton compte à tout moment : [İLETİŞİM E-POSTASI]."
+        ]
+      },
+      {
+        "id": "sorumluluk",
+        "title": "Responsabilité",
+        "body": [
+          "La compagnie aérienne est responsable des annulations, retards ou modifications de vols ; on t'aidera à faire valoir tes droits dans ces cas.",
+          "Dans les limites autorisées par la loi, notre responsabilité est limitée au montant que tu as payé pour notre service."
+        ]
+      },
+      {
+        "id": "hukuk",
+        "title": "Droit applicable",
+        "body": [
+          "Ces conditions sont régies par [UYGULANACAK HUKUK]. Les droits impératifs dont tu bénéficies en tant que consommateur dans ton pays de résidence ne sont pas affectés."
+        ]
+      },
+      {
+        "id": "iletisim",
+        "title": "Contact",
+        "body": [
+          "Questions et retours : [İLETİŞİM E-POSTASI] · [DESTEK TELEFONU]"
+        ]
+      }
+    ]
+  },
+  es: {
+    "title": "Condiciones de uso",
+    "updated": "Última actualización: 17 de octubre de 2026",
+    "intro": "Al usar rotala aceptas estas condiciones. Hemos intentado que sean breves y claras.",
+    "sections": [
+      {
+        "id": "hizmet",
+        "title": "Nuestro servicio",
+        "body": [
+          "rotala es un intermediario que te permite buscar, comparar y reservar vuelos de aerolíneas. El servicio lo presta [ŞİRKET ADI] ([ADRES]).",
+          "El vuelo lo opera la aerolínea. Cuando compras un billete, tu contrato de transporte es con la aerolínea y se aplican sus condiciones de transporte."
+        ]
+      },
+      {
+        "id": "fiyat",
+        "title": "Precios y pago",
+        "body": [
+          "Nuestros precios incluyen impuestos y gastos de gestión; los extras que elijas, como el equipaje adicional, se muestran aparte.",
+          "Las aerolíneas pueden cambiar los precios en cualquier momento. Se aplica el precio vigente en el momento del pago."
+        ]
+      },
+      {
+        "id": "iptal",
+        "title": "Cancelaciones y cambios",
+        "body": [
+          "Puedes cancelar gratis en las 24 horas siguientes a la reserva. Después se aplican las normas de la aerolínea. [İPTAL KOŞULLARI]"
+        ]
+      },
+      {
+        "id": "yolcu",
+        "title": "Responsabilidades del viajero",
+        "body": [
+          "Eres responsable de introducir correctamente los datos de los viajeros, exactamente como en el pasaporte.",
+          "Los viajeros son responsables de llevar documentos de viaje válidos, como pasaportes, visados y documentos sanitarios."
+        ]
+      },
+      {
+        "id": "hesap",
+        "title": "Tu cuenta",
+        "body": [
+          "Eres responsable de mantener tu cuenta segura. No compartas tus enlaces de inicio de sesión.",
+          "Puedes eliminar tu cuenta en cualquier momento: [İLETİŞİM E-POSTASI]."
+        ]
+      },
+      {
+        "id": "sorumluluk",
+        "title": "Responsabilidad",
+        "body": [
+          "La aerolínea es responsable de las cancelaciones, los retrasos o los cambios de los vuelos; te ayudaremos a ejercer tus derechos en estos casos.",
+          "En la medida en que lo permita la ley, nuestra responsabilidad se limita al importe que pagaste por nuestro servicio."
+        ]
+      },
+      {
+        "id": "hukuk",
+        "title": "Legislación aplicable",
+        "body": [
+          "Estas condiciones se rigen por [UYGULANACAK HUKUK]. Esto no afecta a tus derechos obligatorios como consumidor en tu país de residencia."
+        ]
+      },
+      {
+        "id": "iletisim",
+        "title": "Contacto",
+        "body": [
+          "Preguntas y comentarios: [İLETİŞİM E-POSTASI] · [DESTEK TELEFONU]"
+        ]
+      }
+    ]
+  },
+  it: {
+    "title": "Condizioni d'uso",
+    "updated": "Ultimo aggiornamento: 17 ottobre 2026",
+    "intro": "Usando rotala accetti queste condizioni. Abbiamo cercato di tenerle brevi e chiare.",
+    "sections": [
+      {
+        "id": "hizmet",
+        "title": "Il nostro servizio",
+        "body": [
+          "rotala è un intermediario che ti permette di cercare, confrontare e prenotare voli delle compagnie aeree. Il servizio è fornito da [ŞİRKET ADI] ([ADRES]).",
+          "Il volo è operato dalla compagnia aerea. Quando acquisti un biglietto, il tuo contratto di trasporto è con la compagnia aerea e si applicano le sue condizioni di trasporto."
+        ]
+      },
+      {
+        "id": "fiyat",
+        "title": "Prezzi e pagamento",
+        "body": [
+          "I nostri prezzi includono tasse e commissioni di servizio; gli extra che scegli, come bagagli aggiuntivi, sono indicati a parte.",
+          "Le compagnie aeree possono cambiare i prezzi in qualsiasi momento. Vale il prezzo al momento del pagamento."
+        ]
+      },
+      {
+        "id": "iptal",
+        "title": "Cancellazioni e modifiche",
+        "body": [
+          "Puoi cancellare gratuitamente entro 24 ore dalla prenotazione. Dopo valgono le regole della compagnia aerea. [İPTAL KOŞULLARI]"
+        ]
+      },
+      {
+        "id": "yolcu",
+        "title": "Responsabilità del viaggiatore",
+        "body": [
+          "Sei responsabile di inserire correttamente i dati dei viaggiatori, esattamente come nel passaporto.",
+          "I viaggiatori sono responsabili di avere documenti di viaggio validi, come passaporto, visto e certificati sanitari."
+        ]
+      },
+      {
+        "id": "hesap",
+        "title": "Il tuo account",
+        "body": [
+          "Sei responsabile della sicurezza del tuo account. Non condividere i tuoi link di accesso.",
+          "Puoi eliminare il tuo account in qualsiasi momento: [İLETİŞİM E-POSTASI]."
+        ]
+      },
+      {
+        "id": "sorumluluk",
+        "title": "Responsabilità",
+        "body": [
+          "La compagnia aerea è responsabile di cancellazioni, ritardi o modifiche dei voli; in questi casi ti aiutiamo a far valere i tuoi diritti.",
+          "Nei limiti consentiti dalla legge, la nostra responsabilità è limitata all'importo che hai pagato per il nostro servizio."
+        ]
+      },
+      {
+        "id": "hukuk",
+        "title": "Legge applicabile",
+        "body": [
+          "Queste condizioni sono regolate da [UYGULANACAK HUKUK]. Restano salvi i diritti inderogabili che hai come consumatore nel tuo paese di residenza."
+        ]
+      },
+      {
+        "id": "iletisim",
+        "title": "Contatti",
+        "body": [
+          "Domande e suggerimenti: [İLETİŞİM E-POSTASI] · [DESTEK TELEFONU]"
+        ]
+      }
+    ]
   },
 };
