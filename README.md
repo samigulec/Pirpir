@@ -7,12 +7,9 @@
   Search → Pick → Pay → Fly, with no clutter in between.
 </p>
 
-<p align="center">
-  <a href="marketing/reklam-sinematik/pirpir-sinematik.mp4">
-    <img src="docs/promo.gif" alt="pirpir promo video: search a flight, pick it, pay, and follow Pırpır from Amsterdam to Istanbul" width="320">
-  </a><br>
-  <sub>▶ <a href="marketing/reklam-sinematik/pirpir-sinematik.mp4">Watch the 25-second promo with sound</a> · <a href="marketing/reklam-sinematik">how it's made</a></sub>
-</p>
+https://github.com/user-attachments/assets/6846365f-56bd-4d01-bc06-c4e37081ebde
+
+<p align="center"><sub>▶ 25-second promo · <a href="marketing/reklam-sinematik">how it's made</a></sub></p>
 
 <p align="center">
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-1E2A44?logo=nextdotjs&logoColor=white">
