@@ -8,6 +8,13 @@
 </p>
 
 <p align="center">
+  <a href="marketing/reklam-sinematik/pirpir-sinematik.mp4">
+    <img src="docs/promo.gif" alt="pirpir promo video: search a flight, pick it, pay, and follow Pırpır from Amsterdam to Istanbul" width="320">
+  </a><br>
+  <sub>▶ <a href="marketing/reklam-sinematik/pirpir-sinematik.mp4">Watch the 25-second promo with sound</a> · <a href="marketing/reklam-sinematik">how it's made</a></sub>
+</p>
+
+<p align="center">
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-1E2A44?logo=nextdotjs&logoColor=white">
   <img alt="React 19" src="https://img.shields.io/badge/React-19-2F5BD3?logo=react&logoColor=white">
   <img alt="TypeScript strict" src="https://img.shields.io/badge/TypeScript-strict-2F5BD3?logo=typescript&logoColor=white">
