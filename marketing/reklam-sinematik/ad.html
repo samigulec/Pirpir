@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Pirpir — sinematik reklam</title>
+<style>
+@font-face{font-family:'Fr';src:url(fonts/fredoka-600.ttf);font-weight:600}
+@font-face{font-family:'Fr';src:url(fonts/fredoka-700.ttf);font-weight:700}
+@font-face{font-family:'Bl';src:url(fonts/baloo2-ext-700.ttf);font-weight:600 800}
+@font-face{font-family:'Nu';src:url(fonts/nunito-700.ttf);font-weight:700}
+@font-face{font-family:'Nu';src:url(fonts/nunito-800.ttf);font-weight:800}
+:root{--blue:#2F5BD3;--sun:#FFD166;--coral:#FF8A65;--ink:#1E2A44;--sky:#EAF3FF;--green:#4CAF7A}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#05070f}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;
+  background:radial-gradient(120% 80% at 50% 45%,#122046 0%,#0a1230 45%,#05070f 100%);font-family:'Nu',sans-serif;color:#fff}
+.disp{font-family:'Fr','Bl',sans-serif;font-weight:700}
+canvas{position:absolute;inset:0}
+.abs{position:absolute;left:0;top:0;will-change:transform,opacity}
+.center{left:50%;top:50%}
+#vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 70% at 50% 50%,transparent 55%,rgba(0,0,0,.65) 100%)}
+#grain{position:absolute;inset:-50%;opacity:.07;mix-blend-mode:overlay;pointer-events:none}
+#fade{position:absolute;inset:0;background:#000;pointer-events:none}
+
+/* wordmark */
+.wm{font-family:'Fr','Bl';font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.wm b{color:var(--coral);font-weight:700}
+
+/* phone */
+#phone{width:640px;height:1300px;border-radius:96px;background:#0b1020;padding:18px;
+  box-shadow:0 0 0 3px #2a3555,0 0 60px 6px rgba(255,209,102,.45),0 0 160px 30px rgba(47,91,211,.35),0 60px 120px rgba(0,0,0,.6)}
+#screen{width:100%;height:100%;border-radius:80px;background:#fff;overflow:hidden;position:relative;color:var(--ink)}
+.island{position:absolute;left:50%;top:18px;width:170px;height:46px;border-radius:24px;background:#0b1020;transform:translateX(-50%)}
+.sbar{display:flex;justify-content:space-between;padding:22px 52px 0;font:800 26px 'Nu'}
+.ph-head{display:flex;align-items:center;gap:10px;padding:34px 40px 0}
+.ph-hero{margin:26px 26px 0;border-radius:44px;background:var(--sky);padding:30px 26px 34px;text-align:center}
+.ph-hero h2{font:700 52px/1.05 'Fr','Bl';margin:12px 0 26px}
+.field{background:#F5F8FD;border-radius:26px;text-align:left;padding:18px 26px;margin-top:12px}
+.field small{display:block;font:800 20px 'Nu';color:#56607A}
+.field span{font:800 34px 'Nu'}
+.caret{display:inline-block;width:4px;height:36px;background:var(--blue);vertical-align:-6px;margin-left:3px}
+.btn{margin-top:16px;border-radius:26px;background:var(--blue);color:#fff;font:800 36px 'Nu';padding:24px 0;text-align:center}
+.chips{display:flex;gap:10px;justify-content:center;margin-top:20px}
+.chip{background:#fff;border-radius:999px;padding:10px 18px;font:800 20px 'Nu';color:var(--ink);box-shadow:0 6px 16px rgba(30,42,68,.08)}
+
+/* flight cards */
+.card{width:600px;border-radius:40px;padding:30px 34px;background:rgba(255,255,255,.97);color:var(--ink);
+  box-shadow:0 30px 80px rgba(0,0,0,.45),0 0 0 2px rgba(255,255,255,.4)}
+.card .row{display:flex;justify-content:space-between;align-items:center}
+.card .city{font:700 46px 'Fr','Bl'}
+.card .meta{font:800 24px 'Nu';color:#56607A;margin-top:6px}
+.card .price{font:700 58px 'Fr','Bl';color:var(--blue)}
+.card .tag{display:inline-block;margin-top:14px;padding:8px 18px;border-radius:999px;font:800 22px 'Nu'}
+
+/* detail */
+#detail{width:860px;border-radius:56px;padding:50px 56px;background:linear-gradient(180deg,#141d3a,#0c1328);color:#fff;
+  box-shadow:0 0 0 3px rgba(255,209,102,.9),0 0 70px 10px rgba(255,209,102,.35),0 50px 120px rgba(0,0,0,.6)}
+#detail .route{display:flex;align-items:center;justify-content:space-between;font:700 92px 'Fr','Bl'}
+#detail .route i{flex:1;height:4px;margin:0 26px;background:repeating-linear-gradient(90deg,var(--sun) 0 14px,transparent 14px 26px);position:relative}
+#detail .names{display:flex;justify-content:space-between;font:800 28px 'Nu';color:#C9D3E6;margin-top:4px}
+#detail .times{display:flex;justify-content:space-between;font:700 44px 'Fr';margin-top:30px}
+#detail .sub{font:800 26px 'Nu';color:#C9D3E6;text-align:center;margin-top:-40px}
+#detail .p{font:700 140px/1 'Fr','Bl';margin-top:44px}
+#detail .p sup{font-size:60px;vertical-align:58px;margin-right:6px}
+#detail .ok{font:800 32px 'Nu';color:#8FE3B0;margin-top:14px}
+#detail .buy{margin-top:40px;border-radius:999px;background:var(--sun);color:var(--ink);font:800 46px 'Nu';text-align:center;padding:30px 0;position:relative;overflow:hidden}
+#detail .done{margin-top:22px;display:flex;align-items:center;gap:16px;font:800 32px 'Nu';color:#fff}
+#detail .done em{display:inline-grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--green);font-style:normal}
+
+/* tracker */
+#tracker{width:700px;border-radius:40px;padding:34px 40px;background:rgba(16,24,48,.86);border:2px solid rgba(255,255,255,.12);backdrop-filter:blur(8px)}
+#tracker h3{font:700 48px 'Fr','Bl'}
+#tracker p{font:800 24px 'Nu';color:#C9D3E6;margin-top:4px}
+.steps{position:relative;margin-top:40px;height:80px}
+.steps .rail{position:absolute;left:14px;right:14px;top:12px;height:6px;border-radius:3px;background:rgba(255,255,255,.18)}
+.steps .fill{position:absolute;left:14px;top:12px;height:6px;border-radius:3px;background:var(--sun);box-shadow:0 0 18px var(--sun)}
+.steps .dot{position:absolute;top:0;width:30px;height:30px;border-radius:50%;background:#2a3555;border:4px solid #0f1730}
+.steps .lab{position:absolute;top:44px;font:800 22px 'Nu';color:#C9D3E6;transform:translateX(-50%);white-space:nowrap}
+
+/* boarding pass */
+#pass{width:820px;height:440px;border-radius:44px;background:linear-gradient(135deg,#FFE08F,#FFD166 45%,#FFB020);color:var(--ink);position:relative;
+  box-shadow:0 0 90px 10px rgba(255,190,80,.35),0 60px 100px rgba(0,0,0,.6);overflow:hidden}
+#pass .notch{position:absolute;left:560px;width:56px;height:56px;border-radius:50%;background:#0a0f20}
+#pass .perf{position:absolute;left:586px;top:40px;bottom:40px;border-left:5px dashed rgba(30,42,68,.35)}
+#pass .lbl{font:800 22px 'Nu';letter-spacing:.14em;opacity:.7}
+#pass .big{font:700 104px/1 'Fr','Bl'}
+#pass .kv{font:800 26px 'Nu'}
+#pass .kv b{display:block;font:700 46px 'Fr','Bl'}
+
+/* tagline */
+.tl{font:700 112px/1.05 'Fr','Bl';text-align:center;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="cv" width="1080" height="1920"></canvas>
+
+  <!-- S1 / S8 wordmark -->
+  <div id="logo" class="abs"><div class="wm" style="font-size:200px">pir<b>p</b>ir</div></div>
+  <div id="sweep" class="abs" style="width:1080px;height:1920px;left:0;top:0;pointer-events:none"></div>
+
+  <!-- S2 phone -->
+  <div id="phoneWrap" class="abs" style="perspective:2200px;width:1080px;height:1920px">
+    <div id="phone" class="abs">
+      <div id="screen">
+        <div class="island"></div>
+        <div class="sbar"><span>9:41</span><span>●●● ▮</span></div>
+        <div class="ph-head"><img src="../../assets/characters/pirpir-mutlu.svg" style="width:96px"><div class="wm" style="font-size:52px;color:var(--ink)">pir<b>p</b>ir</div></div>
+        <div class="ph-hero">
+          <img src="../../assets/characters/pirpir-mutlu.svg" style="width:210px">
+          <h2>Nereye uçmak<br>istersin?</h2>
+          <div class="field"><small>Nereden</small><span>Amsterdam</span></div>
+          <div class="field" id="toField"><small>Nereye</small><span id="typed"></span><i class="caret" id="caret"></i></div>
+          <div class="field" style="display:flex;gap:18px;background:transparent;padding:0;margin-top:12px">
+            <div class="field" style="flex:1;margin:0"><small>Ne zaman</small><span>16 – 23 Oca</span></div>
+            <div class="field" style="flex:1;margin:0"><small>Kaç kişi</small><span>1 yetişkin</span></div>
+          </div>
+          <div class="btn" id="phBtn">Bilet bul</div>
+          <div class="chips"><span class="chip">✓ Kart bilgin saklanmaz</span><span class="chip">✓ Bagaj baştan belli</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3 cards -->
+  <div id="cards"></div>
+
+  <!-- S4 detail -->
+  <div id="detail" class="abs">
+    <div class="route"><span>AMS</span><i></i><span>IST</span></div>
+    <div class="names"><span>Amsterdam</span><span>İstanbul</span></div>
+    <div class="times"><span>07:35</span><span>11:59</span></div>
+    <div class="sub">Direkt · 3 sa 24 dk</div>
+    <div class="p"><sup>€</sup>176</div>
+    <div class="ok">✓ Bagaj dahil · fiyat baştan belli</div>
+    <div class="buy" id="buy">Bilet al</div>
+    <div class="done" id="done"><em>✓</em>Biletin hazır. İyi yolculuklar!</div>
+  </div>
+
+  <!-- S5 tracker -->
+  <div id="tracker" class="abs">
+    <h3>Uçuşun bugün</h3>
+    <p>AMS → IST · Kapı D7</p>
+    <div class="steps">
+      <div class="rail"></div><div class="fill" id="tfill"></div>
+    </div>
+  </div>
+
+  <!-- S6 boarding pass -->
+  <div id="passWrap" class="abs" style="perspective:2400px;width:1080px;height:1920px">
+    <div id="pass" class="abs">
+      <div class="notch" style="top:-28px"></div><div class="notch" style="bottom:-28px"></div><div class="perf"></div>
+      <div style="position:absolute;left:52px;top:44px" class="lbl">BİNİŞ KARTI · PIRPIR</div>
+      <div style="position:absolute;left:52px;top:98px" class="big">AMS → IST</div>
+      <div style="position:absolute;left:52px;top:252px;display:flex;gap:46px" class="kv">
+        <span>Yolcu<b>Sen</b></span><span>Koltuk<b>12A</b></span><span>Kapı<b>D7</b></span>
+      </div>
+      <img src="../../assets/characters/pirpir-mutlu.svg" style="position:absolute;left:612px;top:118px;width:180px">
+      <svg style="position:absolute;left:628px;top:290px" width="150" height="60" viewBox="0 0 150 60"><path d="M10 14 Q 75 70 140 14" fill="none" stroke="#1E2A44" stroke-width="10" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <!-- S7 taglines -->
+  <div id="tl1" class="abs tl">Nereye istersen.</div>
+  <div id="tl2" class="abs tl">Yaz, bas, uç.</div>
+  <svg id="swoosh" class="abs" width="1080" height="1920" viewBox="0 0 1080 1920" style="left:0;top:0;overflow:visible">
+    <path id="swp" d="M270 1035 Q 540 1150 810 1030" fill="none" stroke="#FF8A65" stroke-width="16" stroke-linecap="round"/>
+    <path id="swh" d="M778 1006 L 816 1028 L 790 1066" fill="none" stroke="#FF8A65" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+
+  <!-- S8 end -->
+  <img id="mascot" class="abs" src="../../assets/characters/pirpir-mutlu.svg" style="width:520px">
+  <div id="endLogo" class="abs"><div class="wm" style="font-size:210px">pir<b>p</b>ir</div></div>
+  <div id="endTag" class="abs disp" style="font-size:58px;color:#C9D3E6;white-space:nowrap">Pırpır bulur, sen uçarsın.</div>
+  <div id="endUrl" class="abs" style="font:800 44px 'Nu';color:var(--sun);letter-spacing:.04em">flypirpir.nl</div>
+
+  <div id="vignette"></div>
+  <canvas id="grain" width="540" height="960"></canvas>
+  <div id="fade"></div>
+</div>
+
+<script>
+const W=1080,H=1920;
+const $=id=>document.getElementById(id);
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const P=(t,a,b)=>clamp((t-a)/(b-a));
+const eo=x=>1-Math.pow(1-x,3), eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const eo5=x=>1-Math.pow(1-x,5);
+const back=(x,s=1.7)=>{x-=1;return 1+(s+1)*x*x*x+s*x*x};
+const lerp=(a,b,x)=>a+(b-a)*x;
+function rnd(seed){let s=seed;return()=>((s=Math.imul(48271,s)%2147483647)&2147483647)/2147483647}
+function set(el,{x=0,y=0,s=1,o=1,rx=0,ry=0,rz=0,blur=0,z=0}){
+  el.style.opacity=o; el.style.display=o<=0.001?'none':'block';
+  el.style.transform=`translate(-50%,-50%) translate3d(${x}px,${y}px,${z}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${s})`;
+  el.style.filter=blur>0.05?`blur(${blur}px)`:'none';
+  el.style.left='0';el.style.top='0';
+}
+const cv=$('cv'),cx=cv.getContext('2d');
+const mascotImg=new Image(); mascotImg.src='../../assets/characters/pirpir-mutlu.svg';
+
+/* ---------- grain */
+const g=$('grain').getContext('2d'); const gd=g.createImageData(540,960);
+for(let i=0;i<gd.data.length;i+=4){const v=Math.random()*255;gd.data[i]=gd.data[i+1]=gd.data[i+2]=v;gd.data[i+3]=255}
+g.putImageData(gd,0,0);
+
+/* ---------- S1 streaks */
+const R=rnd(7); const streaks=[...Array(14)].map((_,i)=>{const a=i/14*Math.PI*2+R()*0.3;return{a,d:900+R()*500,delay:R()*0.5,w:2+R()*3,col:R()<.7?'255,209,102':'255,138,101'}});
+const sparks=[...Array(90)].map(()=>({a:R()*Math.PI*2,v:300+R()*900,life:.5+R()*.8,r:1.5+R()*3}));
+function drawStreaks(t){
+  const C={x:540,y:900};
+  cx.save();cx.globalCompositeOperation='lighter';
+  for(const s of streaks){
+    const p=P(t,0.15+s.delay,1.35+s.delay*0.3); if(p<=0||p>=1.15)continue;
+    const head=eo(p), tail=Math.max(0,head-0.35);
+    const hx=C.x+Math.cos(s.a)*s.d*(1-head), hy=C.y+Math.sin(s.a)*s.d*(1-head);
+    const tx=C.x+Math.cos(s.a)*s.d*(1-tail), ty=C.y+Math.sin(s.a)*s.d*(1-tail);
+    const gr=cx.createLinearGradient(tx,ty,hx,hy); gr.addColorStop(0,`rgba(${s.col},0)`);gr.addColorStop(1,`rgba(${s.col},.95)`);
+    cx.strokeStyle=gr;cx.lineWidth=s.w;cx.shadowBlur=24;cx.shadowColor=`rgba(${s.col},1)`;
+    cx.beginPath();cx.moveTo(tx,ty);cx.lineTo(hx,hy);cx.stroke();
+  }
+  // flash + sparks
+  const f=P(t,1.25,1.5), fo=1-P(t,1.5,2.4);
+  if(f>0&&fo>0){
+    const r=lerp(40,700,eo(f));const gr=cx.createRadialGradient(C.x,C.y,0,C.x,C.y,r);
+    gr.addColorStop(0,`rgba(255,240,200,${.9*fo})`);gr.addColorStop(.25,`rgba(255,209,102,${.45*fo})`);gr.addColorStop(1,'rgba(255,138,101,0)');
+    cx.fillStyle=gr;cx.fillRect(0,0,W,H);
+  }
+  for(const s of sparks){const lt=t-1.3;if(lt<0||lt>s.life)continue;const k=lt/s.life;
+    const d=s.v*eo(Math.min(1,lt*1.4));const x=C.x+Math.cos(s.a)*d,y=C.y+Math.sin(s.a)*d+120*lt*lt;
+    cx.fillStyle=`rgba(255,${200+R()*40|0},120,${1-k})`;cx.shadowBlur=12;cx.shadowColor='#FFD166';
+    cx.beginPath();cx.arc(x,y,s.r*(1-k*.5),0,7);cx.fill();}
+  cx.restore();
+}
+
+/* ---------- ambient light pools */
+function glow(x,y,r,col,a){if(a<=0)return;const gr=cx.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,`rgba(${col},${a})`);gr.addColorStop(1,`rgba(${col},0)`);cx.fillStyle=gr;cx.fillRect(x-r,y-r,2*r,2*r)}
+
+/* ---------- S5 map */
+const cities=[...Array(260)].map(()=>({x:(R()-.5)*3200,z:R()*3000,b:R()}));
+const A3={x:-700,z:700}, B3={x:900,z:2100};
+function proj(x,y,z,cam){ // camera looks along +z, tilted down
+  const tilt=cam.tilt, cy0=cam.h;
+  const yy=y-cy0, zz=z-cam.z;
+  const ry=yy*Math.cos(tilt)-zz*Math.sin(tilt), rz=yy*Math.sin(tilt)+zz*Math.cos(tilt);
+  const xx=x-cam.x; const f=1100; if(rz<20)return null;
+  return {x:540+xx*f/rz, y:960-ry*f/rz, s:f/rz};
+}
+function drawMap(t){
+  const a=P(t,12.7,13.3)*(1-P(t,16.0,16.5)); if(a<=0)return;
+  const k=P(t,12.8,16.4);
+  const cam={x:lerp(-150,350,eio(k)),z:lerp(-900,-300,eio(k)),h:lerp(1300,900,eio(k)),tilt:-0.62};
+  cx.save();cx.globalAlpha=a;
+  // grid
+  cx.lineWidth=1.4;
+  for(let gx=-2000;gx<=2000;gx+=160){cx.beginPath();let first=true;for(let gz=0;gz<=3200;gz+=80){const p=proj(gx,0,gz,cam);if(!p){first=true;continue}first?cx.moveTo(p.x,p.y):cx.lineTo(p.x,p.y);first=false}
+    cx.strokeStyle='rgba(120,160,255,.13)';cx.stroke()}
+  for(let gz=0;gz<=3200;gz+=160){cx.beginPath();let first=true;for(let gx=-2000;gx<=2000;gx+=80){const p=proj(gx,0,gz,cam);if(!p){first=true;continue}first?cx.moveTo(p.x,p.y):cx.lineTo(p.x,p.y);first=false}
+    cx.strokeStyle='rgba(120,160,255,.13)';cx.stroke()}
+  cx.globalCompositeOperation='lighter';
+  for(const c of cities){const p=proj(c.x,0,c.z,cam);if(!p)continue;const r=Math.max(1,2.6*p.s);cx.fillStyle=`rgba(156,195,255,${.25+.5*c.b})`;cx.beginPath();cx.arc(p.x,p.y,r,0,7);cx.fill()}
+  // cities
+  for(const [c,name] of [[A3,'Amsterdam'],[B3,'İstanbul']]){const p=proj(c.x,0,c.z,cam);if(!p)continue;
+    glow(p.x,p.y,90*p.s+30,'255,209,102',.55);cx.fillStyle='#FFD166';cx.beginPath();cx.arc(p.x,p.y,9*p.s+4,0,7);cx.fill();
+    cx.globalCompositeOperation='source-over';cx.font=`800 ${Math.round(26+16*p.s)}px Nu`;cx.fillStyle='#fff';cx.textAlign='center';cx.fillText(name,p.x,p.y+46*p.s+30);cx.globalCompositeOperation='lighter'}
+  // arc
+  const prog=eio(P(t,13.4,15.8));
+  const pts=[];for(let i=0;i<=100;i++){const u=i/100*prog;const x=lerp(A3.x,B3.x,u),z=lerp(A3.z,B3.z,u),y=Math.sin(u*Math.PI)*620;const p=proj(x,y,z,cam);if(p)pts.push(p)}
+  if(pts.length>1){
+    for(const [w,al] of [[18,.18],[8,.45],[3.5,1]]){cx.strokeStyle=`rgba(255,209,102,${al})`;cx.lineWidth=w;cx.shadowBlur=30;cx.shadowColor='#FFB020';cx.beginPath();pts.forEach((p,i)=>i?cx.lineTo(p.x,p.y):cx.moveTo(p.x,p.y));cx.stroke()}
+    cx.shadowBlur=0;
+    const hd=pts[pts.length-1]; glow(hd.x,hd.y,120,'255,220,150',.8);
+    const pv=pts[Math.max(0,pts.length-4)]; const ang=Math.atan2(hd.y-pv.y,hd.x-pv.x);
+    cx.globalCompositeOperation='source-over';
+    if(mascotImg.complete&&prog<1){cx.save();cx.translate(hd.x,hd.y);cx.rotate(ang*0.5);const mw=170;cx.drawImage(mascotImg,-mw/2,-mw*0.35,mw,mw*0.7);cx.restore()}
+    if(prog>=1){const p=proj(B3.x,0,B3.z,cam);const pulse=(t-15.8)*1.6%1;cx.strokeStyle=`rgba(255,209,102,${1-pulse})`;cx.lineWidth=4;cx.beginPath();cx.arc(p.x,p.y,20+120*pulse,0,7);cx.stroke()}
+  }
+  cx.restore();
+}
+
+/* ---------- S8 trail */
+function drawEndTrail(t){
+  const f=eo(P(t,20.9,22.1)); if(t<20.9||t>24.5)return;
+  const path=u=>({x:lerp(-260,540,u),y:760-Math.sin(u*Math.PI*1.1)*260+ (1-u)*260});
+  cx.save();cx.globalCompositeOperation='lighter';
+  for(let i=0;i<=60;i++){const u=i/60*f; if(u>f-0.06)break;const p=path(u);cx.fillStyle=`rgba(255,209,102,${.25+.6*i/60})`;cx.shadowBlur=14;cx.shadowColor='#FFD166';cx.beginPath();cx.arc(p.x,p.y,5,0,7);cx.fill()}
+  cx.restore();
+  return path(f);
+}
+
+/* ---------- cards */
+const cardData=[
+  ['Antalya','Direkt · 4 sa 07 dk','€211','Deniz & güneş','#FFF4D6','#8A5A00'],
+  ['İstanbul','Direkt · 3 sa 24 dk','€176','En uygun','#E4F4EA','#2E7A4D'],
+  ['İzmir','Direkt · 3 sa 41 dk','€199','Ege\'nin incisi','#FFE8E0','#A3402A'],
+  ['Kapadokya','Aktarmalı · 6 sa 10 dk','€224','Balonlar','#F6E6EE','#8E2F55'],
+  ['Roma','Direkt · 2 sa 18 dk','€117','Antik şehir','#EAF3FF','#1E3F9E'],
+];
+const cardEls=cardData.map(([c,m,p,tag,bg,fg])=>{const d=document.createElement('div');d.className='card abs';
+  d.innerHTML=`<div class="row"><div><div class="city">AMS → ${c}</div><div class="meta">${m}</div></div><div class="price">${p}</div></div><span class="tag" style="background:${bg};color:${fg}">${tag}</span>`;
+  $('cards').appendChild(d);return d});
+const slots=[{x:-180,y:-600,rz:-6},{x:0,y:-60,rz:0},{x:190,y:-330,rz:5},{x:-170,y:450,rz:4},{x:180,y:640,rz:-5}];
+
+/* ---------- master */
+window.setT=function(t){
+  cx.clearRect(0,0,W,H);
+  // grain jitter
+  $('grain').style.transform=`translate(${(t*977%1)*-200}px,${(t*613%1)*-300}px) scale(2)`;
+  // background light pools per scene
+  cx.save();cx.globalCompositeOperation='lighter';
+  glow(540,960,900,'47,91,211',.22+.08*Math.sin(t*1.3));
+  glow(540,1500,700,'255,209,102',.10*P(t,10.2,10.8)*(1-P(t,12.6,13)));
+  glow(540,1050,800,'255,170,80',.28*P(t,16.2,16.8)*(1-P(t,18.3,18.7)));
+  cx.restore();
+
+  /* S1 */
+  if(t<2.6) drawStreaks(t);
+  const lA=P(t,1.35,1.9), lB=P(t,3.3,3.8);
+  set($('logo'),{x:540,y:900,s:lerp(1.12,1,eo(lA))*lerp(1,.86,eio(lB)),o:lA*(1-lB),blur:lerp(14,0,eo(lA))+10*lB});
+  $('logo').style.textShadow=`0 0 ${lerp(60,20,lA)}px rgba(255,209,102,.55)`;
+  const sw=P(t,2.2,3.0); $('sweep').style.opacity=sw>0&&sw<1?1:0;
+  $('sweep').style.background=`linear-gradient(105deg,transparent ${lerp(-20,110,sw)-12}%,rgba(255,255,255,.22) ${lerp(-20,110,sw)}%,transparent ${lerp(-20,110,sw)+12}%)`;
+  $('sweep').style.maskImage=$('sweep').style.webkitMaskImage='radial-gradient(40% 9% at 50% 47%,#000 60%,transparent 100%)';
+
+  /* S2 phone */
+  const pin=P(t,3.6,4.5), pout=P(t,7.4,8.2);
+  const ry=lerp(-18,0,eo5(pin)), rx=lerp(28,6,eo5(pin));
+  set($('phone'),{x:540,y:lerp(1500,980,eo5(pin))+lerp(0,-40,eio(pout)),s:lerp(.9,1,eo5(pin))*lerp(1,.78,eio(pout)),o:clamp(pin*2)*(1-pout*0.7)*(1-P(t,9.3,9.9)),rx:rx+4*Math.sin(t*.9),ry:ry+3*Math.sin(t*.7),blur:4*pout});
+  $('phone').style.boxShadow=`0 0 0 3px #2a3555,0 0 ${60+20*Math.sin(t*3)}px 6px rgba(255,209,102,${.45}),0 0 160px 30px rgba(47,91,211,.35),0 60px 120px rgba(0,0,0,.6)`;
+  const word='İstanbul'; const n=Math.floor(clamp((t-4.7)/0.11,0,word.length));
+  $('typed').textContent=word.slice(0,n); $('caret').style.opacity=(t<6.2&&Math.floor(t*2.4)%2===0)||(t>4.6&&t<5.6)?1:0;
+  $('toField').style.boxShadow=t>4.55&&t<6.3?'0 0 0 4px #2F5BD3':'none';
+  const press=P(t,6.15,6.3)*(1-P(t,6.3,6.6));
+  $('phBtn').style.transform=`scale(${1-.06*press})`;$('phBtn').style.background=press>0?'#1E3F9E':'#2F5BD3';
+  if(t>6.0&&t<7.4){cx.save();cx.globalCompositeOperation='lighter';glow(540,1290,260,'255,209,102',.5*press);cx.restore()}
+
+  /* S3 cards */
+  cardEls.forEach((el,i)=>{
+    const st=7.45+i*0.07, a=eo5(P(t,st,st+0.75)); const s=slots[i];
+    const focus=P(t,9.6,10.3), isHero=i===1;
+    let x=540+lerp(0,s.x,a), y=1000+lerp(60,s.y,a), sc=lerp(.35,1,a)*(1+0.012*Math.sin(t*2+i)), o=a, bl=lerp(8,0,a);
+    y+=10*Math.sin(t*1.4+i*1.7); x+=6*Math.cos(t*1.1+i);
+    if(isHero){ sc*=lerp(1,1.12,eo(P(t,8.6,9.2))); el.style.boxShadow=`0 30px 80px rgba(0,0,0,.45),0 0 0 ${lerp(2,5,P(t,8.6,9.2))}px rgba(255,209,102,${P(t,8.6,9.2)}),0 0 70px rgba(255,209,102,${.5*P(t,8.6,9.2)})`;
+      x=lerp(x,540,eio(focus));y=lerp(y,960,eio(focus));sc=lerp(sc,1.45,eio(focus));o*=1-P(t,10.12,10.32);}
+    else { o*=1-eio(focus); bl+=10*focus; sc*=lerp(1,.9,focus);}
+    if(t<st){o=0}
+    set(el,{x,y,s:sc,o,rz:s.rz*a*(1-focus),rx:8*Math.sin(t+i),blur:bl});
+  });
+
+  /* S4 detail */
+  const dIn=P(t,10.25,10.7), dOut=P(t,12.5,12.95);
+  set($('detail'),{x:540,y:lerp(990,960,eo(dIn))-80*eio(dOut),s:lerp(.92,1,eo(dIn))*lerp(1,.9,dOut),o:dIn*(1-dOut),blur:8*dOut,rx:lerp(10,2,eo(dIn))});
+  const bp=P(t,11.35,11.5)*(1-P(t,11.5,11.8));
+  $('buy').style.transform=`scale(${1-.05*bp})`;$('buy').style.boxShadow=`0 0 ${30+70*bp}px rgba(255,209,102,${.4+.6*bp})`;
+  $('buy').style.background=`linear-gradient(105deg,#FFD166 ${lerp(-20,120,P(t,10.7,11.3))-15}%,#FFF1C9 ${lerp(-20,120,P(t,10.7,11.3))}%,#FFD166 ${lerp(-20,120,P(t,10.7,11.3))+15}%)`;
+  const dn=P(t,11.7,12.0); $('done').style.opacity=dn; $('done').style.transform=`translateY(${20*(1-eo(dn))}px)`;
+
+  /* S5 map + tracker */
+  drawMap(t);
+  const tIn=P(t,13.3,13.8), tOut=P(t,16.0,16.4);
+  set($('tracker'),{x:540,y:lerp(330,300,eo(tIn)),o:tIn*(1-tOut),s:lerp(.95,1,eo(tIn)),blur:6*tOut});
+  const steps=$('tracker').querySelector('.steps');
+  if(!steps.dataset.ok){['Check-in','Biniş','Kalkış','İniş'].forEach((l,i)=>{const x=14+i*(620-28)/3;steps.insertAdjacentHTML('beforeend',`<div class="dot" style="left:${x-15+14}px" id="sd${i}"></div><div class="lab" style="left:${x+14}px">${l}</div>`)});steps.dataset.ok=1}
+  const fp=eio(P(t,13.8,15.8)); $('tfill').style.width=(fp*(620-28))+'px';
+  for(let i=0;i<4;i++){const on=fp>=i/3-0.001;const d=$('sd'+i);d.style.background=on?'#FFD166':'#2a3555';d.style.boxShadow=on?'0 0 16px #FFD166':'none'}
+
+  /* S6 boarding pass */
+  const bIn=P(t,16.3,17.2), bOut=P(t,18.3,18.75);
+  set($('pass'),{x:540,y:lerp(700,980,eo5(bIn))+8*Math.sin(t*1.6),z:0,s:lerp(.7,1,eo5(bIn))*lerp(1,.92,bOut),o:clamp(bIn*3)*(1-bOut),
+    ry:lerp(-70,-8,eo5(bIn))+6*Math.sin(t*.8),rx:lerp(40,12,eo5(bIn)),rz:lerp(-14,-3,eo5(bIn)),blur:6*bOut});
+  if(t>16.2&&t<18.8){cx.save();const a=P(t,16.6,17.2)*(1-bOut);
+    const gr=cx.createRadialGradient(540,1250,10,540,1250,520);gr.addColorStop(0,`rgba(0,0,0,${.55*a})`);gr.addColorStop(1,'rgba(0,0,0,0)');cx.fillStyle=gr;cx.beginPath();cx.ellipse(540,1250,460,90,0,0,7);cx.fill();
+    cx.globalCompositeOperation='lighter';const g2=cx.createLinearGradient(540,0,540,1300);g2.addColorStop(0,`rgba(255,220,160,${.0})`);g2.addColorStop(.6,`rgba(255,200,120,${.10*a})`);g2.addColorStop(1,'rgba(255,200,120,0)');cx.fillStyle=g2;cx.beginPath();cx.moveTo(380,0);cx.lineTo(700,0);cx.lineTo(980,1300);cx.lineTo(100,1300);cx.fill();cx.restore()}
+
+  /* S7 taglines */
+  const a1=P(t,18.7,19.2), a1o=P(t,19.75,20.05);
+  set($('tl1'),{x:540,y:lerp(990,960,eo(a1))-30*a1o,o:a1*(1-a1o),blur:lerp(16,0,eo(a1))+12*a1o,s:lerp(1.04,1,a1)});
+  const a2=P(t,19.95,20.4), a2o=P(t,20.75,21.0);
+  set($('tl2'),{x:540,y:lerp(990,960,eo(a2))-30*a2o,o:a2*(1-a2o),blur:lerp(16,0,eo(a2))+12*a2o,s:lerp(1.04,1,a2)});
+  const swp=$('swp'),L=swp.getTotalLength(),sp=eo(P(t,20.25,20.65));
+  swp.style.strokeDasharray=L;swp.style.strokeDashoffset=L*(1-sp);
+  $('swh').style.opacity=P(t,20.55,20.65);
+  $('swoosh').style.opacity=(sp>0?1:0)*(1-a2o);$('swoosh').style.filter=`drop-shadow(0 0 14px rgba(255,138,101,.8))`;
+  $('swoosh').style.transform='none';$('swoosh').style.display='block';
+
+  /* S8 end */
+  const hd=drawEndTrail(t);
+  const mIn=P(t,20.9,22.1);
+  if(hd){set($('mascot'),{x:hd.x,y:hd.y+10*Math.sin(t*3)*P(t,22.1,22.5),s:lerp(.55,1,eo(mIn)),o:clamp(mIn*4),rz:lerp(-14,0,eo(mIn))})} else set($('mascot'),{o:0});
+  if(t>21.9){cx.save();cx.globalCompositeOperation='lighter';glow(540,900,700,'255,209,102',.18*P(t,21.9,22.4));cx.restore()}
+  const e1=P(t,21.9,22.35),e2=P(t,22.3,22.75),e3=P(t,22.6,23.0);
+  set($('endLogo'),{x:540,y:lerp(1130,1110,eo(e1)),s:lerp(1.1,1,eo(e1)),o:e1,blur:lerp(12,0,eo(e1))});
+  $('endLogo').style.textShadow='0 0 40px rgba(255,209,102,.35)';
+  set($('endTag'),{x:540,y:lerp(1290,1270,eo(e2)),o:e2,blur:lerp(8,0,e2)});
+  set($('endUrl'),{x:540,y:1380,o:e3});
+
+  // fades
+  $('fade').style.opacity=Math.max(1-P(t,0,0.25), P(t,24.1,24.8));
+};
+window.ready=document.fonts.ready.then(()=>new Promise(r=>{if(mascotImg.complete)r();else mascotImg.onload=r}));
+setT(0);
+</script>
+</body>
+</html>
