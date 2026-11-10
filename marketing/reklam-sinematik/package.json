@@ -1,0 +1,13 @@
+{
+  "name": "pirpir-reklam-sinematik",
+  "private": true,
+  "type": "module",
+  "description": "Pirpir sinematik reklam videosunu kare kare üretir",
+  "scripts": {
+    "stills": "node render.mjs --stills",
+    "render": "node render.mjs silent.mp4 30 0 24.8"
+  },
+  "dependencies": {
+    "puppeteer-core": "^24.0.0"
+  }
+}
