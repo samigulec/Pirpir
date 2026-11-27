@@ -238,6 +238,7 @@ export function toOffer(x: TpItem, q: SearchQuery): Offer {
     toCity: outbound.toCity,
     airline,
     airlineLogo: logoOf(codes[0]),
+    airlineLogos: codes.slice(0, 2).map(logoOf),
     outbound,
     inbound,
     price,
@@ -260,12 +261,15 @@ const unsupported = () => Promise.reject(new Error("Travelpayouts ile bilet sat�
 export const travelpayoutsProvider: FlightProvider = {
   async search(q) {
     const items = await fetchPrices(q);
-    // Aynı uçuş farklı satıcılardan birkaç kez gelebilir: en ucuzu kalır
+    // Aynı uçuş (aynı güzergâh ve saatler) birkaç kez gelebilir: en taze fiyat kalır (eşitse en ucuzu).
+    // Eski bir fiyat daha ucuz görünüp yanıltmasın.
     const best = new Map<string, TpItem>();
+    const sig = (x: TpItem) => x.link.match(/[?&]t=([A-Z0-9]+)_/)?.[1] ?? [x.departure_at, x.return_at ?? "", x.airline, x.flight_number ?? "", x.transfers, x.return_transfers ?? 0].join("|");
+    const seen = (x: TpItem) => seenOn(x.link) ?? "";
     for (const x of items) {
-      const k = [x.departure_at, x.return_at ?? "", x.airline, x.flight_number ?? "", x.transfers, x.return_transfers ?? 0].join("|");
+      const k = sig(x);
       const cur = best.get(k);
-      if (!cur || x.price < cur.price) best.set(k, x);
+      if (!cur || seen(x) > seen(cur) || (seen(x) === seen(cur) && x.price < cur.price)) best.set(k, x);
     }
     return [...best.values()].map((x) => toOffer(x, q));
   },

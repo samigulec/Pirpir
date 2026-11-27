@@ -114,6 +114,8 @@ export type Offer = {
   airline: string;
   /** Havayolunun resmi simge logosu (Duffel'ın varlık sunucusundan SVG); örnek veride yok. */
   airlineLogo?: string;
+  /** Bilette birden çok havayolu varsa logoları (en fazla iki) */
+  airlineLogos?: string[];
   outbound: Leg;
   inbound?: Leg;
   /** Kişi başı fiyat (TRY) — sonuç kartında gösterilen. */

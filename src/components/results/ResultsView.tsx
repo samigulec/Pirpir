@@ -1,6 +1,7 @@
 "use client";
 
 import { outboundPartner } from "@/config/affiliate";
+import { seenDays } from "@/lib/freshness";
 import { Link } from "@/i18n/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useAuthUi } from "../auth/LoginModal";
@@ -40,13 +41,15 @@ function bestScores(groups: Group[]): Map<string, number> {
   const prices = groups.map((g) => g.best.price);
   const mins = groups.map((g) => totalMins(g.best.offer));
   const stops = groups.map((g) => totalStops(g.best.offer));
+  // Önbellekli fiyatlarda taze olan öne: eski fiyat satıcıda değişmiş olabilir
+  const ages = groups.map((g) => (g.best.offer.seenAt ? Math.min(7, seenDays(g.best.offer.seenAt)) : 0));
   const norm = (v: number, list: number[]) => {
     const lo = Math.min(...list);
     const hi = Math.max(...list);
     return hi > lo ? (v - lo) / (hi - lo) : 0;
   };
   return new Map(
-    groups.map((g, i) => [g.key, 0.6 * norm(prices[i], prices) + 0.3 * norm(mins[i], mins) + 0.1 * norm(stops[i], stops)]),
+    groups.map((g, i) => [g.key, 0.6 * norm(prices[i], prices) + 0.3 * norm(mins[i], mins) + 0.1 * norm(stops[i], stops) + 0.2 * (ages[i] / 7)]),
   );
 }
 

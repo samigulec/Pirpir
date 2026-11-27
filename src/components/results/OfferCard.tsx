@@ -10,6 +10,7 @@ import { intlLocale } from "@/lib/intl";
 import type { Leg, Offer } from "@/lib/providers/types";
 import { isAffiliate, outboundPartner } from "@/config/affiliate";
 import { goHref } from "@/lib/outbound";
+import { freshness, seenDays } from "@/lib/freshness";
 
 type Badge = "cheap" | "fast" | null;
 
@@ -77,18 +78,26 @@ export function OfferCard({
               </span>
             )}
             <span className="flex items-center gap-2 text-[15px] font-bold text-ink">
-              {offer.airlineLogo && (
-                <img
-                  src={offer.airlineLogo}
-                  alt=""
-                  width={24}
-                  height={24}
-                  loading="lazy"
-                  // Logo yüklenemezse kırık resim görünmesin
-                  onError={(e) => (e.currentTarget.style.display = "none")}
-                  className="h-6 w-6 flex-none rounded-[6px] object-contain"
-                />
-              )}
+              {(() => {
+                const logos = offer.airlineLogos?.length ? offer.airlineLogos : offer.airlineLogo ? [offer.airlineLogo] : [];
+                return logos.length > 0 && (
+                  <span className="flex flex-none items-center">
+                    {logos.map((src, i) => (
+                      <img
+                        key={src}
+                        src={src}
+                        alt=""
+                        width={24}
+                        height={24}
+                        loading="lazy"
+                        // Logo yüklenemezse kırık resim görünmesin
+                        onError={(e) => (e.currentTarget.style.display = "none")}
+                        className={`h-6 w-6 flex-none rounded-[6px] object-contain ${i ? "-ml-2 ring-2 ring-white" : ""}`}
+                      />
+                    ))}
+                  </span>
+                );
+              })()}
               {offer.mixedCarriers && !offer.airline.includes("+") ? `${offer.airline} + ${t("otherAirlines")}` : offer.airline}
             </span>
             <span className="text-[15px] font-semibold text-muted">
@@ -208,11 +217,22 @@ export function OfferCard({
           <span className="text-[13px] font-bold text-muted">{t("perPerson")}</span>
           {bagsAdded && <span className="text-[13px] font-bold text-green-text">{t("withBags")}</span>}
           {paxCount > 1 && !bagsAdded && <span className="text-[13px] font-bold text-muted">{t("totalFor", { count: paxCount, total: fmt(offer.total) })}</span>}
-          {offer.seenAt && (
-            <span className="text-[12px] font-bold text-muted" title={t("mayChange")}>
-              {t("seen", { days: daysSince(offer.seenAt) })}
-            </span>
-          )}
+          {offer.seenAt && (() => {
+            const days = seenDays(offer.seenAt);
+            const f = freshness(days);
+            return (
+              <>
+                <span
+                  title={t("mayChange")}
+                  className={`mt-1 inline-flex items-center gap-1 self-start rounded-pill px-2 py-[1px] text-[12px] font-extrabold md:self-center ${f === "fresh" ? "bg-green-soft text-green-text" : f === "ok" ? "bg-white text-muted" : "bg-coral-soft text-coral-text"}`}
+                >
+                  <span aria-hidden="true" className={`h-[6px] w-[6px] rounded-full ${f === "fresh" ? "bg-green" : f === "ok" ? "bg-muted" : "bg-coral"}`} />
+                  {t("seen", { days })}
+                </span>
+                {f === "stale" && <span className="text-[12px] font-bold text-coral-text md:text-center">{t("mayChange")}</span>}
+              </>
+            );
+          })()}
           {fareCount > 1 && !isAffiliate() && <span className="text-[13px] font-bold text-primary">{t("fareOptions", { n: fareCount })}</span>}
         </div>
         {isAffiliate() ? (
@@ -301,11 +321,4 @@ function LegRow({ leg, label, date, dur }: { leg: Leg; label: string; date: stri
       </div>
     </div>
   );
-}
-
-/** Fiyatın görüldüğü günden bu yana geçen gün (yerel takvim günü) */
-function daysSince(iso: string): number {
-  const now = new Date();
-  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-  return Math.max(0, Math.round((today - Date.parse(iso)) / 86_400_000));
 }
