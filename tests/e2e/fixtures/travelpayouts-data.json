@@ -1,0 +1,22 @@
+{
+  "_note": "Test verisi — Travelpayouts Aviasales v3 (grouped_prices ve prices_for_dates) yanıt biçiminde uydurma ama gerçekçi örnek kayıtlar. Gerçek canlı bilet fiyatı değildir.",
+  "monthly": [
+    { "monthOffset": 1, "day": 14, "nights": 7, "priceEur": 112, "airline": "PC", "transfers": 0, "durationTo": 205 },
+    { "monthOffset": 3, "day": 8, "nights": 7, "priceEur": 148, "airline": "TK", "transfers": 0, "durationTo": 215 },
+    { "monthOffset": 5, "day": 10, "nights": 7, "priceEur": 175, "airline": "KL", "transfers": 0, "durationTo": 210 },
+    { "monthOffset": 7, "day": 19, "nights": 5, "priceEur": 134, "airline": "XQ", "transfers": 1, "durationTo": 285 }
+  ],
+  "dailyInMonth": [
+    { "day": 5, "nights": 4, "priceEur": 98, "airline": "PC", "transfers": 0, "durationTo": 195 },
+    { "day": 11, "nights": 7, "priceEur": 114, "airline": "TK", "transfers": 0, "durationTo": 210 },
+    { "day": 15, "nights": 3, "priceEur": 126, "airline": "KL", "transfers": 0, "durationTo": 215 },
+    { "day": 21, "nights": 7, "priceEur": 108, "airline": "PC", "transfers": 0, "durationTo": 200 },
+    { "day": 22, "nights": 7, "priceEur": 104, "airline": "XQ", "transfers": 0, "durationTo": 205 },
+    { "day": 24, "nights": 5, "priceEur": 138, "airline": "LH", "transfers": 1, "durationTo": 295 }
+  ],
+  "pricesForDates": [
+    { "priceEur": 118, "airline": "PC", "flightNumber": "1254", "depHour": "09:15", "transfers": 0, "durationTo": 205, "durationBack": 215 },
+    { "priceEur": 142, "airline": "TK", "flightNumber": "1952", "depHour": "14:40", "transfers": 0, "durationTo": 215, "durationBack": 220 },
+    { "priceEur": 109, "airline": "VF", "flightNumber": "804", "depHour": "19:25", "transfers": 1, "durationTo": 305, "durationBack": 310 }
+  ]
+}

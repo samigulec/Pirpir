@@ -423,3 +423,12 @@ yoksa hiçbir şey yapmasın. Gönderim hatası yayınlamayı engellemesin. Toke
 - [düzeltme] Claude — canlı liste: widget'ın kendi tarih şeridi gizlendi (sayfada iki şerit vardı, widget'ınkine tıklayınca
   arama kutusu ve üst şerit eski günde kalıyordu); kart/rozet/düğme/fiyat stili gölge DOM'a eklenerek uygulandı (canlıda
   masaüstü + telefon doğrulandı). Widget'ın canlı araması bu bulut ortamından 403 alıyor; widget içi filtre testi yapılamadı.
+- [7.1] Travelpayouts yerel sahte sunucusu ve gerçek-veri testleri — commit 10cd673 — `tests/e2e/fixtures/travelpayouts-data.json`
+  (gerçek Aviasales v3 yanıt biçiminde test verisi) ve `tests/e2e/fixtures/mock-travelpayouts.mjs` (`grouped_prices` +
+  `prices_for_dates`) eklendi. `playwright.config.ts` içine ikinci Next sunucusu + sahte Travelpayouts sunucusuyla çalışan
+  `"affiliate"` projesi (`TRAVELPAYOUTS_TOKEN=test`, `NEXT_PUBLIC_TP_WL_WIDGET_ID=""`) eklendi; saf fırsat seçim kuralları
+  `src/lib/deal-rules.ts` olarak ayrıldı (`deal-scanner.ts` yeniden dışa aktarır). `tests/e2e/affiliate.spec.ts` kapsamı:
+  rota sayfası (`/ucuslar/viyana/istanbul` aylık grafik + "Fiyata bak" + görülme günü + `src=route:viyana-istanbul`),
+  ana sayfa popüler uçuşlar (60 günlük `groupedPrices` + kategori sekmeleri), `/api/date-prices?strip=1` (±3 gün + `null`)
+  ve `pickDealCandidates` birim testi (%75 / 30 € / 3 gün / max 3). Denendi: `npm run lint`, `npx next build` (274/274),
+  `npm run e2e` (15/15 geçti, 6.9 sn). Bilinen eksik yok.
