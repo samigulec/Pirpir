@@ -49,7 +49,8 @@
     "cabin": "Kabin bagajı",
     "checked": "Bagaj",
     "included": "Fiyata dahil",
-    "notIncluded": "Fiyata dahil değil, rezervasyonda eklenebilir"
+    "notIncluded": "Fiyata dahil değil, rezervasyonda eklenebilir",
+    "atSeller": "Bagaj ve bilet koşulları satıcıda"
   },
   "cabin": {
     "economy": "Ekonomi",
@@ -220,5 +221,9 @@
     "open": "Fiyat alarmı ayarları"
   },
   "goDeal": "Fırsata git",
-  "partnerNote": "{partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} açılır"
+  "partnerNote": "{partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} açılır",
+  "seen": "{days, plural, =0 {Fiyat bugün görüldü} =1 {Fiyat dün görüldü} other {Fiyat # gün önce görüldü}}",
+  "cachedNote": "fiyatlar Aviasales'te son günlerde görülen fiyatlardır; güncel fiyat satıcıda",
+  "liveSearch": "{partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} canlı ara",
+  "noResultsCached": "Bu tarihler için kayıtlı fiyat yok. Güncel uçuşları {partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} canlı arayabilirsin."
 }

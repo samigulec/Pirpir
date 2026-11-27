@@ -6,6 +6,8 @@ import { popularDestinations } from "@/data/mock/home";
 import { routes } from "@/data/mock/routes";
 import { demoFlexibleTip, demoProvider } from "./providers/demo";
 import { duffelProvider, isDuffelTestMode } from "./providers/duffel";
+import { travelpayoutsProvider, travelpayoutsToken } from "./providers/travelpayouts";
+import { isAffiliate } from "@/config/affiliate";
 import { isBackground, isSkipped } from "./providers/rate-limit";
 import type { FlightProvider, SearchOptions } from "./providers/types";
 import type { MultiQuery } from "./search";
@@ -16,13 +18,23 @@ import { getProviderForOffer } from "./providers/select";
 
 export type DataMode = "demo" | "test" | "live";
 
+/** Arama verisinin kaynağı: ortaklık modunda Travelpayouts (önbellekli gerçek fiyatlar), satış modunda Duffel. */
+export type PriceSource = "demo" | "duffel" | "travelpayouts";
+export function priceSource(): PriceSource {
+  if (isAffiliate() && travelpayoutsToken()) return "travelpayouts";
+  return process.env.DUFFEL_ACCESS_TOKEN ? "duffel" : "demo";
+}
+
 export function dataMode(): DataMode {
-  if (!process.env.DUFFEL_ACCESS_TOKEN) return "demo";
+  const src = priceSource();
+  if (src === "demo") return "demo";
+  if (src === "travelpayouts") return "live";
   return isDuffelTestMode() ? "test" : "live";
 }
 
 function provider(): FlightProvider {
-  return dataMode() === "demo" ? demoProvider : duffelProvider;
+  const src = priceSource();
+  return src === "travelpayouts" ? travelpayoutsProvider : src === "duffel" ? duffelProvider : demoProvider;
 }
 
 const MAX_RESULTS = 60;
@@ -94,7 +106,9 @@ function canonical(q: MultiQuery): MultiQuery {
 // unstable_cache anahtarına fonksiyonun kaynak metnini de katar; bu metin sonuç sayfası ile API rotası gibi
 // ayrı paketlerde farklı derlenir ve önbellek paylaşılmaz. `bind` ile oluşan fonksiyonun metni her yerde aynıdır.
 const cachedSearch = unstable_cache(
-  ((q: MultiQuery, mode: DataMode) => {
+  // Kaynak da anahtara girer: Duffel ve Travelpayouts sonuçları karışmasın
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ((q: MultiQuery, mode: DataMode, source: PriceSource) => {
     // Parça parça arama yalnızca birisi sonuçları canlı izliyorsa (sonuç sayfası): daha çok istek yapar,
     // ana sayfa fırsatları ve tarih şeridi tek seferlik aramayla Duffel'ın istek sınırını zorlamaz.
     const key = searchKey(q, mode);
@@ -121,7 +135,7 @@ export function searchFlightsCached(q: MultiQuery): Promise<Offer[]> {
   const key = searchKey(c, mode);
   let p = inFlight.get(key);
   if (!p) {
-    p = cachedSearch(c, mode)
+    p = cachedSearch(c, mode, priceSource())
       .then((list) => {
         // Önbellekteki teklif süresi dolmuşsa satın alınamaz: onları gösterme, hepsi dolmuşsa yeniden ara.
         const fresh = list.filter((o) => !o.expiresAt || Date.parse(o.expiresAt) > Date.now() + 60_000);
@@ -133,10 +147,10 @@ export function searchFlightsCached(q: MultiQuery): Promise<Offer[]> {
     inFlight.set(key, p);
   }
   // Aynı aramayı arka planda başlatılmış ve sınır yüzünden ertelenmiş bir istekle paylaştıysa ziyaretçi için yeniden dene
-  return isBackground() ? p : p.catch((e) => (isSkipped(e) ? cachedSearch(c, mode) : Promise.reject(e)));
+  return isBackground() ? p : p.catch((e) => (isSkipped(e) ? cachedSearch(c, mode, priceSource()) : Promise.reject(e)));
 }
 
-const searchKey = (q: MultiQuery, mode: DataMode) => JSON.stringify([canonical(q), mode]);
+const searchKey = (q: MultiQuery, mode: DataMode) => JSON.stringify([canonical(q), mode, priceSource()]);
 
 type Listener = (offers: Offer[]) => void;
 const listeners = new Map<string, Set<Listener>>();

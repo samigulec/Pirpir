@@ -61,7 +61,8 @@ export type Priced = { offer: Offer; price: number; bagExtra: number };
 export function applyFilters(offers: Offer[], f: Filters): Priced[] {
   const out: Priced[] = [];
   for (const o of offers) {
-    const wanted = wantedBagsExtra(o.bags, f.bags);
+    // Bagaj bilgisi olmayan teklif (önbellekli fiyat) bagaj filtresinden geçer; bagaj satıcıda eklenir
+    const wanted = o.bagsUnknown ? { extra: 0 } : wantedBagsExtra(o.bags, f.bags);
     if (!wanted) continue;
     const ls = legs(o);
     if (f.stops !== "any" && ls.some((l) => l.stops > Number(f.stops))) continue;

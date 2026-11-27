@@ -49,7 +49,8 @@
     "cabin": "Cabin bag",
     "checked": "Checked bag",
     "included": "Included in the price",
-    "notIncluded": "Not included, can be added when booking"
+    "notIncluded": "Not included, can be added when booking",
+    "atSeller": "Baggage and fare rules at the seller"
   },
   "cabin": {
     "economy": "Economy",
@@ -220,5 +221,9 @@
     "open": "Price alert settings"
   },
   "goDeal": "View deal",
-  "partnerNote": "Opens on {partner, select, aviasales {Aviasales} other {Skyscanner}}"
+  "partnerNote": "Opens on {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "seen": "{days, plural, =0 {Price seen today} =1 {Price seen yesterday} other {Price seen # days ago}}",
+  "cachedNote": "prices were seen on Aviasales in recent days; check the current price with the seller",
+  "liveSearch": "Search live on {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "noResultsCached": "No saved prices for these dates. You can search current flights live on {partner, select, aviasales {Aviasales} other {Skyscanner}}."
 }

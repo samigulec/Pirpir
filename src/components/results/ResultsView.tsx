@@ -1,5 +1,6 @@
 "use client";
 
+import { outboundPartner } from "@/config/affiliate";
 import { Link } from "@/i18n/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useAuthUi } from "../auth/LoginModal";
@@ -60,7 +61,10 @@ export function ResultsView({
   settled = true,
   initialBags,
   onFiltersChange,
+  liveHref,
 }: {
+  /** Sonuç yoksa ortakta canlı arama bağlantısı (ortaklık modu) */
+  liveHref?: string;
   initialBags?: { cabin: number; checked: number };
   /** Filtre değişince (ör. fiyat alarmı penceresi aynı aktarma ve bagaj seçimiyle açılsın) */
   onFiltersChange?: (f: Filters) => void;
@@ -153,7 +157,7 @@ export function ResultsView({
         {active ? t("filters.active", { n: active }) : t("filters.show")}
       </button>
       <aside id="filters" className={`${showFilters ? "block" : "hidden"} rounded-[28px] bg-field px-5 py-5 md:sticky md:top-4 md:block md:max-h-[calc(100vh-32px)] md:overflow-y-auto`}>
-        <FiltersPanel value={filters} onChange={setFilters} airlines={airlines} oneWay={oneWay} bounds={bounds} />
+        <FiltersPanel value={filters} onChange={setFilters} airlines={airlines} oneWay={oneWay} bounds={bounds} hideBags={offers.every((o) => o.bagsUnknown)} />
       </aside>
 
       <div className="flex min-w-0 flex-col gap-5">
@@ -188,7 +192,17 @@ export function ResultsView({
             {favNote} <Link href={{ pathname: "/hesap", hash: "favoriler" }} className="font-extrabold">{t("favorite.see")}</Link>
           </p>
         )}
-        {offers.length === 0 && <p className="m-0 font-bold text-muted">{t("noResults")}</p>}
+        {offers.length === 0 &&
+          (liveHref ? (
+            <div className="flex flex-col items-start gap-3 rounded-[24px] bg-sky px-5 py-5">
+              <p className="m-0 font-bold text-ink">{t("noResultsCached", { partner: outboundPartner() })}</p>
+              <a href={liveHref} target="_blank" rel="sponsored nofollow noopener" className="inline-flex min-h-[48px] items-center rounded-pill bg-primary px-6 font-display text-lg font-semibold text-white no-underline">
+                {t("liveSearch", { partner: outboundPartner() })}
+              </a>
+            </div>
+          ) : (
+            <p className="m-0 font-bold text-muted">{t("noResults")}</p>
+          ))}
         {offers.length > 0 && list.length === 0 && <p className="m-0 font-bold text-muted">{t("empty")}</p>}
 
         {list.map((g) => (

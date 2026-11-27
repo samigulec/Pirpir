@@ -11,6 +11,8 @@ export type OutboundTrip = {
   children: number;
   infants: number;
   cabin: CabinClass;
+  /** Satıcıdaki aynı uçuşun adresi (Aviasales /search/… yolu); varsa o bilet açılır */
+  deep?: string;
 };
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -28,8 +30,12 @@ export function goHref(t: OutboundTrip, src: string, locale: string): string {
   if (t.children) p.set("c", String(t.children));
   if (t.infants) p.set("i", String(t.infants));
   if (t.cabin !== "economy") p.set("cabin", t.cabin);
+  if (t.deep && isDeepLink(t.deep)) p.set("t", t.deep);
   return `/git?${p}`;
 }
+
+/** Yalnızca Aviasales arama yolu kabul edilir (açık yönlendirme olmasın) */
+const isDeepLink = (s: string) => s.length <= 1500 && /^\/search\/[A-Za-z0-9]+(\?[A-Za-z0-9_.~%&=+-]*)?$/.test(s);
 
 const int = (v: string | null, min: number, max: number, dflt: number) => {
   const n = Number(v ?? dflt);
@@ -46,11 +52,13 @@ export function parseGo(p: URLSearchParams): (OutboundTrip & { src: string; loca
   const children = int(p.get("c"), 0, 8, 0);
   const infants = int(p.get("i"), 0, 4, 0);
   const cabin = (p.get("cabin") ?? "economy") as CabinClass;
+  const deep = p.get("t") ?? undefined;
   if (!PLACE.test(from) || !PLACE.test(to) || from === to || !ISO.test(date)) return null;
   if (returnDate !== undefined && (!ISO.test(returnDate) || returnDate < date)) return null;
   if (adults === null || children === null || infants === null || infants > adults || !CABINS.includes(cabin)) return null;
   return {
     from, to, date, returnDate, adults, children, infants, cabin,
+    deep: deep && isDeepLink(deep) ? deep : undefined,
     src: (p.get("src") ?? "").slice(0, 80),
     locale: (p.get("l") ?? "tr").slice(0, 5),
   };

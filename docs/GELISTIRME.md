@@ -87,6 +87,10 @@ Varsayılan olarak site **bilet satmaz**: sonuçlardaki "Fırsata git" düğmesi
 satış kodu duruyor, `NEXT_PUBLIC_SALES_MODE=booking` ile geri açılır.
 
 - `SKYSCANNER_MEDIA_PARTNER_ID`: Skyscanner (impact.com) ortaklık kimliği. Tanımlıysa "Fırsata git" Skyscanner'a, değilse Aviasales'e (Travelpayouts yönlendirmesi tp.media; marker 812756, proje 607607, değiştirmek için `TRAVELPAYOUTS_MARKER` / `TRAVELPAYOUTS_PROJECT`) gider. Değiştirince yeniden yayınla.
+- `TRAVELPAYOUTS_TOKEN`: Travelpayouts API token'ı (profil → API token). Ortaklık modunda arama, tarih şeridi ve alarmlar
+  Aviasales'in önbellekli fiyatlarından gelir (`src/lib/providers/travelpayouts.ts`); fiyat birkaç gün önce görülmüş olabilir,
+  kartta yazar. Bagaj ve koşullar bilinmez (satıcıda). O gün için kayıt yoksa sonuç sayfası "Aviasales'te canlı ara" der.
+  Yerelde Node'un vekil sunucu arkasında `NODE_USE_ENV_PROXY=1` gerekebilir.
 - Tıklamalar Supabase'deki `clicks` tablosuna yazılır: `supabase/migrations/0005_clicks.sql` dosyasını SQL Editor'da bir kez çalıştır.
 - Sayfa altındaki ortaklık açıklaması (`common.affiliateDisclosure`) yasal bilgilendirmedir, kaldırma.
 

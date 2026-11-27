@@ -14,7 +14,10 @@ export function FiltersPanel({
   airlines,
   oneWay,
   bounds,
+  hideBags,
 }: {
+  /** Bagaj bilgisi olmayan sonuçlar (önbellekli fiyat): bagaj filtresi gösterilmez */
+  hideBags?: boolean;
   value: Filters;
   onChange: (f: Filters) => void;
   /** Havayolu → en düşük fiyat (yolcu başı) */
@@ -79,12 +82,12 @@ export function FiltersPanel({
         )}
       </div>
 
-      <section className={section}>
+      {!hideBags && <section className={section}>
         <h3 className={h3}>{t("bagsTitle")}</h3>
         {counter(t("cabinBag"), <CabinBagIcon />, value.bags.cabin, 1, (n) => set({ bags: { ...value.bags, cabin: n } }))}
         {counter(t("checkedBag"), <CheckedBagIcon />, value.bags.checked, 3, (n) => set({ bags: { ...value.bags, checked: n } }))}
         <span className="text-[13px] font-semibold text-muted">{t("bagsNote")}</span>
-      </section>
+      </section>}
 
       <section className={section}>
         <h3 className={h3}>{t("stopsTitle")}</h3>

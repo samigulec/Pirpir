@@ -8,7 +8,7 @@ import { LiveResults, type LiveChunk } from "@/components/results/LiveResults";
 import { cityByCode } from "@/data/airports";
 import { intlLocale } from "@/lib/intl";
 import { formatDayLong, formatRange } from "@/lib/dates";
-import { dataMode, getFlexibleDateTip, searchFlightsCached, watchSearch } from "@/lib/flights";
+import { dataMode, priceSource, getFlexibleDateTip, searchFlightsCached, watchSearch } from "@/lib/flights";
 import { paxTotal, searchHref, todayIso, type MultiQuery } from "@/lib/search";
 import { ResultsSearchBar } from "@/components/results/ResultsSearchBar";
 import { cheapestWithBags } from "@/lib/extras";
@@ -227,7 +227,7 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
     return <SearchFailed q={q} detail={detail} />;
   }
   const mode = dataMode();
-  const modeNote = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : undefined;
+  const modeNote = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : priceSource() === "travelpayouts" ? t("cachedNote") : undefined;
   const note = [q.flex ? t("flexNote", { n: q.flex }) : undefined, modeNote].filter(Boolean).join(" · ") || undefined;
   return (
     <LiveResults first={first} q={q} oneWay={!q.returnDate} initialBags={q.bags} tip={tip} note={note} retryHref={searchHref({ ...q, returnDate: q.returnDate ?? "" })} />

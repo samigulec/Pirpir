@@ -66,6 +66,8 @@ export function aviasalesSearchUrl(t: OutboundTrip): string {
 
 export function aviasalesUrl(t: OutboundTrip, ctx: { currency: string; subId?: string }): string {
   const target = new URL(aviasalesSearchUrl(t));
+  // Sonuç kartından gelindiyse aynı bilet işaretli açılır: yolcu ve tarih bizim adresten, bilet kimliği (t=…) Aviasales'ten
+  if (t.deep) new URL(t.deep, "https://www.aviasales.com").searchParams.forEach((v, k) => target.searchParams.set(k, v));
   target.searchParams.set("currency", ctx.currency.toLowerCase());
   const p = new URLSearchParams({
     marker: travelpayoutsMarker(),

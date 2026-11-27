@@ -49,7 +49,8 @@
     "cabin": "Maleta de cabina",
     "checked": "Maleta facturada",
     "included": "Incluido en el precio",
-    "notIncluded": "No incluido, se puede añadir al reservar"
+    "notIncluded": "No incluido, se puede añadir al reservar",
+    "atSeller": "Equipaje y condiciones en el vendedor"
   },
   "cabin": {
     "economy": "Turista",
@@ -220,5 +221,9 @@
     "open": "Ajustes de la alerta de precio"
   },
   "goDeal": "Ver oferta",
-  "partnerNote": "Se abre en {partner, select, aviasales {Aviasales} other {Skyscanner}}"
+  "partnerNote": "Se abre en {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "seen": "{days, plural, =0 {Precio visto hoy} =1 {Precio visto ayer} other {Precio visto hace # días}}",
+  "cachedNote": "precios vistos en Aviasales en los últimos días; comprueba el precio actual en el vendedor",
+  "liveSearch": "Buscar en directo en {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "noResultsCached": "No hay precios guardados para estas fechas. Puedes buscar vuelos actuales en directo en {partner, select, aviasales {Aviasales} other {Skyscanner}}."
 }

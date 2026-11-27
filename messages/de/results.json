@@ -49,7 +49,8 @@
     "cabin": "Handgepäck",
     "checked": "Aufgabegepäck",
     "included": "Im Preis inbegriffen",
-    "notIncluded": "Nicht inbegriffen, kann beim Buchen hinzugefügt werden"
+    "notIncluded": "Nicht inbegriffen, kann beim Buchen hinzugefügt werden",
+    "atSeller": "Gepäck und Tarifbedingungen beim Anbieter"
   },
   "cabin": {
     "economy": "Economy",
@@ -220,5 +221,9 @@
     "open": "Einstellungen Preisalarm"
   },
   "goDeal": "Zum Angebot",
-  "partnerNote": "Öffnet bei {partner, select, aviasales {Aviasales} other {Skyscanner}}"
+  "partnerNote": "Öffnet bei {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "seen": "{days, plural, =0 {Preis heute gesehen} =1 {Preis gestern gesehen} other {Preis vor # Tagen gesehen}}",
+  "cachedNote": "Preise wurden in den letzten Tagen auf Aviasales gesehen; den aktuellen Preis beim Anbieter prüfen",
+  "liveSearch": "Live suchen bei {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "noResultsCached": "Für diese Daten sind keine Preise gespeichert. Aktuelle Flüge kannst du live bei {partner, select, aviasales {Aviasales} other {Skyscanner}} suchen."
 }

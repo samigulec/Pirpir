@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { isAffiliate } from "@/config/affiliate";
 import { useCurrency } from "../CurrencyProvider";
 import { formatDayWithWeekday } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
@@ -107,7 +108,8 @@ export function DateStrip({ q, current }: { q: MultiQuery; current: number | nul
                   {price === undefined ? (
                     <span className="inline-block h-4 w-14 animate-pulse rounded bg-line align-middle" />
                   ) : price === null ? (
-                    <span className="text-[13px] font-bold text-muted">{t("noFlights")}</span>
+                    // Ortaklık modunda fiyat önbellekten gelir: kayıt yoksa uçuş olmayabilir de olabilir de
+                    isAffiliate() ? <span className="text-[13px] font-bold text-primary">{t("check")}</span> : <span className="text-[13px] font-bold text-muted">{t("noFlights")}</span>
                   ) : price === "unknown" ? (
                     <span className="text-[13px] font-bold text-primary">{t("check")}</span>
                   ) : (

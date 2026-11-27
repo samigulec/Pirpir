@@ -49,7 +49,8 @@
     "cabin": "Bagaglio a mano",
     "checked": "Bagaglio da stiva",
     "included": "Incluso nel prezzo",
-    "notIncluded": "Non incluso, si può aggiungere in fase di prenotazione"
+    "notIncluded": "Non incluso, si può aggiungere in fase di prenotazione",
+    "atSeller": "Bagagli e condizioni presso il venditore"
   },
   "cabin": {
     "economy": "Economy",
@@ -220,5 +221,9 @@
     "open": "Impostazioni avviso prezzo"
   },
   "goDeal": "Vedi offerta",
-  "partnerNote": "Si apre su {partner, select, aviasales {Aviasales} other {Skyscanner}}"
+  "partnerNote": "Si apre su {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "seen": "{days, plural, =0 {Prezzo visto oggi} =1 {Prezzo visto ieri} other {Prezzo visto # giorni fa}}",
+  "cachedNote": "prezzi visti su Aviasales negli ultimi giorni; verifica il prezzo attuale presso il venditore",
+  "liveSearch": "Cerca in tempo reale su {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "noResultsCached": "Nessun prezzo salvato per queste date. Puoi cercare i voli attuali in tempo reale su {partner, select, aviasales {Aviasales} other {Skyscanner}}."
 }

@@ -111,7 +111,12 @@ export function OfferCard({
         )}
 
         <div className="flex flex-wrap items-center gap-[6px]">
-          {bags.map((b) => (
+          {offer.bagsUnknown ? (
+            <span className={`${chip} bg-field text-muted`}>
+              <CheckedBagIcon />
+              <span className="text-ink">{t("bags.atSeller")}</span>
+            </span>
+          ) : bags.map((b) => (
             <span
               key={b.key}
               className={`${chip} ${b.on ? "bg-green-soft text-green-text" : "bg-field text-muted"}`}
@@ -138,7 +143,7 @@ export function OfferCard({
           )}
         </div>
 
-        <button
+        {!offer.bagsUnknown && <button
           type="button"
           aria-expanded={open}
           aria-controls={detailsId}
@@ -149,7 +154,7 @@ export function OfferCard({
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={open ? "rotate-180" : ""}>
             <path d="M6 9l6 6 6-6" />
           </svg>
-        </button>
+        </button>}
         {open && (
           <div id={detailsId} className="flex flex-col gap-4 rounded-[20px] bg-field px-4 py-4">
             <BagRules offer={offer} />
@@ -194,6 +199,7 @@ export function OfferCard({
           <span className="text-[13px] font-bold text-muted">{t("perPerson")}</span>
           {bagsAdded && <span className="text-[13px] font-bold text-green-text">{t("withBags")}</span>}
           {paxCount > 1 && !bagsAdded && <span className="text-[13px] font-bold text-muted">{t("totalFor", { count: paxCount, total: fmt(offer.total) })}</span>}
+          {offer.seenAt && <span className="text-[12px] font-bold text-muted">{t("seen", { days: daysSince(offer.seenAt) })}</span>}
           {fareCount > 1 && !isAffiliate() && <span className="text-[13px] font-bold text-primary">{t("fareOptions", { n: fareCount })}</span>}
         </div>
         {isAffiliate() ? (
@@ -210,6 +216,7 @@ export function OfferCard({
                   children: offer.query.pax.children,
                   infants: offer.query.pax.infants,
                   cabin: offer.cabin,
+                  deep: offer.deepLink,
                 },
                 "results",
                 locale,
@@ -272,7 +279,7 @@ function LegRow({ leg, label, date, dur }: { leg: Leg; label: string; date: stri
       </div>
       <div className="flex flex-col items-end">
         <span className={`${time} relative`}>
-          {leg.arr}
+          {leg.arr || "–"}
           {leg.arrDayOffset > 0 && (
             <sup className="absolute -right-3 -top-2 text-[12px] font-extrabold text-coral-text">+{leg.arrDayOffset}</sup>
           )}
@@ -281,4 +288,11 @@ function LegRow({ leg, label, date, dur }: { leg: Leg; label: string; date: stri
       </div>
     </div>
   );
+}
+
+/** Fiyatın görüldüğü günden bu yana geçen gün (yerel takvim günü) */
+function daysSince(iso: string): number {
+  const now = new Date();
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.max(0, Math.round((today - Date.parse(iso)) / 86_400_000));
 }

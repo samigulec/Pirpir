@@ -105,7 +105,7 @@ export type SeatChoice = { segment: number; pax: number; designator: string };
 
 export type Offer = {
   id: string;
-  provider: "demo" | "duffel";
+  provider: "demo" | "duffel" | "travelpayouts";
   query: SearchQuery;
   fromCity: string;
   toCity: string;
@@ -132,6 +132,12 @@ export type Offer = {
   expiresAt?: string;
   /** Havayolu "şimdi ayır, sonra öde"ye izin veriyorsa: son ödeme zamanı ve fiyat garantisi (ISO). */
   hold?: HoldTerms;
+  /** Önbellekli fiyat (Travelpayouts): fiyatın görüldüğü gün (YYYY-MM-DD) */
+  seenAt?: string;
+  /** Satıcıdaki aynı uçuşun adresi (Aviasales yolu, /search/…) */
+  deepLink?: string;
+  /** Bagaj bilgisi yok (satıcıda gösterilir): bagaj işaretleri ve filtresi uygulanmaz */
+  bagsUnknown?: boolean;
 };
 
 export type HoldTerms = {

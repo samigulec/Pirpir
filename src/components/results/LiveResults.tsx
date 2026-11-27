@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { isAffiliate } from "@/config/affiliate";
+import { goHref } from "@/lib/outbound";
 import { Link } from "@/i18n/navigation";
 import { DateStrip } from "./DateStrip";
 import { PriceTrends } from "./PriceTrends";
@@ -71,6 +73,11 @@ export function LiveResults({
   }, [first]);
 
   const cheapest = chunk.dayPrice !== undefined ? chunk.dayPrice : (chunk.offers.length ? Math.min(...chunk.offers.map((o) => o.price)) : null);
+  // Ortaklık modunda sonuç yoksa (önbellekte bu tarihler için fiyat yok) ortakta canlı arama
+  const locale = useLocale();
+  const liveHref = isAffiliate()
+    ? goHref({ from: q.from[0], to: q.to[0], date: q.date, returnDate: q.returnDate || undefined, adults: q.pax.adults, children: q.pax.children, infants: q.pax.infants, cabin: q.cabin ?? "economy" }, "empty", locale)
+    : undefined;
   return (
     <>
       {chunk.done && <DateStrip q={q} current={cheapest} />}
@@ -96,6 +103,7 @@ export function LiveResults({
         settled={chunk.done}
         initialBags={initialBags}
         onFiltersChange={setFilters}
+        liveHref={liveHref}
       />
     </>
   );

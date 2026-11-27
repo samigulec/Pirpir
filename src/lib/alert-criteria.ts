@@ -32,7 +32,8 @@ export function cheapestFor(offers: Offer[], c: AlertCriteria): AlertBest | null
   for (const o of offers) {
     if (c.direct && (o.outbound.stops > 0 || (o.inbound?.stops ?? 0) > 0)) continue;
     let price = o.price;
-    if (hasBags(c.bags)) {
+    // Bagaj bilgisi olmayan (önbellekli) fiyatta bagaj koşulu uygulanamaz: fiyat bagajsız karşılaştırılır
+    if (hasBags(c.bags) && !o.bagsUnknown) {
       const w = wantedBagsExtra(o.bags, c.bags!);
       if (!w) continue;
       price += w.extra;
