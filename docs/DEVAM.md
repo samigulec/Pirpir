@@ -188,3 +188,7 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   `price-calendar`, `price-drop` e-postası ve `plan-data` PDF'i güncel kurları kullanıyor. Denendi: `npm run lint`,
   `npx next build` (71/71 sayfa, tüm SSG sayfaları korundu) ve uçtan uca test: canlı ECB XML (1 EUR = 55.6474 TRY),
   `100 EUR → 5565 TRY`, SSR HTML içinde güncel kur, kırık ECB URL'inde `100 EUR → 4000 TRY` yedek kur + HTTP 200. Bilinen eksik yok.
+- [canlı widget] Claude — kullanıcı kararı: önbellekte olmayan günler için canlı sonuçlar sayfanın içinde (White Label
+  **Widget** türü). Kod hazır (`LiveWidget.tsx`, `NEXT_PUBLIC_TP_WL_WIDGET_ID`), kullanıcı widget'ı Travelpayouts'ta
+  oluşturup kimliği verince Vercel'e eklenecek ve canlıda doğrulanacak. 3.6 (Gemini, ECB kurları) birleştirildi ve
+  kontrol edildi: lint + build temiz, son kullanıcı senaryoları (masaüstü + telefon) geçti.
