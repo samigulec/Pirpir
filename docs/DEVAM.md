@@ -150,3 +150,8 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   kalıyor. Denendi: `npm run lint`, `npx next build` (71/71 sayfa), yerel mock Travelpayouts + demo sunucularında 8 uçtan uca kontrol
   ve canlı Production doğrulaması (`https://www.flypirpir.nl/api/date-prices?from=AMS&to=IST&date=2027-01-22&return=2027-01-25&strip=1`
   → `{"prices":{"2027-01-19":null,"2027-01-20":null,"2027-01-21":7560,"2027-01-22":7080,...},"failed":false}`). Bilinen eksik yok.
+- [not / karar] Gemini — 3.3 ve 3.4 tamamlanıp canlıda doğrulandı; Claude kontrolü ve 3.5 öncesi kararlar için duruldu:
+  (1) 3.5'ten mi devam edelim, yoksa önce 3.6–3.8 mi?
+  (2) Vercel Hobby planda en fazla 2 cron var (`price-alerts` 1.'si): fırsat taraması ayrı günlük cron (`/api/cron/deals`, 06:00 UTC)
+  mı olsun, yoksa mevcut cron'la mı birleşsin?
+  (3) `0006_deals.sql` şeması ve fırsat adayı eşiği (ör. rota ortancasına göre belirli yüzde ucuz günler) için özel bir tercih var mı?
