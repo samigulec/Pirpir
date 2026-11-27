@@ -311,3 +311,13 @@ Telegram/WhatsApp fırsat kanalı otomasyonu, e-posta bülteni, fırsat sayfalar
   Denendi: `npm run lint`, `npx next build` (274/274 sayfa), yerel mock Travelpayouts doğrulaması (`grouped_prices`
   ay+gün çağrıları, `26 Kas` görülme tarihi, `src=route:viyana-istanbul`, "Fiyata bak", 404, EN rota, `/sitemap.xml`),
   `npm run e2e` (11/11 geçti). Bilinen eksik yok.
+- [5.3] Ana sayfa ortaklık moduna tam uyum — commit aa76f40 — `src/lib/deals.ts` içinde ortaklık modunda
+  (`priceSource() === "travelpayouts"`) yayınlanmış fırsatı olmayan popüler hedefler için önümüzdeki 60 günün
+  `groupedPrices` taraması (`cachedTpCheapest60d`, 2 saat `unstable_cache`, ECB kurları, `seenDate`) eklendi
+  (`getBestDates` de bunu kullanır). `PopularFlights.tsx` ve `CharacterTips.tsx` (Bulut/Roma, Güneş/Antalya)
+  ortaklık modunda `"…’dan"` biçimini, fiyatın görüldüğü gerçek günü (`seenDate`) ve 60 günlük Aviasales önbellek
+  notunu (`noteLiveAff`) gösterir. `Faq.tsx` ve 7 dilde `messages/*/home.json` (`bagsAff`, `transferAff`, `priceFrom`,
+  `seenDate`, `noteLiveAff`) ortaklık gerçeğine uyarlandı (bilet satmıyoruz, bagaj/aktarma ayrıntıları canlı listede ve
+  satıcıda; `[İPTAL KOŞULLARI]` yer tutucusuna dokunulmadı). Denendi: `npm run lint`, `npx next build` (274/274),
+  yerel mock Travelpayouts doğrulaması (`/api/deals?from=AMS` → 17/17 hedef dolu, `seenDate`, `"…’dan"`, SSS metinleri)
+  ve `npm run e2e` (tüm 5 kategori sekmesi dahil 11/11 geçti). Bilinen eksik yok.
