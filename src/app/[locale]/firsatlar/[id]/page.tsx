@@ -5,7 +5,9 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Bulut } from "@/components/characters";
 import { DealNormalPrice, DealPrice } from "@/components/deals/DealPrice";
-import { Link } from "@/i18n/navigation";
+import { DealShare } from "@/components/deals/DealShare";
+import { siteUrl } from "@/config/brand";
+import { getPathname, Link } from "@/i18n/navigation";
 import { cityByCode } from "@/data/airports";
 import { formatPrice, toTry } from "@/lib/currency";
 import { getRates, serverCurrency } from "@/lib/currency-server";
@@ -34,9 +36,13 @@ export async function generateMetadata({
   const route = `${cityByCode(found.deal.origin, locale)} → ${cityByCode(found.deal.destination, locale)}`;
   const price = formatPrice(toTry(found.deal.price_eur, "EUR", rates), cur, loc, rates);
   const dates = formatRange(found.deal.depart, found.deal.return_date ?? undefined, loc);
+  const title = `${route} · ${price}`;
+  const description = `${route} (${dates}) · ${t("metaDescription")}`;
   return {
-    title: `${route} · ${price}`,
-    description: `${route} (${dates}) · ${t("metaDescription")}`,
+    title,
+    description,
+    openGraph: { title, description },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -58,9 +64,12 @@ export default async function DealDetailPage({
   const loc = intlLocale(locale);
   const fromCity = cityByCode(deal.origin, locale);
   const toCity = cityByCode(deal.destination, locale);
+  const route = `${fromCity} → ${toCity}`;
   const priceTry = toTry(deal.price_eur, "EUR", rates);
   const medianTry = toTry(deal.median_eur, "EUR", rates);
   const pct = deal.median_eur > 0 ? Math.round(((deal.median_eur - deal.price_eur) / deal.median_eur) * 100) : 0;
+  const dates = formatRange(deal.depart, deal.return_date ?? undefined, loc);
+  const shareUrl = `${siteUrl()}${getPathname({ href: { pathname: "/firsatlar/[id]", params: { id: deal.id } }, locale })}`;
 
   const stopsLabel = (n: number | null) =>
     n === null ? null : n === 0 ? t("direct") : n === 1 ? t("oneStop") : t("stops", { n });
@@ -166,6 +175,8 @@ export default async function DealDetailPage({
             })}
           </ul>
         </section>
+
+        <DealShare route={route} priceTry={priceTry} dates={dates} url={shareUrl} />
 
         <p className="m-0 rounded-[20px] bg-field px-5 py-4 text-sm font-semibold text-muted">{t("priceNote")}</p>
       </main>

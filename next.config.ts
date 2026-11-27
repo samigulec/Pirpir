@@ -8,8 +8,11 @@ const nextConfig: NextConfig = {
   env: { NEXT_PUBLIC_OUTBOUND_PARTNER: process.env.SKYSCANNER_MEDIA_PARTNER_ID?.trim() ? "skyscanner" : "aviasales" },
   // PDF çizici Node paketidir; paketlenmeden çalışsın
   serverExternalPackages: ["@react-pdf/renderer"],
-  // PDF'e gömülen yazı tipleri sunucu fonksiyonuyla birlikte yüklensin (Vercel)
-  outputFileTracingIncludes: { "/api/bilet-pdf/[id]": ["./assets/fonts/*.ttf"] },
+  // PDF ve OG görseline gömülen yazı tipleri sunucu fonksiyonuyla birlikte yüklensin (Vercel)
+  outputFileTracingIncludes: {
+    "/api/bilet-pdf/[id]": ["./assets/fonts/*.ttf"],
+    "/[locale]/firsatlar/[id]/opengraph-image": ["./assets/fonts/Nunito_700Bold.ttf", "./assets/fonts/Nunito_800ExtraBold.ttf"],
+  },
 };
 
 export default withNextIntl(nextConfig);
