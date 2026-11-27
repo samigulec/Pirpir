@@ -240,5 +240,7 @@
   "goOut": "Go to outbound ticket",
   "goBack": "Go to return ticket",
   "separateNote": "Outbound and return are booked separately",
-  "fewResults": "Only a few saved flights for these dates. See all flights and current prices in live search."
+  "fewResults": "Only a few saved flights for these dates. See all flights and current prices in live search.",
+  "liveTitle": "Live flights",
+  "liveText": "Current flights and prices for your dates (Aviasales live search)."
 }

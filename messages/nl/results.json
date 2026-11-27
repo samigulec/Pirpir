@@ -240,5 +240,7 @@
   "goOut": "Naar heenvlucht",
   "goBack": "Naar terugvlucht",
   "separateNote": "Heen- en terugvlucht boek je apart",
-  "fewResults": "Weinig opgeslagen vluchten voor deze data. Bekijk alle vluchten en actuele prijzen in de live zoekfunctie."
+  "fewResults": "Weinig opgeslagen vluchten voor deze data. Bekijk alle vluchten en actuele prijzen in de live zoekfunctie.",
+  "liveTitle": "Live vluchten",
+  "liveText": "Actuele vluchten en prijzen voor jouw data (live zoeken via Aviasales)."
 }

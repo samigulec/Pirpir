@@ -63,3 +63,16 @@ export function parseGo(p: URLSearchParams): (OutboundTrip & { src: string; loca
     locale: (p.get("l") ?? "tr").slice(0, 5),
   };
 }
+
+const AVIASALES_CLASS: Record<CabinClass, string> = { economy: "", premium_economy: "w", business: "c", first: "f" };
+const ddmm = (iso: string) => iso.slice(8, 10) + iso.slice(5, 7);
+
+/**
+ * Aviasales arama kodu (resmî biçim): AMS2101ADB2801 + sınıf + yetişkin/çocuk/bebek, ör. AMS2201IST250121.
+ * Şehir kodları (IST, LON…) doğrudan kullanılır: tüm havalimanları birlikte aranır.
+ */
+export function aviasalesRoute(t: Pick<OutboundTrip, "from" | "to" | "date" | "returnDate" | "adults" | "children" | "infants" | "cabin">): string {
+  const code = (c: string) => (c.startsWith("city:") ? c.slice(5) : c);
+  const pax = String(t.adults) + (t.children || t.infants ? String(t.children) + (t.infants ? String(t.infants) : "") : "");
+  return code(t.from) + ddmm(t.date) + code(t.to) + (t.returnDate ? ddmm(t.returnDate) : "") + AVIASALES_CLASS[t.cabin] + pax;
+}

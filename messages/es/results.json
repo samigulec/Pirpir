@@ -240,5 +240,7 @@
   "goOut": "Ir al billete de ida",
   "goBack": "Ir al billete de vuelta",
   "separateNote": "La ida y la vuelta se reservan por separado",
-  "fewResults": "Hay pocos vuelos guardados para estas fechas. Mira todos los vuelos y precios actuales en la búsqueda en directo."
+  "fewResults": "Hay pocos vuelos guardados para estas fechas. Mira todos los vuelos y precios actuales en la búsqueda en directo.",
+  "liveTitle": "Vuelos en directo",
+  "liveText": "Vuelos y precios actuales para tus fechas (búsqueda en directo de Aviasales)."
 }
