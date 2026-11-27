@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
+    "e2e": "playwright test",
     "svg": "node scripts/svg-to-tsx.mjs",
     "airports": "node scripts/build-airports.mjs"
   },
@@ -21,6 +22,7 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

@@ -7,3 +7,5 @@ next-env.d.ts
 .env
 .DS_Store
 scripts/.og-html.json
+playwright-report/
+test-results/

@@ -9,8 +9,13 @@ npm install
 npm run dev      # http://localhost:3000
 npm run build    # üretim derlemesi
 npm run lint     # TypeScript kontrolü
+npm run e2e      # Playwright uçtan uca testleri (önce build; örnek veri modunda, ağ gerektirmez)
 npm run svg      # assets/ içindeki SVG'leri bileşenlere yeniden çevir
 ```
+
+Uçtan uca testler (`playwright.config.ts`, `tests/e2e/`): önce `npx next build`, ardından `npm run e2e`.
+Sistemdeki Chromium/Chrome otomatik bulunur (`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` ile de verilebilir); tarayıcı
+indirmeye gerek yoktur. `--trace off` varsayılandır.
 
 ## Veri modları
 
