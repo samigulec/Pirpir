@@ -253,4 +253,54 @@ test.describe("Canlı widget (8.1 tarih kayması ve URL koruması)", () => {
       }),
     ).toBe(true);
   });
+
+  test("8.3 Sonuç sayfası: kartlar fiyat güncellemesinde yeniden sıralanır, para birimi/dil değişimi widget'ı günceller, noindex aktif", async ({ page }) => {
+    await interceptWidget(page);
+    await page.goto("/ara?flightSearch=AMS0201ADB09011", { waitUntil: "networkidle" });
+
+    // 1. robots noindex meta etiketi
+    const robots = await page.locator('meta[name="robots"]').getAttribute("content");
+    expect(robots ?? "").toContain("noindex");
+
+    // 2. İlk sıralama en ucuzdan pahalıya (267, 284, 291); bagaj açılınca yerindeki fiyat değişimiyle (312, 318, 336) güncellenir
+    await expect.poll(async () =>
+      page.evaluate(() => {
+        const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+        return [...(sr?.querySelectorAll<HTMLElement>('[data-role="flight-card"]') ?? [])].map((c) => c.style.order);
+      }),
+    ).toEqual(["291", "267", "284"]);
+
+    await page.locator("#tpwl-tickets").locator('[data-testid="baggage-included-filter"]').click();
+    await expect.poll(async () =>
+      page.evaluate(() => {
+        const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+        return [...(sr?.querySelectorAll<HTMLElement>('[data-role="flight-card"]') ?? [])].map((c) => c.style.order);
+      }),
+    ).toEqual(["312", "318", "336"]);
+
+    // 3. Para birimi TRY → EUR değişince widget yeni para birimiyle yeniden yüklenir
+    await page.locator("header button[title]").first().click();
+    const dialog = page.locator("dialog[open]");
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: /Para birimi|TRY/i }).first().click();
+    await dialog.getByRole("option", { name: /EUR/i }).first().click();
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: "networkidle" }),
+      dialog.getByRole("button", { name: "Kaydet" }).click(),
+    ]);
+    const cfgAfterCur = await page.evaluate(() => (window as unknown as { __mockWidgetLastConfig?: { cur?: string; lang?: string; flightSearch?: string } }).__mockWidgetLastConfig);
+    expect(cfgAfterCur?.cur).toBe("EUR");
+    expect(cfgAfterCur?.flightSearch).toBe("AMS0201ADB09011");
+
+    // 4. Dil Türkçe → English değişince /en/search adresine geçip widget EN olarak yeniden yüklenir
+    await page.locator("header button[title]").first().click();
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: /Dil|Türkçe/i }).first().click();
+    await dialog.getByRole("option", { name: /English/i }).first().click();
+    await dialog.getByRole("button", { name: "Kaydet" }).click();
+    await page.waitForURL(/\/en\/search\?flightSearch=AMS0201ADB09011/, { timeout: 15_000 });
+    await expect.poll(async () =>
+      page.evaluate(() => (window as unknown as { __mockWidgetLastConfig?: { lang?: string } }).__mockWidgetLastConfig?.lang),
+    ).toBe("EN");
+  });
 });

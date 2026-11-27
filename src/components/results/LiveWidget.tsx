@@ -14,11 +14,19 @@ import type { MultiQuery } from "@/lib/search";
 const SCRIPT_ID = "tpwl-main";
 const STYLE_ID = "pirpir-tpwl";
 
-type W = typeof window & { __tpwlBox?: HTMLElement | null; __tpwlRoute?: string; TPWL_CONFIGURATION?: Record<string, unknown> };
+type W = typeof window & {
+  __tpwlBox?: HTMLElement | null;
+  __tpwlRoute?: string;
+  __tpwlLang?: string;
+  __tpwlCur?: string;
+  TPWL_CONFIGURATION?: Record<string, unknown>;
+};
 
 /** Widget'ın desteklediği diller ve para birimleri (Travelpayouts panelindeki White Label ayarı) */
 const WIDGET_LANGS = ["tr", "en", "nl", "de"];
 const WIDGET_CURRENCIES = ["EUR", "TRY", "USD"];
+const widgetLangFor = (l: string) => (WIDGET_LANGS.includes(l) ? l : "en").toUpperCase();
+const widgetCurFor = (c: string) => (WIDGET_CURRENCIES.includes(c) ? c : "EUR");
 
 /**
  * Widget kartlarını gölge DOM'a (shadow root) çizer: sayfanın CSS'i içeri girmez, yalnızca değişkenler (globals.css)
@@ -56,16 +64,29 @@ function enhanceShadow(host: HTMLElement | null): () => void {
   let userSorted = false;
   const sortCards = (root: ShadowRoot) => {
     if (userSorted) return;
-    const cards = [...root.querySelectorAll(CARD)];
-    const parent = cards[0]?.parentElement;
-    if (!parent) return;
-    if (getComputedStyle(parent).display !== "flex") {
-      parent.style.display = "flex";
-      parent.style.flexDirection = "column";
+    const cards = [...root.querySelectorAll<HTMLElement>(CARD)];
+    if (!cards.length) return;
+    // Kartlar birden çok kapsayıcıda (ör. öne çıkan kart + ana liste) olabilir; her kapsayıcıyı kendi içinde sırala
+    const byParent = new Map<HTMLElement, HTMLElement[]>();
+    for (const c of cards) {
+      const p = c.parentElement;
+      if (!p) continue;
+      const list = byParent.get(p);
+      if (list) list.push(c);
+      else byParent.set(p, [c]);
     }
-    for (const c of cards) if (c.parentElement === parent) (c as HTMLElement).style.order = String(priceOf(c));
-    // Kart dışındaki öğeler (ör. "Daha fazla uçuş göster") en sonda kalsın
-    for (const el of [...parent.children]) if (!el.matches(CARD)) (el as HTMLElement).style.order = "2000000000";
+    for (const [parent, group] of byParent) {
+      if (group.length < 2) continue;
+      if (getComputedStyle(parent).display !== "flex") {
+        parent.style.display = "flex";
+        parent.style.flexDirection = "column";
+      }
+      for (const c of group) c.style.order = String(priceOf(c));
+      // Kart dışındaki öğeler (ör. "Daha fazla uçuş göster") en sonda kalsın
+      for (const el of [...parent.children]) {
+        if (!el.matches(CARD)) (el as HTMLElement).style.order = "2000000000";
+      }
+    }
   };
   const attach = () => {
     const root = host.shadowRoot;
@@ -92,7 +113,7 @@ function enhanceShadow(host: HTMLElement | null): () => void {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => sortCards(root));
     });
-    observer.observe(root, { childList: true, subtree: true });
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
     sortCards(root);
   };
   attach();
@@ -259,12 +280,16 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
     }
     w.__tpwlBox = box.current;
     w.__tpwlRoute = route;
+    const initialLang = widgetLangFor(locale);
+    const initialCur = widgetCurFor(readInitialCurrency() ?? cur);
+    w.__tpwlLang = initialLang;
+    w.__tpwlCur = initialCur;
     // Dil ve para birimi sitenin seçimini izler (widget'ın desteklemediğinde İngilizce / EUR)
     w.TPWL_CONFIGURATION = {
       ...(w.TPWL_CONFIGURATION ?? {}),
-      defaultLanguage: (WIDGET_LANGS.includes(locale) ? locale : "en").toUpperCase(),
+      defaultLanguage: initialLang,
       // Sağlayıcının ilk değeri henüz yerine oturmamış olabilir (bu etki ondan önce çalışır): kaynağından okunur
-      defaultCurrency: ((c) => (WIDGET_CURRENCIES.includes(c) ? c : "EUR"))(readInitialCurrency() ?? cur),
+      defaultCurrency: initialCur,
     };
     const s = document.createElement("script");
     s.id = SCRIPT_ID;
@@ -272,9 +297,20 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
     s.type = "module";
     s.src = src;
     document.head.appendChild(s);
-    // Dil/para birimi yalnızca açılışta okunur; değişince yeni arama gibi sayfa yeniden yüklenir
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src, route]);
+
+  // Dil veya para birimi sonradan değişirse widget yalnızca açılışta okuduğu için temiz adresle yeniden yüklenir
+  useEffect(() => {
+    if (!src || !document.getElementById(SCRIPT_ID)) return;
+    const w = window as W;
+    const nextLang = widgetLangFor(locale);
+    const stored = readInitialCurrency();
+    const nextCur = widgetCurFor(stored ?? cur);
+    if ((w.__tpwlLang && nextLang !== w.__tpwlLang) || (w.__tpwlCur && stored && nextCur !== w.__tpwlCur)) {
+      window.location.replace(cleanWidgetUrl(window.location.href, route));
+    }
+  }, [src, locale, cur, route]);
 
   // Widget kendi şeridinden (ya da kendi formundan) başka aramaya geçince `urlchange` olayı yayınlar: sayfanın adresi
   // ve arama kutusu o aramaya eşitlenir, widget yerinde kalır. `adults` vb. parametreler geri eklenmez (yenilemede tarih kaymasın).
