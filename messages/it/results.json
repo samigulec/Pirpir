@@ -81,10 +81,10 @@
     "remove": "Rimuovi {label}",
     "stopsTitle": "Scali",
     "stops": {
-      "any": "Qualsiasi",
       "0": "Solo diretti",
       "1": "Fino a 1 scalo",
-      "2": "Fino a 2 scali"
+      "2": "Fino a 2 scali",
+      "any": "Qualsiasi"
     },
     "overnight": "Consenti scali notturni",
     "airlinesTitle": "Compagnie aeree",
@@ -218,7 +218,13 @@
     "none": "Al momento nessun volo con questa scelta.",
     "confirm": "Crea avviso",
     "cancel": "Annulla",
-    "open": "Impostazioni avviso prezzo"
+    "open": "Impostazioni avviso prezzo",
+    "loading": "Controllo del prezzo salvato…",
+    "noneCached": "Al momento non c’è un prezzo salvato — ti avviseremo appena scende.",
+    "seenToday": "Prezzo visto oggi",
+    "seenYesterday": "Prezzo visto 1 giorno fa",
+    "seenDaysAgo": "Prezzo visto {n} giorni fa",
+    "seenOnDate": "Prezzo visto il {date}"
   },
   "goDeal": "Vedi offerta",
   "partnerNote": "Si apre su {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",

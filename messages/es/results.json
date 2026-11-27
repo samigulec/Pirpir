@@ -81,10 +81,10 @@
     "remove": "Quitar {label}",
     "stopsTitle": "Escalas",
     "stops": {
-      "any": "Cualquiera",
       "0": "Solo directos",
       "1": "Hasta 1 escala",
-      "2": "Hasta 2 escalas"
+      "2": "Hasta 2 escalas",
+      "any": "Cualquiera"
     },
     "overnight": "Permitir escalas nocturnas",
     "airlinesTitle": "Aerolíneas",
@@ -218,7 +218,13 @@
     "none": "Ahora no hay vuelos con esta selección.",
     "confirm": "Crear alerta",
     "cancel": "Cancelar",
-    "open": "Ajustes de la alerta de precio"
+    "open": "Ajustes de la alerta de precio",
+    "loading": "Comprobando el precio guardado…",
+    "noneCached": "Ahora mismo no hay precio guardado; te avisaremos cuando baje.",
+    "seenToday": "Precio visto hoy",
+    "seenYesterday": "Precio visto hace 1 día",
+    "seenDaysAgo": "Precio visto hace {n} días",
+    "seenOnDate": "Precio visto el {date}"
   },
   "goDeal": "Ver oferta",
   "partnerNote": "Se abre en {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",

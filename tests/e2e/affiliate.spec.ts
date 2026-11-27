@@ -122,4 +122,42 @@ test.describe("Ortaklık modu (sahte Travelpayouts sunucusu)", () => {
     // 6 günden az veri varsa ortanca anlamsız -> boş dizi
     expect(pickDealCandidates("AMS", "IST", [mk(1, 200), mk(2, 90)], today)).toEqual([]);
   });
+
+  test("Fiyat alarmı penceresi /api/alert-price ile önbellek fiyatını ve görülme gününü gösterir", async ({ page, request }) => {
+    const errors = trackErrors(page);
+    const dep = nextMonthDay(22);
+    const ret = nextMonthDay(29);
+
+    // 1. /api/alert-price doğrudan doğrulama (tam tarih, esnek ±3, direkt, geçersiz -> 400)
+    const bad = await request.get("/api/alert-price?from=AMS");
+    expect(bad.status()).toBe(400);
+
+    const exactRes = await request.get(`/api/alert-price?from=AMS&to=IST&date=${dep}&return=${ret}&adults=1&flex=0&direct=0`);
+    expect(exactRes.status()).toBe(200);
+    const exactJson = (await exactRes.json()) as { best: { price: number; seenAt?: string } | null; source: string };
+    expect(exactJson.source).toBe("travelpayouts");
+    expect(exactJson.best?.price ?? 0).toBeGreaterThan(0);
+    expect(exactJson.best?.seenAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+
+    const flexRes = await request.get(`/api/alert-price?from=AMS&to=IST&date=${dep}&return=${ret}&adults=1&flex=3&direct=1`);
+    expect(flexRes.status()).toBe(200);
+    const flexJson = (await flexRes.json()) as { best: { price: number; stops: number; seenAt?: string } | null };
+    expect(flexJson.best?.price ?? 0).toBeGreaterThan(0);
+    expect(flexJson.best?.stops).toBe(0);
+
+    // 2. Sonuç sayfasında alarm penceresi açılır, önbellekli fiyat + "1 gün önce görülen fiyat" görünür, Alarmı kur etkindir
+    await page.goto(`/ara?from=AMS&to=IST&date=${dep}&return=${ret}&adults=1`, { waitUntil: "networkidle" });
+    await page.getByRole("button", { name: "Fiyat alarmı kur" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(/gün önce görülen fiyat|Bugün görülen fiyat/i)).toBeVisible({ timeout: 10_000 });
+    await expect(dialog.getByRole("button", { name: "Alarmı kur" })).toBeEnabled();
+
+    // ± 3 gün esnek ve Sadece direkt seçimi yeni fiyat isteğiyle sorunsuz güncellenir
+    await dialog.getByText("± 3 gün esnek").click();
+    await dialog.getByText("Sadece direkt").click();
+    await expect(dialog.getByText(/gün önce görülen fiyat|Bugün görülen fiyat|Şu an kayıtlı fiyat yok/i)).toBeVisible({ timeout: 10_000 });
+
+    expect(errors).toEqual([]);
+  });
 });

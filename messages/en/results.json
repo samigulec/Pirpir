@@ -81,10 +81,10 @@
     "remove": "Remove {label}",
     "stopsTitle": "Stops",
     "stops": {
-      "any": "Any",
       "0": "Direct only",
       "1": "Up to 1 stop",
-      "2": "Up to 2 stops"
+      "2": "Up to 2 stops",
+      "any": "Any"
     },
     "overnight": "Allow overnight layovers",
     "airlinesTitle": "Airlines",
@@ -218,7 +218,13 @@
     "none": "No flights match this right now.",
     "confirm": "Set alert",
     "cancel": "Cancel",
-    "open": "Price alert settings"
+    "open": "Price alert settings",
+    "loading": "Checking cached price…",
+    "noneCached": "No cached price right now — we’ll let you know when it drops.",
+    "seenToday": "Price seen today",
+    "seenYesterday": "Price seen 1 day ago",
+    "seenDaysAgo": "Price seen {n} days ago",
+    "seenOnDate": "Price seen on {date}"
   },
   "goDeal": "View deal",
   "partnerNote": "Opens on {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",

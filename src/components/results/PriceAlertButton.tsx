@@ -7,17 +7,19 @@ import { Link } from "@/i18n/navigation";
 import { useAuthUi } from "../auth/LoginModal";
 import { useCurrency } from "../CurrencyProvider";
 import { createAlert } from "@/actions/user";
-import { cheapestFor, type AlertCriteria } from "@/lib/alert-criteria";
-import { formatDayWithWeekday, formatRange } from "@/lib/dates";
+import { isAffiliate } from "@/config/affiliate";
+import { cheapestFor, type AlertBest, type AlertCriteria } from "@/lib/alert-criteria";
+import { formatDayShort, formatDayWithWeekday, formatRange } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 import type { Filters } from "@/lib/results-filter";
 import type { Offer } from "@/lib/providers/types";
-import type { MultiQuery } from "@/lib/search";
+import { todayIso, type MultiQuery } from "@/lib/search";
 
 /**
  * "Fiyat alarmı kur": önce "Neyi takip edelim?" penceresi açılır. Tarih (yalnızca seçilenler ya da ± 3 gün),
  * aktarma (sonuç filtresinden hazır gelir), bagaj (filtredeki bagajla) ve ne zaman haber verileceği
- * (belirgin düşüşte ya da hedef fiyatın altına inince) seçilir; seçime uyan şu anki en ucuz uçuş canlı görünür.
+ * (belirgin düşüşte ya da hedef fiyatın altına inince) seçilir; seçime uyan en ucuz önbellekli fiyat
+ * `/api/alert-price` uç noktasından (10 dk önbellekli) alınır ve görülme günü yazılır.
  * Giriş yapılmamışsa giriş penceresi açılır, girişten sonra alarm kendiliğinden kurulur.
  * Adreste `alarm=1` varsa (ana sayfadaki alarm formundan gelindi) pencere sonuçlar gelince açılır.
  */
@@ -29,6 +31,7 @@ export function PriceAlertButton({ q, offers, filters }: { q: MultiQuery; offers
   const loc = intlLocale(useLocale());
   const id = useId();
   const ref = useRef<HTMLDialogElement>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState(false);
   const [pending, start] = useTransition();
@@ -37,22 +40,80 @@ export function PriceAlertButton({ q, offers, filters }: { q: MultiQuery; offers
   const pendingCriteria = useRef<AlertCriteria | null>(null);
   const [awaitLogin, setAwaitLogin] = useState(false);
 
+  const affiliate = isAffiliate();
   const bags = filters.bags.cabin || filters.bags.checked ? { cabin: filters.bags.cabin, checked: filters.bags.checked } : undefined;
   const [flex, setFlex] = useState<0 | 3>(q.flex === 3 ? 3 : 0);
   const [direct, setDirect] = useState(filters.stops === "0");
   const [mode, setMode] = useState<"drop" | "target">("drop");
   const [target, setTarget] = useState("");
+  const targetEdited = useRef(false);
 
-  const best = useMemo(() => cheapestFor(offers, { direct, bags }), [offers, direct, bags]);
-  const toLocal = (tryAmount: number) => Math.round((tryAmount * rates[cur]) / 5) * 5;
+  const localBest = useMemo(() => cheapestFor(offers, { direct, bags }), [offers, direct, bags]);
+  const [remoteState, setRemoteState] = useState<{ key: string; best: AlertBest | null } | null>(null);
+  const [loadingRemote, setLoadingRemote] = useState(false);
+
+  const shouldFetchRemote = dialogOpen && (affiliate || offers.length === 0 || flex === 3);
+  const fetchKey = `${q.from.join(",")}|${q.to.join(",")}|${q.date}|${q.returnDate ?? ""}|${q.cabin ?? "economy"}|${flex}|${direct ? 1 : 0}`;
+  const toLocal = useCallback((tryAmount: number) => Math.round((tryAmount * rates[cur]) / 5) * 5, [rates, cur]);
+
+  useEffect(() => {
+    if (!shouldFetchRemote) return;
+    const ctrl = new AbortController();
+    setLoadingRemote(true);
+    const p = new URLSearchParams({
+      from: q.from.join(","),
+      to: q.to.join(","),
+      date: q.date,
+      adults: String(q.pax.adults),
+      flex: String(flex),
+      direct: direct ? "1" : "0",
+    });
+    if (q.returnDate) p.set("return", q.returnDate);
+    if (q.pax.children) p.set("children", String(q.pax.children));
+    if (q.pax.infants) p.set("infants", String(q.pax.infants));
+    if (q.cabin && q.cabin !== "economy") p.set("cabin", q.cabin);
+
+    fetch(`/api/alert-price?${p}`, { signal: ctrl.signal })
+      .then((r) => (r.ok ? r.json() : { best: null }))
+      .then((res: { best?: AlertBest | null }) => {
+        if (ctrl.signal.aborted) return;
+        const found = res.best ?? null;
+        setRemoteState({ key: fetchKey, best: found });
+        if (found && !targetEdited.current) setTarget(String(toLocal(found.price * 0.9)));
+      })
+      .catch(() => {
+        if (!ctrl.signal.aborted) setRemoteState({ key: fetchKey, best: null });
+      })
+      .finally(() => {
+        if (!ctrl.signal.aborted) setLoadingRemote(false);
+      });
+
+    return () => ctrl.abort();
+  }, [shouldFetchRemote, fetchKey, q, flex, direct, toLocal]);
+
+  const best: AlertBest | null =
+    shouldFetchRemote
+      ? remoteState?.key === fetchKey
+        ? remoteState.best
+        : flex === 0
+          ? localBest
+          : null
+      : localBest;
 
   const open = () => {
     // Pencere her açılışta sonuç filtresini yansıtsın; hedef, şu anki fiyatın %10 altı önerilir
     setDirect(filters.stops === "0");
+    targetEdited.current = false;
     const b = cheapestFor(offers, { direct: filters.stops === "0", bags });
     setTarget(b ? String(toLocal(b.price * 0.9)) : "");
     setError(false);
+    setDialogOpen(true);
     ref.current?.showModal();
+  };
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+    ref.current?.close();
   };
 
   const run = useCallback(
@@ -61,6 +122,7 @@ export function PriceAlertButton({ q, offers, filters }: { q: MultiQuery; offers
         const r = await createAlert(q, crit);
         if (r.ok) {
           setDone(true);
+          setDialogOpen(false);
           ref.current?.close();
           if (auto) {
             const u = new URL(window.location.href);
@@ -70,6 +132,7 @@ export function PriceAlertButton({ q, offers, filters }: { q: MultiQuery; offers
         } else if (r.error === "signIn") {
           pendingCriteria.current = crit;
           setAwaitLogin(true);
+          setDialogOpen(false);
           ref.current?.close();
           openLogin();
         } else setError(true);
@@ -104,7 +167,7 @@ export function PriceAlertButton({ q, offers, filters }: { q: MultiQuery; offers
     if (!signedIn) {
       pendingCriteria.current = crit;
       setAwaitLogin(true);
-      ref.current?.close();
+      closeDialog();
       return openLogin();
     }
     run(crit);
@@ -123,6 +186,17 @@ export function PriceAlertButton({ q, offers, filters }: { q: MultiQuery; offers
   const stopsText = (n: number) => (n === 0 ? tc("direct") : n === 1 ? tc("oneStop") : tc("stops", { n }));
   const legend = "mb-2 p-0 text-sm font-extrabold text-muted";
 
+  const seenLabel = (iso?: string) => {
+    if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
+    const today = todayIso();
+    const days = Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${iso}T00:00:00Z`)) / 86_400_000);
+    if (days === 0) return t("seenToday");
+    if (days === 1) return t("seenYesterday");
+    if (days > 1 && days <= 30) return t("seenDaysAgo", { n: days });
+    return t("seenOnDate", { date: formatDayShort(iso, loc) });
+  };
+  const seenText = seenLabel(best?.seenAt);
+
   return (
     <>
       <button
@@ -140,13 +214,14 @@ export function PriceAlertButton({ q, offers, filters }: { q: MultiQuery; offers
       <dialog
         ref={ref}
         aria-labelledby={`${id}-title`}
-        onClick={(e) => e.target === e.currentTarget && ref.current?.close()}
+        onClose={() => setDialogOpen(false)}
+        onClick={(e) => e.target === e.currentTarget && closeDialog()}
         className="m-auto box-border max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-[560px] overflow-y-auto rounded-[32px] border-0 bg-white p-0 text-ink shadow-search backdrop:bg-ink/50"
       >
         <div className="flex flex-col gap-5 px-6 py-6">
           <div className="flex items-start justify-between gap-3">
             <h2 id={`${id}-title`} className="m-0 font-display text-[26px] font-bold leading-tight">{t("title")}</h2>
-            <button type="button" aria-label={t("cancel")} onClick={() => ref.current?.close()} className="flex h-11 w-11 flex-none cursor-pointer items-center justify-center rounded-full border-0 bg-field text-ink">
+            <button type="button" aria-label={t("cancel")} onClick={closeDialog} className="flex h-11 w-11 flex-none cursor-pointer items-center justify-center rounded-full border-0 bg-field text-ink">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
             </button>
           </div>
@@ -203,6 +278,7 @@ export function PriceAlertButton({ q, offers, filters }: { q: MultiQuery; offers
                   value={target}
                   aria-invalid={error || undefined}
                   onChange={(e) => {
+                    targetEdited.current = true;
                     setTarget(e.target.value);
                     setError(false);
                   }}
@@ -213,23 +289,28 @@ export function PriceAlertButton({ q, offers, filters }: { q: MultiQuery; offers
           </fieldset>
 
           <div aria-live="polite" className="rounded-[20px] bg-sky px-4 py-3">
-            {best ? (
+            {loadingRemote && !best ? (
+              <span className="text-sm font-bold text-muted">{t("loading")}</span>
+            ) : best ? (
               <>
                 <span className="block text-sm font-extrabold text-muted">{t("nowLabel")}</span>
                 <span className="font-display text-[24px] font-bold">{fmt(best.price)}</span>
                 <span className="ml-2 text-sm font-bold text-muted">
-                  {[best.airline, stopsText(best.stops), `${formatDayWithWeekday(best.date, loc)} ${best.dep}`].join(" · ")}
+                  {[best.airline, stopsText(best.stops), `${formatDayWithWeekday(best.date, loc)}${best.dep ? ` ${best.dep}` : ""}`]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </span>
+                {seenText && <span className="mt-1 block text-xs font-bold text-muted">{seenText}</span>}
               </>
             ) : (
-              <span className="text-sm font-bold text-muted">{t("none")}</span>
+              <span className="text-sm font-bold text-muted">{t("noneCached")}</span>
             )}
           </div>
 
           {error && <span role="alert" className="text-sm font-bold text-coral-text">{t("error")}</span>}
 
           <div className="flex flex-wrap justify-end gap-2">
-            <button type="button" onClick={() => ref.current?.close()} className="min-h-[48px] cursor-pointer rounded-pill border-0 bg-field px-6 font-display text-lg font-semibold text-ink">
+            <button type="button" onClick={closeDialog} className="min-h-[48px] cursor-pointer rounded-pill border-0 bg-field px-6 font-display text-lg font-semibold text-ink">
               {t("cancel")}
             </button>
             <button type="button" disabled={pending} onClick={confirm} className="min-h-[48px] cursor-pointer rounded-pill border-0 bg-primary px-6 font-display text-lg font-semibold text-white disabled:opacity-60">

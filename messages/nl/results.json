@@ -81,10 +81,10 @@
     "remove": "{label} verwijderen",
     "stopsTitle": "Overstappen",
     "stops": {
-      "any": "Maakt niet uit",
       "0": "Alleen direct",
       "1": "Max. 1 overstap",
-      "2": "Max. 2 overstappen"
+      "2": "Max. 2 overstappen",
+      "any": "Maakt niet uit"
     },
     "overnight": "Overstappen 's nachts toestaan",
     "airlinesTitle": "Luchtvaartmaatschappijen",
@@ -218,7 +218,13 @@
     "none": "Er zijn nu geen vluchten met deze keuze.",
     "confirm": "Alarm instellen",
     "cancel": "Annuleren",
-    "open": "Instellingen prijsalarm"
+    "open": "Instellingen prijsalarm",
+    "loading": "Opgeslagen prijs controleren…",
+    "noneCached": "Geen opgeslagen prijs op dit moment — we waarschuwen je zodra hij daalt.",
+    "seenToday": "Prijs vandaag gezien",
+    "seenYesterday": "Prijs 1 dag geleden gezien",
+    "seenDaysAgo": "Prijs {n} dagen geleden gezien",
+    "seenOnDate": "Prijs gezien op {date}"
   },
   "goDeal": "Bekijk deal",
   "partnerNote": "Opent op {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",
