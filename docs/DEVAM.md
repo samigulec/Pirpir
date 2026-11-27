@@ -171,3 +171,9 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   RLS açık, politika yok (yalnızca service role). Aday eşiği: rotanın önümüzdeki 90 günlük gün fiyatlarının ortancasının
   **%75'i veya altı** VE en az **30 €** tasarruf VE fiyat **son 3 gün içinde görülmüş**; rota başına en fazla 3 aday.
   Fırsat sayfasında fiyatın görüldüğü gün yazılır; uydurma tazelik ("x saat önce") yazılmaz.
+- [3.6] Gerçek döviz kurları (ECB günlük XML) — commit c894146 — `src/lib/currency-server.ts` içine `parseEcbXml` ve
+  `getRates` (`unstable_cache`, 24 saat, cron yok; `AED = USD * 3.6725`; hatada örnek kurlara düşer, hata önbelleklenmez) eklendi.
+  `LocaleLayout` → `CurrencyProvider` ile kurlar tarayıcıya aktarılıyor (`PriceAlertButton` dahil); `travelpayouts`, `duffel`,
+  `price-calendar`, `price-drop` e-postası ve `plan-data` PDF'i güncel kurları kullanıyor. Denendi: `npm run lint`,
+  `npx next build` (71/71 sayfa, tüm SSG sayfaları korundu) ve uçtan uca test: canlı ECB XML (1 EUR = 55.6474 TRY),
+  `100 EUR → 5565 TRY`, SSR HTML içinde güncel kur, kırık ECB URL'inde `100 EUR → 4000 TRY` yedek kur + HTTP 200. Bilinen eksik yok.
