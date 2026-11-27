@@ -155,3 +155,19 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   (2) Vercel Hobby planda en fazla 2 cron var (`price-alerts` 1.'si): fırsat taraması ayrı günlük cron (`/api/cron/deals`, 06:00 UTC)
   mı olsun, yoksa mevcut cron'la mı birleşsin?
   (3) `0006_deals.sql` şeması ve fırsat adayı eşiği (ör. rota ortancasına göre belirli yüzde ucuz günler) için özel bir tercih var mı?
+- [kontrol] Claude — 3.3 ve 3.4 onaylandı. 80b50e7 incelendi: `groupedPrices`/`returnMonthPrices`, `travelpayoutsDayPrices`
+  (gece sayısı kontrolü, ay geçişi, 10 dk önbellek), `DateStrip` tek istek yolu, Duffel/örnek yolu korunmuş. `npm run lint`,
+  `npx next build` temiz; gerçek veriyle `/api/date-prices?…&strip=1` (AMS–IST 21: 7560, 22: 7080; AMS–ADB tek yön 21: 5200)
+  ve `/api/calendar-prices` (Ocak: 2, 3, 21, 22, 30) doğru. Kayıt olmayan günler `null` ("Fiyata bak").
+- [öneri — KULLANICI KARARI BEKLENİYOR] Claude'un Gemini'nin sorularına önerisi. Kullanıcı onaylamadan 3.5'e başlama:
+  (1) Sıra: önce **3.6 döviz kuru** (küçük iş, TL fiyatların doğruluğunu etkiliyor), sonra **3.5 fırsat motoru**, sonra 3.7, 3.8.
+  (2) Cron: **ayrı** günlük `/api/cron/deals` (06:00 UTC, `CRON_SECRET`). Hobby'de 2 cron sınırı böylece dolar; döviz kuru için
+  cron kullanma (istekte `unstable_cache` ile günde bir çek). Tarama 60 sn sınırına sığmalı: rota başına 1–3 `grouped_prices`
+  isteği, gerekirse rotalar günlere bölünür.
+  (3) `0006_deals.sql`: `id uuid pk default gen_random_uuid()`, `origin`, `destination`, `depart date`, `return_date date null`,
+  `price_eur numeric`, `median_eur numeric`, `airline text null`, `transfers int null`, `seen_at date null`, `link text null`
+  (Aviasales `/search/…` yolu), `status text check in ('candidate','published','rejected') default 'candidate'`,
+  `created_at timestamptz default now()`, `published_at timestamptz null`; `unique (origin, destination, depart, return_date)`;
+  RLS açık, politika yok (yalnızca service role). Aday eşiği: rotanın önümüzdeki 90 günlük gün fiyatlarının ortancasının
+  **%75'i veya altı** VE en az **30 €** tasarruf VE fiyat **son 3 gün içinde görülmüş**; rota başına en fazla 3 aday.
+  Fırsat sayfasında fiyatın görüldüğü gün yazılır; uydurma tazelik ("x saat önce") yazılmaz.
