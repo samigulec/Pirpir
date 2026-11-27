@@ -335,3 +335,7 @@ Telegram/WhatsApp fırsat kanalı otomasyonu, e-posta bülteni, fırsat sayfalar
   sıfırlandı). Düzeltme sonrası tüm 4 sayfada (masaüstü + mobil) Erişilebilirlik 100, En İyi Uygulamalar 100, SEO 100,
   Performans 90–100. Canlı widget betiği (`tpwgt.com`) için yalnızca rapor yazıldı, Claude'un dosyalarına dokunulmadı.
   Denendi: `npm run lint`, `npx next build` (274/274), 8 Lighthouse ölçümü ve `npm run e2e` (11/11 geçti). Bilinen eksik yok.
+- [5.6] Hukuki yer tutucular listesi — commit 32fd29a — `src/` ve `messages/` taranarak tüm köşeli parantezli hukuki ve
+  destek yer tutucuları (`[ŞİRKET ADI]`, `[ADRES]`, `[İLETİŞİM E-POSTASI]`, `[SAKLAMA SÜRESİ]`, `[ORTAKLIK ÇEREZ DETAYLARI]`,
+  `[UYGULANACAK HUKUK]`, `[DESTEK TELEFONU]`, `[İPTAL KOŞULLARI]`, `[DESTEK SAATLERİ]`, teknik `[PNR]`) dosya/satır
+  numaraları ve öncelik tablosuyla `docs/yer-tutucular.md`'ye listelendi. Hiçbir metin değiştirilmedi. Bilinen eksik yok.
