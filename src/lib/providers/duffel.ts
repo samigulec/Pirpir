@@ -4,7 +4,8 @@
 import "server-only";
 import { findAirport } from "@/data/airports";
 import { uniqueChangeOptions } from "../change-options";
-import { toTry } from "../currency";
+import { RATES, toTry, type Rates } from "../currency";
+import { getRates } from "../currency-server";
 import { mergeBags } from "../extras";
 import type { SearchQuery } from "../search";
 import { acquire, isBackground, isSkipped, noteResponse, retryWait } from "./rate-limit";
@@ -174,8 +175,8 @@ type DConditions = {
 } | null;
 
 /** İzin verilen işlemin ceza tutarı (TRY); bildirilmediyse undefined. */
-const penaltyOf = (c?: DCondition) =>
-  c?.allowed && c.penalty_amount != null && c.penalty_currency ? toTry(Number(c.penalty_amount), c.penalty_currency) : undefined;
+const penaltyOf = (c: DCondition | undefined, rates: Rates) =>
+  c?.allowed && c.penalty_amount != null && c.penalty_currency ? toTry(Number(c.penalty_amount), c.penalty_currency, rates) : undefined;
 type DService = {
   id: string;
   type: string;
@@ -325,7 +326,7 @@ const payingPassengers = (o: DOffer) => o.passengers.filter((p) => !p.type.start
  * Ek bagaj: her ödeyen yolcu için her bacakta (gidiş, dönüş) en ucuz uygun hizmet seçilir.
  * Bir bacakta bile hizmet yoksa o bagaj türü bu teklifte satın alınamaz.
  */
-function bagOffer(o: DOffer, t: "carry_on" | "checked", included: number, kg?: number): BagOffer {
+function bagOffer(o: DOffer, t: "carry_on" | "checked", included: number, rates: Rates, kg?: number): BagOffer {
   const services = (o.available_services ?? []).filter(
     (s) => s.type === "baggage" && s.metadata?.type === t && (kg === undefined || s.metadata?.maximum_weight_kg === kg),
   );
@@ -346,7 +347,7 @@ function bagOffer(o: DOffer, t: "carry_on" | "checked", included: number, kg?: n
   const cap = t === "carry_on" ? Math.max(0, 1 - included) : 9;
   return {
     included,
-    price: toTry(amount, lists[0][0].total_currency),
+    price: toTry(amount, lists[0][0].total_currency, rates),
     rawAmount: amount,
     max: Math.min(cap, ...lists.flat().map((s) => s.maximum_quantity)),
     kg: lists[0][0].metadata?.maximum_weight_kg ?? undefined,
@@ -365,9 +366,9 @@ function specOf(o: DOffer, t: "carry_on" | "checked"): BagSpec | undefined {
   return spec.kg || spec.dims ? spec : undefined;
 }
 
-function bags(o: DOffer): Bags {
+function bags(o: DOffer, rates: Rates = RATES): Bags {
   const { checked, carryOn } = includedBags(o);
-  const cabin = bagOffer(o, "carry_on", carryOn > 0 ? 1 : 0);
+  const cabin = bagOffer(o, "carry_on", carryOn > 0 ? 1 : 0, rates);
   // Havayolu farklı ağırlıkta kontrol edilen bagaj satıyorsa en hafifi ve en ağırı ayrı seçenek olur
   const weights = [
     ...new Set(
@@ -376,17 +377,17 @@ function bags(o: DOffer): Bags {
         .map((s) => s.metadata!.maximum_weight_kg as number),
     ),
   ].sort((a, b) => a - b);
-  if (weights.length < 2) return { cabin, checked: bagOffer(o, "checked", checked) };
-  const light = bagOffer(o, "checked", checked, weights[0]);
-  const heavy = bagOffer(o, "checked", 0, weights[weights.length - 1]);
-  return heavy.max > 0 ? { cabin, checked: light, heavy } : { cabin, checked: bagOffer(o, "checked", checked) };
+  if (weights.length < 2) return { cabin, checked: bagOffer(o, "checked", checked, rates) };
+  const light = bagOffer(o, "checked", checked, rates, weights[0]);
+  const heavy = bagOffer(o, "checked", 0, rates, weights[weights.length - 1]);
+  return heavy.max > 0 ? { cabin, checked: light, heavy } : { cabin, checked: bagOffer(o, "checked", checked, rates) };
 }
 
 // Yalnızca Duffel'ın kendi logo sunucusundan gelen adresler gösterilir.
 const logoUrl = (u?: string | null) => (u && u.startsWith("https://assets.duffel.com/") ? u : undefined);
 
-function mapOffer(o: DOffer, q: SearchQuery): Offer {
-  const total = toTry(Number(o.total_amount), o.total_currency);
+function mapOffer(o: DOffer, q: SearchQuery, rates: Rates): Offer {
+  const total = toTry(Number(o.total_amount), o.total_currency, rates);
   const paying = Math.max(1, q.pax.adults + q.pax.children);
   return {
     id: o.id,
@@ -402,7 +403,7 @@ function mapOffer(o: DOffer, q: SearchQuery): Offer {
     total,
     raw: { amount: o.total_amount, currency: o.total_currency },
     bagInfo: bagInfo(o),
-    bags: bags(o),
+    bags: bags(o, rates),
     // Ek bagaj hizmetinin ölçüsü yalnızca o tür bilete dahil değilse gösterilir (dahil olanınki farklı olabilir).
     bagSpecs: (() => {
       const inc = includedBags(o);
@@ -413,8 +414,8 @@ function mapOffer(o: DOffer, q: SearchQuery): Offer {
     conditions: {
       refundable: o.conditions?.refund_before_departure?.allowed,
       changeable: o.conditions?.change_before_departure?.allowed,
-      refundFee: penaltyOf(o.conditions?.refund_before_departure),
-      changeFee: penaltyOf(o.conditions?.change_before_departure),
+      refundFee: penaltyOf(o.conditions?.refund_before_departure, rates),
+      changeFee: penaltyOf(o.conditions?.change_before_departure, rates),
     },
     passportRequired: !!o.passenger_identity_documents_required,
     hold: holdOf(o.payment_requirements),
@@ -450,8 +451,8 @@ type DChangeOffer = {
 type DChangeRequest = { id: string; order_change_offers?: DChangeOffer[] };
 type DOrderChange = { id: string; change_total_amount: string; change_total_currency: string; new_total_amount: string; new_total_currency: string };
 
-const money = (amount: string | null | undefined, currency: string | null | undefined) =>
-  amount != null && currency ? toTry(Number(amount), currency) : undefined;
+const money = (amount: string | null | undefined, currency: string | null | undefined, rates: Rates) =>
+  amount != null && currency ? toTry(Number(amount), currency, rates) : undefined;
 
 /** İstenen bacakları (eski slice kimlikleriyle) çıkarıp aynı güzergâhı yeni günde ekleyen istek gövdesi. */
 async function changeBody(orderId: string, req: ChangeRequest) {
@@ -472,7 +473,7 @@ async function changeBody(orderId: string, req: ChangeRequest) {
   };
 }
 
-function mapChangeOffer(c: DChangeOffer, req: ChangeRequest): ChangeOption {
+function mapChangeOffer(c: DChangeOffer, req: ChangeRequest, rates: Rates): ChangeOption {
   const added = [...c.slices.add].sort((a, b) => a.segments[0].departing_at.localeCompare(b.segments[0].departing_at));
   const out = req.outDate ? added[0] : undefined;
   const inn = req.inDate ? added[req.outDate ? 1 : 0] : undefined;
@@ -481,9 +482,9 @@ function mapChangeOffer(c: DChangeOffer, req: ChangeRequest): ChangeOption {
     outbound: out ? mapLeg(out) : undefined,
     inbound: inn ? mapLeg(inn) : undefined,
     fareBrand: added[0]?.fare_brand_name ?? undefined,
-    changeTotal: money(c.change_total_amount, c.change_total_currency) ?? 0,
-    penalty: money(c.penalty_amount, c.penalty_currency),
-    newTotal: money(c.new_total_amount, c.new_total_currency),
+    changeTotal: money(c.change_total_amount, c.change_total_currency, rates) ?? 0,
+    penalty: money(c.penalty_amount, c.penalty_currency, rates),
+    newTotal: money(c.new_total_amount, c.new_total_currency, rates),
     expiresAt: c.expires_at,
   };
 }
@@ -494,7 +495,7 @@ type DSeatElement = { type: string; designator?: string; disclosures?: string[];
 type DSeatMap = { segment_id: string; cabins: { rows: { sections: { elements: DSeatElement[] }[] }[] }[] };
 
 async function seatMapsFor(o: DOffer): Promise<SeatMap[]> {
-  const data = await call<DSeatMap[]>(`/air/seat_maps?offer_id=${o.id}`);
+  const [data, rates] = await Promise.all([call<DSeatMap[]>(`/air/seat_maps?offer_id=${o.id}`), getRates()]);
   const segIds = o.slices.flatMap((s) => s.segments.map((x) => x.id));
   const segs = o.slices.flatMap((s) => s.segments);
   const paying = payingPassengers(o);
@@ -524,7 +525,7 @@ async function seatMapsFor(o: DOffer): Promise<SeatMap[]> {
         return {
           designator: e.designator!,
           available: svc.length > 0,
-          price: first ? toTry(amount, first.total_currency) : 0,
+          price: first ? toTry(amount, first.total_currency, rates) : 0,
           rawAmount: amount,
           serviceIds: paying.map((p) => svc.find((s) => s.passenger_id === p.id)?.id ?? null),
         };
@@ -537,6 +538,7 @@ async function seatMapsFor(o: DOffer): Promise<SeatMap[]> {
 
 export const duffelProvider: FlightProvider = {
   async search(q, opts) {
+    const rates = await getRates();
     const slices = [{ origin: q.from, destination: q.to, departure_date: q.date }];
     if (q.returnDate) slices.push({ origin: q.to, destination: q.from, departure_date: q.returnDate });
     const passengers = [
@@ -551,7 +553,7 @@ export const duffelProvider: FlightProvider = {
       offers
         .sort((a, b) => Number(a.total_amount) - Number(b.total_amount))
         .slice(0, 60)
-        .map((o) => mapOffer(o, q));
+        .map((o) => mapOffer(o, q, rates));
     const whole = async () => {
       const data = await call<{ offers: DOffer[] }>(`/air/offer_requests?return_offers=true&supplier_timeout=${timeout}`, { method: "POST", body });
       return finish(data.offers);
@@ -562,9 +564,9 @@ export const duffelProvider: FlightProvider = {
   async getOffer(id) {
     if (!/^off_[A-Za-z0-9]+$/.test(id)) return null;
     try {
-      const o = await call<DOffer>(`/air/offers/${id}?return_available_services=true`);
+      const [o, rates] = await Promise.all([call<DOffer>(`/air/offers/${id}?return_available_services=true`), getRates()]);
       recentOffers.set(id, { o, at: Date.now() });
-      return mapOffer(o, queryFromOffer(o));
+      return mapOffer(o, queryFromOffer(o), rates);
     } catch (e) {
       if (e instanceof ProviderError && (e.status === 404 || e.status === 422)) return null;
       throw e;
@@ -653,6 +655,7 @@ export const duffelProvider: FlightProvider = {
         },
       }),
     });
+    const rates = await getRates();
     return {
       id: order.id,
       provider: "duffel",
@@ -662,19 +665,20 @@ export const duffelProvider: FlightProvider = {
       total: totalTry,
       createdAt: new Date().toISOString(),
       held: input.hold ? holdOf(order.payment_status) ?? offer.hold : undefined,
-      providerTotal: input.hold ? toTry(Number(order.total_amount), order.total_currency) : undefined,
+      providerTotal: input.hold ? toTry(Number(order.total_amount), order.total_currency, rates) : undefined,
     };
   },
 
   async orderBags(booking) {
     if (!isDuffelTestMode()) throw new ProviderError("Canlı modda ödeme altyapısı bağlanmadan bagaj eklenemez.");
-    return bags(await orderAsOffer(booking.id));
+    const [o, rates] = await Promise.all([orderAsOffer(booking.id), getRates()]);
+    return bags(o, rates);
   },
 
   async addBags(booking, choices) {
     if (!isDuffelTestMode()) throw new ProviderError("Canlı modda ödeme altyapısı bağlanmadan bagaj eklenemez.");
-    const o = await orderAsOffer(booking.id);
-    const fresh = bags(o);
+    const [o, rates] = await Promise.all([orderAsOffer(booking.id), getRates()]);
+    const fresh = bags(o, rates);
     const byId = new Map((o.available_services ?? []).map((s) => [s.id, s]));
     const add: { id: string; quantity: number }[] = [];
     let amount = 0;
@@ -698,18 +702,21 @@ export const duffelProvider: FlightProvider = {
       method: "POST",
       body: JSON.stringify({ data: { add_services: add, payment: { type: "balance", currency, amount: amount.toFixed(2) } } }),
     });
-    return { ...booking, total: booking.total + toTry(amount, currency), extraBags: mergeBags(booking.extraBags, choices) };
+    return { ...booking, total: booking.total + toTry(amount, currency, rates), extraBags: mergeBags(booking.extraBags, choices) };
   },
 
   async cancelQuote(booking) {
     if (!isDuffelTestMode()) throw new ProviderError("Canlı modda ödeme altyapısı bağlanmadan iptal yapılamaz.");
-    const c = await call<DCancellation>("/air/order_cancellations", {
-      method: "POST",
-      body: JSON.stringify({ data: { order_id: booking.id } }),
-    });
+    const [c, rates] = await Promise.all([
+      call<DCancellation>("/air/order_cancellations", {
+        method: "POST",
+        body: JSON.stringify({ data: { order_id: booking.id } }),
+      }),
+      getRates(),
+    ]);
     return {
       id: c.id,
-      refund: c.refund_amount ? toTry(Number(c.refund_amount), c.refund_currency ?? "EUR") : 0,
+      refund: c.refund_amount ? toTry(Number(c.refund_amount), c.refund_currency ?? "EUR", rates) : 0,
       refundTo: c.refund_to ?? undefined,
       expiresAt: c.expires_at ?? undefined,
     };
@@ -718,23 +725,29 @@ export const duffelProvider: FlightProvider = {
   async cancelConfirm(booking, quoteId) {
     if (!isDuffelTestMode()) throw new ProviderError("Canlı modda ödeme altyapısı bağlanmadan iptal yapılamaz.");
     if (!/^ore_[A-Za-z0-9]+$/.test(quoteId)) throw new ProviderError("Geçersiz iptal teklifi.");
-    const c = await call<DCancellation>(`/air/order_cancellations/${quoteId}/actions/confirm`, { method: "POST" });
-    const refund = c.refund_amount ? toTry(Number(c.refund_amount), c.refund_currency ?? "EUR") : 0;
+    const [c, rates] = await Promise.all([
+      call<DCancellation>(`/air/order_cancellations/${quoteId}/actions/confirm`, { method: "POST" }),
+      getRates(),
+    ]);
+    const refund = c.refund_amount ? toTry(Number(c.refund_amount), c.refund_currency ?? "EUR", rates) : 0;
     return { ...booking, held: undefined, cancelled: { at: c.confirmed_at ?? new Date().toISOString(), refund } };
   },
 
   async changeOptions(booking, req) {
     if (!isDuffelTestMode()) throw new ProviderError("Canlı modda ödeme altyapısı bağlanmadan değişiklik yapılamaz.");
-    const r = await call<DChangeRequest>("/air/order_change_requests", {
-      method: "POST",
-      body: JSON.stringify({ data: await changeBody(booking.id, req) }),
-    });
+    const [r, rates] = await Promise.all([
+      call<DChangeRequest>("/air/order_change_requests", {
+        method: "POST",
+        body: JSON.stringify({ data: await changeBody(booking.id, req) }),
+      }),
+      getRates(),
+    ]);
     const offers = r.order_change_offers?.length
       ? r.order_change_offers
       : await call<DChangeOffer[]>(`/air/order_change_offers?order_change_request_id=${r.id}&limit=50`);
     return uniqueChangeOptions(
       offers
-        .map((o) => mapChangeOffer(o, req))
+        .map((o) => mapChangeOffer(o, req, rates))
         .filter((o) => (!req.outDate || o.outbound) && (!req.inDate || o.inbound))
         .sort((a, b) => a.changeTotal - b.changeTotal || (a.outbound?.dep ?? "").localeCompare(b.outbound?.dep ?? "")),
     ).slice(0, 40);
@@ -743,12 +756,15 @@ export const duffelProvider: FlightProvider = {
   async changeConfirm(booking, req, optionId, expectedTotal) {
     if (!isDuffelTestMode()) throw new ProviderError("Canlı modda ödeme altyapısı bağlanmadan değişiklik yapılamaz.");
     if (!/^oco_[A-Za-z0-9]+$/.test(optionId)) throw new ProviderError("Geçersiz değişiklik teklifi.");
-    const pending = await call<DOrderChange>("/air/order_changes", {
-      method: "POST",
-      body: JSON.stringify({ data: { selected_order_change_offer: optionId } }),
-    });
+    const [pending, rates] = await Promise.all([
+      call<DOrderChange>("/air/order_changes", {
+        method: "POST",
+        body: JSON.stringify({ data: { selected_order_change_offer: optionId } }),
+      }),
+      getRates(),
+    ]);
     // Müşterinin gördüğü tutar değiştiyse onaylanmaz
-    const due = toTry(Number(pending.change_total_amount), pending.change_total_currency);
+    const due = toTry(Number(pending.change_total_amount), pending.change_total_currency, rates);
     if (Math.abs(due - expectedTotal) > 1) throw new PriceChangedError(due);
     const pay = Number(pending.change_total_amount) > 0;
     await call(`/air/order_changes/${pending.id}/actions/confirm`, {
@@ -772,10 +788,10 @@ export const duffelProvider: FlightProvider = {
     if (!isDuffelTestMode()) {
       throw new ProviderError("Canlı modda ödeme altyapısı bağlanmadan bilet kesilemez.");
     }
-    const order = await call<DOrder>(`/air/orders/${booking.id}`);
+    const [order, rates] = await Promise.all([call<DOrder>(`/air/orders/${booking.id}`), getRates()]);
     if (!order.payment_status?.awaiting_payment) return { ...booking, held: undefined, pnr: order.booking_reference };
     // Fiyat garantisi bittiyse tutar değişmiş olabilir: müşteriye göstermeden ödeme yapılmaz.
-    const total = toTry(Number(order.total_amount), order.total_currency);
+    const total = toTry(Number(order.total_amount), order.total_currency, rates);
     if (Math.abs(total - (booking.providerTotal ?? booking.total)) > 1) throw new PriceChangedError(total);
     await call("/air/payments", {
       method: "POST",

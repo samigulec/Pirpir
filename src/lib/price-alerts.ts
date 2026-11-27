@@ -8,6 +8,7 @@ import { getPathname } from "@/i18n/navigation";
 import { isLocale } from "@/i18n/config";
 import { siteUrl } from "@/config/brand";
 import { supabaseAdmin } from "./auth/supabase-server";
+import { getRates } from "./currency-server";
 import { alertToken } from "./alert-token";
 import { emailEnabled, sendEmail } from "./email";
 import { priceDropEmail } from "./emails/price-drop";
@@ -149,6 +150,7 @@ async function sendDropEmail(id: string, a: PriceAlert & { email: string }, was:
   const alertsUrl = `${base}${getPathname({ href: "/hesap", locale: lang })}#alarmlar`;
   const token = alertToken(id);
   const stopUrl = token ? `${base}/api/alarm-kapat?id=${encodeURIComponent(id)}&t=${token}&lang=${lang}` : null;
+  const rates = await getRates();
   const mail = priceDropEmail({
     lang,
     cur: a.cur ?? "EUR",
@@ -164,6 +166,7 @@ async function sendDropEmail(id: string, a: PriceAlert & { email: string }, was:
     alertsUrl,
     stopUrl,
     testMode: dataMode() !== "live",
+    rates,
   });
   return sendEmail({
     to: a.email,

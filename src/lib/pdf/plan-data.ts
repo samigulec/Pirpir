@@ -3,6 +3,7 @@ import { brand } from "@/config/brand";
 import { cityByCode } from "@/data/airports";
 import { formatDateTime, formatDayWithYear, minsParts } from "@/lib/dates";
 import { formatPrice, type Currency } from "@/lib/currency";
+import { getRates } from "@/lib/currency-server";
 import { intlLocale } from "@/lib/intl";
 import type { Booking, Leg, Segment } from "@/lib/providers/types";
 import { bagItemText } from "@/lib/bag-text";
@@ -19,9 +20,10 @@ export async function planData(booking: Booking, locale: string, cur: Currency):
   const t = await getTranslations({ locale, namespace: "confirm" });
   const tp = await getTranslations({ locale, namespace: "confirm.plan" });
   const tc = await getTranslations({ locale, namespace: "common" });
+  const rates = await getRates();
   const loc = intlLocale(locale);
   const city = (c: string, fallback?: string) => cityByCode(c, locale, fallback);
-  const price = (n: number) => formatPrice(n, cur, loc);
+  const price = (n: number) => formatPrice(n, cur, loc, rates);
   const dur = (mins: number) => tc("duration", minsParts(mins));
 
   const status = tripStatus(booking);

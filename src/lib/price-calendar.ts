@@ -6,6 +6,7 @@ import { unstable_cache } from "next/cache";
 import { findAirport } from "@/data/airports";
 import { supabaseAdmin } from "./auth/supabase-server";
 import { toTry } from "./currency";
+import { getRates } from "./currency-server";
 import { dataMode, priceSource, searchFlights } from "./flights";
 import { groupedPrices, returnMonthPrices } from "./providers/travelpayouts";
 import { addDays, todayIso, type MultiQuery } from "./search";
@@ -168,16 +169,19 @@ async function loadGroupedMonth(
   nights: number,
   cabin: string,
 ): Promise<Record<string, number>> {
-  const data = await groupedPrices({
-    origin,
-    destination,
-    departureAt: depMonth,
-    returnAt: retMonth || undefined,
-    groupBy: "departure_at",
-    minTripDuration: nights >= 0 ? nights : undefined,
-    maxTripDuration: nights >= 0 ? nights : undefined,
-    cabin: cabin as MultiQuery["cabin"],
-  });
+  const [data, rates] = await Promise.all([
+    groupedPrices({
+      origin,
+      destination,
+      departureAt: depMonth,
+      returnAt: retMonth || undefined,
+      groupBy: "departure_at",
+      minTripDuration: nights >= 0 ? nights : undefined,
+      maxTripDuration: nights >= 0 ? nights : undefined,
+      cabin: cabin as MultiQuery["cabin"],
+    }),
+    getRates(),
+  ]);
   const out: Record<string, number> = {};
   const cutoff = Date.now() + TP_SOON_MS;
   for (const [key, item] of Object.entries(data)) {
@@ -189,7 +193,7 @@ async function loadGroupedMonth(
       const actualNights = Math.round((Date.parse(item.return_at.slice(0, 10)) - Date.parse(depDate)) / 86_400_000);
       if (actualNights !== nights) continue;
     }
-    const price = toTry(item.price, "EUR");
+    const price = toTry(item.price, "EUR", rates);
     if (out[depDate] === undefined || price < out[depDate]) out[depDate] = price;
   }
   return out;

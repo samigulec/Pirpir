@@ -4,7 +4,8 @@
 // Bagaj ve bilet koşulları bilinmez (satıcıda gösterilir); varış saati kalkış + süre ile, havalimanının saat dilimine göre hesaplanır.
 import "server-only";
 import { findAirport } from "@/data/airports";
-import { toTry } from "../currency";
+import { RATES, toTry, type Rates } from "../currency";
+import { getRates } from "../currency-server";
 import type { SearchQuery } from "../search";
 import type { Bags, FlightProvider, Leg, Offer } from "./types";
 
@@ -222,7 +223,7 @@ function legFromTicket(d: TDir, airline: string): Leg {
 /** Havayolunun resmî kare simgesi (Aviasales görsel sunucusu; yatay logolar küçük karede okunmuyor) */
 const logoOf = (code: string) => `https://pics.avs.io/al_square/96/96/${encodeURIComponent(code)}.png`;
 
-export function toOffer(x: TpItem, q: SearchQuery): Offer {
+export function toOffer(x: TpItem, q: SearchQuery, rates: Rates = RATES): Offer {
   const ticket = parseTicket(x.link);
   // Bilet kimliğindeki havayolu API'dekinden farklıysa ikisi de bilette vardır
   const codes = [...new Set([x.airline, ticket?.carrier].filter((c): c is string => !!c))];
@@ -242,7 +243,7 @@ export function toOffer(x: TpItem, q: SearchQuery): Offer {
     !!a && !!b && a.fromCode === b.toCode && a.toCode === b.fromCode && (a.viaCodes ?? []).join() === [...(b.viaCodes ?? [])].reverse().join();
   const mixedCarriers = codes.length > 1 || (!!inbound && !mirror(outbound, inbound));
   // Fiyat bir yetişkin içindir; çocuk aynı, bebek yaklaşık %10 sayılır (son fiyat satıcıda görülür)
-  const price = toTry(x.price, "EUR");
+  const price = toTry(x.price, "EUR", rates);
   const payers = q.pax.adults + q.pax.children;
   const totalEur = x.price * payers + Math.round(x.price * 0.1) * q.pax.infants;
   return {
@@ -257,7 +258,7 @@ export function toOffer(x: TpItem, q: SearchQuery): Offer {
     outbound,
     inbound,
     price,
-    total: toTry(totalEur, "EUR"),
+    total: toTry(totalEur, "EUR", rates),
     raw: { amount: totalEur.toFixed(2), currency: "EUR" },
     bagInfo: { cabin: false },
     bags: NO_BAGS,
@@ -296,15 +297,15 @@ function shortlist(items: TpItem[], n = 4): TpItem[] {
 }
 
 /** İki tek yön bileti tek bir gidiş-dönüş teklifine birleştirir (fiyat toplamı; her biri satıcıda ayrı alınır). */
-function combineOneWays(outs: TpItem[], backs: TpItem[], q: SearchQuery): Offer[] {
+function combineOneWays(outs: TpItem[], backs: TpItem[], q: SearchQuery, rates: Rates): Offer[] {
   if (!outs.length || !backs.length || !q.returnDate) return [];
   const one = { ...q, returnDate: undefined };
   const backQ = { ...one, from: q.to, to: q.from, date: q.returnDate };
   const out: Offer[] = [];
   for (const a of shortlist(outs)) {
-    const oa = toOffer(a, one);
+    const oa = toOffer(a, one, rates);
     for (const b of shortlist(backs)) {
-      const ob = toOffer(b, backQ);
+      const ob = toOffer(b, backQ, rates);
       // Dönüş, gidişin varışından önce olamaz
       if (Date.parse(b.departure_at) <= Date.parse(a.departure_at)) continue;
       const names = [...new Set([...oa.airline.split(" + "), ...ob.airline.split(" + ")])];
@@ -335,7 +336,8 @@ const unsupported = () => Promise.reject(new Error("Travelpayouts ile bilet sat�
 
 export const travelpayoutsProvider: FlightProvider = {
   async search(q) {
-    const offers = dedupe(await fetchPrices(q)).map((x) => toOffer(x, q));
+    const [items, rates] = await Promise.all([fetchPrices(q), getRates()]);
+    const offers = dedupe(items).map((x) => toOffer(x, q, rates));
     if (offers.length || !q.returnDate) return offers;
     // Önbellekte bu tarihler için gidiş-dönüş kaydı yok (seyrek rotalar, ör. AMS↔ADB): aynı günlerin tek yön
     // biletleri birleştirilir ("2 ayrı bilet"). Böylece seçilen günün uçuşları normal sonuç olarak görünür.
@@ -344,7 +346,7 @@ export const travelpayoutsProvider: FlightProvider = {
       fetchPrices(one).then(dedupe).catch(() => [] as TpItem[]),
       fetchPrices({ ...one, from: q.to, to: q.from, date: q.returnDate }).then(dedupe).catch(() => [] as TpItem[]),
     ]);
-    return combineOneWays(outs, backs, q);
+    return combineOneWays(outs, backs, q, rates);
   },
   getOffer: async () => null,
   seatMaps: async () => [],
@@ -375,10 +377,11 @@ export async function nearbyOffers(q: SearchQuery, days = 3, limit = 8): Promise
       ]
     : [fetchPrices(q, { depart: month(q.date) })];
   const today = new Date().toISOString().slice(0, 10);
-  const all = (await Promise.allSettled(calls)).flatMap((r) => (r.status === "fulfilled" ? r.value : []));
+  const [settled, rates] = await Promise.all([Promise.allSettled(calls), getRates()]);
+  const all = settled.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
   // Önce ±days, hiç yoksa ±7 gün
   for (const d of days < 7 ? [days, 7] : [days]) {
-    const found = pick(all, q, d, today, limit);
+    const found = pick(all, q, d, today, limit, rates);
     if (found.length) return found;
   }
   return [];
@@ -387,7 +390,7 @@ export async function nearbyOffers(q: SearchQuery, days = 3, limit = 8): Promise
 const shift = (x: TpItem, q: SearchQuery) =>
   dayDiff(x.departure_at, q.date) + (q.returnDate && x.return_at ? dayDiff(x.return_at, q.returnDate) : 0);
 
-function pick(all: TpItem[], q: SearchQuery, days: number, today: string, limit: number): Offer[] {
+function pick(all: TpItem[], q: SearchQuery, days: number, today: string, limit: number, rates: Rates): Offer[] {
   const items = all
     .filter(
       (x) =>
@@ -406,7 +409,7 @@ function pick(all: TpItem[], q: SearchQuery, days: number, today: string, limit:
     if (seen.has(k)) continue;
     seen.add(k);
     const dq = { ...q, date: x.departure_at.slice(0, 10), returnDate: x.return_at?.slice(0, 10) };
-    out.push(toOffer(x, dq));
+    out.push(toOffer(x, dq, rates));
     if (out.length >= limit) break;
   }
   return out;
@@ -497,13 +500,13 @@ export async function returnMonthPrices(params: {
     pax: { adults: 1, children: 0, infants: 0 },
     cabin: params.cabin ?? "economy",
   };
-  const items = await fetchOnce(q, { depart: params.depart, ret: params.returnMonth }, false);
+  const [items, rates] = await Promise.all([fetchOnce(q, { depart: params.depart, ret: params.returnMonth }, false), getRates()]);
   const out: Record<string, number> = {};
   for (const x of items) {
     if (!x.return_at || !x.departure_at.startsWith(params.depart) || x.return_at <= x.departure_at) continue;
     if (Date.parse(x.departure_at) <= Date.now() + SOON_MS) continue;
     const retDay = x.return_at.slice(0, 10);
-    const price = toTry(x.price, "EUR");
+    const price = toTry(x.price, "EUR", rates);
     if (out[retDay] === undefined || price < out[retDay]) out[retDay] = price;
   }
   return out;
