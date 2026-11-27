@@ -5,7 +5,7 @@ import { isAffiliate, outboundPartner } from "@/config/affiliate";
 
 const ITEMS = ["when", "cancel", "change", "bags", "transfer", "docs", "payment"] as const;
 /** Ortaklık modu: bilet ve ödeme satıcıda; bağlantılar aynı kimliği (sss-bags, sss-docs) korur */
-const AFF_ITEMS = [["buy", "buy"], ["pay", "pay"], ["cancel", "cancelAff"], ["bags", "bagsAff"], ["transfer", "transfer"], ["checkin", "checkin"], ["docs", "docs"]] as const;
+const AFF_ITEMS = [["buy", "buy"], ["pay", "pay"], ["cancel", "cancelAff"], ["bags", "bagsAff"], ["transfer", "transferAff"], ["checkin", "checkin"], ["docs", "docs"]] as const;
 
 export async function Faq() {
   const t = await getTranslations("home.faq");

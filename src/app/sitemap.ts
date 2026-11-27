@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { siteUrl } from "@/config/brand";
 import { getPathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { getRouteSlugs } from "@/lib/flights";
+import { getAllRouteSlugs } from "@/lib/route-data";
 
 type Href = "/" | "/firsatlar" | "/gizlilik" | "/kosullar" | { pathname: "/ucuslar/[nereden]/[nereye]"; params: { nereden: string; nereye: string } };
 
@@ -14,7 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const pages: Href[] = [
     "/",
     "/firsatlar",
-    ...getRouteSlugs().map((params) => ({ pathname: "/ucuslar/[nereden]/[nereye]" as const, params })),
+    ...getAllRouteSlugs().map((params) => ({ pathname: "/ucuslar/[nereden]/[nereye]" as const, params })),
     "/gizlilik",
     "/kosullar",
   ];

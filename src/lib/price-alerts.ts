@@ -7,6 +7,7 @@ import { cityByCode } from "@/data/airports";
 import { getPathname } from "@/i18n/navigation";
 import { isLocale } from "@/i18n/config";
 import { siteUrl } from "@/config/brand";
+import { isAffiliate } from "@/config/affiliate";
 import { supabaseAdmin } from "./auth/supabase-server";
 import { getRates } from "./currency-server";
 import { alertToken } from "./alert-token";
@@ -15,6 +16,7 @@ import { priceDropEmail } from "./emails/price-drop";
 import { cheapestFor, type AlertBest } from "./alert-criteria";
 import { flexQueries } from "./search-server";
 import { dataMode, searchFlightsCached } from "./flights";
+import { goHref } from "./outbound";
 import { inBackground, isSkipped } from "./providers/rate-limit";
 import { searchHref, todayIso, type MultiQuery } from "./search";
 import type { PriceAlert } from "./user-types";
@@ -147,6 +149,24 @@ async function sendDropEmail(id: string, a: PriceAlert & { email: string }, was:
   // Esnek alarmda bağlantı, en ucuz bulunan güne gider
   const s = searchHref({ from: a.from, to: a.to, date: best.date, returnDate: a.returnDate ? (best.returnDate ?? a.returnDate) : "", pax: a.pax, cabin: a.cabin, bags: a.bags });
   const searchUrl = `${base}${getPathname({ href: "/ara", locale: lang })}?${new URLSearchParams(s.query)}`;
+  const dealUrl =
+    isAffiliate() && a.from[0] && a.to[0]
+      ? `${base}${goHref(
+          {
+            from: a.from[0],
+            to: a.to[0],
+            date: best.date,
+            returnDate: a.returnDate ? (best.returnDate ?? a.returnDate) : undefined,
+            adults: a.pax.adults,
+            children: a.pax.children,
+            infants: a.pax.infants,
+            cabin: a.cabin ?? "economy",
+            deep: best.deepLink,
+          },
+          `alert:${id}`,
+          lang,
+        )}`
+      : null;
   const alertsUrl = `${base}${getPathname({ href: "/hesap", locale: lang })}#alarmlar`;
   const token = alertToken(id);
   const stopUrl = token ? `${base}/api/alarm-kapat?id=${encodeURIComponent(id)}&t=${token}&lang=${lang}` : null;
@@ -163,6 +183,8 @@ async function sendDropEmail(id: string, a: PriceAlert & { email: string }, was:
     reason,
     criteria: { flex: a.flex, direct: a.direct, bags: a.bags, targetTry: a.targetTry },
     searchUrl,
+    dealUrl,
+    seenAt: best.seenAt ?? null,
     alertsUrl,
     stopUrl,
     testMode: dataMode() !== "live",

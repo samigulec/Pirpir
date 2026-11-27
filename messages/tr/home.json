@@ -180,7 +180,10 @@
     "noteSample": "Örnek veri: fiyatlar ve havayolları gerçek değildir. Kişi başı, gidiş-dönüş; önümüzdeki iki aydaki hafta sonu ve bir haftalık gezilerin en ucuzu.",
     "showMore": "Daha fazla şehir ({n})",
     "showLess": "Daha az göster",
-    "seen": "{time} bulundu"
+    "seen": "{time} bulundu",
+    "priceFrom": "{price}’dan",
+    "seenDate": "{date} tarihinde görüldü",
+    "noteLiveAff": "Fiyatlar kişi başı gidiş-dönüş olup önümüzdeki 60 gün içinde Aviasales önbelleğinde görülen en düşük fiyatlardır. Kartta fiyatın görüldüğü gün yazar; tıklayınca canlı fiyatlar açılır."
   },
   "tips": {
     "title": "Ekibimizden ipuçları",
@@ -294,11 +297,15 @@
       },
       "bagsAff": {
         "q": "Bagaj fiyata dahil mi?",
-        "a": "Uçuş kartında kişisel eşya, kabin ve kontrol edilen bagajın dahil olup olmadığını gösteriyoruz. Ek bagajı bileti aldığın yerde ekleyebilirsin; son fiyatı orada kontrol et."
+        "a": "Bagaj hakkı havayoluna ve seçtiğin bilete göre değişir. Kabin ve kayıtlı bagaj ayrıntıları canlı uçuş listesinde ve bileti aldığın satıcıda gösterilir; ek bagajı da satın alma adımında ekleyebilirsin."
       },
       "checkin": {
         "q": "Online check-in'i nerede yaparım?",
         "a": "Bileti aldığın havayolunun sitesinde ya da uygulamasında. Genelde uçuştan 24–48 saat önce açılır; saatini havayolunun e-postasında bulursun."
+      },
+      "transferAff": {
+        "q": "Aktarmalı uçuşta bagajımı tekrar vermem gerekir mi?",
+        "a": "Aynı biletteki aktarmalarda genelde hayır. Farklı havayollarını birleştiren ayrı biletli aktarmalarda gerekebilir; biletin ayrı olup olmadığını canlı uçuş listesinde ve satıcı sayfasında satın almadan önce kontrol et."
       }
     }
   },

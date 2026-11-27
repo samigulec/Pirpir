@@ -291,3 +291,74 @@ Telegram/WhatsApp fırsat kanalı otomasyonu, e-posta bülteni, fırsat sayfalar
   widget). Ortaklık modunda ve widget kimliği tanımlıyken (`liveOnly`, tek kalkış/varış) önbellekli kart listesi
   gösterilmez; tarih şeridi, fiyat trendi ve fiyat alarmı önbellek verisiyle kalır. Birden çok kalkış/varış yerinde eski
   liste. Widget sayfa içi geçişte (tarih şeridi, arama kutusu) sayfayı yeniden yükleyerek yeni aramayla başlar.
+- [5.1] Son kullanıcı test takımı (`@playwright/test`) — commit 3cac615 — `playwright.config.ts`, `tests/e2e/pirpir.spec.ts`
+  ve `tests/e2e/mobile.spec.ts` eklendi; `package.json`'a `"e2e": "playwright test"`, `.gitignore`'a rapor klasörleri,
+  `docs/GELISTIRME.md`'ye çalıştırma notu işlendi. Tarayıcı yolu hem Linux (`/opt/pw-browsers/chromium`) hem macOS Chrome'u
+  otomatik algılar, `trace: "off"` ve ağsız örnek modda (`next start -p 3111`) koşar. Masaüstü (1440×900) ve iPhone 13
+  (390×844) testleri: ana sayfa (TR/EN), arama kutusu→öneri→takvim→sonuç akışı, sonuçlarda filtre/sıralama/tarih şeridi,
+  `/git` 302+parametreler, `/firsatlar` + `/en/deals`, `/ucuslar/amsterdam/istanbul`, 7 dil gizlilik 200, `/yonetim/*` 307,
+  `/api/cron/*` 401, yatay taşma ve JS/konsol hatası yok. Denendi: `npm run lint`, `npx next build` (92/92), `npm run e2e`
+  (11/11 geçti, 4.9 sn). Bilinen eksik yok.
+- [5.2] Rota sayfaları gerçek veriye ve pazar rotalarına bağlandı — commit 0d4ad0d — `src/lib/providers/travelpayouts.ts`
+  (`groupedPrices` için `departureAt` isteğe bağlı), `src/data/route-guides.ts` (14 popüler varış şehri için 7 dilde
+  havalimanı kartları, karakter ipuçları ve illüstrasyon eşlemesi), `src/lib/route-data.ts` (editöryal + tüm `MARKETS`
+  rotaları kataloğu, Travelpayouts `grouped_prices` `group_by=month` + 3 ay `departure_at`, 8 saat `unstable_cache`,
+  ECB döviz kurları, otomatik saat farkı ve süre). `MonthlyPrices.tsx` veri olmayan aylarda "Fiyata bak" gösterir (fiyat
+  uydurmaz) ve görüldüğü gün (`seenAt`) ile arama bağlantısı sunar; `CheapestDates` her satırda `searchHref` ("Seç") ve
+  ortaklık modunda `goHref(..., "route:<slug>")` ("Fırsata git") + `seenAt` verir. `page.tsx` öncelikli rotaları statik
+  (`generateStaticParams`), kalan pazar rotalarını ISR (`revalidate = 21600`) ile sunar, bilinmeyen rotalar 404;
+  `sitemap.ts` tüm katalog rotalarını 7 dilde içerir; 7 dil `messages/*/route.json` güncellendi; demo mod korundu.
+  Denendi: `npm run lint`, `npx next build` (274/274 sayfa), yerel mock Travelpayouts doğrulaması (`grouped_prices`
+  ay+gün çağrıları, `26 Kas` görülme tarihi, `src=route:viyana-istanbul`, "Fiyata bak", 404, EN rota, `/sitemap.xml`),
+  `npm run e2e` (11/11 geçti). Bilinen eksik yok.
+- [5.3] Ana sayfa ortaklık moduna tam uyum — commit aa76f40 — `src/lib/deals.ts` içinde ortaklık modunda
+  (`priceSource() === "travelpayouts"`) yayınlanmış fırsatı olmayan popüler hedefler için önümüzdeki 60 günün
+  `groupedPrices` taraması (`cachedTpCheapest60d`, 2 saat `unstable_cache`, ECB kurları, `seenDate`) eklendi
+  (`getBestDates` de bunu kullanır). `PopularFlights.tsx` ve `CharacterTips.tsx` (Bulut/Roma, Güneş/Antalya)
+  ortaklık modunda `"…’dan"` biçimini, fiyatın görüldüğü gerçek günü (`seenDate`) ve 60 günlük Aviasales önbellek
+  notunu (`noteLiveAff`) gösterir. `Faq.tsx` ve 7 dilde `messages/*/home.json` (`bagsAff`, `transferAff`, `priceFrom`,
+  `seenDate`, `noteLiveAff`) ortaklık gerçeğine uyarlandı (bilet satmıyoruz, bagaj/aktarma ayrıntıları canlı listede ve
+  satıcıda; `[İPTAL KOŞULLARI]` yer tutucusuna dokunulmadı). Denendi: `npm run lint`, `npx next build` (274/274),
+  yerel mock Travelpayouts doğrulaması (`/api/deals?from=AMS` → 17/17 hedef dolu, `seenDate`, `"…’dan"`, SSS metinleri)
+  ve `npm run e2e` (tüm 5 kategori sekmesi dahil 11/11 geçti). Bilinen eksik yok.
+- [5.4] Fiyat alarmı e-postası ortaklık moduna uyarlandı — commit 6cbfa00 — `src/lib/alert-criteria.ts` (`AlertBest` içine
+  `seenAt` ve `deepLink` eklendi), `src/lib/price-alerts.ts` (ana düğme canlı sonuç sayfasına `searchUrl` giderken
+  ortaklık modunda ikincil `dealUrl = goHref(..., "alert:<id>", lang)` ve `best.seenAt` iletilir; böylece tıklama
+  raporunda `alert:<id>` kaynağı görünür), `src/lib/emails/price-drop.ts` (7 dilde `"Fırsata git"` ikincil düğmesi ve
+  `"Fiyat bugün / dün / {n} gün önce görüldü"` satırı hem HTML hem düz metin e-postaya eklendi, mevcut e-posta tasarımı
+  korundu). Denendi: `npm run lint`, `npx next build` (274/274), `npm run e2e` (11/11 geçti). Bilinen eksik yok.
+- [5.5] Performans ve erişilebilirlik denetimi — commit 17e7069 — Lighthouse 13.6.0 (`--headless=new --no-sandbox`) ile
+  `/`, `/ara?...`, `/firsatlar` ve `/ucuslar/amsterdam/istanbul` masaüstü + mobil profillerde denetlendi; özet ve en
+  büyük 5 bulgu `docs/denetim.md`'ye yazıldı. İki güvenli erişilebilirlik düzeltmesi yapıldı: (1) `src/app/[locale]/page.tsx`
+  ana içeriği `<main>` içine alındı (`landmark-one-main`, ana sayfa Erişilebilirlik 98 → 100), (2) `HeaderControls.tsx`
+  bölge düğmesinde `aria-label` yerine `title` + `sr-only` kullanıldı (`label-content-name-mismatch` tüm sayfalarda
+  sıfırlandı). Düzeltme sonrası tüm 4 sayfada (masaüstü + mobil) Erişilebilirlik 100, En İyi Uygulamalar 100, SEO 100,
+  Performans 90–100. Canlı widget betiği (`tpwgt.com`) için yalnızca rapor yazıldı, Claude'un dosyalarına dokunulmadı.
+  Denendi: `npm run lint`, `npx next build` (274/274), 8 Lighthouse ölçümü ve `npm run e2e` (11/11 geçti). Bilinen eksik yok.
+- [5.6] Hukuki yer tutucular listesi — commit 32fd29a — `src/` ve `messages/` taranarak tüm köşeli parantezli hukuki ve
+  destek yer tutucuları (`[ŞİRKET ADI]`, `[ADRES]`, `[İLETİŞİM E-POSTASI]`, `[SAKLAMA SÜRESİ]`, `[ORTAKLIK ÇEREZ DETAYLARI]`,
+  `[UYGULANACAK HUKUK]`, `[DESTEK TELEFONU]`, `[İPTAL KOŞULLARI]`, `[DESTEK SAATLERİ]`, teknik `[PNR]`) dosya/satır
+  numaraları ve öncelik tablosuyla `docs/yer-tutucular.md`'ye listelendi. Hiçbir metin değiştirilmedi. Bilinen eksik yok.
+- [5.7] Sonraki fikirler öneri bölümü eklendi — kod değişikliği yok — Telegram/WhatsApp fırsat kanalı otomasyonu,
+  haftalık e-posta bülteni ve fırsat sayfaları SEO'su için 3–5 satırlık öneriler ve gereken hesap/anahtar listesi
+  aşağıdaki bölüme eklendi. İkinci tur iş listesindeki 5.1–5.7 maddelerinin tamamı tamamlandı.
+
+---
+
+## 6. Sonraki Fikirler (5.7 Önerileri — Kod Yok, Kullanıcı Kararı İçin)
+
+### 6.1 Telegram / WhatsApp Fırsat Kanalı Otomasyonu
+- `/yonetim/firsatlar` panelinde bir fırsat "Yayınla" dendiğinde, halihazırda üretilen `opengraph-image` (1200×630 PNG) görseli, fiyat/tasarruf özeti ve `goHref(..., "tg:<id>")` / `firsatlar/<id>` bağlantısıyla otomatik olarak Telegram kanalına gönderilebilir (`sendPhoto`).
+- WhatsApp Kanalları (Channels) için resmî Meta Cloud API doğrudan otomatik yayın açmadığından, şimdilik yönetim panelindeki tek tıkla "WhatsApp paylaşım metnini kopyala" akışı korunabilir; ileri aşamada yalnızca onaylı şablonlarla WhatsApp Business API (birebir bildirim) düşünülebilir.
+- **Gereken hesap/anahtar:** Telegram için `@BotFather` botu (`TELEGRAM_BOT_TOKEN`) + herkese açık kanal adı/kimliği (`TELEGRAM_CHANNEL_ID`, bot kanalda yönetici olmalı). WhatsApp Business API istenirse Meta Business doğrulaması + `WHATSAPP_TOKEN` + `WHATSAPP_PHONE_ID` (ücretli konuşma tarifesi).
+
+### 6.2 Haftalık Fırsat E-posta Bülteni
+- Ana sayfa ve `/firsatlar` altına tek satırlık çift onaylı (double opt-in, GDPR/KVKK uyumlu) "Haftanın en ucuz uçuşları" kaydı eklenebilir; kalkış pazarı (ör. Hollanda / Almanya / Türkiye) ve dil bilgisi Supabase `newsletter_subscribers` tablosunda tutulur.
+- Haftada bir (ör. Perşembe sabahı) yayınlanmış en iyi 5 fırsat seçilip mevcut Resend altyapısı ve `price-drop.ts` tasarım diliyle gönderilir; her e-postada tek tıkla `List-Unsubscribe` ve `src=newsletter:<tarih>` tıklama takibi bulunur.
+- **Gereken hesap/anahtar:** Mevcut `RESEND_API_KEY` ve `EMAIL_FROM` yeterli (ücretsiz katman günde 100 / ayda 3.000 e-posta; abone büyüyünce Resend Pro veya Brevo/Buttondown düşünülebilir) + yeni Supabase göçü (`0007_newsletter.sql`). Vercel Hobby'de 2 cron sınırı dolu olduğundan gönderim ya `/yonetim/firsatlar` içinden tek tuşla ("Haftalık bülteni gönder") tetiklenir ya da Vercel Pro'ya geçilir.
+
+### 6.3 Fırsat Sayfalarının SEO'su
+- `/firsatlar/[id]` sayfalarına `Event`/`Offer` veya `Product` yerine Google'ın kurallarına uygun `BreadcrumbList` + `FAQPage` (veya temiz `WebPage` + `Offer` yapılandırılmış veri) ve her yayınlanmış fırsatın `sitemap.xml` içine dinamik eklenmesi organik trafik getirir.
+- Süresi geçmiş (tarihi geçmiş) fırsat sayfaları sert 404 yerine ilgili kalıcı rota sayfasına (`/ucuslar/[nereden]/[nereye]`) yönlendiren "Bu fırsat sona erdi — bu rotanın güncel fiyatlarına bak" bilgi kartı (veya `301` yönlendirme) göstererek kazanılan bağlantı değerini korur.
+- Şehir bazlı fırsat arşiv sayfaları (ör. `/firsatlar/amsterdam-cikisli`, `/firsatlar/istanbul-ucuslari`) ile dahili bağlantılar güçlendirilebilir.
+- **Gereken hesap/anahtar:** Ek ücretli anahtar gerekmez; yalnızca Google Search Console ve Bing Webmaster Tools doğrulanıp `https://www.flypirpir.nl/sitemap.xml` bildirilmelidir (isteğe bağlı olarak trafik ölçümü için çerezsiz Plausible/Umami).

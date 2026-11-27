@@ -181,7 +181,10 @@
     "noteSample": "Datos de ejemplo: los precios y las aerolíneas no son reales. Por persona, ida y vuelta; el viaje de fin de semana o de una semana más barato de los próximos dos meses.",
     "showMore": "Más ciudades ({n})",
     "showLess": "Ver menos",
-    "seen": "encontrado {time}"
+    "seen": "encontrado {time}",
+    "priceFrom": "desde {price}",
+    "seenDate": "Visto el {date}",
+    "noteLiveAff": "Precios por persona, ida y vuelta, según las tarifas más bajas vistas en la caché de Aviasales para los próximos 60 días. Cada tarjeta indica el día en que se vio el precio; al hacer clic se abren los precios en directo."
   },
   "tips": {
     "title": "Consejos de nuestro equipo",
@@ -295,11 +298,15 @@
       },
       "bagsAff": {
         "q": "¿El equipaje está incluido?",
-        "a": "Cada tarjeta de vuelo indica si el artículo personal, el equipaje de mano y el facturado están incluidos. El equipaje extra lo añades donde reservas; comprueba allí el precio final."
+        "a": "El equipaje incluido depende de la aerolínea y la tarifa elegida. Los detalles de equipaje de mano y facturado aparecen en la lista de vuelos en directo y en la web del vendedor, donde también puedes añadir equipaje extra."
       },
       "checkin": {
         "q": "¿Dónde hago el check-in online?",
         "a": "En la web o la app de la aerolínea con la que reservaste. Suele abrirse 24–48 horas antes de la salida; el correo de la aerolínea te dice cuándo."
+      },
+      "transferAff": {
+        "q": "¿Tengo que volver a facturar el equipaje en una escala?",
+        "a": "Normalmente no si los vuelos van en el mismo billete. En billetes separados puede ser necesario; revisa los detalles de la escala en la lista en directo y en la página del vendedor antes de reservar."
       }
     }
   },

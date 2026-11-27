@@ -5,27 +5,42 @@
   "heroTitle": "Flüge nach {to}",
   "metaTitle": "Flüge von {from} nach {to}",
   "fromPrice": "hin und zurück ab <price></price>",
+  "noPriceHero": "Live-Preise in der Suche ansehen",
+  "seenOn": "Preis gesehen am {date}",
   "cta": "Daten wählen, Tickets finden",
   "facts": {
     "label": "Kurz und knapp",
     "duration": "Flugzeit",
     "durationValue": "{h} Std. {m} Min. direkt",
+    "durationApprox": "~{h} Std. {m} Min.",
     "airports": "Flughäfen",
     "airlines": "Airlines",
-    "timeDiff": "Zeitunterschied"
+    "timeDiff": "Zeitunterschied",
+    "timeDiffSame": "Kein Zeitunterschied",
+    "timeDiffFixed": "{diff} Std.",
+    "timeDiffSeasonal": "{summer} Std. im Sommer, {winter} Std. im Winter"
   },
   "monthly": {
     "title": "Welcher Monat ist am günstigsten?",
     "subtitle": "Niedrigster Preis für Hin- und Rückflug pro Monat. Tippe auf einen Monat.",
     "groupLabel": "Monat wählen",
     "aria": "{month}: {price}",
+    "ariaEmpty": "{month}: Preis ansehen",
     "cheapest": "Günstigster Monat des Jahres!",
     "diff": "{price} teurer als der günstigste Monat",
-    "note": "Beispielpreise. Echte Preise werden bei der Suche aktualisiert."
+    "checkPrice": "Preis ansehen",
+    "noData": "Für diesen Monat kein gespeicherter Preis",
+    "searchMonth": "In diesem Monat suchen",
+    "note": "Beispielpreise. Echte Preise werden bei der Suche aktualisiert.",
+    "noteLive": "Niedrigste Hin- und Rückflugpreise aus dem Aviasales-Cache der letzten Tage. Live-Preise siehst du in der Suche."
   },
   "deals": {
     "title": "Günstigste Termine demnächst",
-    "select": "Auswählen"
+    "select": "Auswählen",
+    "goDeal": "Zum Angebot",
+    "nights": "{n} Nächte",
+    "empty": "Für diese Strecke wurden noch keine gespeicherten Preise gefunden. Live-Preise findest du in der Suche.",
+    "searchLive": "Live-Flüge suchen"
   },
   "airports": {
     "title": "Welcher Flughafen passt zu dir?"
@@ -34,6 +49,7 @@
     "title": "Tipps für {city}"
   },
   "others": {
-    "title": "Wohin sonst in {country}?"
+    "title": "Wohin sonst in {country}?",
+    "titleOrigin": "Weitere Strecken ab {from}"
   }
 }

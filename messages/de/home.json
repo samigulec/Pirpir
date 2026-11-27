@@ -181,7 +181,10 @@
     "noteSample": "Beispieldaten: Preise und Airlines sind nicht echt. Pro Person, hin und zurück; die günstigste Wochenend- oder Einwochenreise in den nächsten zwei Monaten.",
     "showMore": "Mehr Städte ({n})",
     "showLess": "Weniger anzeigen",
-    "seen": "gefunden {time}"
+    "seen": "gefunden {time}",
+    "priceFrom": "ab {price}",
+    "seenDate": "Gesehen am {date}",
+    "noteLiveAff": "Preise pro Person, hin und zurück, basierend auf den niedrigsten Tarifen aus dem Aviasales-Cache für die nächsten 60 Tage. Jede Karte zeigt den Tag der Preisfindung; ein Klick öffnet Live-Preise."
   },
   "tips": {
     "title": "Tipps von unserem Team",
@@ -295,11 +298,15 @@
       },
       "bagsAff": {
         "q": "Ist Gepäck im Preis enthalten?",
-        "a": "Jede Flugkarte zeigt, ob persönlicher Gegenstand, Handgepäck und Aufgabegepäck enthalten sind. Zusätzliches Gepäck fügst du dort hinzu, wo du buchst; prüfe dort den Endpreis."
+        "a": "Die Gepäckregeln hängen von Airline und gewähltem Tarif ab. Details zu Hand- und Aufgabegepäck siehst du in der Live-Flugliste und beim Anbieter, bei dem du buchst; dort kannst du auch Zusatzgepäck hinzufügen."
       },
       "checkin": {
         "q": "Wo checke ich online ein?",
         "a": "Auf der Website oder in der App der Airline, bei der du gebucht hast. Meist öffnet es 24–48 Stunden vor Abflug; wann genau, steht in der E-Mail der Airline."
+      },
+      "transferAff": {
+        "q": "Muss ich mein Gepäck beim Umsteigen neu aufgeben?",
+        "a": "Bei Flügen auf demselben Ticket meist nicht. Bei getrennten Tickets kann es nötig sein; prüfe die Umstiegsdetails in der Live-Flugliste und beim Anbieter vor der Buchung."
       }
     }
   },

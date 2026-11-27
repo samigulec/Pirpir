@@ -154,9 +154,10 @@ export function RegionSettings({ compact = false }: { compact?: boolean }) {
         type="button"
         onClick={open}
         disabled={pending}
-        aria-label={t("open")}
+        title={t("open")}
         className={`${selectBase} inline-flex items-center gap-2 whitespace-nowrap ${compact ? "px-3 py-[10px] text-sm" : "px-3 py-[10px] text-sm md:px-[14px] md:text-[15px]"}`}
       >
+        <span className="sr-only">{t("open")}: </span>
         {market && <span>{market}</span>}
         {market && (
           <span aria-hidden="true" className="text-muted">

@@ -438,8 +438,8 @@ export type GroupedPriceItem = {
 export type GroupedPricesParams = {
   origin: string;
   destination: string;
-  /** YYYY-MM ya da YYYY-MM-DD */
-  departureAt: string;
+  /** YYYY-MM ya da YYYY-MM-DD; groupBy="month" için tüm yılı almak üzere boş bırakılabilir */
+  departureAt?: string;
   /** YYYY-MM ya da YYYY-MM-DD; tek yön için boş bırakılır */
   returnAt?: string;
   groupBy?: "departure_at" | "month";
@@ -451,7 +451,7 @@ export type GroupedPricesParams = {
 
 /**
  * Tek istekte bir ayın her günü (ya da ayları) için en ucuz önbellekli fiyat.
- * Tarih şeridi, fiyat takvimi ve fırsat motoru tarafından kullanılır.
+ * Tarih şeridi, fiyat takvimi, rota sayfaları ve fırsat motoru tarafından kullanılır.
  */
 export async function groupedPrices(params: GroupedPricesParams): Promise<Record<string, GroupedPriceItem>> {
   const token = travelpayoutsToken();
@@ -461,10 +461,10 @@ export async function groupedPrices(params: GroupedPricesParams): Promise<Record
   const p = new URLSearchParams({
     origin: params.origin.replace(/^city:/, ""),
     destination: params.destination.replace(/^city:/, ""),
-    departure_at: params.departureAt,
     group_by: params.groupBy ?? "departure_at",
     currency: "eur",
   });
+  if (params.departureAt) p.set("departure_at", params.departureAt);
   if (params.returnAt) p.set("return_at", params.returnAt);
   if (params.minTripDuration !== undefined) p.set("min_trip_duration", String(params.minTripDuration));
   if (params.maxTripDuration !== undefined) p.set("max_trip_duration", String(params.maxTripDuration));

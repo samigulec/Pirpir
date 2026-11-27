@@ -181,7 +181,10 @@
     "noteSample": "Sample data: prices and airlines are not real. Per person, return; the cheapest weekend or one-week trip in the next two months.",
     "showMore": "More cities ({n})",
     "showLess": "Show less",
-    "seen": "found {time}"
+    "seen": "found {time}",
+    "priceFrom": "from {price}",
+    "seenDate": "Seen {date}",
+    "noteLiveAff": "Prices are per person, return, based on the lowest fares seen in the Aviasales cache over the next 60 days. Each card shows the day the price was seen; clicking opens live fares."
   },
   "tips": {
     "title": "Tips from our team",
@@ -295,11 +298,15 @@
       },
       "bagsAff": {
         "q": "Is luggage included in the price?",
-        "a": "Each flight card shows whether a personal item, cabin bag and checked bag are included. You can add extra luggage where you book; check the final price there."
+        "a": "Baggage allowance depends on the airline and fare you choose. Cabin and checked bag details are shown in the live flight list and at the seller’s checkout, where you can also add extra luggage."
       },
       "checkin": {
         "q": "Where do I check in online?",
         "a": "On the website or app of the airline you booked with. It usually opens 24–48 hours before departure; the airline's email tells you when."
+      },
+      "transferAff": {
+        "q": "Do I need to re-check my bag on a connecting flight?",
+        "a": "Usually not when flights are on the same ticket. Separate-ticket self-transfers may require it — check the transfer details in the live flight list and on the seller’s page before booking."
       }
     }
   },

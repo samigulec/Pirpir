@@ -181,7 +181,10 @@
     "noteSample": "Voorbeelddata: prijzen en luchtvaartmaatschappijen zijn niet echt. Per persoon, retour; de goedkoopste weekend- of weekreis in de komende twee maanden.",
     "showMore": "Meer steden ({n})",
     "showLess": "Minder tonen",
-    "seen": "{time} gevonden"
+    "seen": "{time} gevonden",
+    "priceFrom": "vanaf {price}",
+    "seenDate": "Gezien op {date}",
+    "noteLiveAff": "Prijzen zijn per persoon, retour, gebaseerd op de laagste tarieven die de komende 60 dagen in de Aviasales-cache zijn gezien. Op elke kaart staat wanneer de prijs is gezien; klikken opent live prijzen."
   },
   "tips": {
     "title": "Tips van ons team",
@@ -295,11 +298,15 @@
       },
       "bagsAff": {
         "q": "Is bagage bij de prijs inbegrepen?",
-        "a": "Op elke vluchtkaart staat of een persoonlijk item, handbagage en ruimbagage zijn inbegrepen. Extra bagage voeg je toe waar je boekt; controleer daar de eindprijs."
+        "a": "De bagageregels hangen af van de luchtvaartmaatschappij en het gekozen tarief. Hand- en ruimbagage zie je in de live vluchtlijst en bij de aanbieder waar je boekt; daar voeg je ook extra bagage toe."
       },
       "checkin": {
         "q": "Waar check ik online in?",
         "a": "Op de website of in de app van de maatschappij waar je hebt geboekt. Meestal opent het 24–48 uur voor vertrek; de e-mail van de maatschappij vertelt je wanneer."
+      },
+      "transferAff": {
+        "q": "Moet ik mijn bagage opnieuw inchecken bij een overstap?",
+        "a": "Bij vluchten op hetzelfde ticket meestal niet. Bij losse tickets kan dat wel nodig zijn; controleer de overstapdetails in de live vluchtlijst en bij de aanbieder voordat je boekt."
       }
     }
   },
