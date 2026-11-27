@@ -139,11 +139,14 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   → `ucus.flypirpir.nl/?flightSearch=AMS2201IST250121&marker=812756.results` (3 yolcu, canlı sonuçlar, kimlik doğru).
   Not: White Label para birimini kendi ayarından (EUR) alıyor, adresteki `currency` dikkate alınmıyor; TRY seçen
   ziyaretçi orada EUR görür. Sıradaki iş: 3.3.
+- [3.3] Fiyat alarmı e-postaları doğrulandı — kod değişikliği yok — Vercel Production cron (`/api/cron/price-alerts`)
+  çalıştırıldı (`Status 200 OK`, Supabase `user_items` okuma+güncelleme, Travelpayouts `prices_for_dates` sorguları).
+  Log çıktısı: `Fiyat alarmları kontrol edildi: {"checked":1,"dropped":0,"emailed":0,"skipped":0,"failed":0,"remaining":0,"email":true}`
+  (`RESEND_API_KEY`, `EMAIL_FROM`, `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY` Production'da tanımlı ve etkin). Bilinen eksik yok.
 - [3.4] Tarih şeridi ve fiyat takvimi ay verisine çevrildi — commit 80b50e7 — `src/lib/providers/travelpayouts.ts` içine
   `groupedPrices` (`/aviasales/v3/grouped_prices`) ve `returnMonthPrices` eklendi; `src/lib/price-calendar.ts` ortaklık
   modunda (`priceSource() === "travelpayouts"`) 10 dk `unstable_cache` ile ay verisini kullanıyor (Duffel/örnek mod korundu).
   `DateStrip` (`monthlyPrices`) `/api/date-prices?strip=1` ile ±3 günü tek istekte dolduruyor, kayıt olmayan günler `null` ("Fiyata bak")
-  kalıyor. Denendi: `npm run lint`, `npx next build` (71/71 sayfa) ve yerel mock Travelpayouts sunucusu + demo mod üzerinde
-  8 uçtan uca kontrol (`strip=1` tek istek, önbellek isabeti, ay sınırı birleştirme, gidiş/dönüş/tek yön `/api/calendar-prices`,
-  `/ara` HTTP 200, demo geri dönüşü). Not: Gerçek `TRAVELPAYOUTS_TOKEN` yalnızca Vercel'de olduğu için canlı veri doğrulaması
-  yayın sonrası `flypirpir.nl` üzerinde yapılmalı.
+  kalıyor. Denendi: `npm run lint`, `npx next build` (71/71 sayfa), yerel mock Travelpayouts + demo sunucularında 8 uçtan uca kontrol
+  ve canlı Production doğrulaması (`https://www.flypirpir.nl/api/date-prices?from=AMS&to=IST&date=2027-01-22&return=2027-01-25&strip=1`
+  → `{"prices":{"2027-01-19":null,"2027-01-20":null,"2027-01-21":7560,"2027-01-22":7080,...},"failed":false}`). Bilinen eksik yok.
