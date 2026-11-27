@@ -76,7 +76,7 @@ export function FiltersPanel({
       <div className="flex items-center justify-between gap-2">
         <h2 className="m-0 font-display text-2xl font-semibold">{t("title")}</h2>
         {activeFilterCount(value) > 0 && (
-          <button type="button" onClick={() => onChange(DEFAULT_FILTERS)} className="min-h-[44px] cursor-pointer border-0 bg-transparent p-0 text-[15px] font-extrabold text-primary">
+          <button type="button" onClick={() => onChange(DEFAULT_FILTERS)} className="min-h-[44px] flex-none cursor-pointer whitespace-nowrap border-0 bg-transparent p-0 text-[15px] font-extrabold text-primary">
             {t("reset")}
           </button>
         )}

@@ -234,5 +234,6 @@
   "nearbySeparate": "Für diese Daten sind keine Hin- und Rückflugpreise gespeichert; du kannst Hin- und Rückflug als getrennte Tickets buchen.",
   "partnerNoteWL": "Öffnet mit Live-Preisen",
   "liveSearchWL": "Live-Preise ansehen",
-  "noResultsCachedWL": "Für diese Daten sind keine Preise gespeichert. Aktuelle Flüge kannst du mit Live-Preisen ansehen."
+  "noResultsCachedWL": "Für diese Daten sind keine Preise gespeichert. Aktuelle Flüge kannst du mit Live-Preisen ansehen.",
+  "shiftDays": "{n, plural, one {# Tag} other {# Tage}} {dir, select, before {früher} other {später}}"
 }

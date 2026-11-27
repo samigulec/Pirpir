@@ -234,5 +234,6 @@
   "nearbySeparate": "Nessun prezzo andata e ritorno salvato per queste date; puoi prenotare andata e ritorno con biglietti separati.",
   "partnerNoteWL": "Si apre con i prezzi in tempo reale",
   "liveSearchWL": "Vedi i prezzi in tempo reale",
-  "noResultsCachedWL": "Nessun prezzo salvato per queste date. Puoi vedere i voli attuali con i prezzi in tempo reale."
+  "noResultsCachedWL": "Nessun prezzo salvato per queste date. Puoi vedere i voli attuali con i prezzi in tempo reale.",
+  "shiftDays": "{n, plural, one {# giorno} other {# giorni}} {dir, select, before {prima} other {dopo}}"
 }

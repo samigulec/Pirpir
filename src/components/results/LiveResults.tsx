@@ -41,7 +41,7 @@ export function LiveResults({
   /** Travelpayouts ortaklık modunda tarih şeridi tek ay isteğiyle (`grouped_prices`) doldurulur */
   monthlyPrices?: boolean;
   /** Tam tarihlerde sonuç yoksa yakın günlerin kayıtlı fiyatları */
-  nearby?: { sections: { title: "nearbyTitle" | "nearbyOut" | "nearbyBack"; offers: Offer[] }[]; cityNames: Record<string, string> };
+  nearby?: { sections: { title: "nearbyTitle" | "nearbyOut" | "nearbyBack"; offers: Offer[]; want: { date: string; returnDate?: string } }[]; cityNames: Record<string, string> };
   /** Arama kutusunda seçilen bagaj: bagaj filtresinin başlangıcı */
   initialBags?: { cabin: number; checked: number };
   first: LiveChunk;

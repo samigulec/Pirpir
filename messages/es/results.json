@@ -234,5 +234,6 @@
   "nearbySeparate": "No hay precios de ida y vuelta guardados para estas fechas; puedes reservar la ida y la vuelta como billetes separados.",
   "partnerNoteWL": "Se abre con precios en directo",
   "liveSearchWL": "Ver precios en directo",
-  "noResultsCachedWL": "No hay precios guardados para estas fechas. Puedes ver los vuelos actuales con precios en directo."
+  "noResultsCachedWL": "No hay precios guardados para estas fechas. Puedes ver los vuelos actuales con precios en directo.",
+  "shiftDays": "{n, plural, one {# día} other {# días}} {dir, select, before {antes} other {después}}"
 }

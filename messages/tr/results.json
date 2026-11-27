@@ -234,5 +234,6 @@
   "nearbySeparate": "Bu tarihler için gidiş-dönüş kaydı yok; gidiş ve dönüşü ayrı biletlerle alabilirsin.",
   "partnerNoteWL": "Canlı fiyatlarla açılır",
   "liveSearchWL": "Canlı fiyatları gör",
-  "noResultsCachedWL": "Bu tarihler için kayıtlı fiyat yok. Güncel uçuşları canlı fiyatlarla görebilirsin."
+  "noResultsCachedWL": "Bu tarihler için kayıtlı fiyat yok. Güncel uçuşları canlı fiyatlarla görebilirsin.",
+  "shiftDays": "{n} gün {dir, select, before {önce} other {sonra}}"
 }

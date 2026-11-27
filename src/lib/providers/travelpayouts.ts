@@ -328,6 +328,9 @@ export async function nearbyOffers(q: SearchQuery, days = 3, limit = 8): Promise
   return [];
 }
 
+const shift = (x: TpItem, q: SearchQuery) =>
+  dayDiff(x.departure_at, q.date) + (q.returnDate && x.return_at ? dayDiff(x.return_at, q.returnDate) : 0);
+
 function pick(all: TpItem[], q: SearchQuery, days: number, today: string, limit: number, rates: Rates): Offer[] {
   const items = all
     .filter(
@@ -337,7 +340,8 @@ function pick(all: TpItem[], q: SearchQuery, days: number, today: string, limit:
         dayDiff(x.departure_at, q.date) <= days &&
         (!q.returnDate || (x.return_at && dayDiff(x.return_at, q.returnDate) <= days && x.return_at > x.departure_at)),
     )
-    .sort((a, b) => a.price - b.price);
+    // Seçilen tarihlere en yakın günler önce (sonra fiyat): 18 Ara seçen önce 17–19 Ara'yı görsün
+    .sort((a, b) => shift(a, q) - shift(b, q) || a.price - b.price);
   // Her tarih çifti için en ucuz uçuş ve (aktarmalıysa) en ucuz direkt uçuş: liste farklı günleri göstersin
   const seen = new Set<string>();
   const out: Offer[] = [];
