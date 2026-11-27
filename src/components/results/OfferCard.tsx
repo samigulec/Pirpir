@@ -8,6 +8,8 @@ import { BagRules } from "./BagRules";
 import { formatDayWithWeekday, minsParts } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 import type { Leg, Offer } from "@/lib/providers/types";
+import { isAffiliate } from "@/config/affiliate";
+import { goHref } from "@/lib/outbound";
 
 type Badge = "cheap" | "fast" | null;
 
@@ -192,15 +194,43 @@ export function OfferCard({
           <span className="text-[13px] font-bold text-muted">{t("perPerson")}</span>
           {bagsAdded && <span className="text-[13px] font-bold text-green-text">{t("withBags")}</span>}
           {paxCount > 1 && !bagsAdded && <span className="text-[13px] font-bold text-muted">{t("totalFor", { count: paxCount, total: fmt(offer.total) })}</span>}
-          {fareCount > 1 && <span className="text-[13px] font-bold text-primary">{t("fareOptions", { n: fareCount })}</span>}
+          {fareCount > 1 && !isAffiliate() && <span className="text-[13px] font-bold text-primary">{t("fareOptions", { n: fareCount })}</span>}
         </div>
-        <button
-          type="button"
-          onClick={onSelect}
-          className="box-border inline-flex min-h-[48px] cursor-pointer items-center justify-center rounded-pill border-0 bg-primary px-[26px] py-3 font-display text-[19px] font-semibold leading-[normal] text-white"
-        >
-          {t("select")}
-        </button>
+        {isAffiliate() ? (
+          // Ortaklık modu: bilet Skyscanner'da alınır; /git tıklamayı sayıp ortaklık bağlantısıyla yönlendirir
+          <span className="flex flex-col items-end gap-1 md:items-stretch">
+            <a
+              href={goHref(
+                {
+                  from: offer.outbound.fromCode,
+                  to: offer.outbound.toCode,
+                  date: offer.outbound.date,
+                  returnDate: offer.inbound?.date,
+                  adults: offer.query.pax.adults,
+                  children: offer.query.pax.children,
+                  infants: offer.query.pax.infants,
+                  cabin: offer.cabin,
+                },
+                "results",
+                locale,
+              )}
+              target="_blank"
+              rel="sponsored nofollow noopener"
+              className="box-border inline-flex min-h-[48px] items-center justify-center rounded-pill border-0 bg-primary px-[22px] py-3 font-display text-[19px] font-semibold leading-[normal] text-white no-underline"
+            >
+              {t("goDeal")}
+            </a>
+            <span className="text-[12px] font-bold text-muted md:text-center">{t("partnerNote")}</span>
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={onSelect}
+            className="box-border inline-flex min-h-[48px] cursor-pointer items-center justify-center rounded-pill border-0 bg-primary px-[26px] py-3 font-display text-[19px] font-semibold leading-[normal] text-white"
+          >
+            {t("select")}
+          </button>
+        )}
       </div>
     </article>
   );

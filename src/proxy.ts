@@ -26,5 +26,5 @@ export default async function proxy(request: NextRequest) {
 
 export const config = {
   // API, oturum geri dönüşü, Next.js dosyaları ve uzantılı statik dosyalar hariç her şey.
-  matcher: "/((?!api|auth|_next|_vercel|.*\\..*).*)",
+  matcher: "/((?!api|auth|git|_next|_vercel|.*\\..*).*)",
 };

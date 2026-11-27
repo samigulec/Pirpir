@@ -76,7 +76,10 @@
     "label": "Perché {brand}",
     "secure": "Non salviamo mai i dati della tua carta",
     "clear": "Bagagli e costi mostrati fin da subito",
-    "manage": "Modifica, cancella e aggiungi bagagli online"
+    "manage": "Modifica, cancella e aggiungi bagagli online",
+    "free": "Cerca gratis, senza costi aggiuntivi",
+    "alerts": "Ti avvisiamo quando il prezzo scende",
+    "partner": "Prenoti con il venditore che scegli su Skyscanner"
   },
   "mobileDeal": {
     "title": "Che ne dici di un weekend a Roma?",
@@ -207,7 +210,9 @@
     "biletcik": {
       "name": "Biletçik · guida al check-in",
       "quote": "“Ti avviso appena apre il check-in online.”",
-      "cta": "Vai ai miei viaggi"
+      "cta": "Vai ai miei viaggi",
+      "quoteAff": "«Prenotato? Non dimenticare il check-in online.»",
+      "ctaAff": "Sul check-in"
     },
     "gunes": {
       "name": "Güneş · amante delle vacanze",
@@ -231,6 +236,10 @@
     "fly": {
       "title": "Vola",
       "text": "Il biglietto arriva subito nella tua casella di posta. Buon viaggio!"
+    },
+    "flyAff": {
+      "title": "Vola",
+      "text": "Prenota con il venditore che scegli su Skyscanner. Buon viaggio!"
     }
   },
   "alert": {
@@ -271,7 +280,28 @@
       "docs": {
         "q": "Di quali documenti ho bisogno?",
         "a": "Il passaporto o la carta d'identità devono essere validi per tutto il viaggio; alcuni paesi richiedono qualche mese di validità in più dopo il ritorno. Se ti serve un visto dipende dalla tua nazionalità e dalla destinazione; controlla la fonte ufficiale della destinazione prima di partire."
+      },
+      "buy": {
+        "q": "Dove compro il biglietto?",
+        "a": "pirpir confronta i voli, non vende biglietti. Tocca «Vedi offerta» e il volo si apre su Skyscanner, dove prenoti con la compagnia o l'agenzia che preferisci."
+      },
+      "pay": {
+        "q": "Chi pago?",
+        "a": "La compagnia o l'agenzia con cui prenoti. pirpir non riceve pagamenti e non vede mai i dati della tua carta."
+      },
+      "cancelAff": {
+        "q": "Posso cancellare o cambiare il biglietto?",
+        "a": "Dipende dalle regole della compagnia o del sito con cui hai prenotato. Per cancellazioni e modifiche rivolgiti a loro; le condizioni sono indicate al momento della prenotazione."
+      },
+      "bagsAff": {
+        "q": "Il bagaglio è incluso nel prezzo?",
+        "a": "Ogni scheda volo indica se oggetto personale, bagaglio a mano e bagaglio da stiva sono inclusi. Il bagaglio extra lo aggiungi dove prenoti; controlla lì il prezzo finale."
+      },
+      "checkin": {
+        "q": "Dove faccio il check-in online?",
+        "a": "Sul sito o nell'app della compagnia con cui hai prenotato. Di solito apre 24–48 ore prima della partenza; l'e-mail della compagnia ti dice quando."
       }
     }
-  }
+  },
+  "metaDescriptionAff": "Ricerca voli semplice e simpatica: trova il volo più economico e ricevi un avviso quando il prezzo scende."
 }

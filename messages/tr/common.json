@@ -13,7 +13,8 @@
     "label": "Alt gezinme",
     "search": "Ara",
     "tickets": "Biletlerim",
-    "help": "Yardım"
+    "help": "Yardım",
+    "alerts": "Alarmlar"
   },
   "duration": "{h} sa {m} dk",
   "direct": "Direkt",
@@ -81,6 +82,8 @@
     "signOut": "Çıkış yap",
     "travellers": "Kayıtlı yolcular",
     "alerts": "Fiyat alarmlarım",
-    "favorites": "Favorilerim"
-  }
+    "favorites": "Favorilerim",
+    "signInTextAff": "Fiyat alarmları ve favoriler için giriş yap."
+  },
+  "affiliateDisclosure": "{brand}, bağlantılarımız üzerinden yapılan bazı rezervasyonlardan ortaklık komisyonu alabilir. Bu, ödediğin fiyatı değiştirmez."
 }

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { Link } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
+import { isAffiliate } from "@/config/affiliate";
+import { asLocale } from "@/lib/intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
 import { BookingForm } from "@/components/booking/BookingForm";
@@ -28,6 +30,8 @@ export default async function BookingPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale, teklifId } = await params;
+  // Ortaklık modunda site içinde rezervasyon yok: eski bağlantılar ana sayfaya döner
+  if (isAffiliate()) redirect({ href: "/", locale: asLocale(locale) });
   const sp = await searchParams;
   setRequestLocale(locale);
   const loc = intlLocale(locale);

@@ -218,5 +218,7 @@
     "confirm": "Créer l'alerte",
     "cancel": "Annuler",
     "open": "Réglages de l'alerte prix"
-  }
+  },
+  "goDeal": "Voir l'offre",
+  "partnerNote": "S'ouvre sur Skyscanner"
 }

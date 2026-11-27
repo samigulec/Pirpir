@@ -13,7 +13,8 @@
     "label": "Navigazione inferiore",
     "search": "Cerca",
     "tickets": "I miei viaggi",
-    "help": "Aiuto"
+    "help": "Aiuto",
+    "alerts": "Avvisi"
   },
   "duration": "{h} h {m} min",
   "direct": "Diretto",
@@ -81,6 +82,8 @@
     "signOut": "Esci",
     "travellers": "Viaggiatori salvati",
     "alerts": "I miei avvisi di prezzo",
-    "favorites": "I miei preferiti"
-  }
+    "favorites": "I miei preferiti",
+    "signInTextAff": "Accedi per avvisi di prezzo e preferiti."
+  },
+  "affiliateDisclosure": "{brand} può ricevere una commissione di affiliazione su alcune prenotazioni fatte tramite i nostri link. Non cambia il prezzo che paghi."
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { brand } from "@/config/brand";
+import { isAffiliate } from "@/config/affiliate";
 import { useTranslations } from "next-intl";
 import { Pirpir } from "../characters";
 import { CloudShape, Check, Clock, Lock } from "../icons";
@@ -50,9 +51,19 @@ export function HomeHero({
         className="m-0 flex list-none flex-wrap justify-center gap-x-8 gap-y-[10px] px-2 pt-[22px] text-[15px] font-bold text-ink"
       >
         {/* Yalnızca sitenin gerçekten yaptığı şeyler (vaat yok) */}
-        <li className="flex items-center gap-2"><Lock className="text-primary" />{t("trust.secure")}</li>
-        <li className="flex items-center gap-2"><Check className="text-primary" />{t("trust.clear")}</li>
-        <li className="flex items-center gap-2"><Clock className="text-primary" />{t("trust.manage")}</li>
+        {isAffiliate() ? (
+          <>
+            <li className="flex items-center gap-2"><Check className="text-primary" />{t("trust.free")}</li>
+            <li className="flex items-center gap-2"><Clock className="text-primary" />{t("trust.alerts")}</li>
+            <li className="flex items-center gap-2"><Lock className="text-primary" />{t("trust.partner")}</li>
+          </>
+        ) : (
+          <>
+            <li className="flex items-center gap-2"><Lock className="text-primary" />{t("trust.secure")}</li>
+            <li className="flex items-center gap-2"><Check className="text-primary" />{t("trust.clear")}</li>
+            <li className="flex items-center gap-2"><Clock className="text-primary" />{t("trust.manage")}</li>
+          </>
+        )}
       </ul>
     </section>
   );

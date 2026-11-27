@@ -75,7 +75,10 @@
     "label": "Neden {brand}",
     "secure": "Kart bilgin bizde saklanmaz",
     "clear": "Bagaj ve ücretler baştan belli",
-    "manage": "Değişiklik, iptal ve bagaj sitede"
+    "manage": "Değişiklik, iptal ve bagaj sitede",
+    "free": "Arama ücretsiz, üstüne ücret yok",
+    "alerts": "Fiyat düşünce haber veririz",
+    "partner": "Bileti Skyscanner'da seçtiğin satıcıdan alırsın"
   },
   "mobileDeal": {
     "title": "Hafta sonu Roma'ya kaçalım mı?",
@@ -206,7 +209,9 @@
     "biletcik": {
       "name": "Biletçik · check-in rehberi",
       "quote": "“Online check-in açılınca seni ilk ben dürterim.”",
-      "cta": "Biletlerime git"
+      "cta": "Biletlerime git",
+      "quoteAff": "“Bileti aldın mı? Online check-in'i unutma.”",
+      "ctaAff": "Check-in hakkında"
     },
     "gunes": {
       "name": "Güneş · tatil sever",
@@ -230,6 +235,10 @@
     "fly": {
       "title": "Uç",
       "text": "Biletin anında e-postanda. İyi yolculuklar!"
+    },
+    "flyAff": {
+      "title": "Uç",
+      "text": "Bileti Skyscanner'da seçtiğin satıcıdan al. İyi yolculuklar!"
     }
   },
   "alert": {
@@ -270,8 +279,29 @@
       "docs": {
         "q": "Hangi belgelere ihtiyacım var?",
         "a": "Pasaportun ya da kimlik kartın yolculuk boyunca geçerli olmalı; bazı ülkeler dönüşten sonra birkaç ay daha geçerlilik ister. Vize gerekip gerekmediği vatandaşlığına ve gideceğin ülkeye bağlıdır; uçmadan önce o ülkenin resmi kaynağından kontrol et."
+      },
+      "buy": {
+        "q": "Bileti nereden alıyorum?",
+        "a": "pirpir uçuşları karşılaştırır, bilet satmaz. “Fırsata git”e basınca uçuş Skyscanner'da açılır; bileti orada seçtiğin havayolundan ya da seyahat sitesinden alırsın."
+      },
+      "pay": {
+        "q": "Ödemeyi kime yapıyorum?",
+        "a": "Bileti aldığın havayoluna ya da seyahat sitesine. pirpir ödeme almaz ve kart bilgini görmez."
+      },
+      "cancelAff": {
+        "q": "Biletimi iptal edebilir ya da değiştirebilir miyim?",
+        "a": "Bu, bileti aldığın havayolunun ya da sitenin kurallarına bağlı. İptal ve değişiklik için onlara başvurursun; koşullar satın alırken gösterilir."
+      },
+      "bagsAff": {
+        "q": "Bagaj fiyata dahil mi?",
+        "a": "Uçuş kartında kişisel eşya, kabin ve kontrol edilen bagajın dahil olup olmadığını gösteriyoruz. Ek bagajı bileti aldığın yerde ekleyebilirsin; son fiyatı orada kontrol et."
+      },
+      "checkin": {
+        "q": "Online check-in'i nerede yaparım?",
+        "a": "Bileti aldığın havayolunun sitesinde ya da uygulamasında. Genelde uçuştan 24–48 saat önce açılır; saatini havayolunun e-postasında bulursun."
       }
     }
   },
-  "metaDescription": "Sade ve sevimli uçuş bileti arama: Ara, seç, öde, uç."
+  "metaDescription": "Sade ve sevimli uçuş bileti arama: Ara, seç, öde, uç.",
+  "metaDescriptionAff": "Sade ve sevimli uçuş arama: en ucuz uçuşu bul, fiyat düşünce haber al."
 }

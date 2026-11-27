@@ -13,7 +13,8 @@
     "label": "Navigatie onderaan",
     "search": "Zoeken",
     "tickets": "Mijn reizen",
-    "help": "Hulp"
+    "help": "Hulp",
+    "alerts": "Alerts"
   },
   "duration": "{h} u {m} min",
   "direct": "Direct",
@@ -81,6 +82,8 @@
     "signOut": "Uitloggen",
     "travellers": "Opgeslagen reizigers",
     "alerts": "Mijn prijsalarmen",
-    "favorites": "Mijn favorieten"
-  }
+    "favorites": "Mijn favorieten",
+    "signInTextAff": "Log in voor prijsalerts en favorieten."
+  },
+  "affiliateDisclosure": "{brand} kan een affiliatecommissie ontvangen op sommige boekingen via onze links. Dat verandert niets aan de prijs die je betaalt."
 }

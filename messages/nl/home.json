@@ -76,7 +76,10 @@
     "label": "Waarom {brand}",
     "secure": "We bewaren je kaartgegevens niet",
     "clear": "Bagage en kosten vooraf duidelijk",
-    "manage": "Wijzigen, annuleren en bagage online"
+    "manage": "Wijzigen, annuleren en bagage online",
+    "free": "Gratis zoeken, geen extra kosten",
+    "alerts": "We melden het als de prijs daalt",
+    "partner": "Je boekt bij de verkoper die je op Skyscanner kiest"
   },
   "mobileDeal": {
     "title": "Zin in een weekendje Rome?",
@@ -207,7 +210,9 @@
     "biletcik": {
       "name": "Biletçik · inchecken",
       "quote": "“Ik por je meteen zodra online inchecken opengaat.”",
-      "cta": "Naar mijn reizen"
+      "cta": "Naar mijn reizen",
+      "quoteAff": "“Geboekt? Vergeet online inchecken niet.”",
+      "ctaAff": "Over inchecken"
     },
     "gunes": {
       "name": "Güneş · vakantieliefhebber",
@@ -231,6 +236,10 @@
     "fly": {
       "title": "Vlieg",
       "text": "Je ticket staat meteen in je mailbox. Goede reis!"
+    },
+    "flyAff": {
+      "title": "Vlieg",
+      "text": "Boek bij de aanbieder die je op Skyscanner kiest. Goede reis!"
     }
   },
   "alert": {
@@ -271,7 +280,28 @@
       "docs": {
         "q": "Welke documenten heb ik nodig?",
         "a": "Je paspoort of ID-kaart moet de hele reis geldig zijn; sommige landen eisen nog een paar maanden geldigheid na terugkeer. Of je een visum nodig hebt, hangt af van je nationaliteit en bestemming; check vóór vertrek de officiële bron van dat land."
+      },
+      "buy": {
+        "q": "Waar koop ik het ticket?",
+        "a": "pirpir vergelijkt vluchten en verkoopt geen tickets. Tik op “Bekijk deal” en de vlucht opent op Skyscanner, waar je boekt bij de luchtvaartmaatschappij of reissite die je kiest."
+      },
+      "pay": {
+        "q": "Aan wie betaal ik?",
+        "a": "Aan de luchtvaartmaatschappij of reissite waar je boekt. pirpir neemt geen betalingen aan en ziet je kaartgegevens nooit."
+      },
+      "cancelAff": {
+        "q": "Kan ik mijn ticket annuleren of wijzigen?",
+        "a": "Dat hangt af van de regels van de maatschappij of site waar je hebt geboekt. Neem voor annuleren en wijzigen contact met hen op; de voorwaarden zie je bij het boeken."
+      },
+      "bagsAff": {
+        "q": "Is bagage bij de prijs inbegrepen?",
+        "a": "Op elke vluchtkaart staat of een persoonlijk item, handbagage en ruimbagage zijn inbegrepen. Extra bagage voeg je toe waar je boekt; controleer daar de eindprijs."
+      },
+      "checkin": {
+        "q": "Waar check ik online in?",
+        "a": "Op de website of in de app van de maatschappij waar je hebt geboekt. Meestal opent het 24–48 uur voor vertrek; de e-mail van de maatschappij vertelt je wanneer."
       }
     }
-  }
+  },
+  "metaDescriptionAff": "Eenvoudig en vriendelijk vluchten zoeken: vind de goedkoopste vlucht en hoor het als de prijs daalt."
 }

@@ -76,7 +76,10 @@
     "label": "Warum {brand}",
     "secure": "Wir speichern deine Kartendaten nie",
     "clear": "Gepäck und Gebühren von Anfang an sichtbar",
-    "manage": "Umbuchen, stornieren und Gepäck hinzufügen – alles online"
+    "manage": "Umbuchen, stornieren und Gepäck hinzufügen – alles online",
+    "free": "Kostenlos suchen, keine Zusatzgebühren",
+    "alerts": "Wir melden uns, wenn der Preis sinkt",
+    "partner": "Du buchst beim Anbieter deiner Wahl auf Skyscanner"
   },
   "mobileDeal": {
     "title": "Lust auf ein Wochenende in Rom?",
@@ -207,7 +210,9 @@
     "biletcik": {
       "name": "Biletçik · Check-in-Guide",
       "quote": "“Ich stupse dich an, sobald der Online-Check-in öffnet.”",
-      "cta": "Zu meinen Reisen"
+      "cta": "Zu meinen Reisen",
+      "quoteAff": "„Gebucht? Vergiss den Online-Check-in nicht.“",
+      "ctaAff": "Zum Check-in"
     },
     "gunes": {
       "name": "Güneş · Urlaubsfan",
@@ -231,6 +236,10 @@
     "fly": {
       "title": "Fliegen",
       "text": "Dein Ticket landet sofort in deinem Postfach. Gute Reise!"
+    },
+    "flyAff": {
+      "title": "Flieg",
+      "text": "Buche beim Anbieter, den du auf Skyscanner wählst. Gute Reise!"
     }
   },
   "alert": {
@@ -271,7 +280,28 @@
       "docs": {
         "q": "Welche Dokumente brauche ich?",
         "a": "Dein Reisepass oder Personalausweis muss für die gesamte Reise gültig sein; manche Länder verlangen noch einige Monate Gültigkeit nach der Rückkehr. Ob du ein Visum brauchst, hängt von deiner Staatsangehörigkeit und deinem Ziel ab; prüf das vor dem Flug bei der offiziellen Stelle des Ziellandes."
+      },
+      "buy": {
+        "q": "Wo kaufe ich das Ticket?",
+        "a": "pirpir vergleicht Flüge und verkauft keine Tickets. Tippe auf „Zum Angebot“ und der Flug öffnet sich auf Skyscanner, wo du bei der Airline oder dem Reiseportal deiner Wahl buchst."
+      },
+      "pay": {
+        "q": "Wen bezahle ich?",
+        "a": "Die Airline oder das Reiseportal, bei dem du buchst. pirpir nimmt keine Zahlungen an und sieht deine Kartendaten nie."
+      },
+      "cancelAff": {
+        "q": "Kann ich mein Ticket stornieren oder ändern?",
+        "a": "Das hängt von den Regeln der Airline oder des Portals ab, bei dem du gebucht hast. Für Stornierungen und Änderungen wendest du dich an sie; die Bedingungen siehst du bei der Buchung."
+      },
+      "bagsAff": {
+        "q": "Ist Gepäck im Preis enthalten?",
+        "a": "Jede Flugkarte zeigt, ob persönlicher Gegenstand, Handgepäck und Aufgabegepäck enthalten sind. Zusätzliches Gepäck fügst du dort hinzu, wo du buchst; prüfe dort den Endpreis."
+      },
+      "checkin": {
+        "q": "Wo checke ich online ein?",
+        "a": "Auf der Website oder in der App der Airline, bei der du gebucht hast. Meist öffnet es 24–48 Stunden vor Abflug; wann genau, steht in der E-Mail der Airline."
       }
     }
-  }
+  },
+  "metaDescriptionAff": "Einfache, freundliche Flugsuche: finde den günstigsten Flug und erfahre, wenn der Preis fällt."
 }

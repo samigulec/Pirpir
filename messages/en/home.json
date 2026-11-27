@@ -76,7 +76,10 @@
     "label": "Why {brand}",
     "secure": "We never store your card details",
     "clear": "Bags and fees shown up front",
-    "manage": "Change, cancel and add bags online"
+    "manage": "Change, cancel and add bags online",
+    "free": "Free to search, no added fees",
+    "alerts": "We tell you when prices drop",
+    "partner": "You book with the seller you pick on Skyscanner"
   },
   "mobileDeal": {
     "title": "Fancy a weekend in Rome?",
@@ -207,7 +210,9 @@
     "biletcik": {
       "name": "Biletçik · check-in guide",
       "quote": "“I'll nudge you the moment online check-in opens.”",
-      "cta": "Go to my trips"
+      "cta": "Go to my trips",
+      "quoteAff": "“Booked? Don't forget online check-in.”",
+      "ctaAff": "About check-in"
     },
     "gunes": {
       "name": "Güneş · holiday lover",
@@ -231,6 +236,10 @@
     "fly": {
       "title": "Fly",
       "text": "Your ticket lands in your inbox instantly. Have a great trip!"
+    },
+    "flyAff": {
+      "title": "Fly",
+      "text": "Book with the seller you pick on Skyscanner. Have a great trip!"
     }
   },
   "alert": {
@@ -271,7 +280,28 @@
       "docs": {
         "q": "Which documents do I need?",
         "a": "Your passport or ID card must be valid for the whole trip; some countries require a few more months of validity after you return. Whether you need a visa depends on your nationality and destination; check the destination's official source before you fly."
+      },
+      "buy": {
+        "q": "Where do I buy the ticket?",
+        "a": "pirpir compares flights; it doesn't sell tickets. Tap “View deal” and the flight opens on Skyscanner, where you book with the airline or travel site you choose."
+      },
+      "pay": {
+        "q": "Who do I pay?",
+        "a": "The airline or travel site you book with. pirpir takes no payments and never sees your card details."
+      },
+      "cancelAff": {
+        "q": "Can I cancel or change my ticket?",
+        "a": "That depends on the rules of the airline or site you booked with. Contact them for cancellations and changes; the conditions are shown when you book."
+      },
+      "bagsAff": {
+        "q": "Is luggage included in the price?",
+        "a": "Each flight card shows whether a personal item, cabin bag and checked bag are included. You can add extra luggage where you book; check the final price there."
+      },
+      "checkin": {
+        "q": "Where do I check in online?",
+        "a": "On the website or app of the airline you booked with. It usually opens 24–48 hours before departure; the airline's email tells you when."
       }
     }
-  }
+  },
+  "metaDescriptionAff": "Simple, friendly flight search: find the cheapest flight and get told when prices drop."
 }

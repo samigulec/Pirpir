@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { brand } from "@/config/brand";
+import { isAffiliate } from "@/config/affiliate";
 import { routeHref, searchHref } from "@/lib/search";
 
 /** Ana sayfanın geniş altbilgisi. */
@@ -41,6 +42,7 @@ export async function SiteFooter() {
           <Link href={{ pathname: "/gizlilik", hash: "cerezler" }} className={link}>{t("cookies")}</Link>
         </span>
       </div>
+      <AffiliateDisclosure />
     </footer>
   );
 }
@@ -58,6 +60,16 @@ export async function SimpleFooter() {
           <Link href="/kosullar" className="text-muted">{t("footer.terms")}</Link>
         </span>
       </div>
+      <AffiliateDisclosure />
     </footer>
+  );
+}
+
+/** Ortaklık beyanı: "Fırsata git" bağlantılarından komisyon alındığı açıkça yazılır (reklam kuralları gereği). */
+async function AffiliateDisclosure() {
+  if (!isAffiliate()) return null;
+  const t = await getTranslations("common");
+  return (
+    <p className="mx-auto m-0 max-w-page px-4 pb-8 text-[13px] text-muted md:px-6">{t("affiliateDisclosure", { brand: brand.name })}</p>
   );
 }

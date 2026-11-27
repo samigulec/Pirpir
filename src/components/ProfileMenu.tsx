@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { useAuthUi } from "./auth/LoginModal";
 import { signOut } from "@/actions/auth";
 import { Help, Ticket, User } from "./icons";
+import { isAffiliate } from "@/config/affiliate";
 
 /**
  * Başlıktaki profil düğmesi ve açılan menü (Booking/Kiwi'deki gibi tek giriş noktası): giriş, biletler,
@@ -76,7 +77,7 @@ export function ProfileMenu() {
               </div>
             ) : (
               <div className="flex flex-col gap-2 px-3 pb-3 pt-1">
-                <span className="text-[15px] font-semibold text-muted">{t("signInText")}</span>
+                <span className="text-[15px] font-semibold text-muted">{t(isAffiliate() ? "signInTextAff" : "signInText")}</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -90,13 +91,15 @@ export function ProfileMenu() {
               </div>
             )}
             <nav aria-label={t("label")} className="flex flex-col gap-1">
-              <Link href="/biletlerim" onClick={close} className={item}>
-                <span className={icon}><Ticket /></span>
-                <span className="flex flex-col">
-                  <span className="font-extrabold">{t("trips")}</span>
-                  <span className="text-[13px] font-semibold text-muted">{t("tripsText")}</span>
-                </span>
-              </Link>
+              {!isAffiliate() && (
+                <Link href="/biletlerim" onClick={close} className={item}>
+                  <span className={icon}><Ticket /></span>
+                  <span className="flex flex-col">
+                    <span className="font-extrabold">{t("trips")}</span>
+                    <span className="text-[13px] font-semibold text-muted">{t("tripsText")}</span>
+                  </span>
+                </Link>
+              )}
               {signedIn &&
                 ([
                   ["yolcular", "travellers", <User key="u" />],

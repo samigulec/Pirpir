@@ -13,11 +13,14 @@ import { getOffer } from "@/lib/flights";
 import { saveTraveller } from "./user";
 import { getProviderForOffer } from "@/lib/providers/select";
 import { bagChoiceValid, bagsCost, seatsCost } from "@/lib/extras";
+import { isAffiliate } from "@/config/affiliate";
 import type { BagChoice, Bags, Booking, ChangeOption, ChangeRequest } from "@/lib/providers/types";
 
 export type PlaceOrderState = { errors: FieldErrors; message?: "expired" | "failed" | "live" };
 
 export async function placeOrder(offerId: string, form: FormData): Promise<PlaceOrderState> {
+  // Ortaklık modunda site bilet satmaz (Skyscanner ortaklık şartı); eski bir sayfadan gelen istek de reddedilir
+  if (isAffiliate()) return { errors: {}, message: "failed" };
   const offer = await getOffer(offerId);
   if (!offer) return { errors: {}, message: "expired" };
 

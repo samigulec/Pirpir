@@ -13,7 +13,8 @@
     "label": "Bottom navigation",
     "search": "Search",
     "tickets": "My trips",
-    "help": "Help"
+    "help": "Help",
+    "alerts": "Alerts"
   },
   "duration": "{h} h {m} min",
   "direct": "Direct",
@@ -81,6 +82,8 @@
     "signOut": "Sign out",
     "travellers": "Saved travellers",
     "alerts": "My price alerts",
-    "favorites": "My favourites"
-  }
+    "favorites": "My favourites",
+    "signInTextAff": "Sign in for price alerts and favourites."
+  },
+  "affiliateDisclosure": "{brand} may earn an affiliate commission on some bookings made through our links. It doesn't change the price you pay."
 }

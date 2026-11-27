@@ -76,7 +76,10 @@
     "label": "Pourquoi {brand}",
     "secure": "On ne conserve jamais les données de ta carte",
     "clear": "Bagages et frais affichés dès le départ",
-    "manage": "Modifie, annule et ajoute des bagages en ligne"
+    "manage": "Modifie, annule et ajoute des bagages en ligne",
+    "free": "Recherche gratuite, sans frais ajoutés",
+    "alerts": "On te prévient quand le prix baisse",
+    "partner": "Tu réserves auprès du vendeur choisi sur Skyscanner"
   },
   "mobileDeal": {
     "title": "Envie d'un week-end à Rome ?",
@@ -207,7 +210,9 @@
     "biletcik": {
       "name": "Biletçik · guide de l'enregistrement",
       "quote": "“Je te fais signe dès que l'enregistrement en ligne ouvre.”",
-      "cta": "Voir mes voyages"
+      "cta": "Voir mes voyages",
+      "quoteAff": "« Réservé ? N'oublie pas l'enregistrement en ligne. »",
+      "ctaAff": "À propos de l'enregistrement"
     },
     "gunes": {
       "name": "Güneş · fan de vacances",
@@ -231,6 +236,10 @@
     "fly": {
       "title": "Envole-toi",
       "text": "Ton billet arrive aussitôt dans ta boîte mail. Bon voyage !"
+    },
+    "flyAff": {
+      "title": "Envole-toi",
+      "text": "Réserve auprès du vendeur que tu choisis sur Skyscanner. Bon voyage !"
     }
   },
   "alert": {
@@ -271,7 +280,28 @@
       "docs": {
         "q": "De quels documents ai-je besoin ?",
         "a": "Ton passeport ou ta carte d'identité doit être valable pendant tout le voyage ; certains pays exigent quelques mois de validité supplémentaires après ton retour. Le besoin d'un visa dépend de ta nationalité et de ta destination ; vérifie auprès de la source officielle du pays de destination avant de partir."
+      },
+      "buy": {
+        "q": "Où acheter le billet ?",
+        "a": "pirpir compare les vols, il ne vend pas de billets. Touche « Voir l'offre » et le vol s'ouvre sur Skyscanner, où tu réserves auprès de la compagnie ou de l'agence de ton choix."
+      },
+      "pay": {
+        "q": "Qui dois-je payer ?",
+        "a": "La compagnie ou l'agence auprès de laquelle tu réserves. pirpir n'encaisse aucun paiement et ne voit jamais ta carte."
+      },
+      "cancelAff": {
+        "q": "Puis-je annuler ou modifier mon billet ?",
+        "a": "Cela dépend des règles de la compagnie ou du site où tu as réservé. Adresse-toi à eux pour annuler ou modifier ; les conditions sont affichées à la réservation."
+      },
+      "bagsAff": {
+        "q": "Les bagages sont-ils inclus ?",
+        "a": "Chaque carte de vol indique si l'article personnel, le bagage cabine et le bagage en soute sont inclus. Tu ajoutes des bagages là où tu réserves ; vérifie le prix final sur place."
+      },
+      "checkin": {
+        "q": "Où faire l'enregistrement en ligne ?",
+        "a": "Sur le site ou l'appli de la compagnie auprès de laquelle tu as réservé. Il ouvre en général 24 à 48 heures avant le départ ; l'e-mail de la compagnie t'indique quand."
       }
     }
-  }
+  },
+  "metaDescriptionAff": "Recherche de vols simple et sympathique : trouve le vol le moins cher et sois prévenu quand le prix baisse."
 }

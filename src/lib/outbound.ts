@@ -1,0 +1,57 @@
+// Ortaklık (affiliate) bağlantıları: site içindeki "Fırsata git" düğmeleri /git adresine gider; sunucu tıklamayı sayar
+// ve ziyaretçiyi ortaklık kimliğiyle Skyscanner'a yönlendirir (outbound-server.ts). Bu dosya tarayıcıda da çalışır.
+import type { CabinClass } from "./search";
+
+export type OutboundTrip = {
+  from: string;
+  to: string;
+  date: string;
+  returnDate?: string;
+  adults: number;
+  children: number;
+  infants: number;
+  cabin: CabinClass;
+};
+
+const ISO = /^\d{4}-\d{2}-\d{2}$/;
+/** Havalimanı (AMS) ya da şehir grubu (city:IST) */
+const PLACE = /^(city:)?[A-Z]{3}$/;
+const CABINS: CabinClass[] = ["economy", "premium_economy", "business", "first"];
+
+/**
+ * Site içi yönlendirme adresi. `src`: tıklamanın nereden geldiği (ör. "results", "deal:<id>"), istatistik için.
+ * `locale`: Skyscanner'ın aynı dilde açılması için.
+ */
+export function goHref(t: OutboundTrip, src: string, locale: string): string {
+  const p = new URLSearchParams({ from: t.from, to: t.to, d: t.date, a: String(t.adults), l: locale, src });
+  if (t.returnDate) p.set("r", t.returnDate);
+  if (t.children) p.set("c", String(t.children));
+  if (t.infants) p.set("i", String(t.infants));
+  if (t.cabin !== "economy") p.set("cabin", t.cabin);
+  return `/git?${p}`;
+}
+
+const int = (v: string | null, min: number, max: number, dflt: number) => {
+  const n = Number(v ?? dflt);
+  return Number.isInteger(n) && n >= min && n <= max ? n : null;
+};
+
+/** /git adresindeki parametreleri doğrular; geçersizse null. */
+export function parseGo(p: URLSearchParams): (OutboundTrip & { src: string; locale: string }) | null {
+  const from = (p.get("from") ?? "").trim();
+  const to = (p.get("to") ?? "").trim();
+  const date = p.get("d") ?? "";
+  const returnDate = p.get("r") ?? undefined;
+  const adults = int(p.get("a"), 1, 9, 1);
+  const children = int(p.get("c"), 0, 8, 0);
+  const infants = int(p.get("i"), 0, 4, 0);
+  const cabin = (p.get("cabin") ?? "economy") as CabinClass;
+  if (!PLACE.test(from) || !PLACE.test(to) || from === to || !ISO.test(date)) return null;
+  if (returnDate !== undefined && (!ISO.test(returnDate) || returnDate < date)) return null;
+  if (adults === null || children === null || infants === null || infants > adults || !CABINS.includes(cabin)) return null;
+  return {
+    from, to, date, returnDate, adults, children, infants, cabin,
+    src: (p.get("src") ?? "").slice(0, 80),
+    locale: (p.get("l") ?? "tr").slice(0, 5),
+  };
+}

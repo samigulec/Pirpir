@@ -42,6 +42,9 @@ export const Search = ({ size = 22, className }: P) => (
 export const Ticket = ({ size = 22, className }: P) => (
   <svg {...base(size)} strokeWidth="2.2" className={className}><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" /><path d="M9 8V5h6v3" /></svg>
 );
+export const Bell = ({ size = 22, className }: P) => (
+  <svg {...base(size)} strokeWidth="2.2" className={className}><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9zM10 20a2 2 0 0 0 4 0" /></svg>
+);
 export const Help = ({ size = 22, className }: P) => (
   <svg {...base(size)} strokeWidth="2.2" className={className}><circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" /></svg>
 );

@@ -13,7 +13,8 @@
     "label": "Untere Navigation",
     "search": "Suchen",
     "tickets": "Meine Reisen",
-    "help": "Hilfe"
+    "help": "Hilfe",
+    "alerts": "Alarme"
   },
   "duration": "{h} Std. {m} Min.",
   "direct": "Direkt",
@@ -81,6 +82,8 @@
     "signOut": "Abmelden",
     "travellers": "Gespeicherte Reisende",
     "alerts": "Meine Preisalarme",
-    "favorites": "Meine Favoriten"
-  }
+    "favorites": "Meine Favoriten",
+    "signInTextAff": "Melde dich für Preisalarme und Favoriten an."
+  },
+  "affiliateDisclosure": "{brand} erhält bei manchen Buchungen über unsere Links eine Partnerprovision. Am Preis, den du zahlst, ändert das nichts."
 }

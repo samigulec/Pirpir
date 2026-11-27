@@ -80,6 +80,16 @@ Kurulum:
 3. Yeniden yayınla. Vercel → Settings → Cron Jobs'ta görev görünür; "Run" ile elle de çalıştırılabilir.
    Hobby planında cron günde bir kez çalışır.
 
+## Ortaklık modu (Skyscanner)
+
+Varsayılan olarak site **bilet satmaz**: sonuçlardaki "Fırsata git" düğmesi `/git` üzerinden Skyscanner'a gider
+(`src/app/git/route.ts`, bağlantı `src/lib/outbound-server.ts`). Rezervasyon sayfası ana sayfaya döner; Duffel ile
+satış kodu duruyor, `NEXT_PUBLIC_SALES_MODE=booking` ile geri açılır.
+
+- `SKYSCANNER_MEDIA_PARTNER_ID`: Skyscanner (impact.com) ortaklık kimliği. Yokken bağlantılar çalışır ama komisyon yazılmaz.
+- Tıklamalar Supabase'deki `clicks` tablosuna yazılır: `supabase/migrations/0005_clicks.sql` dosyasını SQL Editor'da bir kez çalıştır.
+- Sayfa altındaki ortaklık açıklaması (`common.affiliateDisclosure`) yasal bilgilendirmedir, kaldırma.
+
 ## Sayfalar
 
 | Rota | Tasarım |

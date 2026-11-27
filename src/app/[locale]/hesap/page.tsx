@@ -14,6 +14,7 @@ import { countryOptions, DEFAULT_NATIONALITY } from "@/data/countries";
 import { SavedAlerts, SavedFavorites } from "@/components/account/SavedLists";
 import { cityByCode } from "@/data/airports";
 import { todayIso } from "@/lib/search";
+import { isAffiliate } from "@/config/affiliate";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -97,13 +98,15 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
           </div>
         </section>
 
-        <Link href="/biletlerim" className="flex flex-wrap items-center justify-between gap-3 rounded-[28px] bg-green-soft px-6 py-5 text-ink no-underline">
-          <span className="flex flex-col">
-            <span className="font-display text-xl font-semibold">{t("trips")}</span>
-            <span className="text-[15px] text-muted">{t("tripsText")}</span>
-          </span>
-          <span aria-hidden="true" className="font-display text-2xl font-semibold">→</span>
-        </Link>
+{!isAffiliate() && (
+                  <Link href="/biletlerim" className="flex flex-wrap items-center justify-between gap-3 rounded-[28px] bg-green-soft px-6 py-5 text-ink no-underline">
+            <span className="flex flex-col">
+              <span className="font-display text-xl font-semibold">{t("trips")}</span>
+              <span className="text-[15px] text-muted">{t("tripsText")}</span>
+            </span>
+            <span aria-hidden="true" className="font-display text-2xl font-semibold">→</span>
+          </Link>
+        )}
 
         <SignOutButton
           label={t("signOut")}
