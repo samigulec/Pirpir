@@ -125,9 +125,11 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
 
 - [hazırlık] Claude — White Label kodu (`NEXT_PUBLIC_TP_WL_HOST`), Travelpayouts sağlayıcısı, logolar, tazelik etiketi,
   direkt uçuş sorgusu, seyrek rotalarda gidiş/dönüş ayrı tek yön fiyatlar. Son commit bu dosyayı ekleyen commit.
-- [3.1] White Label SSL kontrolü — kod değişikliği yok — `curl -sSI https://ucus.flypirpir.nl` HTTP/2 200 döndü (SSL aktif).
-  Kullanıcı aksiyonu bekleniyor: Vercel'e `NEXT_PUBLIC_TP_WL_HOST=ucus.flypirpir.nl` (Config) ekleyip Redeploy yapmak ve
-  Travelpayouts → White Label → Design'dan `https://flypirpir.nl/email/pirpir.png` logosunu yüklemek; ardından canlı `/git` yönlendirmesi doğrulanacak.
+- [3.1] White Label bağlandı — kod değişikliği yok — `NEXT_PUBLIC_TP_WL_HOST=ucus.flypirpir.nl` Vercel'e eklenip
+  yeniden yayınlandı, Travelpayouts Custom HTML header'ına pirpir logosu konuldu. Doğrulandı:
+  `curl -sSI "https://www.flypirpir.nl/git?from=AMS&to=IST&d=2027-01-22&r=2027-01-25&a=1&l=tr&src=results"` →
+  `HTTP/2 302` → `https://ucus.flypirpir.nl/flights/AMS2201IST25011?currency=eur&marker=812756.results`;
+  `https://ucus.flypirpir.nl` HTTP/2 200 (SSL aktif) ve kullanıcı canlı arama ekranını doğruladı. Bilinen eksik yok.
 - [3.2] Next.js güvenlik güncellemesi — commit 736d7df — `next` 16.4.2 → 16.4.5 yükseltildi (`package.json`, `package-lock.json`).
   Denendi: `npm audit --omit=dev` (0 açık), `npm run lint` (`tsc --noEmit` hatasız), `npx next build` (71/71 sayfa),
   yerel `npx next start -p 3123` üzerinde `/` (HTTP 200), `/ara?from=AMS&to=IST&date=2027-01-22&return=2027-01-25` (HTTP 200) ve
