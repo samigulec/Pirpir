@@ -79,7 +79,7 @@
     "manage": "Cambia, cancela y añade equipaje online",
     "free": "Buscar es gratis, sin cargos añadidos",
     "alerts": "Te avisamos cuando baja el precio",
-    "partner": "Reservas con el vendedor que elijas en {partner, select, aviasales {Aviasales} other {Skyscanner}}"
+    "partner": "Reservas con el vendedor que elijas en {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}"
   },
   "mobileDeal": {
     "title": "¿Te apetece un fin de semana en Roma?",
@@ -239,7 +239,7 @@
     },
     "flyAff": {
       "title": "Vuela",
-      "text": "Reserva con el vendedor que elijas en {partner, select, aviasales {Aviasales} other {Skyscanner}}. ¡Buen viaje!"
+      "text": "Reserva con el vendedor que elijas en {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}. ¡Buen viaje!"
     }
   },
   "alert": {
@@ -283,7 +283,7 @@
       },
       "buy": {
         "q": "¿Dónde compro el billete?",
-        "a": "pirpir compara vuelos; no vende billetes. Pulsa «Ver oferta» y el vuelo se abre en {partner, select, aviasales {Aviasales} other {Skyscanner}}, donde reservas con la aerolínea o agencia que elijas."
+        "a": "pirpir compara vuelos; no vende billetes. Pulsa «Ver oferta» y el vuelo se abre en {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}, donde reservas con la aerolínea o agencia que elijas."
       },
       "pay": {
         "q": "¿A quién pago?",

@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { brand } from "@/config/brand";
 import { isAffiliate, outboundPartner } from "@/config/affiliate";
 
 const STEPS = [
@@ -18,7 +19,7 @@ export async function Steps() {
           <div key={s.key} className="flex flex-col items-center gap-2">
             <span className={`flex h-14 w-14 items-center justify-center rounded-full font-display text-2xl font-bold ${s.bg}`}>{s.n}</span>
             <h3 className="m-0 font-display text-2xl font-semibold">{t(`${key(s.key)}.title`)}</h3>
-            <p className="m-0 text-muted">{t(`${key(s.key)}.text`, { partner: outboundPartner() })}</p>
+            <p className="m-0 text-muted">{t(`${key(s.key)}.text`, { partner: outboundPartner(), brand: brand.name })}</p>
           </div>
         ))}
       </div>

@@ -221,15 +221,18 @@
     "open": "Einstellungen Preisalarm"
   },
   "goDeal": "Zum Angebot",
-  "partnerNote": "Öffnet bei {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "partnerNote": "Öffnet bei {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",
   "seen": "{days, plural, =0 {Preis heute gesehen} =1 {Preis gestern gesehen} other {Preis vor # Tagen gesehen}}",
   "cachedNote": "Preise wurden in den letzten Tagen auf Aviasales gesehen; den aktuellen Preis beim Anbieter prüfen",
-  "liveSearch": "Live suchen bei {partner, select, aviasales {Aviasales} other {Skyscanner}}",
-  "noResultsCached": "Für diese Daten sind keine Preise gespeichert. Aktuelle Flüge kannst du live bei {partner, select, aviasales {Aviasales} other {Skyscanner}} suchen.",
+  "liveSearch": "Live suchen bei {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",
+  "noResultsCached": "Für diese Daten sind keine Preise gespeichert. Aktuelle Flüge kannst du live bei {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}} suchen.",
   "nearbyTitle": "Gespeicherte Preise an nahen Terminen",
   "otherAirlines": "andere Airlines",
   "mayChange": "Der Preis kann sich beim Anbieter geändert haben",
   "nearbyOut": "Gespeicherte Einzelflüge für den Hinflug",
   "nearbyBack": "Gespeicherte Einzelflüge für den Rückflug",
-  "nearbySeparate": "Für diese Daten sind keine Hin- und Rückflugpreise gespeichert; du kannst Hin- und Rückflug als getrennte Tickets buchen."
+  "nearbySeparate": "Für diese Daten sind keine Hin- und Rückflugpreise gespeichert; du kannst Hin- und Rückflug als getrennte Tickets buchen.",
+  "partnerNoteWL": "Öffnet mit Live-Preisen",
+  "liveSearchWL": "Live-Preise ansehen",
+  "noResultsCachedWL": "Für diese Daten sind keine Preise gespeichert. Aktuelle Flüge kannst du mit Live-Preisen ansehen."
 }

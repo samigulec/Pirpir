@@ -221,15 +221,18 @@
     "open": "Réglages de l'alerte prix"
   },
   "goDeal": "Voir l'offre",
-  "partnerNote": "S'ouvre sur {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "partnerNote": "S'ouvre sur {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",
   "seen": "{days, plural, =0 {Prix vu aujourd'hui} =1 {Prix vu hier} other {Prix vu il y a # jours}}",
   "cachedNote": "prix vus sur Aviasales ces derniers jours ; vérifie le prix actuel chez le vendeur",
-  "liveSearch": "Rechercher en direct sur {partner, select, aviasales {Aviasales} other {Skyscanner}}",
-  "noResultsCached": "Aucun prix enregistré pour ces dates. Tu peux chercher les vols actuels en direct sur {partner, select, aviasales {Aviasales} other {Skyscanner}}.",
+  "liveSearch": "Rechercher en direct sur {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",
+  "noResultsCached": "Aucun prix enregistré pour ces dates. Tu peux chercher les vols actuels en direct sur {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}.",
   "nearbyTitle": "Prix enregistrés à des dates proches",
   "otherAirlines": "autres compagnies",
   "mayChange": "Le prix a pu changer chez le vendeur",
   "nearbyOut": "Prix aller simple enregistrés pour l'aller",
   "nearbyBack": "Prix aller simple enregistrés pour le retour",
-  "nearbySeparate": "Aucun prix aller-retour enregistré pour ces dates ; tu peux réserver l'aller et le retour en billets séparés."
+  "nearbySeparate": "Aucun prix aller-retour enregistré pour ces dates ; tu peux réserver l'aller et le retour en billets séparés.",
+  "partnerNoteWL": "S'ouvre avec les prix en direct",
+  "liveSearchWL": "Voir les prix en direct",
+  "noResultsCachedWL": "Aucun prix enregistré pour ces dates. Tu peux voir les vols actuels avec les prix en direct."
 }

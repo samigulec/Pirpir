@@ -55,7 +55,7 @@ export function HomeHero({
           <>
             <li className="flex items-center gap-2"><Check className="text-primary" />{t("trust.free")}</li>
             <li className="flex items-center gap-2"><Clock className="text-primary" />{t("trust.alerts")}</li>
-            <li className="flex items-center gap-2"><Lock className="text-primary" />{t("trust.partner", { partner: outboundPartner() })}</li>
+            <li className="flex items-center gap-2"><Lock className="text-primary" />{t("trust.partner", { partner: outboundPartner(), brand: brand.name })}</li>
           </>
         ) : (
           <>

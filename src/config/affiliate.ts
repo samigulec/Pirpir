@@ -6,6 +6,16 @@ export type SalesMode = "affiliate" | "booking";
 export const salesMode = (): SalesMode => (process.env.NEXT_PUBLIC_SALES_MODE === "booking" ? "booking" : "affiliate");
 export const isAffiliate = () => salesMode() === "affiliate";
 
-/** "Fırsata git" ortağı: Skyscanner kimliği (SKYSCANNER_MEDIA_PARTNER_ID) tanımlıysa Skyscanner, değilse Aviasales (next.config.ts). */
-export type OutboundPartner = "skyscanner" | "aviasales";
-export const outboundPartner = (): OutboundPartner => (process.env.NEXT_PUBLIC_OUTBOUND_PARTNER === "skyscanner" ? "skyscanner" : "aviasales");
+/**
+ * Travelpayouts White Label: kendi alt alan adımızda (ör. ucus.flypirpir.nl) canlı Aviasales araması. Tanımlıysa
+ * "Fırsata git" oraya gider (canlı fiyat, aynı komisyon). Alan adının CNAME kaydı whitelabel.travelpayouts.com'a gider.
+ */
+export const whiteLabelHost = () => process.env.NEXT_PUBLIC_TP_WL_HOST?.trim().replace(/^https?:\/\//, "").replace(/\/.*$/, "") || null;
+
+/**
+ * "Fırsata git" ortağı: Skyscanner kimliği (SKYSCANNER_MEDIA_PARTNER_ID) tanımlıysa Skyscanner (next.config.ts),
+ * değilse White Label alan adı varsa kendi canlı aramamız, yoksa Aviasales.
+ */
+export type OutboundPartner = "skyscanner" | "aviasales" | "whitelabel";
+export const outboundPartner = (): OutboundPartner =>
+  process.env.NEXT_PUBLIC_OUTBOUND_PARTNER === "skyscanner" ? "skyscanner" : whiteLabelHost() ? "whitelabel" : "aviasales";

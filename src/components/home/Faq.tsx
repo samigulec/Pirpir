@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { brand } from "@/config/brand";
 import { OpenFromHash } from "./OpenFromHash";
 import { isAffiliate, outboundPartner } from "@/config/affiliate";
 
@@ -16,7 +17,7 @@ export async function Faq() {
           <summary className="flex justify-between gap-3 font-display text-xl font-semibold">
             {t(`items.${k}.q`)} <span aria-hidden="true">+</span>
           </summary>
-          <p className="m-0 mt-[10px] text-muted">{t(`items.${k}.a`, { partner: outboundPartner() })}</p>
+          <p className="m-0 mt-[10px] text-muted">{t(`items.${k}.a`, { partner: outboundPartner(), brand: brand.name })}</p>
         </details>
       ))}
       <OpenFromHash />

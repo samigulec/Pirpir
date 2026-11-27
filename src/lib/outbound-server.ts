@@ -4,6 +4,7 @@ import "server-only";
 import { expandCode } from "@/data/airports";
 import type { MarketId } from "@/config/markets";
 import type { OutboundTrip } from "./outbound";
+import { whiteLabelHost } from "@/config/affiliate";
 
 /** Ortaklık kimliği (impact.com'daki Skyscanner programından). Yoksa bağlantı yine çalışır ama komisyon kazanılmaz. */
 export const skyscannerPartnerId = () => process.env.SKYSCANNER_MEDIA_PARTNER_ID?.trim() || null;
@@ -66,6 +67,16 @@ export function aviasalesSearchUrl(t: OutboundTrip): string {
 
 export function aviasalesUrl(t: OutboundTrip, ctx: { currency: string; subId?: string }): string {
   const target = new URL(aviasalesSearchUrl(t));
+  // White Label: aynı arama kendi alan adımızda (/flights/…); ortak kimliği alan adına bağlıdır, yönlendirici gerekmez
+  const wl = whiteLabelHost();
+  if (wl) {
+    const live = new URL(`https://${wl}${target.pathname.replace(/^\/search\//, "/flights/")}`);
+    if (t.deep) new URL(t.deep, "https://www.aviasales.com").searchParams.forEach((v, k) => live.searchParams.set(k, v));
+    live.searchParams.set("currency", ctx.currency.toLowerCase());
+    const sub = ctx.subId?.replace(/[^a-z0-9_-]/gi, "").slice(0, 30);
+    live.searchParams.set("marker", sub ? `${travelpayoutsMarker()}.${sub}` : travelpayoutsMarker());
+    return live.toString();
+  }
   // Sonuç kartından gelindiyse aynı bilet işaretli açılır: yolcu ve tarih bizim adresten, bilet kimliği (t=…) Aviasales'ten
   if (t.deep) new URL(t.deep, "https://www.aviasales.com").searchParams.forEach((v, k) => target.searchParams.set(k, v));
   target.searchParams.set("currency", ctx.currency.toLowerCase());

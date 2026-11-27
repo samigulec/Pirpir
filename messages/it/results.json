@@ -221,15 +221,18 @@
     "open": "Impostazioni avviso prezzo"
   },
   "goDeal": "Vedi offerta",
-  "partnerNote": "Si apre su {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "partnerNote": "Si apre su {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",
   "seen": "{days, plural, =0 {Prezzo visto oggi} =1 {Prezzo visto ieri} other {Prezzo visto # giorni fa}}",
   "cachedNote": "prezzi visti su Aviasales negli ultimi giorni; verifica il prezzo attuale presso il venditore",
-  "liveSearch": "Cerca in tempo reale su {partner, select, aviasales {Aviasales} other {Skyscanner}}",
-  "noResultsCached": "Nessun prezzo salvato per queste date. Puoi cercare i voli attuali in tempo reale su {partner, select, aviasales {Aviasales} other {Skyscanner}}.",
+  "liveSearch": "Cerca in tempo reale su {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",
+  "noResultsCached": "Nessun prezzo salvato per queste date. Puoi cercare i voli attuali in tempo reale su {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}.",
   "nearbyTitle": "Prezzi salvati in date vicine",
   "otherAirlines": "altre compagnie",
   "mayChange": "Il prezzo potrebbe essere cambiato presso il venditore",
   "nearbyOut": "Prezzi di sola andata salvati per l'andata",
   "nearbyBack": "Prezzi di sola andata salvati per il ritorno",
-  "nearbySeparate": "Nessun prezzo andata e ritorno salvato per queste date; puoi prenotare andata e ritorno con biglietti separati."
+  "nearbySeparate": "Nessun prezzo andata e ritorno salvato per queste date; puoi prenotare andata e ritorno con biglietti separati.",
+  "partnerNoteWL": "Si apre con i prezzi in tempo reale",
+  "liveSearchWL": "Vedi i prezzi in tempo reale",
+  "noResultsCachedWL": "Nessun prezzo salvato per queste date. Puoi vedere i voli attuali con i prezzi in tempo reale."
 }

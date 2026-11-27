@@ -221,15 +221,18 @@
     "open": "Instellingen prijsalarm"
   },
   "goDeal": "Bekijk deal",
-  "partnerNote": "Opent op {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "partnerNote": "Opent op {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",
   "seen": "{days, plural, =0 {Prijs vandaag gezien} =1 {Prijs gisteren gezien} other {Prijs # dagen geleden gezien}}",
   "cachedNote": "prijzen zijn de afgelopen dagen op Aviasales gezien; check de actuele prijs bij de aanbieder",
-  "liveSearch": "Live zoeken op {partner, select, aviasales {Aviasales} other {Skyscanner}}",
-  "noResultsCached": "Geen opgeslagen prijzen voor deze data. Je kunt actuele vluchten live zoeken op {partner, select, aviasales {Aviasales} other {Skyscanner}}.",
+  "liveSearch": "Live zoeken op {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",
+  "noResultsCached": "Geen opgeslagen prijzen voor deze data. Je kunt actuele vluchten live zoeken op {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}.",
   "nearbyTitle": "Opgeslagen prijzen op data in de buurt",
   "otherAirlines": "andere maatschappijen",
   "mayChange": "De prijs kan bij de aanbieder veranderd zijn",
   "nearbyOut": "Opgeslagen enkele reizen voor de heenreis",
   "nearbyBack": "Opgeslagen enkele reizen voor de terugreis",
-  "nearbySeparate": "Geen opgeslagen retourprijzen voor deze data; je kunt heen- en terugreis als losse tickets boeken."
+  "nearbySeparate": "Geen opgeslagen retourprijzen voor deze data; je kunt heen- en terugreis als losse tickets boeken.",
+  "partnerNoteWL": "Opent met actuele prijzen",
+  "liveSearchWL": "Bekijk actuele prijzen",
+  "noResultsCachedWL": "Geen opgeslagen prijzen voor deze data. Je kunt actuele vluchten met live prijzen bekijken."
 }

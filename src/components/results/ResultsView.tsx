@@ -1,5 +1,6 @@
 "use client";
 
+import { brand } from "@/config/brand";
 import { outboundPartner } from "@/config/affiliate";
 import { seenDays } from "@/lib/freshness";
 import { Link } from "@/i18n/navigation";
@@ -200,9 +201,9 @@ export function ResultsView({
         {offers.length === 0 &&
           (liveHref ? (
             <div className="flex flex-col items-start gap-3 rounded-[24px] bg-sky px-5 py-5">
-              <p className="m-0 font-bold text-ink">{t("noResultsCached", { partner: outboundPartner() })}</p>
+              <p className="m-0 font-bold text-ink">{outboundPartner() === "whitelabel" ? t("noResultsCachedWL") : t("noResultsCached", { partner: outboundPartner(), brand: brand.name })}</p>
               <a href={liveHref} target="_blank" rel="sponsored nofollow noopener" className="inline-flex min-h-[48px] items-center rounded-pill bg-primary px-6 font-display text-lg font-semibold text-white no-underline">
-                {t("liveSearch", { partner: outboundPartner() })}
+                {outboundPartner() === "whitelabel" ? t("liveSearchWL") : t("liveSearch", { partner: outboundPartner(), brand: brand.name })}
               </a>
             </div>
           ) : (

@@ -221,15 +221,18 @@
     "open": "Fiyat alarmı ayarları"
   },
   "goDeal": "Fırsata git",
-  "partnerNote": "{partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} açılır",
+  "partnerNote": "{partner, select, whitelabel {{brand} Live'da} aviasales {Aviasales'te} other {Skyscanner'da}} açılır",
   "seen": "{days, plural, =0 {Bugün görülen fiyat} =1 {Dün görülen fiyat} other {# gün önce görülen fiyat}}",
   "cachedNote": "fiyatlar Aviasales'te son günlerde görülen fiyatlardır; güncel fiyat satıcıda",
-  "liveSearch": "{partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} canlı ara",
-  "noResultsCached": "Bu tarihler için kayıtlı fiyat yok. Güncel uçuşları {partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} canlı arayabilirsin.",
+  "liveSearch": "{partner, select, whitelabel {{brand} Live'da} aviasales {Aviasales'te} other {Skyscanner'da}} canlı ara",
+  "noResultsCached": "Bu tarihler için kayıtlı fiyat yok. Güncel uçuşları {partner, select, whitelabel {{brand} Live'da} aviasales {Aviasales'te} other {Skyscanner'da}} canlı arayabilirsin.",
   "nearbyTitle": "Yakın tarihlerdeki kayıtlı fiyatlar",
   "otherAirlines": "diğer havayolları",
   "mayChange": "Satıcıda fiyat değişmiş olabilir",
   "nearbyOut": "Gidiş için kayıtlı tek yön fiyatlar",
   "nearbyBack": "Dönüş için kayıtlı tek yön fiyatlar",
-  "nearbySeparate": "Bu tarihler için gidiş-dönüş kaydı yok; gidiş ve dönüşü ayrı biletlerle alabilirsin."
+  "nearbySeparate": "Bu tarihler için gidiş-dönüş kaydı yok; gidiş ve dönüşü ayrı biletlerle alabilirsin.",
+  "partnerNoteWL": "Canlı fiyatlarla açılır",
+  "liveSearchWL": "Canlı fiyatları gör",
+  "noResultsCachedWL": "Bu tarihler için kayıtlı fiyat yok. Güncel uçuşları canlı fiyatlarla görebilirsin."
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { brand } from "@/config/brand";
 import { useId, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
@@ -260,7 +261,7 @@ export function OfferCard({
             >
               {t("goDeal")}
             </a>
-            <span className="text-[12px] font-bold text-muted md:text-center">{t("partnerNote", { partner: outboundPartner() })}</span>
+            <span className="text-[12px] font-bold text-muted md:text-center">{outboundPartner() === "whitelabel" ? t("partnerNoteWL") : t("partnerNote", { partner: outboundPartner(), brand: brand.name })}</span>
           </span>
         ) : (
           <button

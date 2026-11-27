@@ -221,15 +221,18 @@
     "open": "Price alert settings"
   },
   "goDeal": "View deal",
-  "partnerNote": "Opens on {partner, select, aviasales {Aviasales} other {Skyscanner}}",
+  "partnerNote": "Opens on {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",
   "seen": "{days, plural, =0 {Price seen today} =1 {Price seen yesterday} other {Price seen # days ago}}",
   "cachedNote": "prices were seen on Aviasales in recent days; check the current price with the seller",
-  "liveSearch": "Search live on {partner, select, aviasales {Aviasales} other {Skyscanner}}",
-  "noResultsCached": "No saved prices for these dates. You can search current flights live on {partner, select, aviasales {Aviasales} other {Skyscanner}}.",
+  "liveSearch": "Search live on {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",
+  "noResultsCached": "No saved prices for these dates. You can search current flights live on {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}.",
   "nearbyTitle": "Saved prices on nearby dates",
   "otherAirlines": "other airlines",
   "mayChange": "The price may have changed at the seller",
   "nearbyOut": "Saved one-way prices for the outbound",
   "nearbyBack": "Saved one-way prices for the return",
-  "nearbySeparate": "No saved round-trip prices for these dates; you can book the outbound and return as separate tickets."
+  "nearbySeparate": "No saved round-trip prices for these dates; you can book the outbound and return as separate tickets.",
+  "partnerNoteWL": "Opens with live prices",
+  "liveSearchWL": "See live prices",
+  "noResultsCachedWL": "No saved prices for these dates. You can see current flights with live prices."
 }

@@ -23,8 +23,17 @@
     "diff": "{price} de plus que le mois le moins cher",
     "note": "Prix donnés à titre d'exemple. Les vrais prix se mettent à jour quand tu lances une recherche."
   },
-  "deals": { "title": "Prochaines dates les moins chères", "select": "Choisir" },
-  "airports": { "title": "Quel aéroport te convient ?" },
-  "tips": { "title": "Conseils pour {city}" },
-  "others": { "title": "Où aller d'autre en {country} ?" }
+  "deals": {
+    "title": "Prochaines dates les moins chères",
+    "select": "Choisir"
+  },
+  "airports": {
+    "title": "Quel aéroport te convient ?"
+  },
+  "tips": {
+    "title": "Conseils pour {city}"
+  },
+  "others": {
+    "title": "Où aller d'autre en {country} ?"
+  }
 }
