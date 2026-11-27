@@ -233,7 +233,12 @@
   "nearbyBack": "Prezzi di sola andata salvati per il ritorno",
   "nearbySeparate": "Nessun prezzo andata e ritorno salvato per queste date; puoi prenotare andata e ritorno con biglietti separati.",
   "partnerNoteWL": "Si apre con i prezzi in tempo reale",
-  "liveSearchWL": "Vedi i prezzi in tempo reale",
-  "noResultsCachedWL": "Nessun prezzo salvato per queste date. Puoi vedere i voli attuali con i prezzi in tempo reale.",
-  "shiftDays": "{n, plural, one {# giorno} other {# giorni}} {dir, select, before {prima} other {dopo}}"
+  "liveSearchWL": "Vedi i voli in tempo reale per queste date",
+  "noResultsCachedWL": "Nessun prezzo salvato per queste date. La ricerca in tempo reale mostra tutti i voli e i prezzi attuali per queste date.",
+  "shiftDays": "{n, plural, one {# giorno} other {# giorni}} {dir, select, before {prima} other {dopo}}",
+  "separateTickets": "2 biglietti separati",
+  "goOut": "Vai al biglietto di andata",
+  "goBack": "Vai al biglietto di ritorno",
+  "separateNote": "Andata e ritorno si prenotano separatamente",
+  "fewResults": "Pochi voli salvati per queste date. Vedi tutti i voli e i prezzi attuali nella ricerca in tempo reale."
 }

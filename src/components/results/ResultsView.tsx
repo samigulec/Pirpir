@@ -126,6 +126,12 @@ export function ResultsView({
   };
 
   const groups = useMemo(() => groupByItinerary(applyFilters(offers, filters)), [offers, filters]);
+  // Sonuç yokken filtreler yakın tarih kartlarına uygulanır; filtre seçenekleri de onlardan gelir
+  const pool = useMemo(() => (offers.length ? offers : (nearby?.sections.flatMap((s) => s.offers) ?? [])), [offers, nearby]);
+  const nearbyShown = useMemo(
+    () => nearby?.sections.map((s) => ({ ...s, offers: applyFilters(s.offers, filters).map((p) => p.offer) })),
+    [nearby, filters],
+  );
 
   // Rozetler sıralamadan bağımsız, filtrelenmiş sonuçlar üzerinden hesaplanır.
   const cheapestKey = useMemo(() => [...groups].sort((a, b) => a.best.price - b.best.price)[0]?.key, [groups]);
@@ -147,16 +153,14 @@ export function ResultsView({
   // Havayolu filtresi listesi: tüm sonuçlardaki havayolları ve en düşük fiyatları
   const airlines = useMemo(() => {
     const min = new Map<string, number>();
-    for (const o of offers) for (const c of carriersOf(o)) min.set(c, Math.min(min.get(c) ?? Infinity, o.price));
+    for (const o of pool) for (const c of carriersOf(o)) min.set(c, Math.min(min.get(c) ?? Infinity, o.price));
     return [...min.entries()].map(([name, price]) => ({ name, price })).sort((a, b) => a.price - b.price);
-  }, [offers]);
-  const bounds = useMemo(() => durationBounds(offers), [offers]);
+  }, [pool]);
+  const bounds = useMemo(() => durationBounds(pool), [pool]);
   const active = activeFilterCount(filters);
 
   return (
-    // Sonuç yokken filtre ve sıralama gösterilmez (yakın tarih kartlarına uygulanmazlar)
-    <div className={`grid items-start gap-5 md:gap-8 ${offers.length ? "md:grid-cols-[260px_minmax(0,1fr)]" : ""}`}>
-      {offers.length > 0 && <>
+    <div className="grid items-start gap-5 md:grid-cols-[260px_minmax(0,1fr)] md:gap-8">
       <button
         type="button"
         aria-expanded={showFilters}
@@ -167,13 +171,12 @@ export function ResultsView({
         {active ? t("filters.active", { n: active }) : t("filters.show")}
       </button>
       <aside id="filters" className={`${showFilters ? "block" : "hidden"} rounded-[28px] bg-field px-5 py-5 md:sticky md:top-4 md:block md:max-h-[calc(100vh-32px)] md:overflow-y-auto`}>
-        <FiltersPanel value={filters} onChange={setFilters} airlines={airlines} oneWay={oneWay} bounds={bounds} hideBags={offers.every((o) => o.bagsUnknown)} />
+        <FiltersPanel value={filters} onChange={setFilters} airlines={airlines} oneWay={oneWay} bounds={bounds} hideBags={pool.every((o) => o.bagsUnknown)} />
       </aside>
-      </>}
 
       <div className="flex min-w-0 flex-col gap-5">
         {/* Telefonda tek satır, yana kayar */}
-        {offers.length > 0 && <div role="tablist" aria-label={t("sortLabel")} className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
+        <div role="tablist" aria-label={t("sortLabel")} className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
           {SORTS.map((s) => {
             const on = sort === s;
             return (
@@ -191,8 +194,8 @@ export function ResultsView({
               </button>
             );
           })}
-        </div>}
-        <span className={`text-sm font-bold text-muted ${offers.length ? "-mt-2" : ""}`}>
+        </div>
+        <span className="-mt-2 text-sm font-bold text-muted">
           {t("count", { count: list.length })} · {oneWay ? t("countNoteOneWay") : t("countNote")}
           {sort === "best" && <> · {t("bestHint")}</>}
           {note && <> · {note}</>}
@@ -214,9 +217,10 @@ export function ResultsView({
           ) : (
             <p className="m-0 font-bold text-muted">{t("noResults")}</p>
           ))}
-        {offers.length === 0 && nearby && (
+        {offers.length === 0 && nearbyShown && nearby && (
           <>
-            {nearby.sections.map((s, i) => (
+            {nearbyShown.every((s) => !s.offers.length) && <p className="m-0 font-bold text-muted">{t("empty")}</p>}
+            {nearbyShown.filter((s) => s.offers.length).map((s, i) => (
               <section key={s.title} className="flex flex-col gap-4">
                 <h2 className="m-0 mt-2 font-display text-[24px] font-bold">{t(s.title)}</h2>
                 {s.title !== "nearbyTitle" && i === 0 && <p className="m-0 -mt-2 text-[15px] font-semibold text-muted">{t("nearbySeparate")}</p>}
@@ -246,6 +250,16 @@ export function ResultsView({
             onFavorite={() => toggleFav(g.best.offer, g.best.price)}
           />
         ))}
+
+        {/* Az kayıtlı sonuç (seyrek rota): tüm uçuşlar ve güncel fiyat için canlı arama */}
+        {liveHref && list.length > 0 && list.length < 5 && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] bg-sky px-5 py-4">
+            <p className="m-0 min-w-[220px] flex-1 font-bold text-ink">{t("fewResults")}</p>
+            <a href={liveHref} target="_blank" rel="sponsored nofollow noopener" className="inline-flex min-h-[44px] items-center rounded-pill bg-primary px-5 font-display text-[16px] font-semibold text-white no-underline">
+              {outboundPartner() === "whitelabel" ? t("liveSearchWL") : t("liveSearch", { partner: outboundPartner(), brand: brand.name })}
+            </a>
+          </div>
+        )}
 
         {tip && (
           <div className="flex flex-wrap items-center gap-[18px] rounded-[28px] bg-sun-soft px-6 py-5 md:flex-nowrap">

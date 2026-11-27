@@ -105,6 +105,7 @@ export function OfferCard({
               · {t(`cabin.${offer.cabin}`)}
               {offer.fareBrand && ` · ${offer.fareBrand}`}
             </span>
+            {offer.separate && <span className="rounded-pill bg-sun-soft px-3 py-1 text-[13px] font-extrabold text-ink">{t("separateTickets")}</span>}
           </div>
           {onFavorite && (
             <button
@@ -236,7 +237,30 @@ export function OfferCard({
           })()}
           {fareCount > 1 && !isAffiliate() && <span className="text-[13px] font-bold text-primary">{t("fareOptions", { n: fareCount })}</span>}
         </div>
-        {isAffiliate() ? (
+        {isAffiliate() && offer.separate ? (
+          // İki ayrı tek yön bilet: her biri ayrı alınır
+          <span className="flex flex-col items-end gap-2 md:items-stretch">
+            {([
+              ["goOut", offer.outbound, offer.separate.out],
+              ["goBack", offer.inbound!, offer.separate.back],
+            ] as const).map(([key, leg, deep]) => (
+              <a
+                key={key}
+                href={goHref(
+                  { from: leg.fromCode, to: leg.toCode, date: leg.date, adults: offer.query.pax.adults, children: offer.query.pax.children, infants: offer.query.pax.infants, cabin: offer.cabin, deep },
+                  "results-separate",
+                  locale,
+                )}
+                target="_blank"
+                rel="sponsored nofollow noopener"
+                className="box-border inline-flex min-h-[44px] items-center justify-center rounded-pill border-0 bg-primary px-[18px] py-2 font-display text-[16px] font-semibold leading-[normal] text-white no-underline"
+              >
+                {t(key)}
+              </a>
+            ))}
+            <span className="text-[12px] font-bold text-muted md:text-center">{t("separateNote")}</span>
+          </span>
+        ) : isAffiliate() ? (
           // Ortaklık modu: bilet Skyscanner'da alınır; /git tıklamayı sayıp ortaklık bağlantısıyla yönlendirir
           <span className="flex flex-col items-end gap-1 md:items-stretch">
             <a

@@ -233,7 +233,12 @@
   "nearbyBack": "Gespeicherte Einzelflüge für den Rückflug",
   "nearbySeparate": "Für diese Daten sind keine Hin- und Rückflugpreise gespeichert; du kannst Hin- und Rückflug als getrennte Tickets buchen.",
   "partnerNoteWL": "Öffnet mit Live-Preisen",
-  "liveSearchWL": "Live-Preise ansehen",
-  "noResultsCachedWL": "Für diese Daten sind keine Preise gespeichert. Aktuelle Flüge kannst du mit Live-Preisen ansehen.",
-  "shiftDays": "{n, plural, one {# Tag} other {# Tage}} {dir, select, before {früher} other {später}}"
+  "liveSearchWL": "Live-Flüge für diese Daten ansehen",
+  "noResultsCachedWL": "Für diese Daten sind keine Preise gespeichert. Die Live-Suche zeigt alle Flüge und aktuellen Preise für diese Daten.",
+  "shiftDays": "{n, plural, one {# Tag} other {# Tage}} {dir, select, before {früher} other {später}}",
+  "separateTickets": "2 getrennte Tickets",
+  "goOut": "Zum Hinflug",
+  "goBack": "Zum Rückflug",
+  "separateNote": "Hin- und Rückflug werden getrennt gebucht",
+  "fewResults": "Für diese Daten sind nur wenige Flüge gespeichert. Alle Flüge und aktuellen Preise siehst du in der Live-Suche."
 }

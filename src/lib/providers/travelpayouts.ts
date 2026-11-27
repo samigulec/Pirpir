@@ -272,22 +272,81 @@ export function toOffer(x: TpItem, q: SearchQuery, rates: Rates = RATES): Offer 
   };
 }
 
+/**
+ * Aynı uçuş (aynı güzergâh ve saatler) birkaç kez gelebilir: en taze fiyat kalır (eşitse en ucuzu).
+ * Eski bir fiyat daha ucuz görünüp yanıltmasın.
+ */
+function dedupe(items: TpItem[]): TpItem[] {
+  const best = new Map<string, TpItem>();
+  const sig = (x: TpItem) => x.link.match(/[?&]t=([A-Z0-9]+)_/)?.[1] ?? [x.departure_at, x.return_at ?? "", x.airline, x.flight_number ?? "", x.transfers, x.return_transfers ?? 0].join("|");
+  const seen = (x: TpItem) => seenOn(x.link) ?? "";
+  for (const x of items) {
+    const k = sig(x);
+    const cur = best.get(k);
+    if (!cur || seen(x) > seen(cur) || (seen(x) === seen(cur) && x.price < cur.price)) best.set(k, x);
+  }
+  return [...best.values()];
+}
+
+/** Her yönden en ucuz birkaç bilet ve en ucuz direkt bilet */
+function shortlist(items: TpItem[], n = 4): TpItem[] {
+  const byPrice = [...items].sort((a, b) => a.price - b.price);
+  const direct = byPrice.find((x) => x.transfers === 0);
+  const top = byPrice.slice(0, n);
+  return direct && !top.includes(direct) ? [...top, direct] : top;
+}
+
+/** İki tek yön bileti tek bir gidiş-dönüş teklifine birleştirir (fiyat toplamı; her biri satıcıda ayrı alınır). */
+function combineOneWays(outs: TpItem[], backs: TpItem[], q: SearchQuery, rates: Rates): Offer[] {
+  if (!outs.length || !backs.length || !q.returnDate) return [];
+  const one = { ...q, returnDate: undefined };
+  const backQ = { ...one, from: q.to, to: q.from, date: q.returnDate };
+  const out: Offer[] = [];
+  for (const a of shortlist(outs)) {
+    const oa = toOffer(a, one, rates);
+    for (const b of shortlist(backs)) {
+      const ob = toOffer(b, backQ, rates);
+      // Dönüş, gidişin varışından önce olamaz
+      if (Date.parse(b.departure_at) <= Date.parse(a.departure_at)) continue;
+      const names = [...new Set([...oa.airline.split(" + "), ...ob.airline.split(" + ")])];
+      const logos = [...new Set([...(oa.airlineLogos ?? []), ...(ob.airlineLogos ?? [])])].slice(0, 2);
+      const seen = [oa.seenAt, ob.seenAt].filter((d): d is string => !!d).sort()[0];
+      out.push({
+        ...oa,
+        id: `tp2_${oa.id}__${ob.id}`,
+        query: q,
+        airline: names.join(" + "),
+        airlineLogo: logos[0],
+        airlineLogos: logos,
+        inbound: { ...ob.outbound, airline: ob.airline },
+        price: oa.price + ob.price,
+        total: oa.total + ob.total,
+        raw: { amount: (Number(oa.raw.amount) + Number(ob.raw.amount)).toFixed(2), currency: "EUR" },
+        mixedCarriers: false,
+        seenAt: seen,
+        deepLink: undefined,
+        separate: { out: oa.deepLink, back: ob.deepLink },
+      });
+    }
+  }
+  return out;
+}
+
 const unsupported = () => Promise.reject(new Error("Travelpayouts ile bilet satılmaz"));
 
 export const travelpayoutsProvider: FlightProvider = {
   async search(q) {
     const [items, rates] = await Promise.all([fetchPrices(q), getRates()]);
-    // Aynı uçuş (aynı güzergâh ve saatler) birkaç kez gelebilir: en taze fiyat kalır (eşitse en ucuzu).
-    // Eski bir fiyat daha ucuz görünüp yanıltmasın.
-    const best = new Map<string, TpItem>();
-    const sig = (x: TpItem) => x.link.match(/[?&]t=([A-Z0-9]+)_/)?.[1] ?? [x.departure_at, x.return_at ?? "", x.airline, x.flight_number ?? "", x.transfers, x.return_transfers ?? 0].join("|");
-    const seen = (x: TpItem) => seenOn(x.link) ?? "";
-    for (const x of items) {
-      const k = sig(x);
-      const cur = best.get(k);
-      if (!cur || seen(x) > seen(cur) || (seen(x) === seen(cur) && x.price < cur.price)) best.set(k, x);
-    }
-    return [...best.values()].map((x) => toOffer(x, q, rates));
+    const offers = dedupe(items).map((x) => toOffer(x, q, rates));
+    if (offers.length || !q.returnDate) return offers;
+    // Önbellekte bu tarihler için gidiş-dönüş kaydı yok (seyrek rotalar, ör. AMS↔ADB): aynı günlerin tek yön
+    // biletleri birleştirilir ("2 ayrı bilet"). Böylece seçilen günün uçuşları normal sonuç olarak görünür.
+    const one = { ...q, returnDate: undefined };
+    const [outs, backs] = await Promise.all([
+      fetchPrices(one).then(dedupe).catch(() => [] as TpItem[]),
+      fetchPrices({ ...one, from: q.to, to: q.from, date: q.returnDate }).then(dedupe).catch(() => [] as TpItem[]),
+    ]);
+    return combineOneWays(outs, backs, q, rates);
   },
   getOffer: async () => null,
   seatMaps: async () => [],

@@ -144,6 +144,11 @@ export type Offer = {
   bagsUnknown?: boolean;
   /** Gidiş ve dönüş farklı havayollarıyla olabilir (dönüşün havayolu bilinmiyor) */
   mixedCarriers?: boolean;
+  /**
+   * Gidiş-dönüş, iki ayrı tek yön biletin birleşimi (önbellekte gidiş-dönüş kaydı yoksa). Her biri satıcıda ayrı alınır;
+   * değerler satıcıdaki bilet adresleri (Aviasales /search/… yolu).
+   */
+  separate?: { out?: string; back?: string };
 };
 
 export type HoldTerms = {

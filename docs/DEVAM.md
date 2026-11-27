@@ -20,7 +20,7 @@ bu dosya.
 4. **Fiyat verisi:** `src/lib/providers/travelpayouts.ts`. Aviasales önbelleği; canlı değildir. Kartlardaki
    "x gün önce görülen fiyat" etiketi ve sonuç notu kaldırılmaz (dürüstlük kuralı).
 5. **Önbellek anahtarı:** `Offer` tipinin biçimi ya da sağlayıcının ürettiği alanlar değişirse
-   `src/lib/flights.ts` içindeki `"search-v4"` anahtarını bir artır (`"search-v5"`), yoksa eski kartlar görünür.
+   `src/lib/flights.ts` içindeki `"search-v5"` anahtarını bir artır (`"search-v6"`), yoksa eski kartlar görünür.
 6. **Tasarım:** `CLAUDE.md`'deki altın kural geçerli (renk tokenları, yazı tipleri, Türkçe kopya, en fazla iki karakter,
    uydurma istatistik yok, köşeli parantezli yer tutucular kalır, gerçek havayolu/ödeme logosu çizilmez —
    havayolu logoları yalnızca Aviasales görsel sunucusundan gelir).
@@ -175,6 +175,13 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   yakınlığa göre sıralanıyor (önce tam gün, sonra ±1…), seçilenden farklı günde "Gidiş: Per 17 Ara · 1 gün önce" etiketi;
   önbellekli modda tarih şeridi hep görünüyor; sonuç yokken filtre paneli ve sıralama sekmeleri gizli (yakın tarih
   kartlarına uygulanmıyorlardı); "Filtreleri temizle" tek satır. Denendi: AMS–ADB 18–25 Ara (lint, build, ekran görüntüsü).
+- [düzeltme 2] Claude — kullanıcı: "biletleri bulamıyorum", "filtre neden kaldırıldı". Filtre paneli ve sıralama geri geldi;
+  sonuç yokken filtreler yakın tarih kartlarına da uygulanıyor (havayolu/süre seçenekleri onlardan). Gidiş-dönüş kaydı
+  yoksa aynı günlerin tek yön biletleri birleştirilip normal sonuç oluyor ("2 ayrı bilet", "Gidiş biletine git" /
+  "Dönüş biletine git"; filtre, sıralama, rozetler çalışır). Az sonuçta (1–4) ve sonuç yokken net canlı arama çağrısı.
+  Önbellek anahtarı `search-v5`. Son kullanıcı testi (Playwright, masaüstü + iPhone 13): ana sayfadan arama akışı;
+  AMS–IST GD (19 kart), AMS–ADB 18–25 Ara (yakın tarih + canlı arama), AMS–ADB tek yön, AMS–ADB 21–30 Oca (birleşik
+  biletler), DUS–AYT; "Aktarmasız" filtresi her senaryoda doğru, JS hatası yok.
 - [3.6] Gerçek döviz kurları (ECB günlük XML) — commit c894146 — `src/lib/currency-server.ts` içine `parseEcbXml` ve
   `getRates` (`unstable_cache`, 24 saat, cron yok; `AED = USD * 3.6725`; hatada örnek kurlara düşer, hata önbelleklenmez) eklendi.
   `LocaleLayout` → `CurrencyProvider` ile kurlar tarayıcıya aktarılıyor (`PriceAlertButton` dahil); `travelpayouts`, `duffel`,
