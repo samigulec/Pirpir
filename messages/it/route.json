@@ -51,5 +51,7 @@
   "others": {
     "title": "Dove altro in {country}?",
     "titleOrigin": "Altre tratte da {from}"
-  }
+  },
+  "metaDescription": "Mesi più economici, prossime date e tariffe recenti per i voli da {from} a {to}. Confronta le date e cerca i biglietti dal vivo.",
+  "ogFromPrice": "da {price}"
 }

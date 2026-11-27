@@ -7,16 +7,21 @@ import { SimpleFooter } from "@/components/SiteFooter";
 import { Price } from "@/components/Price";
 import {
   Amsterdam,
+  Ankara,
   Antalya,
   Barselona,
+  Bodrum,
   Dubai,
+  Gaziantep,
   IstanbulHero,
   Izmir,
+  Kayseri,
   Lizbon,
   Londra,
   NewYork,
   Paris,
   Roma,
+  Trabzon,
 } from "@/components/cities";
 import { MonthlyPrices } from "@/components/route/MonthlyPrices";
 import { Airports, CheapestDates, OtherCities, QuickFacts, RouteTips } from "@/components/route/RouteSections";
@@ -27,6 +32,7 @@ import { formatDayShort } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 import { getRoutePageData, getStaticRouteSlugs, resolveRoute } from "@/lib/route-data";
 import { searchHref } from "@/lib/search";
+import { absoluteUrl, alternatesFor, safeJsonLd } from "@/lib/seo";
 import { ablative, dative } from "@/lib/tr-suffix";
 
 type Params = { locale: string; nereden: string; nereye: string };
@@ -52,7 +58,16 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const entry = resolveRoute(nereden, nereye);
   if (!entry) return {};
   const t = await getTranslations({ locale, namespace: "route" });
-  return { title: t("metaTitle", names(entry.from.searchCode, entry.to.searchCode, locale)) };
+  const n = names(entry.from.searchCode, entry.to.searchCode, locale);
+  const title = t("metaTitle", n);
+  const description = t("metaDescription", n);
+  return {
+    title,
+    description,
+    alternates: alternatesFor({ pathname: "/ucuslar/[nereden]/[nereye]", params: { nereden, nereye } }, locale),
+    openGraph: { title, description },
+    twitter: { card: "summary_large_image", title, description },
+  };
 }
 
 function SkyHero(props: SVGProps<SVGSVGElement>) {
@@ -76,6 +91,11 @@ const HERO_ART: Record<HeroArtKey, (props: SVGProps<SVGSVGElement>) => React.JSX
   istanbul: IstanbulHero,
   antalya: Antalya,
   izmir: Izmir,
+  ankara: Ankara,
+  bodrum: Bodrum,
+  gaziantep: Gaziantep,
+  trabzon: Trabzon,
+  kayseri: Kayseri,
   londra: Londra,
   barselona: Barselona,
   roma: Roma,
@@ -97,9 +117,21 @@ export default async function RoutePage({ params }: { params: Promise<Params> })
   const n = names(route.from.searchCode, route.to.searchCode, locale);
   const country = countryName(findAirport(route.to.airportCode)?.country ?? "", locale);
   const loc = intlLocale(locale);
+  const homeUrl = absoluteUrl("/", locale);
+  const selfUrl = absoluteUrl({ pathname: "/ucuslar/[nereden]/[nereye]", params: { nereden, nereye } }, locale);
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: t("home"), item: homeUrl },
+      { "@type": "ListItem", position: 2, name: country, item: homeUrl },
+      { "@type": "ListItem", position: 3, name: n.to, item: selfUrl },
+    ],
+  };
 
   return (
     <div className="min-h-screen w-full bg-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbSchema) }} />
       <SiteHeader />
 
       <main className="mx-auto flex max-w-page flex-col gap-10 px-4 pb-20 md:gap-14 md:px-6">

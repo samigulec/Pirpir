@@ -51,5 +51,7 @@
     "titleOrigin": "{fromAbl} başka rotalar"
   },
   "heroFrom": "{fromAbl}",
-  "metaTitle": "{fromAbl} {toDat} uçuşlar"
+  "metaTitle": "{fromAbl} {toDat} uçuşlar",
+  "metaDescription": "{fromAbl} {toDat} en ucuz uçuş ayları, yaklaşan tarihler ve güncel fiyatlar. Karşılaştır, tarih seç, canlı bilet bul.",
+  "ogFromPrice": "{price}’dan"
 }

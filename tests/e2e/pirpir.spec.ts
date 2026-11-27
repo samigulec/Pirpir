@@ -125,14 +125,40 @@ test.describe("İçerik, yönlendirme ve güvenlik kontrolleri", () => {
     expect(errors).toEqual([]);
   });
 
-  test("Rota sayfaları (editöryal + pazar rotası) hatasız açılır, bilinmeyen rota 404 döner", async ({ page, request }) => {
+  test("Rota sayfaları (editöryal + pazar + TR koridorları), iç bağlantılar ve rehbersiz bölüm gizleme", async ({ page, request }) => {
     const errors = trackErrors(page);
     await page.goto("/ucuslar/amsterdam/istanbul", { waitUntil: "networkidle" });
     await expect(page.locator("h1")).toBeVisible();
     await expect(page.getByRole("radiogroup", { name: /Ay seçimi/i })).toBeVisible();
 
-    await page.goto("/ucuslar/amsterdam/barselona", { waitUntil: "networkidle" });
-    await expect(page.locator("h1")).toBeVisible();
+    // "Türkiye'de başka nereler?" bölümündeki tüm bağlantılar rota sayfalarına (/ucuslar/amsterdam/...) gitmeli
+    const othersHeading = page.getByRole("heading", { name: /başka nereler/i });
+    const othersSection = othersHeading.locator("..");
+    const otherLinks = othersSection.locator("a");
+    const otherCount = await otherLinks.count();
+    expect(otherCount).toBeGreaterThanOrEqual(4);
+    for (let i = 0; i < otherCount; i++) {
+      const href = (await otherLinks.nth(i).getAttribute("href")) ?? "";
+      expect(href, `iç bağlantı #${i}`).toMatch(/^\/ucuslar\/amsterdam\//);
+    }
+
+    // Rehberi olmayan TR rota sayfası (Amsterdam → Ankara): açılır ama havalimanı/ipucu uydurmaz (bölümler gizli)
+    await page.goto("/ucuslar/amsterdam/ankara", { waitUntil: "networkidle" });
+    await expect(page.locator("h1")).toContainText(/Ankara/i);
+    await expect(page.getByRole("heading", { name: /Hangi havalimanı/i })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: /için ipuçları/i })).toHaveCount(0);
+
+    // Ana sayfadaki Popüler rotalar iç bağlantıları rota sayfalarına gider
+    await page.goto("/", { waitUntil: "networkidle" });
+    const routeLinks = page.locator("#rotalar a");
+    expect(await routeLinks.count()).toBeGreaterThanOrEqual(5);
+    const firstHref = (await routeLinks.first().getAttribute("href")) ?? "";
+    expect(firstHref).toMatch(/^\/ucuslar\//);
+
+    // Sitemap TR koridorlarını içerir; bilinmeyen rota 404 döner
+    const sm = await (await request.get("/sitemap.xml")).text();
+    expect(sm).toContain("/ucuslar/amsterdam/ankara");
+    expect(sm).toContain("/ucuslar/amsterdam/trabzon");
 
     const bad = await request.get("/ucuslar/mars/jupiter");
     expect(bad.status()).toBe(404);
@@ -196,5 +222,45 @@ test.describe("İçerik, yönlendirme ve güvenlik kontrolleri", () => {
     await page.goto("/en/terms", { waitUntil: "networkidle" });
     await expect(page.locator("main")).toContainText("does not sell tickets directly");
     await expect(page.locator("main")).not.toContainText("cancel for free within 24 hours");
+  });
+
+  test("SEO temelleri: canonical, 7 dil hreflang + x-default, FAQPage, BreadcrumbList (Offer yok) ve rota OG PNG", async ({ page, request }) => {
+    // 1. Ana sayfa: canonical, 7 dil + x-default, FAQPage JSON-LD (Offer yok)
+    await page.goto("/", { waitUntil: "networkidle" });
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /.+/);
+    for (const lang of ["tr", "en", "nl", "de", "fr", "es", "it", "x-default"]) {
+      await expect(page.locator(`link[rel="alternate"][hreflang="${lang}"]`), `home hreflang ${lang}`).toHaveCount(1);
+    }
+    const homeLd = await page.locator('script[type="application/ld+json"]').allTextContents();
+    expect(homeLd.length).toBeGreaterThanOrEqual(1);
+    const faqObj = homeLd.map((s) => JSON.parse(s)).find((o) => o["@type"] === "FAQPage");
+    expect(faqObj).toBeTruthy();
+    expect(Array.isArray(faqObj.mainEntity) && faqObj.mainEntity.length).toBeGreaterThanOrEqual(5);
+    expect(homeLd.join("")).not.toContain('"@type":"Offer"');
+
+    // 2. Rota sayfası: canonical, 7 dil + x-default, özgün meta description, BreadcrumbList (Offer yok)
+    await page.goto("/ucuslar/amsterdam/istanbul", { waitUntil: "networkidle" });
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/ucuslar\/amsterdam\/istanbul$/);
+    for (const lang of ["tr", "en", "nl", "de", "fr", "es", "it", "x-default"]) {
+      await expect(page.locator(`link[rel="alternate"][hreflang="${lang}"]`), `route hreflang ${lang}`).toHaveCount(1);
+    }
+    const desc = (await page.locator('meta[name="description"]').getAttribute("content")) ?? "";
+    expect(desc).toContain("Amsterdam");
+    expect(desc).toContain("İstanbul");
+
+    const routeLd = await page.locator('script[type="application/ld+json"]').allTextContents();
+    const bcObj = routeLd.map((s) => JSON.parse(s)).find((o) => o["@type"] === "BreadcrumbList");
+    expect(bcObj).toBeTruthy();
+    expect(bcObj.itemListElement).toHaveLength(3);
+    expect(routeLd.join("")).not.toContain('"@type":"Offer"');
+
+    // 3. Rota OpenGraph görseli: geçerli PNG
+    const ogUrl = await page.locator('meta[property="og:image"]').first().getAttribute("content");
+    expect(ogUrl).toContain("/opengraph-image");
+    const ogRes = await request.get(new URL(ogUrl!).pathname);
+    expect(ogRes.status()).toBe(200);
+    expect(ogRes.headers()["content-type"]).toContain("image/png");
+    const png = await ogRes.body();
+    expect(png.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47]))).toBe(true);
   });
 });

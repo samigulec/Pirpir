@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
+import { alternatesFor } from "@/lib/seo";
 import { HomeHeader } from "@/components/home/HomeHeader";
 import { HomeView } from "@/components/home/HomeView";
 import { CharacterTips } from "@/components/home/CharacterTips";
@@ -14,6 +16,11 @@ import { getMarket } from "@/lib/market-server";
 import { getDestinationDeals, getRouteDates, type DealMap } from "@/lib/deals";
 import { todayIso } from "@/lib/search";
 
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return { alternates: alternatesFor("/", locale) };
+}
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

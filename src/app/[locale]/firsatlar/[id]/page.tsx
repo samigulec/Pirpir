@@ -16,6 +16,7 @@ import { formatDayWithWeekday, formatRange } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 import { goHref } from "@/lib/outbound";
 import { airlineName } from "@/lib/providers/travelpayouts";
+import { alternatesFor } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,7 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: alternatesFor({ pathname: "/firsatlar/[id]", params: { id } }, locale),
     openGraph: { title, description },
     twitter: { card: "summary_large_image", title, description },
   };

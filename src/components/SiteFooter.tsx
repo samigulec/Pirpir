@@ -2,7 +2,7 @@ import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { brand } from "@/config/brand";
 import { isAffiliate } from "@/config/affiliate";
-import { routeHref, searchHref } from "@/lib/search";
+import { routeHref } from "@/lib/search";
 
 /** Ana sayfanın geniş altbilgisi. */
 export async function SiteFooter() {
@@ -30,8 +30,8 @@ export async function SiteFooter() {
         <nav aria-label={t("popular")} className="flex flex-col gap-2">
           <span className="font-extrabold">{t("popular")}</span>
           <Link href={routeHref({ from: "amsterdam", to: "istanbul" })} className={link}>{t("istanbul")}</Link>
-          <Link href={searchHref({ to: "AYT" })} className={link}>{t("antalya")}</Link>
-          <Link href={searchHref({ to: "ADB" })} className={link}>{t("izmir")}</Link>
+          <Link href={routeHref({ from: "amsterdam", to: "antalya" })} className={link}>{t("antalya")}</Link>
+          <Link href={routeHref({ from: "amsterdam", to: "izmir" })} className={link}>{t("izmir")}</Link>
         </nav>
       </div>
       <div className="mx-auto flex max-w-page flex-wrap justify-between gap-3 border-0 border-t border-solid border-line px-6 pb-10 pt-[18px] text-sm text-muted">

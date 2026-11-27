@@ -51,5 +51,7 @@
   "others": {
     "title": "Wohin sonst in {country}?",
     "titleOrigin": "Weitere Strecken ab {from}"
-  }
+  },
+  "metaDescription": "Günstigste Monate, kommende Termine und aktuelle Preise für Flüge von {from} nach {to}. Vergleiche Daten und finde Live-Tickets.",
+  "ogFromPrice": "ab {price}"
 }

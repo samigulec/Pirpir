@@ -6,6 +6,11 @@ export type HeroArtKey =
   | "istanbul"
   | "antalya"
   | "izmir"
+  | "ankara"
+  | "bodrum"
+  | "gaziantep"
+  | "trabzon"
+  | "kayseri"
   | "londra"
   | "barselona"
   | "roma"
@@ -554,6 +559,35 @@ export const CITY_GUIDES: Record<string, CityGuide> = {
     others: ["BCN", "LIS", "ROM", "PAR"],
   },
 };
+
+export const CITY_HERO_ART: Record<string, { illustration: HeroArtKey; heroBg: string }> = {
+  IST: { illustration: "istanbul", heroBg: "#FFD9C7" },
+  SAW: { illustration: "istanbul", heroBg: "#FFD9C7" },
+  AYT: { illustration: "antalya", heroBg: "#BFE3FF" },
+  ADB: { illustration: "izmir", heroBg: "#D7ECFF" },
+  ESB: { illustration: "ankara", heroBg: "#FFE2C6" },
+  BJV: { illustration: "bodrum", heroBg: "#BFE3FF" },
+  GZT: { illustration: "gaziantep", heroBg: "#FFE8B8" },
+  TZX: { illustration: "trabzon", heroBg: "#D8F1E2" },
+  ASR: { illustration: "kayseri", heroBg: "#D7ECFF" },
+  LON: { illustration: "londra", heroBg: "#D7ECFF" },
+  LHR: { illustration: "londra", heroBg: "#D7ECFF" },
+  BCN: { illustration: "barselona", heroBg: "#FFE2C6" },
+  ROM: { illustration: "roma", heroBg: "#FFE2C6" },
+  FCO: { illustration: "roma", heroBg: "#FFE2C6" },
+  LIS: { illustration: "lizbon", heroBg: "#FFE8B8" },
+  PAR: { illustration: "paris", heroBg: "#FCE2EC" },
+  CDG: { illustration: "paris", heroBg: "#FCE2EC" },
+  AMS: { illustration: "amsterdam", heroBg: "#D7ECFF" },
+  DXB: { illustration: "dubai", heroBg: "#FFE2C6" },
+  NYC: { illustration: "new-york", heroBg: "#D7ECFF" },
+  JFK: { illustration: "new-york", heroBg: "#D7ECFF" },
+};
+
+export function heroArtForDestination(code: string): { illustration: HeroArtKey; heroBg: string } {
+  const clean = code.replace(/^city:/, "").toUpperCase();
+  return CITY_HERO_ART[clean] ?? { illustration: "sky", heroBg: "#EAF3FF" };
+}
 
 export function guideForDestination(code: string): CityGuide | null {
   const clean = code.replace(/^city:/, "").toUpperCase();

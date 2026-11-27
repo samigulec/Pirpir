@@ -455,3 +455,21 @@ yoksa hiçbir şey yapmasın. Gönderim hatası yayınlamayı engellemesin. Toke
   `HomeHero`, `MobileNav` kontrol edildi — zaten ortaklık moduna uyumlu.)
   Denendi: `npm run lint`, `npx next build` (275/275), `npm run e2e` (TR/EN 307 yönlendirmeleri ve `/kosullar` doğrulaması
   dahil 17/17 geçti, 7.1 sn). Bilinen eksik yok.
+- [7.4] Rota sayfası kataloğu ve iç bağlantılar — commit 850bfda — `src/lib/route-data.ts` kataloğu tüm `MARKETS`
+  rotaları + ana kalkış merkezleri (`AMS`, `DUS`, `FRA`, `BRU`, `IST`) × Türkiye'nin büyük havalimanları (`IST/SAW`,
+  `AYT`, `ADB`, `ESB`, `DLM`, `BJV`, `GZT`, `TZX`, `ASR`) ile 180 rota üst sınırında genişletildi ve `sitemap.ts`
+  otomatik içerir. İç bağlantılar rota sayfalarına çevrildi: `OtherCities` ("Türkiye'de başka nereler?" dahil), ana sayfa
+  `PopularRoutes.tsx` ve `SiteFooter.tsx` (İstanbul/Antalya/İzmir). İçerik uydurulmaz: şehir rehberi olmayan rotalarda
+  (ör. Ankara, Trabzon) `Airports` ve `RouteTips` bölümleri gizlenir; mevcut şehir SVG'leri (`Ankara`, `Bodrum`,
+  `Gaziantep`, `Trabzon`, `Kayseri`) hero görselinde kullanılır. Denendi: `npm run lint`, `npx next build` (324/324),
+  `npm run e2e` (iç bağlantı + rehbersiz gizleme + sitemap kontrolleri dahil 17/17 geçti, 8.3 sn). Bilinen eksik yok.
+- [7.5] SEO temelleri — commit a8358cc — `src/lib/seo.ts` (`alternatesFor` 7 dil hreflang + `x-default` + kanonik adres,
+  `safeJsonLd`) eklendi ve tüm herkese açık sayfalara (`/`, `/ucuslar/[nereden]/[nereye]`, `/firsatlar`, `/firsatlar/[id]`,
+  `/gizlilik`, `/kosullar`) uygulandı; rota sayfalarına 7 dilde özgün `metaDescription` ve `ogFromPrice` eklendi.
+  Yapılandırılmış veri: `Faq.tsx` → `FAQPage` (yalnızca sayfadaki gerçek metin), rota sayfası → `BreadcrumbList`; fiyat
+  için `Offer` şeması eklenmedi. `ucuslar/[nereden]/[nereye]/opengraph-image.tsx` (1200×630 `next/og` PNG, Nunito fontu,
+  rota + `"…’dan"` fiyatı + görüldüğü gün, 6 saat ISR) eklendi. `docs/denetim.md`'ye SEO bölümü eklendi.
+  CLAUDE'A: `src/app/[locale]/ara/page.tsx` Claude alanında olduğu için dokunulmadı; sorgu parametreli sonuç sayfasının
+  `robots: { index: false }` / `alternates` ayarı uygunsa Claude tarafından kontrol edilebilir.
+  Denendi: `npm run lint`, `npx next build` (324/324), `npm run e2e` (canonical, 7 dil hreflang + x-default, FAQPage,
+  BreadcrumbList, Offer yok, geçerli rota OG PNG dahil 18/18 geçti, 8.4 sn). Bilinen eksik yok.
