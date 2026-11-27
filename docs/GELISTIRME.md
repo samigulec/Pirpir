@@ -91,6 +91,9 @@ satış kodu duruyor, `NEXT_PUBLIC_SALES_MODE=booking` ile geri açılır.
   Aviasales'in önbellekli fiyatlarından gelir (`src/lib/providers/travelpayouts.ts`); fiyat birkaç gün önce görülmüş olabilir,
   kartta yazar. Bagaj ve koşullar bilinmez (satıcıda). O gün için kayıt yoksa sonuç sayfası "Aviasales'te canlı ara" der.
   Yerelde Node'un vekil sunucu arkasında `NODE_USE_ENV_PROXY=1` gerekebilir.
+- `NEXT_PUBLIC_TP_WL_WIDGET_ID`: Travelpayouts White Label **Widget** kimliği (yalnızca `wl_id` numarası ya da kodundaki tam
+  `script.src`). Tanımlıysa kayıtlı uçuş az (1–4) ya da yokken sonuç sayfasında "Canlı uçuşlar" bölümü açılır
+  (`src/components/results/LiveWidget.tsx`; arama adresteki `flightSearch` parametresiyle başlar). Gizli değildir.
 - `NEXT_PUBLIC_TP_WL_HOST`: Travelpayouts White Label alan adı (ör. `ucus.flypirpir.nl`). Tanımlıysa "Fırsata git" ve
   "Canlı fiyatları gör" bu alan adındaki canlı aramaya gider (`/flights/AMS2101ADB1`); metinler "canlı fiyatlarla" olur.
   Alan adında CNAME → `whitelabel.travelpayouts.com`. Değiştirince yeniden yayınla (derlemeye gömülür).

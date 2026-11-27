@@ -69,7 +69,10 @@ export function ResultsView({
   onFiltersChange,
   liveHref,
   nearby,
+  live,
 }: {
+  /** Canlı sonuçlar (White Label widget): kayıtlı uçuş az ya da yokken gösterilir */
+  live?: React.ReactNode;
   nearby?: { sections: { title: "nearbyTitle" | "nearbyOut" | "nearbyBack"; offers: Offer[]; want: { date: string; returnDate?: string } }[]; cityNames: Record<string, string> };
   /** Sonuç yoksa ortakta canlı arama bağlantısı (ortaklık modu) */
   liveHref?: string;
@@ -217,6 +220,7 @@ export function ResultsView({
           ) : (
             <p className="m-0 font-bold text-muted">{t("noResults")}</p>
           ))}
+        {list.length === 0 && live}
         {offers.length === 0 && nearbyShown && nearby && (
           <>
             {nearbyShown.every((s) => !s.offers.length) && <p className="m-0 font-bold text-muted">{t("empty")}</p>}
@@ -252,7 +256,8 @@ export function ResultsView({
         ))}
 
         {/* Az kayıtlı sonuç (seyrek rota): tüm uçuşlar ve güncel fiyat için canlı arama */}
-        {liveHref && list.length > 0 && list.length < 5 && (
+        {list.length > 0 && list.length < 5 && live}
+        {!live && liveHref && list.length > 0 && list.length < 5 && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] bg-sky px-5 py-4">
             <p className="m-0 min-w-[220px] flex-1 font-bold text-ink">{t("fewResults")}</p>
             <a href={liveHref} target="_blank" rel="sponsored nofollow noopener" className="inline-flex min-h-[44px] items-center rounded-pill bg-primary px-5 font-display text-[16px] font-semibold text-white no-underline">

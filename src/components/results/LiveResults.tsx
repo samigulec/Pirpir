@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { isAffiliate } from "@/config/affiliate";
+import { isAffiliate, liveWidgetId } from "@/config/affiliate";
+import { LiveWidget } from "./LiveWidget";
 import { goHref } from "@/lib/outbound";
 import { Link } from "@/i18n/navigation";
 import { DateStrip } from "./DateStrip";
@@ -111,6 +112,7 @@ export function LiveResults({
         onFiltersChange={setFilters}
         liveHref={liveHref}
         nearby={nearby}
+        live={chunk.done && isAffiliate() && liveWidgetId() ? <LiveWidget q={q} /> : undefined}
       />
     </>
   );

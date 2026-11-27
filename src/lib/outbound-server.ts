@@ -3,7 +3,7 @@
 import "server-only";
 import { expandCode } from "@/data/airports";
 import type { MarketId } from "@/config/markets";
-import type { OutboundTrip } from "./outbound";
+import { aviasalesRoute, type OutboundTrip } from "./outbound";
 import { whiteLabelHost } from "@/config/affiliate";
 
 /** Ortaklık kimliği (impact.com'daki Skyscanner programından). Yoksa bağlantı yine çalışır ama komisyon kazanılmaz. */
@@ -52,17 +52,10 @@ export const travelpayoutsMarker = () => process.env.TRAVELPAYOUTS_MARKER?.trim(
 export const travelpayoutsProject = () => process.env.TRAVELPAYOUTS_PROJECT?.trim() || "607607";
 const TP_AVIASALES = { campaign: "100", promo: "4114" };
 
-const AVIASALES_CLASS: Record<OutboundTrip["cabin"], string> = { economy: "", premium_economy: "w", business: "c", first: "f" };
-const ddmm = (iso: string) => iso.slice(8, 10) + iso.slice(5, 7);
 
 /** Aviasales arama sonuçları adresi (ortak kimliği olmadan). */
 export function aviasalesSearchUrl(t: OutboundTrip): string {
-  // Aviasales şehir kodlarını (IST, LON, PAR…) doğrudan tanır: tüm havalimanları birlikte aranır
-  const code = (c: string) => (c.startsWith("city:") ? c.slice(5) : c);
-  // Yolcu: yetişkin zorunlu; çocuk/bebek varsa sırayla eklenir (tek hane, en fazla 9)
-  const pax = String(t.adults) + (t.children || t.infants ? String(t.children) + (t.infants ? String(t.infants) : "") : "");
-  const route = code(t.from) + ddmm(t.date) + code(t.to) + (t.returnDate ? ddmm(t.returnDate) : "");
-  return `https://www.aviasales.com/search/${route}${AVIASALES_CLASS[t.cabin]}${pax}`;
+  return `https://www.aviasales.com/search/${aviasalesRoute(t)}`;
 }
 
 export function aviasalesUrl(t: OutboundTrip, ctx: { currency: string; subId?: string }): string {

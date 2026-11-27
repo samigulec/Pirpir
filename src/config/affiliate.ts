@@ -19,3 +19,18 @@ export const whiteLabelHost = () => process.env.NEXT_PUBLIC_TP_WL_HOST?.trim().r
 export type OutboundPartner = "skyscanner" | "aviasales" | "whitelabel";
 export const outboundPartner = (): OutboundPartner =>
   process.env.NEXT_PUBLIC_OUTBOUND_PARTNER === "skyscanner" ? "skyscanner" : whiteLabelHost() ? "whitelabel" : "aviasales";
+
+/**
+ * Travelpayouts White Label "Widget" kimliği: kayıtlı fiyat az ya da yokken sonuç sayfasında canlı Aviasales sonuçları
+ * gösterilir (`src/components/results/LiveWidget.tsx`). Gizli değildir (sayfa kaynağında görünür).
+ */
+export const liveWidgetId = () => process.env.NEXT_PUBLIC_TP_WL_WIDGET_ID?.trim() || null;
+
+/** Widget betiğinin adresi: değişkende tam adres (Travelpayouts kodundaki `script.src`) ya da yalnızca `wl_id` olabilir */
+export function liveWidgetSrc(): string | null {
+  const v = liveWidgetId();
+  if (!v) return null;
+  if (/^https:\/\/tpwgts?\.com\/wl_web\/main\.js\?wl_id=\d+$/.test(v)) return v;
+  const id = v.replace(/\D/g, "");
+  return id ? `https://tpwgt.com/wl_web/main.js?wl_id=${id}` : null;
+}
