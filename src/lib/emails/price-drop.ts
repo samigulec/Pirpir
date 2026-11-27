@@ -2,7 +2,7 @@
 // Metinler çeviri dosyalarında değil burada: istek dışında (günlük kontrol) çalışır ve yalnızca e-postada kullanılır.
 import "server-only";
 import { brand, siteUrl } from "@/config/brand";
-import { isCurrency, formatPrice, type Currency } from "../currency";
+import { isCurrency, formatPrice, type Currency, type Rates } from "../currency";
 import { formatDayWithWeekday, formatRange } from "../dates";
 import type { AlertBest, AlertCriteria } from "../alert-criteria";
 import { intlLocale } from "../intl";
@@ -241,6 +241,7 @@ export type PriceDrop = {
   best?: AlertBest;
   reason?: "target" | "drop";
   criteria?: AlertCriteria;
+  rates?: Rates;
 };
 
 export function priceDropEmail(d: PriceDrop) {
@@ -248,7 +249,7 @@ export function priceDropEmail(d: PriceDrop) {
   const t = PRICE_DROP_TEXTS[lang];
   const cur: Currency = isCurrency(d.cur) ? d.cur : "EUR";
   const loc = intlLocale(lang);
-  const price = (v: number) => formatPrice(v, cur, loc);
+  const price = (v: number) => formatPrice(v, cur, loc, d.rates);
   const dates = formatRange(d.date, d.returnDate, loc);
   const target = d.reason === "target";
   const subject = fill(target ? t.subjectTarget : t.subject, { route: d.route, price: price(d.now) });

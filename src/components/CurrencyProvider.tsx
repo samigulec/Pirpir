@@ -7,15 +7,19 @@ import { MARKET_COOKIE, MARKET_GUESS_COOKIE, isMarketId, marketById, type Market
 import {
   CURRENCY_COOKIE,
   CURRENCY_STORAGE_KEY,
+  RATES,
   formatPrice,
   formatShort,
   isCurrency,
   type Currency,
+  type Rates,
 } from "@/lib/currency";
 
 type CurrencyContextValue = {
   cur: Currency;
   setCur: (c: Currency) => void;
+  /** Sunucudan aktarılan güncel kurlar (1 TRY = x birim) */
+  rates: Rates;
   /** Ziyaretçinin ülkesi (seçilmediyse tahmin); ilk çizimde henüz bilinmez */
   market: MarketId | null;
   /** Ülkeyi kaydeder; para birimi o ülkeninkine geçer (sonra ayrıca değiştirilebilir) */
@@ -62,7 +66,7 @@ function persist(c: Currency) {
   }
 }
 
-export function CurrencyProvider({ children }: { children: React.ReactNode }) {
+export function CurrencyProvider({ children, rates = RATES }: { children: React.ReactNode; rates?: Rates }) {
   const [cur, setCurState] = useState<Currency>("TRY");
   const [market, setMarketState] = useState<MarketId | null>(null);
   const locale = useLocale();
@@ -91,12 +95,13 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     () => ({
       cur,
       setCur,
+      rates,
       market,
       setMarket,
-      fmt: (n) => formatPrice(n, cur, intl),
-      fmtShort: (n) => formatShort(n, cur, intl),
+      fmt: (n) => formatPrice(n, cur, intl, rates),
+      fmtShort: (n) => formatShort(n, cur, intl, rates),
     }),
-    [cur, setCur, market, setMarket, intl],
+    [cur, setCur, rates, market, setMarket, intl],
   );
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;

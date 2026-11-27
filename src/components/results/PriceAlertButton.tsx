@@ -8,7 +8,6 @@ import { useAuthUi } from "../auth/LoginModal";
 import { useCurrency } from "../CurrencyProvider";
 import { createAlert } from "@/actions/user";
 import { cheapestFor, type AlertCriteria } from "@/lib/alert-criteria";
-import { RATES } from "@/lib/currency";
 import { formatDayWithWeekday, formatRange } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 import type { Filters } from "@/lib/results-filter";
@@ -26,7 +25,7 @@ export function PriceAlertButton({ q, offers, filters }: { q: MultiQuery; offers
   const t = useTranslations("results.alert");
   const tc = useTranslations("common");
   const { signedIn, openLogin } = useAuthUi();
-  const { fmt, cur } = useCurrency();
+  const { fmt, cur, rates } = useCurrency();
   const loc = intlLocale(useLocale());
   const id = useId();
   const ref = useRef<HTMLDialogElement>(null);
@@ -45,7 +44,7 @@ export function PriceAlertButton({ q, offers, filters }: { q: MultiQuery; offers
   const [target, setTarget] = useState("");
 
   const best = useMemo(() => cheapestFor(offers, { direct, bags }), [offers, direct, bags]);
-  const toLocal = (tryAmount: number) => Math.round((tryAmount * RATES[cur]) / 5) * 5;
+  const toLocal = (tryAmount: number) => Math.round((tryAmount * rates[cur]) / 5) * 5;
 
   const open = () => {
     // Pencere her açılışta sonuç filtresini yansıtsın; hedef, şu anki fiyatın %10 altı önerilir
@@ -100,7 +99,7 @@ export function PriceAlertButton({ q, offers, filters }: { q: MultiQuery; offers
     if (mode === "target") {
       const v = Number(target.replace(",", "."));
       if (!Number.isFinite(v) || v <= 0) return setError(true);
-      crit.targetTry = Math.round(v / RATES[cur]);
+      crit.targetTry = Math.round(v / rates[cur]);
     }
     if (!signedIn) {
       pendingCriteria.current = crit;

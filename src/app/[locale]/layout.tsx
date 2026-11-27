@@ -4,6 +4,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
 import { LoginModalProvider } from "@/components/auth/LoginModal";
+import { getRates } from "@/lib/currency-server";
 import { brand, siteUrl } from "@/config/brand";
 import { isAffiliate } from "@/config/affiliate";
 import { baloo, fredoka, nunito } from "@/config/fonts";
@@ -45,11 +46,12 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
+  const rates = await getRates();
   return (
     <html lang={locale} className={`${fredoka.variable} ${baloo.variable} ${nunito.variable}`}>
       <body>
         <NextIntlClientProvider>
-          <CurrencyProvider>
+          <CurrencyProvider rates={rates}>
             <LoginModalProvider>{children}</LoginModalProvider>
           </CurrencyProvider>
         </NextIntlClientProvider>
