@@ -107,6 +107,24 @@ function enhanceShadow(host: HTMLElement | null): () => void {
 }
 
 /**
+ * Arama kutusunda bagaj seçildiyse widget'ın kendi "Bagaj dahil" filtresi açılır (widget bunu adresten okumaz).
+ * Çip ilk sonuçlarla belirir; bir kez tıklanır. Kullanıcı sonra widget'ta kaldırabilir.
+ */
+function applyBaggageFilter(host: HTMLElement | null): () => void {
+  if (!host) return () => {};
+  let tries = 0;
+  const timer = window.setInterval(() => {
+    const root = host.shadowRoot;
+    const chip = root?.querySelector<HTMLElement>('[data-testid="baggage-included-filter"]');
+    if (chip && root?.querySelector(CARD)) {
+      chip.click();
+      window.clearInterval(timer);
+    } else if (++tries > 240) window.clearInterval(timer); // ~60 sn
+  }, 250);
+  return () => window.clearInterval(timer);
+}
+
+/**
  * Canlı uçuşlar (Travelpayouts White Label, Widget türü): sonuç sayfasının ana listesi.
  * Arama adresteki `flightSearch` koduyla başlar (ör. AMS2712ADB1). Tarih widget'ın kendi canlı şeridinden seçilir;
  * widget başka güne geçince sayfanın adresi ve arama kutusu da o güne güncellenir (widget yeniden yüklenmez).
@@ -119,6 +137,9 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
   const { cur } = useCurrency();
   const src = liveWidgetSrc();
   const box = useRef<HTMLDivElement>(null);
+  // Widget adresi kendi biçimine çevirince bagaj bilgisi düşer; eşitlemede korunur
+  const bagsRef = useRef(q.bags);
+  bagsRef.current = q.bags;
   const route = aviasalesRoute({
     from: q.from[0],
     to: q.to[0],
@@ -175,7 +196,7 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
       const next = aviasalesRoute(p);
       if (next === w.__tpwlRoute) return;
       w.__tpwlRoute = next;
-      const href = searchHref({ from: p.from, to: p.to, date: p.date, returnDate: p.returnDate ?? "", pax: { adults: p.adults, children: p.children, infants: p.infants }, cabin: p.cabin });
+      const href = searchHref({ from: p.from, to: p.to, date: p.date, returnDate: p.returnDate ?? "", pax: { adults: p.adults, children: p.children, infants: p.infants }, cabin: p.cabin, bags: bagsRef.current });
       router.replace({ pathname: "/ara", query: { ...href.query, flightSearch: code } }, { scroll: false });
     };
     window.addEventListener("urlchange", onChange);
@@ -184,6 +205,10 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
 
   // Kart görünümü ve en ucuzdan sıralama: widget'ın gölge DOM'u
   useEffect(() => enhanceShadow(document.getElementById("tpwl-tickets")), []);
+
+  // Bagaj seçimi widget'ın "Bagaj dahil" filtresine aktarılır (yeni aramada ve bagaj değişince)
+  const checked = q.bags?.checked ?? 0;
+  useEffect(() => (checked > 0 ? applyBaggageFilter(document.getElementById("tpwl-tickets")) : undefined), [checked, route]);
 
   if (!src || q.from.length !== 1 || q.to.length !== 1) return null;
   // Hız: betik sayfa açılır açılmaz indirilir (çalıştırılmaz) ve sunucularına bağlantı önceden kurulur

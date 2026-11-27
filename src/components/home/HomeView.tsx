@@ -30,7 +30,7 @@ export function HomeView({
   defaultFrom: string;
 }) {
   const locale = useLocale();
-  const [from, setFrom] = useState<AirportValue>([{ code: DEFAULT_FROM, label: coreCityByCode(DEFAULT_FROM, locale) }]);
+  const [from, setFrom] = useState<AirportValue>([{ code: DEFAULT_FROM, label: coreCityByCode(DEFAULT_FROM, locale), auto: true }]);
   const [to, setTo] = useState<AirportValue>([]);
   const fromCodes = from.length ? from.map((p) => p.code) : [DEFAULT_FROM];
   const fromLabel = from.map((p) => p.label).join(", ") || coreCityByCode(DEFAULT_FROM, locale);

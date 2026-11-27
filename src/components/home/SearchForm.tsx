@@ -88,9 +88,11 @@ export function SearchForm({
     // Rota değişince yeniden önerilir (from/to dizileri her çizimde yenidir; anahtar yeterli)
   }, [routeKey, datesTouched]);
 
+  // Hazır gelen yer değiştirilince artık kullanıcının seçimidir
   const swap = () => {
-    onFrom(to);
-    onTo(from);
+    const own = (v: AirportValue) => v.map(({ code, label }) => ({ code, label }));
+    onFrom(own(to));
+    onTo(own(from));
   };
 
   // Yalnızca yetişkin varsa "1 yetişkin", karışıksa Kiwi'deki gibi toplam: "3 yolcu".

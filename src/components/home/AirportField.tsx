@@ -5,7 +5,8 @@ import { useLocale, useTranslations } from "next-intl";
 import type { PlaceSuggestion } from "@/data/airports-core";
 
 /** Seçilen yer: havalimanı kodu ya da "city:LON" ve gösterilen ad. */
-export type Place = { code: string; label: string };
+/** `auto`: ziyaretçinin ülkesinden hazır gelen yer; kullanıcı kendi yerini seçince yerine geçer (yanına eklenmez). */
+export type Place = { code: string; label: string; auto?: true };
 export type AirportValue = Place[];
 
 export const MAX_PLACES = 3;
@@ -79,7 +80,7 @@ export function AirportField({
     // "+ yakın havalimanları": yer ve çevresindekiler birlikte (zaten seçili olanlar tekrar eklenmez)
     const picked = [{ code: s.code, label: s.city }, ...(s.nearby ?? []).map((n) => ({ code: n.code, label: n.label }))];
     const fresh = picked.filter((p) => !value.some((v) => v.code === p.code));
-    const next = [...value, ...fresh].slice(-MAX_PLACES);
+    const next = [...value.filter((v) => !v.auto), ...fresh].slice(-MAX_PLACES);
     onChange(next);
     setText("");
     setItems([]);
