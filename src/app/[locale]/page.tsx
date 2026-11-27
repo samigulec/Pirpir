@@ -28,23 +28,25 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <div className="min-h-screen w-full bg-white pb-[84px] md:pb-0">
       <HomeHeader />
-      <HomeView
-        key={market.id}
-        destinations={getPopularDestinations()}
-        deals={deals}
-        live={live}
-        defaults={{ today: todayIso() }}
-        defaultFrom={market.from}
-      />
-      <Suspense fallback={<CharacterTips deals={{}} from={market.from} />}>
-        <TipsWithDeals deals={deals} from={market.from} />
-      </Suspense>
-      <Suspense fallback={<PopularRoutes routes={market.routes} dates={{}} />}>
-        <RoutesWithDates routes={market.routes} dates={routeDates} />
-      </Suspense>
-      <Steps />
-      <PriceAlert defaultFrom={market.from} />
-      <Faq />
+      <main>
+        <HomeView
+          key={market.id}
+          destinations={getPopularDestinations()}
+          deals={deals}
+          live={live}
+          defaults={{ today: todayIso() }}
+          defaultFrom={market.from}
+        />
+        <Suspense fallback={<CharacterTips deals={{}} from={market.from} />}>
+          <TipsWithDeals deals={deals} from={market.from} />
+        </Suspense>
+        <Suspense fallback={<PopularRoutes routes={market.routes} dates={{}} />}>
+          <RoutesWithDates routes={market.routes} dates={routeDates} />
+        </Suspense>
+        <Steps />
+        <PriceAlert defaultFrom={market.from} />
+        <Faq />
+      </main>
       <SiteFooter />
       <MobileNav />
     </div>
