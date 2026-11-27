@@ -233,7 +233,12 @@
   "nearbyBack": "Opgeslagen enkele reizen voor de terugreis",
   "nearbySeparate": "Geen opgeslagen retourprijzen voor deze data; je kunt heen- en terugreis als losse tickets boeken.",
   "partnerNoteWL": "Opent met actuele prijzen",
-  "liveSearchWL": "Bekijk actuele prijzen",
-  "noResultsCachedWL": "Geen opgeslagen prijzen voor deze data. Je kunt actuele vluchten met live prijzen bekijken.",
-  "shiftDays": "{n, plural, one {# dag} other {# dagen}} {dir, select, before {eerder} other {later}}"
+  "liveSearchWL": "Bekijk live vluchten voor deze data",
+  "noResultsCachedWL": "Geen opgeslagen prijzen voor deze data. Live zoeken toont alle vluchten en actuele prijzen voor deze data.",
+  "shiftDays": "{n, plural, one {# dag} other {# dagen}} {dir, select, before {eerder} other {later}}",
+  "separateTickets": "2 losse tickets",
+  "goOut": "Naar heenvlucht",
+  "goBack": "Naar terugvlucht",
+  "separateNote": "Heen- en terugvlucht boek je apart",
+  "fewResults": "Weinig opgeslagen vluchten voor deze data. Bekijk alle vluchten en actuele prijzen in de live zoekfunctie."
 }

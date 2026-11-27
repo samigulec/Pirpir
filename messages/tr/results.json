@@ -233,7 +233,12 @@
   "nearbyBack": "Dönüş için kayıtlı tek yön fiyatlar",
   "nearbySeparate": "Bu tarihler için gidiş-dönüş kaydı yok; gidiş ve dönüşü ayrı biletlerle alabilirsin.",
   "partnerNoteWL": "Canlı fiyatlarla açılır",
-  "liveSearchWL": "Canlı fiyatları gör",
-  "noResultsCachedWL": "Bu tarihler için kayıtlı fiyat yok. Güncel uçuşları canlı fiyatlarla görebilirsin.",
-  "shiftDays": "{n} gün {dir, select, before {önce} other {sonra}}"
+  "liveSearchWL": "Bu tarihlerin uçuşlarını canlı gör",
+  "noResultsCachedWL": "Bu tarihler için kayıtlı fiyat yok. Canlı aramada bu tarihlerin tüm uçuşlarını ve güncel fiyatlarını görebilirsin.",
+  "shiftDays": "{n} gün {dir, select, before {önce} other {sonra}}",
+  "separateTickets": "2 ayrı bilet",
+  "goOut": "Gidiş biletine git",
+  "goBack": "Dönüş biletine git",
+  "separateNote": "Gidiş ve dönüş ayrı alınır",
+  "fewResults": "Bu tarihlerde az kayıtlı uçuş var. Tüm uçuşları ve güncel fiyatları canlı aramada görebilirsin."
 }

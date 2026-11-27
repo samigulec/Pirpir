@@ -233,7 +233,12 @@
   "nearbyBack": "Prix aller simple enregistrés pour le retour",
   "nearbySeparate": "Aucun prix aller-retour enregistré pour ces dates ; tu peux réserver l'aller et le retour en billets séparés.",
   "partnerNoteWL": "S'ouvre avec les prix en direct",
-  "liveSearchWL": "Voir les prix en direct",
-  "noResultsCachedWL": "Aucun prix enregistré pour ces dates. Tu peux voir les vols actuels avec les prix en direct.",
-  "shiftDays": "{n, plural, one {# jour} other {# jours}} {dir, select, before {plus tôt} other {plus tard}}"
+  "liveSearchWL": "Voir les vols en direct pour ces dates",
+  "noResultsCachedWL": "Aucun prix enregistré pour ces dates. La recherche en direct montre tous les vols et les prix actuels pour ces dates.",
+  "shiftDays": "{n, plural, one {# jour} other {# jours}} {dir, select, before {plus tôt} other {plus tard}}",
+  "separateTickets": "2 billets séparés",
+  "goOut": "Billet aller",
+  "goBack": "Billet retour",
+  "separateNote": "L'aller et le retour se réservent séparément",
+  "fewResults": "Peu de vols enregistrés pour ces dates. Vois tous les vols et les prix actuels dans la recherche en direct."
 }

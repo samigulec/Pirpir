@@ -233,7 +233,12 @@
   "nearbyBack": "Precios de solo ida guardados para la vuelta",
   "nearbySeparate": "No hay precios de ida y vuelta guardados para estas fechas; puedes reservar la ida y la vuelta como billetes separados.",
   "partnerNoteWL": "Se abre con precios en directo",
-  "liveSearchWL": "Ver precios en directo",
-  "noResultsCachedWL": "No hay precios guardados para estas fechas. Puedes ver los vuelos actuales con precios en directo.",
-  "shiftDays": "{n, plural, one {# día} other {# días}} {dir, select, before {antes} other {después}}"
+  "liveSearchWL": "Ver vuelos en directo para estas fechas",
+  "noResultsCachedWL": "No hay precios guardados para estas fechas. La búsqueda en directo muestra todos los vuelos y precios actuales para estas fechas.",
+  "shiftDays": "{n, plural, one {# día} other {# días}} {dir, select, before {antes} other {después}}",
+  "separateTickets": "2 billetes separados",
+  "goOut": "Ir al billete de ida",
+  "goBack": "Ir al billete de vuelta",
+  "separateNote": "La ida y la vuelta se reservan por separado",
+  "fewResults": "Hay pocos vuelos guardados para estas fechas. Mira todos los vuelos y precios actuales en la búsqueda en directo."
 }
