@@ -226,5 +226,7 @@
   "cachedNote": "prijzen zijn de afgelopen dagen op Aviasales gezien; check de actuele prijs bij de aanbieder",
   "liveSearch": "Live zoeken op {partner, select, aviasales {Aviasales} other {Skyscanner}}",
   "noResultsCached": "Geen opgeslagen prijzen voor deze data. Je kunt actuele vluchten live zoeken op {partner, select, aviasales {Aviasales} other {Skyscanner}}.",
-  "nearbyTitle": "Opgeslagen prijzen op data in de buurt"
+  "nearbyTitle": "Opgeslagen prijzen op data in de buurt",
+  "otherAirlines": "andere maatschappijen",
+  "mayChange": "De prijs kan bij de aanbieder veranderd zijn"
 }

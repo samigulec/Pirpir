@@ -226,5 +226,7 @@
   "cachedNote": "precios vistos en Aviasales en los últimos días; comprueba el precio actual en el vendedor",
   "liveSearch": "Buscar en directo en {partner, select, aviasales {Aviasales} other {Skyscanner}}",
   "noResultsCached": "No hay precios guardados para estas fechas. Puedes buscar vuelos actuales en directo en {partner, select, aviasales {Aviasales} other {Skyscanner}}.",
-  "nearbyTitle": "Precios guardados en fechas cercanas"
+  "nearbyTitle": "Precios guardados en fechas cercanas",
+  "otherAirlines": "otras aerolíneas",
+  "mayChange": "El precio puede haber cambiado en el vendedor"
 }

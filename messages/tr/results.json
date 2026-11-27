@@ -222,9 +222,11 @@
   },
   "goDeal": "Fırsata git",
   "partnerNote": "{partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} açılır",
-  "seen": "{days, plural, =0 {Fiyat bugün görüldü} =1 {Fiyat dün görüldü} other {Fiyat # gün önce görüldü}}",
+  "seen": "{days, plural, =0 {Bugün görülen fiyat} =1 {Dün görülen fiyat} other {# gün önce görülen fiyat}}",
   "cachedNote": "fiyatlar Aviasales'te son günlerde görülen fiyatlardır; güncel fiyat satıcıda",
   "liveSearch": "{partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} canlı ara",
   "noResultsCached": "Bu tarihler için kayıtlı fiyat yok. Güncel uçuşları {partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} canlı arayabilirsin.",
-  "nearbyTitle": "Yakın tarihlerdeki kayıtlı fiyatlar"
+  "nearbyTitle": "Yakın tarihlerdeki kayıtlı fiyatlar",
+  "otherAirlines": "diğer havayolları",
+  "mayChange": "Satıcıda fiyat değişmiş olabilir"
 }

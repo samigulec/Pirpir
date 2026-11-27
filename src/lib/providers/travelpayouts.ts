@@ -157,13 +157,75 @@ function seenOn(link: string): string | undefined {
   return m ? `${m[3]}-${m[2]}-${m[1]}` : undefined;
 }
 
+/**
+ * Bağlantıdaki bilet kimliği (t=…) her yönü taşır: kalkış ve varış (yerel saat, UTC gibi yazılmış saniye),
+ * süre (dk) ve sırayla havalimanları. Ör. PC|1800633300|1800653100|000210|AMSSAW|1800877200|…|000555|ISTOTPAMS
+ * Başta biletin havayolu kodu durur. Havayolu yön ya da uçuş bazında yazılmaz.
+ */
+type TDir = { date: string; dep: string; arrDate: string; arr: string; mins: number; airports: string[] };
+export function parseTicket(link: string): { carrier?: string; dirs: TDir[] } | null {
+  const m = link.match(/[?&]t=([A-Z0-9]+)_/);
+  if (!m) return null;
+  let s = m[1];
+  let carrier: string | undefined;
+  const head = s.match(/^([A-Z0-9]{2})(?=\d{26}[A-Z]{6})/);
+  if (head) {
+    carrier = head[1];
+    s = s.slice(2);
+  }
+  const dirs: TDir[] = [];
+  for (const d of s.matchAll(/(\d{10})(\d{10})(\d{6})([A-Z]{6,})/g)) {
+    if (d[4].length % 3) return null;
+    const at = (sec: string) => new Date(Number(sec) * 1000).toISOString();
+    const dep = at(d[1]);
+    const arr = at(d[2]);
+    dirs.push({ date: dep.slice(0, 10), dep: dep.slice(11, 16), arrDate: arr.slice(0, 10), arr: arr.slice(11, 16), mins: Number(d[3]), airports: d[4].match(/.{3}/g)! });
+  }
+  return dirs.length ? { carrier, dirs } : null;
+}
+
+function legFromTicket(d: TDir, airline: string): Leg {
+  const from = d.airports[0];
+  const to = d.airports[d.airports.length - 1];
+  const via = d.airports.slice(1, -1);
+  return {
+    date: d.date,
+    dep: d.dep,
+    arr: d.arr,
+    arrDayOffset: Math.max(0, Math.round((Date.parse(d.arrDate) - Date.parse(d.date)) / 86_400_000)),
+    fromCode: from,
+    toCode: to,
+    fromCity: findAirport(from)?.city ?? from,
+    toCity: findAirport(to)?.city ?? to,
+    airline,
+    mins: d.mins,
+    stops: via.length,
+    ...(via.length && { viaCodes: via, via: { code: via[0], city: findAirport(via[0])?.city ?? via[0], waitMins: 0 } }),
+  };
+}
+
+/** Havayolunun resmî logosu (Aviasales görsel sunucusu) */
+const logoOf = (code: string) => `https://pics.avs.io/96/96/${encodeURIComponent(code)}.png`;
+
 export function toOffer(x: TpItem, q: SearchQuery): Offer {
-  const airline = airlineName(x.airline);
-  const outbound = leg(x.departure_at, x.duration_to, x.transfers, x.origin_airport, x.destination_airport, airline);
+  const ticket = parseTicket(x.link);
+  // Bilet kimliğindeki havayolu API'dekinden farklıysa ikisi de bilette vardır
+  const codes = [...new Set([x.airline, ticket?.carrier].filter((c): c is string => !!c))];
+  const airline = codes.map(airlineName).join(" + ");
+  const okTicket = ticket && ticket.dirs.length === (q.returnDate && x.return_at ? 2 : 1) ? ticket : null;
+  const outbound = okTicket
+    ? legFromTicket(okTicket.dirs[0], airline)
+    : leg(x.departure_at, x.duration_to, x.transfers, x.origin_airport, x.destination_airport, airline);
   const inbound =
     x.return_at && q.returnDate
-      ? leg(x.return_at, x.duration_back || x.duration_to, x.return_transfers ?? 0, x.destination_airport, x.origin_airport, airline)
+      ? okTicket
+        ? legFromTicket(okTicket.dirs[1], airline)
+        : leg(x.return_at, x.duration_back || x.duration_to, x.return_transfers ?? 0, x.destination_airport, x.origin_airport, airline)
       : undefined;
+  // Dönüş, gidişin tersi değilse (başka havalimanı ya da aktarma) büyük olasılıkla başka havayoludur; adı veride yok
+  const mirror = (a?: Leg, b?: Leg) =>
+    !!a && !!b && a.fromCode === b.toCode && a.toCode === b.fromCode && (a.viaCodes ?? []).join() === [...(b.viaCodes ?? [])].reverse().join();
+  const mixedCarriers = codes.length > 1 || (!!inbound && !mirror(outbound, inbound));
   // Fiyat bir yetişkin içindir; çocuk aynı, bebek yaklaşık %10 sayılır (son fiyat satıcıda görülür)
   const price = toTry(x.price, "EUR");
   const payers = q.pax.adults + q.pax.children;
@@ -175,6 +237,7 @@ export function toOffer(x: TpItem, q: SearchQuery): Offer {
     fromCity: outbound.fromCity,
     toCity: outbound.toCity,
     airline,
+    airlineLogo: logoOf(codes[0]),
     outbound,
     inbound,
     price,
@@ -183,6 +246,7 @@ export function toOffer(x: TpItem, q: SearchQuery): Offer {
     bagInfo: { cabin: false },
     bags: NO_BAGS,
     bagsUnknown: true,
+    mixedCarriers,
     cabin: q.cabin ?? "economy",
     conditions: {},
     passportRequired: false,

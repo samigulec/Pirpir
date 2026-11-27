@@ -15,6 +15,8 @@ export type Leg = {
   mins: number;
   /** İlk aktarma (yoksa direkt). */
   via?: { city: string; code: string; waitMins: number };
+  /** Aktarma havalimanları (bacak ayrıntısı bilinmeden; önbellekli fiyatlarda) */
+  viaCodes?: string[];
   stops: number;
   /** Uçuş bacakları (ayrıntı görünümü için; eski kayıtlarda olmayabilir). */
   segments?: Segment[];
@@ -138,6 +140,8 @@ export type Offer = {
   deepLink?: string;
   /** Bagaj bilgisi yok (satıcıda gösterilir): bagaj işaretleri ve filtresi uygulanmaz */
   bagsUnknown?: boolean;
+  /** Gidiş ve dönüş farklı havayollarıyla olabilir (dönüşün havayolu bilinmiyor) */
+  mixedCarriers?: boolean;
 };
 
 export type HoldTerms = {

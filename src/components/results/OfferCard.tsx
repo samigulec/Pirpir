@@ -78,9 +78,18 @@ export function OfferCard({
             )}
             <span className="flex items-center gap-2 text-[15px] font-bold text-ink">
               {offer.airlineLogo && (
-                <img src={offer.airlineLogo} alt="" width={24} height={24} className="h-6 w-6 flex-none object-contain" />
+                <img
+                  src={offer.airlineLogo}
+                  alt=""
+                  width={24}
+                  height={24}
+                  loading="lazy"
+                  // Logo yüklenemezse kırık resim görünmesin
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                  className="h-6 w-6 flex-none rounded-[6px] object-contain"
+                />
               )}
-              {offer.airline}
+              {offer.mixedCarriers && !offer.airline.includes("+") ? `${offer.airline} + ${t("otherAirlines")}` : offer.airline}
             </span>
             <span className="text-[15px] font-semibold text-muted">
               · {t(`cabin.${offer.cabin}`)}
@@ -199,7 +208,11 @@ export function OfferCard({
           <span className="text-[13px] font-bold text-muted">{t("perPerson")}</span>
           {bagsAdded && <span className="text-[13px] font-bold text-green-text">{t("withBags")}</span>}
           {paxCount > 1 && !bagsAdded && <span className="text-[13px] font-bold text-muted">{t("totalFor", { count: paxCount, total: fmt(offer.total) })}</span>}
-          {offer.seenAt && <span className="text-[12px] font-bold text-muted">{t("seen", { days: daysSince(offer.seenAt) })}</span>}
+          {offer.seenAt && (
+            <span className="text-[12px] font-bold text-muted" title={t("mayChange")}>
+              {t("seen", { days: daysSince(offer.seenAt) })}
+            </span>
+          )}
           {fareCount > 1 && !isAffiliate() && <span className="text-[13px] font-bold text-primary">{t("fareOptions", { n: fareCount })}</span>}
         </div>
         {isAffiliate() ? (
@@ -247,7 +260,7 @@ function LegRow({ leg, label, date, dur }: { leg: Leg; label: string; date: stri
   const t = useTranslations("results");
   const tc = useTranslations("common");
   const stopsText = leg.stops === 0 ? tc("direct") : leg.stops === 1 ? tc("oneStop") : tc("stops", { n: leg.stops });
-  const viaCodes = (leg.segments ?? []).slice(0, -1).map((s) => s.toCode);
+  const viaCodes = leg.segments?.length ? leg.segments.slice(0, -1).map((s) => s.toCode) : (leg.viaCodes ?? []);
   const time = "font-display text-[26px] font-semibold leading-none";
   return (
     <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-2 md:grid-cols-[110px_auto_1fr_auto]">
