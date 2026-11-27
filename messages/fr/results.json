@@ -228,5 +228,8 @@
   "noResultsCached": "Aucun prix enregistré pour ces dates. Tu peux chercher les vols actuels en direct sur {partner, select, aviasales {Aviasales} other {Skyscanner}}.",
   "nearbyTitle": "Prix enregistrés à des dates proches",
   "otherAirlines": "autres compagnies",
-  "mayChange": "Le prix a pu changer chez le vendeur"
+  "mayChange": "Le prix a pu changer chez le vendeur",
+  "nearbyOut": "Prix aller simple enregistrés pour l'aller",
+  "nearbyBack": "Prix aller simple enregistrés pour le retour",
+  "nearbySeparate": "Aucun prix aller-retour enregistré pour ces dates ; tu peux réserver l'aller et le retour en billets séparés."
 }

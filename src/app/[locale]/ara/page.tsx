@@ -228,11 +228,27 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
     return <SearchFailed q={q} detail={detail} />;
   }
   // Önbellekli fiyatlarda tam tarihlere kayıt yoksa yakın günlerin kayıtlı fiyatları (her biri kendi tarihleriyle)
-  let nearby: { offers: Offer[]; cityNames: Record<string, string> } | undefined;
+  let nearby: { sections: { title: "nearbyTitle" | "nearbyOut" | "nearbyBack"; offers: Offer[] }[]; cityNames: Record<string, string> } | undefined;
   if (priceSource() === "travelpayouts" && first.done && !first.offers.length && q.from.length === 1 && q.to.length === 1) {
     const code = (c: string) => c.replace(/^city:/, "");
-    const offers = await nearbyOffers({ from: code(q.from[0]), to: code(q.to[0]), date: q.date, returnDate: q.returnDate || undefined, pax: q.pax, cabin: q.cabin }).catch(() => []);
-    if (offers.length) nearby = { offers, cityNames: cityNamesFor(offers, locale) };
+    const from = code(q.from[0]);
+    const to = code(q.to[0]);
+    const base = { pax: q.pax, cabin: q.cabin };
+    const none = (): Offer[] => [];
+    const offers = await nearbyOffers({ ...base, from, to, date: q.date, returnDate: q.returnDate || undefined }).catch(none);
+    let sections: NonNullable<typeof nearby>["sections"] = offers.length ? [{ title: "nearbyTitle", offers }] : [];
+    // Gidiş-dönüş kaydı yoksa (seyrek rotalar): gidiş ve dönüş için ayrı tek yön fiyatlar
+    if (!sections.length && q.returnDate) {
+      const [out, back] = await Promise.all([
+        nearbyOffers({ ...base, from, to, date: q.date }, 3, 4).catch(none),
+        nearbyOffers({ ...base, from: to, to: from, date: q.returnDate }, 3, 4).catch(none),
+      ]);
+      sections = [
+        ...(out.length ? [{ title: "nearbyOut" as const, offers: out }] : []),
+        ...(back.length ? [{ title: "nearbyBack" as const, offers: back }] : []),
+      ];
+    }
+    if (sections.length) nearby = { sections, cityNames: cityNamesFor(sections.flatMap((s) => s.offers), locale) };
   }
   const mode = dataMode();
   const modeNote = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : priceSource() === "travelpayouts" ? t("cachedNote") : undefined;

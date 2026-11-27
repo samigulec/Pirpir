@@ -67,7 +67,7 @@ export function ResultsView({
   liveHref,
   nearby,
 }: {
-  nearby?: { offers: Offer[]; cityNames: Record<string, string> };
+  nearby?: { sections: { title: "nearbyTitle" | "nearbyOut" | "nearbyBack"; offers: Offer[] }[]; cityNames: Record<string, string> };
   /** Sonuç yoksa ortakta canlı arama bağlantısı (ortaklık modu) */
   liveHref?: string;
   initialBags?: { cabin: number; checked: number };
@@ -210,9 +210,14 @@ export function ResultsView({
           ))}
         {offers.length === 0 && nearby && (
           <>
-            <h2 className="m-0 mt-2 font-display text-[24px] font-bold">{t("nearbyTitle")}</h2>
-            {nearby.offers.map((o) => (
-              <OfferCard key={o.id} offer={o} price={o.price} bagsAdded={false} fareCount={1} onSelect={() => {}} cityNames={nearby.cityNames} badge={null} />
+            {nearby.sections.map((s, i) => (
+              <section key={s.title} className="flex flex-col gap-4">
+                <h2 className="m-0 mt-2 font-display text-[24px] font-bold">{t(s.title)}</h2>
+                {s.title !== "nearbyTitle" && i === 0 && <p className="m-0 -mt-2 text-[15px] font-semibold text-muted">{t("nearbySeparate")}</p>}
+                {s.offers.map((o) => (
+                  <OfferCard key={o.id} offer={o} price={o.price} bagsAdded={false} fareCount={1} onSelect={() => {}} cityNames={nearby.cityNames} badge={null} />
+                ))}
+              </section>
             ))}
           </>
         )}

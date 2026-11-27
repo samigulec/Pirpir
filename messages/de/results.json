@@ -228,5 +228,8 @@
   "noResultsCached": "Für diese Daten sind keine Preise gespeichert. Aktuelle Flüge kannst du live bei {partner, select, aviasales {Aviasales} other {Skyscanner}} suchen.",
   "nearbyTitle": "Gespeicherte Preise an nahen Terminen",
   "otherAirlines": "andere Airlines",
-  "mayChange": "Der Preis kann sich beim Anbieter geändert haben"
+  "mayChange": "Der Preis kann sich beim Anbieter geändert haben",
+  "nearbyOut": "Gespeicherte Einzelflüge für den Hinflug",
+  "nearbyBack": "Gespeicherte Einzelflüge für den Rückflug",
+  "nearbySeparate": "Für diese Daten sind keine Hin- und Rückflugpreise gespeichert; du kannst Hin- und Rückflug als getrennte Tickets buchen."
 }

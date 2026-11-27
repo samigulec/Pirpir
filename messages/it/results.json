@@ -228,5 +228,8 @@
   "noResultsCached": "Nessun prezzo salvato per queste date. Puoi cercare i voli attuali in tempo reale su {partner, select, aviasales {Aviasales} other {Skyscanner}}.",
   "nearbyTitle": "Prezzi salvati in date vicine",
   "otherAirlines": "altre compagnie",
-  "mayChange": "Il prezzo potrebbe essere cambiato presso il venditore"
+  "mayChange": "Il prezzo potrebbe essere cambiato presso il venditore",
+  "nearbyOut": "Prezzi di sola andata salvati per l'andata",
+  "nearbyBack": "Prezzi di sola andata salvati per il ritorno",
+  "nearbySeparate": "Nessun prezzo andata e ritorno salvato per queste date; puoi prenotare andata e ritorno con biglietti separati."
 }

@@ -228,5 +228,8 @@
   "noResultsCached": "Geen opgeslagen prijzen voor deze data. Je kunt actuele vluchten live zoeken op {partner, select, aviasales {Aviasales} other {Skyscanner}}.",
   "nearbyTitle": "Opgeslagen prijzen op data in de buurt",
   "otherAirlines": "andere maatschappijen",
-  "mayChange": "De prijs kan bij de aanbieder veranderd zijn"
+  "mayChange": "De prijs kan bij de aanbieder veranderd zijn",
+  "nearbyOut": "Opgeslagen enkele reizen voor de heenreis",
+  "nearbyBack": "Opgeslagen enkele reizen voor de terugreis",
+  "nearbySeparate": "Geen opgeslagen retourprijzen voor deze data; je kunt heen- en terugreis als losse tickets boeken."
 }

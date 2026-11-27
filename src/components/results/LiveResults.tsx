@@ -38,7 +38,7 @@ export function LiveResults({
   nearby,
 }: {
   /** Tam tarihlerde sonuç yoksa yakın günlerin kayıtlı fiyatları */
-  nearby?: { offers: Offer[]; cityNames: Record<string, string> };
+  nearby?: { sections: { title: "nearbyTitle" | "nearbyOut" | "nearbyBack"; offers: Offer[] }[]; cityNames: Record<string, string> };
   /** Arama kutusunda seçilen bagaj: bagaj filtresinin başlangıcı */
   initialBags?: { cabin: number; checked: number };
   first: LiveChunk;

@@ -336,11 +336,11 @@ function pick(all: TpItem[], q: SearchQuery, days: number, today: string, limit:
         (!q.returnDate || (x.return_at && dayDiff(x.return_at, q.returnDate) <= days && x.return_at > x.departure_at)),
     )
     .sort((a, b) => a.price - b.price);
-  // Her tarih çifti için en ucuz tek uçuş: liste farklı günleri göstersin
+  // Her tarih çifti için en ucuz uçuş ve (aktarmalıysa) en ucuz direkt uçuş: liste farklı günleri göstersin
   const seen = new Set<string>();
   const out: Offer[] = [];
   for (const x of items) {
-    const k = `${x.departure_at.slice(0, 10)}|${x.return_at?.slice(0, 10) ?? ""}`;
+    const k = `${x.departure_at.slice(0, 10)}|${x.return_at?.slice(0, 10) ?? ""}|${x.transfers === 0 && !x.return_transfers ? "d" : "x"}`;
     if (seen.has(k)) continue;
     seen.add(k);
     const dq = { ...q, date: x.departure_at.slice(0, 10), returnDate: x.return_at?.slice(0, 10) };

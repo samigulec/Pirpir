@@ -228,5 +228,8 @@
   "noResultsCached": "Bu tarihler için kayıtlı fiyat yok. Güncel uçuşları {partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} canlı arayabilirsin.",
   "nearbyTitle": "Yakın tarihlerdeki kayıtlı fiyatlar",
   "otherAirlines": "diğer havayolları",
-  "mayChange": "Satıcıda fiyat değişmiş olabilir"
+  "mayChange": "Satıcıda fiyat değişmiş olabilir",
+  "nearbyOut": "Gidiş için kayıtlı tek yön fiyatlar",
+  "nearbyBack": "Dönüş için kayıtlı tek yön fiyatlar",
+  "nearbySeparate": "Bu tarihler için gidiş-dönüş kaydı yok; gidiş ve dönüşü ayrı biletlerle alabilirsin."
 }
