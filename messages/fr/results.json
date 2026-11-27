@@ -81,10 +81,10 @@
     "remove": "Retirer : {label}",
     "stopsTitle": "Escales",
     "stops": {
-      "any": "Peu importe",
       "0": "Direct uniquement",
       "1": "1 escale max.",
-      "2": "2 escales max."
+      "2": "2 escales max.",
+      "any": "Peu importe"
     },
     "overnight": "Autoriser les escales de nuit",
     "airlinesTitle": "Compagnies aériennes",
@@ -218,7 +218,13 @@
     "none": "Aucun vol ne correspond pour l'instant.",
     "confirm": "Créer l'alerte",
     "cancel": "Annuler",
-    "open": "Réglages de l'alerte prix"
+    "open": "Réglages de l'alerte prix",
+    "loading": "Vérification du prix enregistré…",
+    "noneCached": "Aucun prix enregistré pour le moment — on te prévient dès qu’il baisse.",
+    "seenToday": "Prix vu aujourd’hui",
+    "seenYesterday": "Prix vu il y a 1 jour",
+    "seenDaysAgo": "Prix vu il y a {n} jours",
+    "seenOnDate": "Prix vu le {date}"
   },
   "goDeal": "Voir l'offre",
   "partnerNote": "S'ouvre sur {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",

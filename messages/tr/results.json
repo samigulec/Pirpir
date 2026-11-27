@@ -81,10 +81,10 @@
     "remove": "{label} çıkar",
     "stopsTitle": "Aktarmalar",
     "stops": {
-      "any": "Fark etmez",
       "0": "Aktarmasız",
       "1": "En çok 1 aktarma",
-      "2": "En çok 2 aktarma"
+      "2": "En çok 2 aktarma",
+      "any": "Fark etmez"
     },
     "overnight": "Gecelik beklemelere izin ver",
     "airlinesTitle": "Havayolları",
@@ -218,7 +218,13 @@
     "none": "Bu seçimle şu an uçuş yok.",
     "confirm": "Alarmı kur",
     "cancel": "Vazgeç",
-    "open": "Fiyat alarmı ayarları"
+    "open": "Fiyat alarmı ayarları",
+    "loading": "Kayıtlı fiyat kontrol ediliyor…",
+    "noneCached": "Şu an kayıtlı fiyat yok, düşünce haber veririz.",
+    "seenToday": "Bugün görülen fiyat",
+    "seenYesterday": "1 gün önce görülen fiyat",
+    "seenDaysAgo": "{n} gün önce görülen fiyat",
+    "seenOnDate": "{date} tarihinde görülen fiyat"
   },
   "goDeal": "Fırsata git",
   "partnerNote": "{partner, select, whitelabel {{brand} Live'da} aviasales {Aviasales'te} other {Skyscanner'da}} açılır",

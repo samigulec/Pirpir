@@ -81,10 +81,10 @@
     "remove": "{label} entfernen",
     "stopsTitle": "Stopps",
     "stops": {
-      "any": "Egal",
       "0": "Nur Direktflüge",
       "1": "Bis zu 1 Stopp",
-      "2": "Bis zu 2 Stopps"
+      "2": "Bis zu 2 Stopps",
+      "any": "Egal"
     },
     "overnight": "Übernachtungen beim Umstieg erlauben",
     "airlinesTitle": "Airlines",
@@ -218,7 +218,13 @@
     "none": "Mit dieser Auswahl gibt es gerade keine Flüge.",
     "confirm": "Alarm einrichten",
     "cancel": "Abbrechen",
-    "open": "Einstellungen Preisalarm"
+    "open": "Einstellungen Preisalarm",
+    "loading": "Gespeicherter Preis wird geprüft…",
+    "noneCached": "Derzeit kein gespeicherter Preis — wir melden uns, sobald er sinkt.",
+    "seenToday": "Heute gesehener Preis",
+    "seenYesterday": "Vor 1 Tag gesehener Preis",
+    "seenDaysAgo": "Vor {n} Tagen gesehener Preis",
+    "seenOnDate": "Am {date} gesehener Preis"
   },
   "goDeal": "Zum Angebot",
   "partnerNote": "Öffnet bei {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}",
