@@ -432,3 +432,10 @@ yoksa hiçbir şey yapmasın. Gönderim hatası yayınlamayı engellemesin. Toke
   ana sayfa popüler uçuşlar (60 günlük `groupedPrices` + kategori sekmeleri), `/api/date-prices?strip=1` (±3 gün + `null`)
   ve `pickDealCandidates` birim testi (%75 / 30 € / 3 gün / max 3). Denendi: `npm run lint`, `npx next build` (274/274),
   `npm run e2e` (15/15 geçti, 6.9 sn). Bilinen eksik yok.
+- [7.2] Fiyat alarmı penceresi önbellek fiyatıyla — commit 37fb41e — `src/lib/alert-price.ts` ve `src/app/api/alert-price/route.ts`
+  eklendi (10 dk `unstable_cache` + `Cache-Control: private, max-age=600`; tam tarihte `searchFlightsCached`/`prices_for_dates`,
+  ±3 gün esnek veya boş sonuçta `groupedPrices`; geçersiz sorguda 400). `PriceAlertButton.tsx` dış props'unu değiştirmeden
+  (`LiveResults.tsx` değişikliği gerekmedi) pencere açılınca ve esneklik/aktarma değişince `/api/alert-price` çağırır,
+  "x gün önce görülen fiyat" yazar, veri yoksa "Şu an kayıtlı fiyat yok, düşünce haber veririz." diyerek alarm kurulumunu
+  açık bırakır. 7 dilde `messages/*/results.json` güncellendi. Denendi: `npm run lint`, `npx next build` (275/275),
+  `npm run e2e` (yeni `/api/alert-price` + pencere akışı testi dahil 16/16 geçti, 6.8 sn). Bilinen eksik yok.
