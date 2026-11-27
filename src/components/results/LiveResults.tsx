@@ -36,7 +36,10 @@ export function LiveResults({
   retryHref,
   initialBags,
   nearby,
+  monthlyPrices,
 }: {
+  /** Travelpayouts ortaklık modunda tarih şeridi tek ay isteğiyle (`grouped_prices`) doldurulur */
+  monthlyPrices?: boolean;
   /** Tam tarihlerde sonuç yoksa yakın günlerin kayıtlı fiyatları */
   nearby?: { sections: { title: "nearbyTitle" | "nearbyOut" | "nearbyBack"; offers: Offer[] }[]; cityNames: Record<string, string> };
   /** Arama kutusunda seçilen bagaj: bagaj filtresinin başlangıcı */
@@ -83,7 +86,7 @@ export function LiveResults({
     : undefined;
   return (
     <>
-      {chunk.done && <DateStrip q={q} current={cheapest} />}
+      {chunk.done && <DateStrip q={q} current={cheapest} monthlyPrices={monthlyPrices} />}
       {chunk.done && <PriceTrends q={q} actions={<PriceAlertButton q={q} offers={chunk.offers} filters={filters} />} />}
       {!chunk.done && !failed && (
         <p role="status" className="m-0 flex items-center gap-3 rounded-[20px] bg-sky px-5 py-3 font-bold">

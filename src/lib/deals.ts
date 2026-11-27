@@ -6,12 +6,12 @@
 import "server-only";
 import { after } from "next/server";
 import { popularDestinations } from "@/data/mock/home";
-import { dataMode, searchFlightsCached } from "./flights";
+import { dataMode, priceSource, searchFlightsCached } from "./flights";
 import { backgroundRetryIn, inBackground, isSkipped } from "./providers/rate-limit";
 import { addDays, todayIso, type MultiQuery } from "./search";
 import type { Offer } from "./providers/types";
 import { cheapestWithBags } from "./extras";
-import { bestKnownPrices, routeKey, type KnownPrice } from "./price-calendar";
+import { bestKnownPrices, routeKey, travelpayoutsDayPrices, type KnownPrice } from "./price-calendar";
 
 export type Deal = {
   /** Kişi başı en düşük gidiş-dönüş fiyatı (TRY). */
@@ -187,6 +187,12 @@ export async function getRouteDates(routes: [string, string][]): Promise<Record<
  * `price: null` o gün uçuş yok; `failed` fiyat alınamadı.
  */
 export async function getDayPrice(q: MultiQuery): Promise<{ price: number | null; busy?: boolean; retryMs?: number; failed?: boolean }> {
+  if (priceSource() === "travelpayouts") {
+    if (q.bags && (q.bags.cabin || q.bags.checked)) return { price: null };
+    const nights = q.returnDate ? Math.round((Date.parse(q.returnDate) - Date.parse(q.date)) / 86_400_000) : -1;
+    const { prices, failed } = await travelpayoutsDayPrices({ from: q.from, to: q.to, cabin: q.cabin ?? "economy" }, q.date, 1, nights);
+    return failed ? { price: null, failed: true } : { price: prices[q.date] ?? null };
+  }
   try {
     const offers = await inBackground(() => searchFlightsCached(q));
     return { price: cheapestWithBags(offers, q.bags) };
@@ -195,6 +201,22 @@ export async function getDayPrice(q: MultiQuery): Promise<{ price: number | null
     console.error("Gün fiyatı alınamadı:", q.date, e instanceof Error ? e.message : e);
     return { price: null, failed: true };
   }
+}
+
+/**
+ * Esnek tarih şeridi (±3 gün) için Travelpayouts ay verisi: tek/iki `grouped_prices` isteğiyle tüm komşu günler.
+ * Kayıt olmayan günler `null` döner ("Fiyata bak" görünür).
+ */
+export async function getStripPrices(q: MultiQuery): Promise<{ prices: Record<string, number | null>; failed: boolean }> {
+  const today = todayIso();
+  const days = [-3, -2, -1, 0, 1, 2, 3].map((n) => addDays(q.date, n)).filter((d) => d >= today);
+  if (!days.length || (q.bags && (q.bags.cabin || q.bags.checked))) {
+    return { prices: Object.fromEntries(days.map((d) => [d, null])), failed: false };
+  }
+  const nights = q.returnDate ? Math.round((Date.parse(q.returnDate) - Date.parse(q.date)) / 86_400_000) : -1;
+  const { prices, failed } = await travelpayoutsDayPrices({ from: q.from, to: q.to, cabin: q.cabin ?? "economy" }, days[0], days.length, nights);
+  if (failed) return { prices: {}, failed: true };
+  return { prices: Object.fromEntries(days.map((d) => [d, prices[d] ?? null])), failed: false };
 }
 
 /**

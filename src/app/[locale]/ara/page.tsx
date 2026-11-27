@@ -251,10 +251,21 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
     if (sections.length) nearby = { sections, cityNames: cityNamesFor(sections.flatMap((s) => s.offers), locale) };
   }
   const mode = dataMode();
-  const modeNote = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : priceSource() === "travelpayouts" ? t("cachedNote") : undefined;
+  const source = priceSource();
+  const modeNote = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : source === "travelpayouts" ? t("cachedNote") : undefined;
   const note = [q.flex ? t("flexNote", { n: q.flex }) : undefined, modeNote].filter(Boolean).join(" · ") || undefined;
   return (
-    <LiveResults first={first} q={q} oneWay={!q.returnDate} initialBags={q.bags} tip={tip} note={note} retryHref={searchHref({ ...q, returnDate: q.returnDate ?? "" })} nearby={nearby} />
+    <LiveResults
+      first={first}
+      q={q}
+      oneWay={!q.returnDate}
+      initialBags={q.bags}
+      tip={tip}
+      note={note}
+      retryHref={searchHref({ ...q, returnDate: q.returnDate ?? "" })}
+      nearby={nearby}
+      monthlyPrices={source === "travelpayouts"}
+    />
   );
 }
 

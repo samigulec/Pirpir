@@ -33,9 +33,10 @@ const dayQuery = (q: MultiQuery, d: Day) => new URLSearchParams(searchHref({ ...
 
 /**
  * Esnek tarih şeridi (Kiwi'deki gibi): aynı yolculuk süresiyle ±3 günün en düşük kişi başı fiyatı.
- * Her gün ayrı ve paralel istenir; fiyatlar geldikçe görünür; seçili gün sonuçlardan gelir.
+ * Travelpayouts modunda (`monthlyPrices`) tek istekte ay verisinden (`grouped_prices`) gelir;
+ * Duffel/örnek modda her gün ayrı ve paralel istenir. Seçili gün sonuçlardan gelir.
  */
-export function DateStrip({ q, current }: { q: MultiQuery; current: number | null }) {
+export function DateStrip({ q, current, monthlyPrices }: { q: MultiQuery; current: number | null; monthlyPrices?: boolean }) {
   const t = useTranslations("results.dates");
   const { fmt } = useCurrency();
   const loc = intlLocale(useLocale());
@@ -53,7 +54,36 @@ export function DateStrip({ q, current }: { q: MultiQuery; current: number | nul
   useEffect(() => {
     known.set(currentKey, current);
     const ctrl = new AbortController();
-    setPrices(Object.fromEntries(signature.split("|").filter((k) => known.has(k)).map((k) => [k, known.get(k)!])));
+    const allKeys = signature.split("|");
+    setPrices(Object.fromEntries(allKeys.filter((k) => known.has(k)).map((k) => [k, known.get(k)!])));
+    const missing = allKeys.filter((k) => !known.has(k));
+    if (!missing.length) return () => ctrl.abort();
+
+    if (monthlyPrices) {
+      fetch(`/api/date-prices?${currentKey}&strip=1`, { signal: ctrl.signal })
+        .then((r) => (r.ok ? r.json() : { prices: {}, failed: true }))
+        .then((res: { prices?: Record<string, number | null>; failed?: boolean }) => {
+          const updates: Record<string, DayPrice> = {};
+          for (const key of missing) {
+            if (res.failed) {
+              updates[key] = "unknown";
+            } else {
+              const date = new URLSearchParams(key).get("date") ?? "";
+              const price: DayPrice = res.prices?.[date] ?? null;
+              known.set(key, price);
+              updates[key] = price;
+            }
+          }
+          setPrices((p) => ({ ...p, ...updates }));
+        })
+        .catch(() => {
+          if (!ctrl.signal.aborted) {
+            setPrices((p) => ({ ...p, ...Object.fromEntries(missing.map((k) => [k, "unknown" as const])) }));
+          }
+        });
+      return () => ctrl.abort();
+    }
+
     const timers: ReturnType<typeof setTimeout>[] = [];
     // Sunucu "busy" derse (istek sınırı) gün yükleniyor görünür ve artan aralıklarla yeniden sorulur
     const load = (key: string, attempt: number) =>
@@ -71,12 +101,12 @@ export function DateStrip({ q, current }: { q: MultiQuery; current: number | nul
         .catch(() => {
           if (!ctrl.signal.aborted) setPrices((p) => ({ ...p, [key]: "unknown" }));
         });
-    for (const key of signature.split("|")) if (!known.has(key)) load(key, 0);
+    for (const key of missing) load(key, 0);
     return () => {
       ctrl.abort();
       timers.forEach(clearTimeout);
     };
-  }, [signature, currentKey, current]);
+  }, [signature, currentKey, current, monthlyPrices]);
 
   const found = Object.values(prices).filter((p): p is number => typeof p === "number");
   const allDone = keys.every((k) => k in prices);

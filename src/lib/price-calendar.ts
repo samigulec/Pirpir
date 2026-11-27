@@ -1,10 +1,14 @@
-// Fiyatlı takvim. Sağlayıcıda "ayın fiyatları" sorgusu yok (her gün ayrı arama olurdu); bu yüzden sitede yapılan
-// her aramanın kişi başı en düşük fiyatı saklanır ve takvimde yalnızca son 24 saatte görülen fiyatlar gösterilir.
-// Örnek veri modunda fiyatlar doğrudan örnek sağlayıcıdan hesaplanır.
+// Fiyatlı takvim. Ortaklık modunda (Travelpayouts) ayın fiyatları tek istekte `grouped_prices` ile çekilir.
+// Duffel'da "ayın fiyatları" sorgusu olmadığı için sitede yapılan her aramanın kişi başı en düşük fiyatı
+// Supabase'de saklanır ve son 24 saatte görülenler gösterilir. Örnek modda fiyatlar doğrudan hesaplanır.
 import "server-only";
+import { unstable_cache } from "next/cache";
+import { findAirport } from "@/data/airports";
 import { supabaseAdmin } from "./auth/supabase-server";
-import { dataMode, searchFlights } from "./flights";
-import { addDays, type MultiQuery } from "./search";
+import { toTry } from "./currency";
+import { dataMode, priceSource, searchFlights } from "./flights";
+import { groupedPrices, returnMonthPrices } from "./providers/travelpayouts";
+import { addDays, todayIso, type MultiQuery } from "./search";
 import type { Offer } from "./providers/types";
 
 /** Takvimde gösterilecek en eski fiyat */
@@ -112,6 +116,7 @@ export async function getCalendarPrices(
   nights: number,
   depart?: string,
 ): Promise<CalendarPrices> {
+  if (priceSource() === "travelpayouts") return travelpayoutsCalendarPrices(r, first, days, nights, depart);
   const mode = dataMode();
   if (mode === "demo") return demoPrices(r, first, days, nights, depart);
   const admin = supabaseAdmin();
@@ -131,6 +136,195 @@ export async function getCalendarPrices(
   for (const row of a.data ?? []) out.departs[row.depart] = row.price_try;
   for (const row of b.data ?? []) out.returns[addDays(row.depart, row.nights)] = row.price_try;
   return out;
+}
+
+// ---- Travelpayouts aylık önbellek (`grouped_prices`) ----
+const TP_MONTH_TTL = 10 * 60;
+const TP_SOON_MS = 3 * 3600 * 1000;
+const MAX_TP_PAIRS = 9;
+
+/** Aviasales şehir kodlarını (IST, LON, PAR…) doğrudan tanır; `city:` öneki kaldırılır. */
+function tpPairs(from: string[], to: string[]): [string, string][] {
+  const clean = (list: string[]) => [...new Set(list.map((c) => c.replace(/^city:/, "")))];
+  const pairs: [string, string][] = [];
+  for (const f of clean(from)) {
+    for (const t of clean(to)) {
+      if (f === t) continue;
+      const a = findAirport(f);
+      const b = findAirport(t);
+      if (a && b && a.slug === b.slug && a.country === b.country) continue;
+      pairs.push([f, t]);
+      if (pairs.length >= MAX_TP_PAIRS) return pairs;
+    }
+  }
+  return pairs;
+}
+
+async function loadGroupedMonth(
+  origin: string,
+  destination: string,
+  depMonth: string,
+  retMonth: string,
+  nights: number,
+  cabin: string,
+): Promise<Record<string, number>> {
+  const data = await groupedPrices({
+    origin,
+    destination,
+    departureAt: depMonth,
+    returnAt: retMonth || undefined,
+    groupBy: "departure_at",
+    minTripDuration: nights >= 0 ? nights : undefined,
+    maxTripDuration: nights >= 0 ? nights : undefined,
+    cabin: cabin as MultiQuery["cabin"],
+  });
+  const out: Record<string, number> = {};
+  const cutoff = Date.now() + TP_SOON_MS;
+  for (const [key, item] of Object.entries(data)) {
+    if (!item || typeof item.price !== "number" || !item.departure_at) continue;
+    if (Date.parse(item.departure_at) <= cutoff) continue;
+    const depDate = item.departure_at.slice(0, 10) || key;
+    if (nights >= 0) {
+      if (!item.return_at) continue;
+      const actualNights = Math.round((Date.parse(item.return_at.slice(0, 10)) - Date.parse(depDate)) / 86_400_000);
+      if (actualNights !== nights) continue;
+    }
+    const price = toTry(item.price, "EUR");
+    if (out[depDate] === undefined || price < out[depDate]) out[depDate] = price;
+  }
+  return out;
+}
+
+const cachedGroupedMonth = unstable_cache(loadGroupedMonth.bind(null), ["tp-grouped-v1"], { revalidate: TP_MONTH_TTL });
+const groupedInFlight = new Map<string, Promise<Record<string, number>>>();
+
+function getGroupedMonth(
+  origin: string,
+  destination: string,
+  depMonth: string,
+  retMonth: string,
+  nights: number,
+  cabin: string,
+): Promise<Record<string, number>> {
+  const key = `${origin}|${destination}|${depMonth}|${retMonth}|${nights}|${cabin}`;
+  let p = groupedInFlight.get(key);
+  if (!p) {
+    p = cachedGroupedMonth(origin, destination, depMonth, retMonth, nights, cabin).finally(() => groupedInFlight.delete(key));
+    groupedInFlight.set(key, p);
+  }
+  return p;
+}
+
+async function loadReturnMonth(
+  origin: string,
+  destination: string,
+  depart: string,
+  retMonth: string,
+  cabin: string,
+): Promise<Record<string, number>> {
+  return returnMonthPrices({ origin, destination, depart, returnMonth: retMonth, cabin: cabin as MultiQuery["cabin"] });
+}
+
+const cachedReturnMonth = unstable_cache(loadReturnMonth.bind(null), ["tp-returns-v1"], { revalidate: TP_MONTH_TTL });
+const returnInFlight = new Map<string, Promise<Record<string, number>>>();
+
+function getReturnMonth(
+  origin: string,
+  destination: string,
+  depart: string,
+  retMonth: string,
+  cabin: string,
+): Promise<Record<string, number>> {
+  const key = `${origin}|${destination}|${depart}|${retMonth}|${cabin}`;
+  let p = returnInFlight.get(key);
+  if (!p) {
+    p = cachedReturnMonth(origin, destination, depart, retMonth, cabin).finally(() => returnInFlight.delete(key));
+    returnInFlight.set(key, p);
+  }
+  return p;
+}
+
+/**
+ * Travelpayouts `grouped_prices` ile verilen tarih aralığının gün fiyatları (kişi başı TRY).
+ * Her ay tek istekte çekilir ve 10 dk önbellekte tutulur; kayıt olmayan günler sonuçta yer almaz.
+ */
+export async function travelpayoutsDayPrices(
+  r: CalendarRoute,
+  first: string,
+  days: number,
+  nights: number,
+): Promise<{ prices: Record<string, number>; failed: boolean }> {
+  const today = todayIso();
+  const wanted = Array.from({ length: days }, (_, i) => addDays(first, i)).filter((d) => d >= today);
+  if (!wanted.length) return { prices: {}, failed: false };
+  const pairs = tpPairs(r.from, r.to);
+  if (!pairs.length) return { prices: {}, failed: false };
+
+  // Gidiş-dönüşte dönüş ertesi aya taşabileceği için gereken (gidişAyı, dönüşAyı) çiftleri toplanır
+  const monthPairs = new Map<string, [string, string]>();
+  for (const d of wanted) {
+    const depMonth = d.slice(0, 7);
+    const retMonth = nights >= 0 ? addDays(d, nights).slice(0, 7) : "";
+    monthPairs.set(`${depMonth}|${retMonth}`, [depMonth, retMonth]);
+  }
+
+  const tasks: Promise<Record<string, number>>[] = [];
+  for (const [origin, destination] of pairs) {
+    for (const [depMonth, retMonth] of monthPairs.values()) {
+      tasks.push(getGroupedMonth(origin, destination, depMonth, retMonth, nights, r.cabin));
+    }
+  }
+
+  const settled = await Promise.allSettled(tasks);
+  const ok = settled.filter((s): s is PromiseFulfilledResult<Record<string, number>> => s.status === "fulfilled");
+  if (settled.length && !ok.length) {
+    console.error("Travelpayouts ay fiyatları alınamadı:", (settled[0] as PromiseRejectedResult).reason);
+    return { prices: {}, failed: true };
+  }
+  settled.forEach((s) => s.status === "rejected" && console.error("Travelpayouts ay fiyatı başarısız:", s.reason));
+
+  const wantedSet = new Set(wanted);
+  const prices: Record<string, number> = {};
+  for (const res of ok) {
+    for (const [day, price] of Object.entries(res.value)) {
+      if (!wantedSet.has(day)) continue;
+      if (prices[day] === undefined || price < prices[day]) prices[day] = price;
+    }
+  }
+  return { prices, failed: false };
+}
+
+/** Takvim ve fiyat trendi için Travelpayouts ay verisi. `depart` verilirse yalnızca dönüş günleri çekilir. */
+export async function travelpayoutsCalendarPrices(
+  r: CalendarRoute,
+  first: string,
+  days: number,
+  nights: number,
+  depart?: string,
+): Promise<CalendarPrices> {
+  if (depart && nights >= 0) {
+    const wanted = Array.from({ length: days }, (_, i) => addDays(first, i)).filter((d) => d > depart);
+    const pairs = tpPairs(r.from, r.to);
+    if (!wanted.length || !pairs.length) return { departs: {}, returns: {} };
+    const retMonths = [...new Set(wanted.map((d) => d.slice(0, 7)))];
+    const tasks = pairs.flatMap(([origin, destination]) =>
+      retMonths.map((retMonth) => getReturnMonth(origin, destination, depart, retMonth, r.cabin)),
+    );
+    const settled = await Promise.allSettled(tasks);
+    settled.forEach((s) => s.status === "rejected" && console.error("Travelpayouts dönüş ayı başarısız:", s.reason));
+    const wantedSet = new Set(wanted);
+    const returns: Record<string, number> = {};
+    for (const s of settled) {
+      if (s.status !== "fulfilled") continue;
+      for (const [day, price] of Object.entries(s.value)) {
+        if (!wantedSet.has(day)) continue;
+        if (returns[day] === undefined || price < returns[day]) returns[day] = price;
+      }
+    }
+    return { departs: {}, returns };
+  }
+  const { prices } = await travelpayoutsDayPrices(r, first, days, nights);
+  return { departs: prices, returns: {} };
 }
 
 async function demoPrices(r: CalendarRoute, first: string, days: number, nights: number, depart?: string): Promise<CalendarPrices> {

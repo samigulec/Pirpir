@@ -349,3 +349,100 @@ function pick(all: TpItem[], q: SearchQuery, days: number, today: string, limit:
   }
   return out;
 }
+
+/** `/aviasales/v3/grouped_prices` yanıtındaki gün kaydı */
+export type GroupedPriceItem = {
+  origin: string;
+  destination: string;
+  origin_airport?: string;
+  destination_airport?: string;
+  price: number;
+  airline?: string;
+  flight_number?: string | number;
+  departure_at: string;
+  return_at?: string;
+  transfers?: number;
+  return_transfers?: number;
+  duration?: number;
+  duration_to?: number;
+  duration_back?: number;
+  link?: string;
+};
+
+export type GroupedPricesParams = {
+  origin: string;
+  destination: string;
+  /** YYYY-MM ya da YYYY-MM-DD */
+  departureAt: string;
+  /** YYYY-MM ya da YYYY-MM-DD; tek yön için boş bırakılır */
+  returnAt?: string;
+  groupBy?: "departure_at" | "month";
+  minTripDuration?: number;
+  maxTripDuration?: number;
+  direct?: boolean;
+  cabin?: SearchQuery["cabin"];
+};
+
+/**
+ * Tek istekte bir ayın her günü (ya da ayları) için en ucuz önbellekli fiyat.
+ * Tarih şeridi, fiyat takvimi ve fırsat motoru tarafından kullanılır.
+ */
+export async function groupedPrices(params: GroupedPricesParams): Promise<Record<string, GroupedPriceItem>> {
+  const token = travelpayoutsToken();
+  if (!token) throw new TravelpayoutsError("TRAVELPAYOUTS_TOKEN tanımlı değil");
+  // grouped_prices yalnızca ekonomi sınıfı döndürür; başka kabinde yanlış fiyat göstermemek için boş dön
+  if (params.cabin && params.cabin !== "economy") return {};
+  const p = new URLSearchParams({
+    origin: params.origin.replace(/^city:/, ""),
+    destination: params.destination.replace(/^city:/, ""),
+    departure_at: params.departureAt,
+    group_by: params.groupBy ?? "departure_at",
+    currency: "eur",
+  });
+  if (params.returnAt) p.set("return_at", params.returnAt);
+  if (params.minTripDuration !== undefined) p.set("min_trip_duration", String(params.minTripDuration));
+  if (params.maxTripDuration !== undefined) p.set("max_trip_duration", String(params.maxTripDuration));
+  if (params.direct) p.set("direct", "true");
+  const res = await fetch(`${API}/aviasales/v3/grouped_prices?${p}`, {
+    headers: { "X-Access-Token": token, "Accept-Encoding": "gzip" },
+    signal: AbortSignal.timeout(12_000),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new TravelpayoutsError(`Travelpayouts ${res.status}`, res.status);
+  const body = (await res.json()) as { success?: boolean; data?: Record<string, GroupedPriceItem>; error?: string };
+  if (body.success === false) throw new TravelpayoutsError(`Travelpayouts: ${body.error ?? "hata"}`, 502);
+  return body.data ?? {};
+}
+
+/**
+ * Sabit gidiş günü (`depart`) için verilen dönüş ayındaki (`returnMonth`: YYYY-MM) en ucuz kişi başı fiyatlar (TRY).
+ * Takvimde dönüş günü seçilirken kullanılır; tek istekte ayın dönüş günlerini getirir.
+ */
+export async function returnMonthPrices(params: {
+  origin: string;
+  destination: string;
+  depart: string;
+  returnMonth: string;
+  cabin?: SearchQuery["cabin"];
+}): Promise<Record<string, number>> {
+  const cls = TRIP_CLASS[params.cabin ?? "economy"];
+  if (cls === undefined) return {};
+  const q: SearchQuery = {
+    from: params.origin.replace(/^city:/, ""),
+    to: params.destination.replace(/^city:/, ""),
+    date: params.depart,
+    returnDate: params.returnMonth,
+    pax: { adults: 1, children: 0, infants: 0 },
+    cabin: params.cabin ?? "economy",
+  };
+  const items = await fetchOnce(q, { depart: params.depart, ret: params.returnMonth }, false);
+  const out: Record<string, number> = {};
+  for (const x of items) {
+    if (!x.return_at || !x.departure_at.startsWith(params.depart) || x.return_at <= x.departure_at) continue;
+    if (Date.parse(x.departure_at) <= Date.now() + SOON_MS) continue;
+    const retDay = x.return_at.slice(0, 10);
+    const price = toTry(x.price, "EUR");
+    if (out[retDay] === undefined || price < out[retDay]) out[retDay] = price;
+  }
+  return out;
+}
