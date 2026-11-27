@@ -227,3 +227,8 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   `[ORTAKLIK ÇEREZ DETAYLARI]`) köşeli parantezle korundu. Denendi: `npm run lint`, `npx next build` (92/92 sayfa), 7 dilde
   `/gizlilik`, `/en/privacy`, `/nl/privacy`, `/de/datenschutz`, `/fr/confidentialite`, `/es/privacidad`, `/it/privacy` HTTP 200
   ve içerik doğrulaması (`tpwgt.com`, `Travelpayouts`, `[ORTAKLIK ÇEREZ DETAYLARI]`). İş listesindeki 3.1–3.8 maddelerinin tamamı tamamlandı.
+- [canlı widget — canlıda doğrulandı] Claude — `NEXT_PUBLIC_TP_WL_WIDGET_ID=25161` ile www.flypirpir.nl'de AMS→ADB 27 Ara:
+  "Canlı uçuşlar" bölümünde gerçek sonuçlar (SunExpress direkt 182 €, en ucuz 144 €, "Daha fazla uçuş göster").
+  3.7 ve 3.8 onaylandı (tıklama raporu yönetici korumalı ve salt okunur; gizlilik metni 7 dilde, yer tutucular korunmuş).
+  Düzeltme: widget adresi `?flightSearch=AMS2712ADB1` biçimine çeviriyor; `parseSearch` bu kodu okuyor
+  (`fromAviasalesRoute`), yenilemede/paylaşımda arama korunuyor.

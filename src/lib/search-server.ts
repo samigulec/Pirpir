@@ -14,6 +14,9 @@ const splitPlaces = (v: string | undefined, dflt: string) =>
 
 /** URL parametreleri → sorgu. Şehir adı ("İzmir"), kod ("ADB"), şehir grubu ("city:LON") ve virgülle birden fazlası kabul edilir. */
 export function parseSearch(raw: Raw, now = new Date()): MultiQuery {
+  // Canlı arama bileşeni (White Label) adresi kendi biçimine çevirebilir (?flightSearch=AMS2712ADB1):
+  // sayfa yenilenir ya da bağlantı paylaşılırsa arama bu koddan okunur
+  if (!one(raw.from) && one(raw.flightSearch)) raw = { ...raw, ...fromAviasalesRoute(one(raw.flightSearch)!, now) };
   const d = defaultDates(now);
   const date = one(raw.date) || d.date;
   const ret = one(raw.return);
@@ -82,4 +85,34 @@ export function expandCombos(q: MultiQuery): SearchQuery[] {
   // Kullanıcının seçtiği sıra korunur ama çok kombinasyonda büyük havalimanları öne alınır.
   const picked = pairs.length > MAX_COMBOS ? [...pairs].sort((x, y) => y.weight - x.weight).slice(0, MAX_COMBOS) : pairs;
   return picked.map(({ from, to }) => ({ from, to, date: q.date, returnDate: q.returnDate, pax: q.pax, cabin: q.cabin }));
+}
+
+/**
+ * Aviasales/White Label arama kodu → URL parametreleri. Biçim: AMS2712ADB[0301][c|w|f]<yetişkin>[çocuk][bebek].
+ * Yıl verilmez: tarih bugünden önceyse gelecek yıl sayılır. Tanınmayan kodda boş döner (varsayılanlar kullanılır).
+ */
+export function fromAviasalesRoute(code: string, now = new Date()): Raw {
+  const m = /^([A-Z]{3})(\d{2})(\d{2})([A-Z]{3})(?:(\d{2})(\d{2}))?([cwf])?(\d)(\d)?(\d)?$/.exec(code.trim());
+  if (!m) return {};
+  const today = todayIso(now);
+  const iso = (dd: string, mm: string) => {
+    const y = Number(today.slice(0, 4));
+    const d = `${y}-${mm}-${dd}`;
+    return d < today ? `${y + 1}-${mm}-${dd}` : d;
+  };
+  const place = (c: string) => (findAirport(c) ? c : `city:${c}`);
+  const date = iso(m[2], m[3]);
+  let ret = m[5] && m[6] ? iso(m[5], m[6]) : undefined;
+  if (ret && ret < date) ret = `${Number(ret.slice(0, 4)) + 1}${ret.slice(4)}`;
+  const cabin = { c: "business", w: "premium_economy", f: "first" }[m[7] ?? ""] ?? "economy";
+  return {
+    from: place(m[1]),
+    to: place(m[4]),
+    date,
+    ...(ret && { return: ret }),
+    adults: m[8],
+    children: m[9] ?? "0",
+    infants: m[10] ?? "0",
+    cabin,
+  };
 }
