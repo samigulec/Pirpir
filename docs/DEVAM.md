@@ -478,3 +478,11 @@ yoksa hiçbir şey yapmasın. Gönderim hatası yayınlamayı engellemesin. Toke
   yer tutucu ve zengin metin `<tag>` tutarlılığı). `package.json`'a `"check:messages"` eklendi ve `"e2e"` öncesi
   otomatik çalışacak şekilde bağlandı. 7 dil tarandı: 0 eksik/fazla anahtar, 0 boş metin, 0 çevrilmemiş İngilizce metin.
   Denendi: `npm run check:messages`, `npm run lint`, `npm run e2e` (18/18 geçti, 9.1 sn). Bilinen eksik yok.
+- [7.7] Telegram fırsat kanalı (kapalı özellik olarak) — commit 78d9755 — `src/lib/telegram.ts` (`isTelegramConfigured`,
+  `buildDealTelegramPayload`, `postDealToTelegram`) eklendi ve `src/actions/admin-deals.ts` içindeki `approveDeal` eylemine
+  bağlandı. `TELEGRAM_BOT_TOKEN` ve `TELEGRAM_CHANNEL_ID` ikisi birden tanımlıysa fırsat yayınlandığında Telegram Bot API
+  `sendPhoto` ile fırsatın `opengraph-image` görseli + kısa mesaj (rota, fiyat, normal fiyat/indirim, tarih, görüldüğü gün,
+  `/firsatlar/<id>` bağlantısı) gönderilir; değişkenler eksikse hiçbir şey yapmaz. Ağ/API hataları loglanır (token asla
+  loglanmaz) ve yayınlamayı engellemez. Kurulum adımları `docs/GELISTIRME.md` ve `.env.example` dosyalarına eklendi.
+  Denendi: `npm run lint`, `npm run check:messages`, `npx next build` (324/324), `npm run e2e` (sahte `fetch` ile kapalı/açık/hata
+  birim testi dahil 19/19 geçti, 7.9 sn). Bilinen eksik yok.
