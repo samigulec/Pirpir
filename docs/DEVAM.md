@@ -569,3 +569,29 @@ değişkensiz derle, ya da canlı mod için ayrı bir proje ekle (widget betiği
   loglanmaz) ve yayınlamayı engellemez. Kurulum adımları `docs/GELISTIRME.md` ve `.env.example` dosyalarına eklendi.
   Denendi: `npm run lint`, `npm run check:messages`, `npx next build` (324/324), `npm run e2e` (sahte `fetch` ile kapalı/açık/hata
   birim testi dahil 19/19 geçti, 7.9 sn). Bilinen eksik yok.
+- [8.1] Tarih kayması ("2–9 Ocak seçtim, 1–8 Ocak geldi") — commit 6ee73d7 — Canlı sitede (`https://www.flypirpir.nl`,
+  gerçek Chrome, `Europe/Amsterdam` ve `Europe/Istanbul` saat dilimleri, TR ve EN) birebir yakalandı:
+  - **Canlıda görülen hata:** Ana sayfa (en ucuz önerisi `4 – 6 Ara` üzerine) → Amsterdam → İzmir → `2 – 9 Oca` → "Bilet bul"
+    → adres önce `https://www.flypirpir.nl/ara?from=AMS&to=ADB&date=2027-01-02&return=2027-01-09&adults=1`, sonra
+    `LiveWidget` buna `&flightSearch=AMS0201ADB09011` ekledi, ardından Travelpayouts widget'ı (`tpwgt.com/wl_web/main.js`)
+    sayfayı `https://www.flypirpir.nl/ara?flightSearch=AMS0101ADB08011` adresine `window.location.replace` ile yönlendirdi;
+    üst kutu `1 – 8 Oca` ve kartlar `1 oca, Cu / 8 oca, Cu` gösterdi (ekran görüntüsü: `docs/ekran/8-1-tr-desktop.png`).
+    Aynı kayma üst çubuktan `12 – 19 Oca` (`AMS1201ADB19011` → `AMS1101ADB18011`) ve EN (`/en/search?...` →
+    `/en/search?flightSearch=AMS0101ADB08011`) aramalarında da tekrarlandı.
+  - **Kök neden (`tpwgt.com/wl_web/main-KJY88x2v.js`, `Vl()` → `Fq()`):** Widget adreste `flightSearch` ile birlikte
+    `adults` (veya `children`/`infants`/`depart_date`/`return_date`) görünce `Q = true` dalına girip `flightSearch`'ü
+    yeniden üretiyor; `Fq()` yerel gece yarısı tarihine `.toISOString().split("T")[0]` uyguladığı için UTC+1 / UTC+3
+    saat dilimlerinde tarihler 1 gün geri kayıyor (`2027-01-02` → `2027-01-01`) ve `window.location.replace` ile sayfa
+    yeniden yükleniyor. Ayrıca `LiveWidget`'ın `urlchange` eşitlemesi `adults=1`'i adrese geri koyduğu için yenilemede
+    ikinci kez kayma riski vardı.
+  - **Canlıda kanıt:** `https://www.flypirpir.nl/ara?flightSearch=AMS0201ADB09011` (`adults` olmadan) doğrudan açıldığında
+    hem `Europe/Amsterdam` hem `Europe/Istanbul` saat dilimlerinde `tickets-api.apistp.com/search/wl/start` isteği tam
+    olarak `2027-01-02` ve `2027-01-09` ile gitti, kartlar `2 oca, Ct / 9 oca, Ct` ve üst çubuk `2 – 9 Oca` gösterdi.
+  - **Düzeltme:** `src/lib/live-widget-url.ts` (`cleanWidgetUrl`, `widgetSyncQuery`) eklendi. `LiveWidget.tsx` betiği
+    yüklemeden önce adresi yalnızca `flightSearch` (ve zararsız widget parametreleri) kalacak şekilde temizler; yeni aramada
+    `window.location.replace(cleanWidgetUrl(...))` kullanır; `urlchange` eşitlemesinde `adults` vb. geri eklenmez.
+    Test altyapısı için `src/config/affiliate.ts` + `ara/page.tsx` + `LiveResults.tsx` çalışma zamanı `widgetId` desteğine
+    kavuştu; `playwright.config.ts` içine `Europe/Amsterdam` saat dilimli `"live-widget"` projesi ve `tests/e2e/live-widget.spec.ts`
+    (widget'ın gerçek `Vl()` hatasını simüle eden sahte betikle ana sayfa → sonuç → yenileme → üst çubuk → `urlchange`) eklendi.
+  - Denendi: `npm run lint`, `npm run check:messages`, `npx next build` (324/324), `npm run e2e` (21/21 geçti, 11.5 sn).
+    Not: Canlı `flypirpir.nl` üzerinde son doğrulama Vercel'e yayınlandıktan sonra yapılabilir.
