@@ -88,14 +88,10 @@ export function LiveResults({
   // Ana liste canlı uçuşlar (White Label widget): gerçek uçuşlar, güncel fiyat, kendi filtreleri. Kayıtlı (önbellekli)
   // fiyatlar burada liste olarak gösterilmez; tarih şeridi, fiyat trendi ve alarm onlardan beslenir.
   // Birden çok kalkış/varış yeri seçildiyse widget tek rota aradığı için eski liste kullanılır.
-  // Canlı liste sayfada ayrıca (hemen) başlatılır; burada yalnızca üst bölüm
+  // Canlı liste sayfada ayrıca (hemen) başlatılır; burada yalnızca fiyat trendi ve alarm. Tarih seçimi widget'ın kendi
+  // canlı şeridinden yapılır (kayıtlı fiyatlı şerit canlı fiyatlarla uyuşmadığı için gösterilmez).
   if (liveListFor(q))
-    return (
-      <>
-        {chunk.done && <DateStrip q={q} current={cheapest} monthlyPrices={monthlyPrices} />}
-        {chunk.done && <PriceTrends q={q} actions={<PriceAlertButton q={q} offers={chunk.offers} filters={filters} />} />}
-      </>
-    );
+    return chunk.done ? <PriceTrends q={q} actions={<PriceAlertButton q={q} offers={chunk.offers} filters={filters} />} /> : null;
   return (
     <>
       {chunk.done && <DateStrip q={q} current={cheapest} monthlyPrices={monthlyPrices} />}

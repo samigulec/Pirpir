@@ -76,3 +76,22 @@ export function aviasalesRoute(t: Pick<OutboundTrip, "from" | "to" | "date" | "r
   const pax = String(t.adults) + (t.children || t.infants ? String(t.children) + (t.infants ? String(t.infants) : "") : "");
   return code(t.from) + ddmm(t.date) + code(t.to) + (t.returnDate ? ddmm(t.returnDate) : "") + AVIASALES_CLASS[t.cabin] + pax;
 }
+
+/**
+ * Aviasales arama kodunu çözer (tarayıcıda da çalışır): AMS2712ADB[0301][c|w|f]<yetişkin>[çocuk][bebek].
+ * Yıl verilmez; tarih bugünden önceyse gelecek yıl sayılır. Tanınmazsa null.
+ */
+export function parseAviasalesRoute(code: string, today = new Date().toISOString().slice(0, 10)) {
+  const m = /^([A-Z]{3})(\d{2})(\d{2})([A-Z]{3})(?:(\d{2})(\d{2}))?([cwf])?(\d)(\d)?(\d)?$/.exec(code.trim());
+  if (!m) return null;
+  const y = Number(today.slice(0, 4));
+  const iso = (dd: string, mm: string) => {
+    const d = `${y}-${mm}-${dd}`;
+    return d < today ? `${y + 1}-${mm}-${dd}` : d;
+  };
+  const date = iso(m[2], m[3]);
+  let returnDate = m[5] && m[6] ? iso(m[5], m[6]) : undefined;
+  if (returnDate && returnDate < date) returnDate = `${Number(returnDate.slice(0, 4)) + 1}${returnDate.slice(4)}`;
+  const cabin = ({ c: "business", w: "premium_economy", f: "first" } as Record<string, CabinClass>)[m[7] ?? ""] ?? "economy";
+  return { from: m[1], to: m[4], date, returnDate, adults: Number(m[8]), children: Number(m[9] ?? 0), infants: Number(m[10] ?? 0), cabin };
+}
