@@ -313,6 +313,72 @@ değişkensiz derle, ya da canlı mod için ayrı bir proje ekle (widget betiği
 
 ---
 
+## 9. Beşinci tur (Gemini) — canlı widget'ı pirpir tasarımına yaklaştır
+
+Kullanıcı kararı: "1 yapalım" = canlı widget kalır, görünümü ve sadeliği bizim tasarıma (`design/Results.dc.html`)
+olabildiğince yaklaştırılır. Kendi sonuç kartlarımızı çizmek (canlı arama API'si) bu turun konusu **değil**.
+
+Kurallar (bölüm 1), kontrol komutları (bölüm 2), teslim biçimi (bölüm 4) ve 8. turdaki "canlıda, gerçek tarayıcıda dene"
+kuralı aynen geçerli. Bu turda `LiveWidget.tsx` (özellikle `SHADOW_CSS`, `enhanceShadow`) ve `globals.css`'teki
+`#tpwl-tickets` bloğu senin alanın. Her işte `npm run lint`, `npm run check:messages`, `npm run e2e` geçmeli.
+
+**Nasıl çalışılır:**
+- Widget açık bir shadow root içine çizer. Stil yalnızca `SHADOW_CSS` ile, sınıf adının sabit kısmına göre seçilir
+  (`[class*="FlightCard-module__card___"]`; sondaki karma değişebilir, kullanma).
+- Kartlara sadece CSS ve küçük, geri alınabilir DOM eklemeleriyle müdahale et. Widget'ın olay akışını bozma: "Bileti seç"
+  → satıcı yönlendirmesi ve marker 812756 her zaman çalışmalı. Widget'ın kendi metnini değiştirme, yalnızca gizle.
+- Her adımda önce/sonra ekran görüntüsü al (`docs/ekran/9-*.png`): masaüstü 1440 px ve telefon 390 px, TR ve EN.
+  Tasarım dosyasını tarayıcıda yan yana açıp karşılaştır.
+
+### 9.1 Uçuş kartı — `design/Results.dc.html` ölçüleri
+Tasarımdaki kart (satır 53–81) hedef:
+- Kart: beyaz zemin, `2px solid #E3E8F2`, köşe `28px`, iç boşluk `20px 24px`, iç aralık `16px 28px`.
+- Kalkış/varış saatleri: Fredoka 600, `28px`, satır yüksekliği 1. Arada süre (`13px`, 700, `#56607A`), `3px dotted #9CC3FF`
+  çizgi ve aktarma bilgisi (`13px`, 800, `#1E2A44`; "Direkt" / "1 aktarma").
+- Havayolu satırı: `15px`, 600, `#56607A`.
+- Bilgi hapları: `13px`, 800, `padding 3px 10px`, köşe 999px. Bagaj bilgisi `#F5F8FD` zeminde, aktarma bilgisi (yer + bekleme)
+  `#FFE8E0` zeminde.
+- Fiyat: Fredoka 700, `30px`, `#1E2A44`.
+- Seç butonu: `#2F5BD3` zemin, beyaz Fredoka 600 `19px`, `padding 12px 26px`, köşe 999px, en az `48px` yükseklik.
+- Rozetler: Fredoka 600 `14px`, `padding 4px 12px`, köşe 999px, lacivert metin. "En ucuz" `#FFD166`, "En hızlı" `#CFE0FF`.
+  Widget'ın kendi rozetleri ("Cheapest", "The only direct flight" vb.) bu renklere boyansın.
+- Gölge yok. Widget'ın kendi gölgeleri, gri zeminleri ve ince çizgileri kaldırılsın.
+Widget'ın kart içi yapısı farklı olabilir. Birebir olmayan yerleri iş günlüğüne "WIDGET SINIRI" diye yaz
+(ör. kalkış ve dönüş iki ayrı satır).
+
+### 9.2 Sadeleştirme (kullanıcı "karmaşık geliyor" dedi)
+Varsayılan görünüm tasarımdaki kadar sade olsun:
+- Üstte yalnızca sıralama hapları: "En ucuz / En hızlı / Sadece direkt" gibi. Widget'ın sıralama ve "Aktarmasız" kontrolleriyle
+  eşleştir; yoksa widget'ın kendi sıralamasını tasarımdaki hap görünümüne boya. Aktif hap: `#1E2A44` zemin, beyaz metin.
+  Pasif hap: `#F5F8FD` zemin, lacivert metin. Fredoka 600 `17px`, `padding 10px 22px`, en az `44px`.
+- Uzun filtre paneli (havayolları, aktarma havalimanları, uçak tipleri, acenteler vb.) varsayılan kapalı ya da tek bir
+  "Filtreler" düğmesinin arkasında olsun. Kullanıcı açtığında hepsi çalışmaya devam etmeli. Hiçbir filtreyi tamamen
+  kaldırma; kullanıcı daha önce "filtreyi neden kaldırdın" diye itiraz etti.
+- Masaüstünde sol filtre sütunu sayfayı 880 px içerik genişliğinden taşırıyorsa listeyi tek sütuna al.
+- "Multi-city", "Share", acente adları gibi gürültü öğelerini gizle (bağlantı/satın alma akışını etkilemeden).
+- Yükleme çubuğu ve "sağlayıcılarda aranıyor" durumu kalsın ama bizim renklerle (`#2F5BD3`, köşe 999px).
+
+### 9.3 Telefon (390 px)
+`design/Mobile.dc.html` dili: kartlar tam genişlik, saatler ve fiyat okunaklı, Seç butonu en az 44 px, yatay taşma yok.
+Mobil filtre çubuğu (hap sırası) bizim hap stilinde.
+
+### 9.4 Erişilebilirlik ve kontrast
+Metin kontrastı en az 4.5:1. Düğmeler klavyeyle ulaşılabilir kalsın. Yalnızca CSS ile gizlenen öğeler tıklanamaz olsun
+(`display:none`); sadece `opacity:0` kullanma.
+
+### 9.5 Test
+`tests/e2e/live-widget.spec.ts`'teki sahte gölge köke 9.1–9.2 için kontroller ekle. Örnek: kartın köşesi 28px; "Daha fazla"
+ve "Bileti seç" görünür ve tıklanabilir; gizlenen gürültü öğeleri görünmez; sıralama hapları çalışır.
+
+### 9.6 Ayrıca (küçük)
+- Ana sayfadaki 3 React `#418` hidrasyon uyarısının nedenini bul ve düzelt (8.3'te not edilmişti). Saat dilimine veya
+  `localStorage`'a bağlı ilk çizim farkları olası nedenler.
+- 8.4 (fiyat trendleri) hâlâ **KULLANICI KARARI BEKLİYOR**; dokunma.
+
+Teslimde iş günlüğüne her alt iş için ekran görüntüsü yolu, değişen dosyalar ve "WIDGET SINIRI" maddelerini yaz.
+
+---
+
 ## İş günlüğü
 
 - [hazırlık] Claude — White Label kodu (`NEXT_PUBLIC_TP_WL_HOST`), Travelpayouts sağlayıcısı, logolar, tazelik etiketi,
