@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AdminDealsTable } from "@/components/admin/AdminDealsTable";
-import { redirect } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { cityByCode } from "@/data/airports";
 import { getAdminUser } from "@/lib/auth/admin";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -42,12 +42,20 @@ export default async function AdminDealsPage({ params }: { params: Promise<{ loc
     <div className="min-h-screen w-full bg-white">
       <SiteHeader width="page" />
       <main className="mx-auto flex max-w-page flex-col gap-6 px-4 pb-20 pt-2 md:px-6">
-        <div className="flex flex-col gap-1 rounded-[32px] bg-sky px-7 py-6">
-          <span className="text-sm font-extrabold text-muted">Yönetim</span>
-          <h1 className="m-0 font-display text-[34px] font-bold leading-tight text-ink">Fırsat adayları</h1>
-          <p className="m-0 text-[15px] font-semibold text-muted">
-            Günlük taramada normal ortancasının %75&apos;i veya altında, en az 30 € tasarruflu bulunan uçuşlar burada listelenir.
-          </p>
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-[32px] bg-sky px-7 py-6">
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-extrabold text-muted">Yönetim</span>
+            <h1 className="m-0 font-display text-[34px] font-bold leading-tight text-ink">Fırsat adayları</h1>
+            <p className="m-0 text-[15px] font-semibold text-muted">
+              Günlük taramada normal ortancasının %75&apos;i veya altında, en az 30 € tasarruflu bulunan uçuşlar burada listelenir.
+            </p>
+          </div>
+          <Link
+            href="/yonetim/tiklamalar"
+            className="inline-flex min-h-[44px] items-center rounded-pill bg-white px-5 font-display text-[15px] font-semibold text-ink no-underline"
+          >
+            Tıklama raporu →
+          </Link>
         </div>
 
         <AdminDealsTable initial={enriched} />

@@ -44,6 +44,7 @@ export const routing = defineRouting({
     "/firsatlar": { tr: "/firsatlar", en: "/deals", nl: "/deals", de: "/angebote", fr: "/bons-plans", es: "/ofertas", it: "/offerte" },
     "/firsatlar/[id]": { tr: "/firsatlar/[id]", en: "/deals/[id]", nl: "/deals/[id]", de: "/angebote/[id]", fr: "/bons-plans/[id]", es: "/ofertas/[id]", it: "/offerte/[id]" },
     "/yonetim/firsatlar": "/yonetim/firsatlar",
+    "/yonetim/tiklamalar": "/yonetim/tiklamalar",
   },
 });
 
