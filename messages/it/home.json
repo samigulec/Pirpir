@@ -181,7 +181,10 @@
     "noteSample": "Dati di esempio: prezzi e compagnie aeree non sono reali. A persona, andata e ritorno; il viaggio di un weekend o di una settimana più economico nei prossimi due mesi.",
     "showMore": "Altre città ({n})",
     "showLess": "Mostra meno",
-    "seen": "trovato {time}"
+    "seen": "trovato {time}",
+    "priceFrom": "da {price}",
+    "seenDate": "Visto il {date}",
+    "noteLiveAff": "Prezzi a persona, andata e ritorno, basati sulle tariffe più basse viste nella cache di Aviasales per i prossimi 60 giorni. Ogni scheda indica il giorno in cui è stato visto il prezzo; cliccando si aprono i prezzi dal vivo."
   },
   "tips": {
     "title": "I consigli della nostra squadra",
@@ -295,11 +298,15 @@
       },
       "bagsAff": {
         "q": "Il bagaglio è incluso nel prezzo?",
-        "a": "Ogni scheda volo indica se oggetto personale, bagaglio a mano e bagaglio da stiva sono inclusi. Il bagaglio extra lo aggiungi dove prenoti; controlla lì il prezzo finale."
+        "a": "Il bagaglio incluso dipende dalla compagnia aerea e dalla tariffa scelta. I dettagli su bagaglio a mano e da stiva sono mostrati nella lista voli dal vivo e sul sito del venditore, dove puoi anche aggiungere bagagli extra."
       },
       "checkin": {
         "q": "Dove faccio il check-in online?",
         "a": "Sul sito o nell'app della compagnia con cui hai prenotato. Di solito apre 24–48 ore prima della partenza; l'e-mail della compagnia ti dice quando."
+      },
+      "transferAff": {
+        "q": "Devo reimbarcare il bagaglio in caso di scalo?",
+        "a": "Di solito no se i voli sono sullo stesso biglietto. Con biglietti separati potrebbe essere necessario: controlla i dettagli dello scalo nella lista dal vivo e sul sito del venditore prima di prenotare."
       }
     }
   },

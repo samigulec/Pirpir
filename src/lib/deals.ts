@@ -4,14 +4,16 @@
 // sırayla (her 10 dakikada başka bir tarih) aranır; bulunan fiyatlar fiyat takvimine yazılır ve kartta
 // son saatlerde görülen en ucuz tarih gösterilir. Örnek veri modunda tüm tarihler bir kerede taranır.
 import "server-only";
+import { unstable_cache } from "next/cache";
 import { after } from "next/server";
 import { popularDestinations } from "@/data/mock/home";
-import { toTry } from "./currency";
+import { toTry, type Rates } from "./currency";
 import { getRates } from "./currency-server";
+import { itemSeenAt } from "./deal-scanner";
 import { publishedDealsForOrigins, type DealRow } from "./deal-store";
 import { dataMode, priceSource, searchFlightsCached } from "./flights";
 import { backgroundRetryIn, inBackground, isSkipped } from "./providers/rate-limit";
-import { airlineName } from "./providers/travelpayouts";
+import { airlineName, groupedPrices, type GroupedPriceItem } from "./providers/travelpayouts";
 import { addDays, todayIso, type MultiQuery } from "./search";
 import type { Offer } from "./providers/types";
 import { cheapestWithBags } from "./extras";
@@ -31,8 +33,10 @@ export type Deal = {
   airlines: string[];
   /** Bulunan varış havalimanları (en fazla 3) */
   airports: string[];
-  /** Fiyat takviminden geldiyse ne zaman bulunduğu (ISO) */
+  /** Fiyat takviminden geldiyse ne zaman bulunduğu (ISO zaman damgası, Duffel) */
   seenAt?: string;
+  /** Ortaklık / Aviasales önbelleğinde fiyatın görüldüğü gün (YYYY-MM-DD) */
+  seenDate?: string;
 };
 
 export type DealMap = Record<string, Deal | null>;
@@ -98,8 +102,8 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promis
   return out;
 }
 
-// Canlıda/testte az: ana sayfa fırsatları ziyaretçinin kendi aramasıyla aynı istek sınırını paylaşır
-const concurrency = () => (dataMode() === "demo" ? 16 : 3);
+// Canlıda/testte Duffel istek sınırını zorlamaz; Travelpayouts `grouped_prices` hafiftir.
+const concurrency = () => (dataMode() === "demo" ? 16 : priceSource() === "travelpayouts" ? 6 : 3);
 
 // Ayrı bir fırsat önbelleği yok: kart fiyatı her seferinde sonuç sayfasının kullandığı arama önbelleğinden
 // hesaplanır. Böylece karta tıklayınca açılan aramadaki en ucuz fiyat, kartta yazanla aynıdır.
@@ -152,8 +156,104 @@ async function withDeadline(keys: string[], run: (key: string) => Promise<Deal |
 }
 
 const DEADLINE_MS = 9000;
+const TP_HOME_TTL = 2 * 3600; // 2 saat
 
-/** Popüler uçuş kartları için seçilen kalkış yerlerinden fırsatlar. Yayınlanmış fırsatlar önceliklidir; yoksa eski davranış. */
+type TpCheapest60d = {
+  priceEur: number;
+  date: string;
+  returnDate: string;
+  stops: number;
+  mins: number;
+  airlines: string[];
+  airports: string[];
+  seenDate?: string;
+};
+
+/** Bugünden sonraki 60 günü (3..60 gün) kapsayan takvim ayları (YYYY-MM). */
+function monthsNext60Days(today: string): string[] {
+  const set = new Set<string>();
+  for (let d = 3; d <= 60; d += 7) set.add(addDays(today, d).slice(0, 7));
+  set.add(addDays(today, 60).slice(0, 7));
+  return [...set].sort();
+}
+
+async function fetchTpCheapest60d(origin: string, destination: string): Promise<TpCheapest60d | null> {
+  const today = todayIso();
+  const minDate = addDays(today, 3);
+  const maxDate = addDays(today, 60);
+  const months = monthsNext60Days(today);
+
+  const settled = await Promise.allSettled(
+    months.map((m) =>
+      groupedPrices({
+        origin,
+        destination,
+        departureAt: m,
+        returnAt: m,
+        groupBy: "departure_at",
+        minTripDuration: 2,
+        maxTripDuration: 10,
+      }),
+    ),
+  );
+
+  const valid: GroupedPriceItem[] = [];
+  for (const r of settled) {
+    if (r.status !== "fulfilled") continue;
+    for (const item of Object.values(r.value)) {
+      if (!item || typeof item.price !== "number" || item.price <= 0 || !item.departure_at || !item.return_at) continue;
+      const dep = item.departure_at.slice(0, 10);
+      const ret = item.return_at.slice(0, 10);
+      if (dep < minDate || dep > maxDate || ret <= dep) continue;
+      valid.push(item);
+    }
+  }
+  if (!valid.length) return null;
+
+  valid.sort((a, b) => a.price - b.price || (a.transfers ?? 9) - (b.transfers ?? 9) || a.departure_at.localeCompare(b.departure_at));
+  const best = valid[0];
+  const airlines = [...new Set(valid.slice(0, 8).map((x) => (x.airline ? airlineName(x.airline) : "")).filter(Boolean))].slice(0, 3);
+  const airports = [...new Set(valid.slice(0, 8).map((x) => x.destination_airport || destination).filter(Boolean))].slice(0, 3);
+  const seen = itemSeenAt(best);
+
+  return {
+    priceEur: best.price,
+    date: best.departure_at.slice(0, 10),
+    returnDate: best.return_at!.slice(0, 10),
+    stops: typeof best.transfers === "number" ? best.transfers : 0,
+    mins: typeof best.duration_to === "number" && best.duration_to > 0 ? best.duration_to : 0,
+    airlines,
+    airports: airports.length ? airports : [destination],
+    seenDate: seen ?? undefined,
+  };
+}
+
+const cachedTpCheapest60d = unstable_cache(fetchTpCheapest60d.bind(null), ["tp-home-60d-v1"], { revalidate: TP_HOME_TTL });
+
+async function tpDealFor(from: string[], to: string, fallbackAirport: string, rates: Rates): Promise<Deal | null> {
+  const dest = to.replace(/^city:/, "");
+  const origins = [...new Set(from.map((c) => c.replace(/^city:/, "")))].filter((o) => o && o !== dest);
+  if (!origins.length) return null;
+  const settled = await Promise.allSettled(origins.map((o) => cachedTpCheapest60d(o, dest)));
+  const hits = settled
+    .filter((r): r is PromiseFulfilledResult<TpCheapest60d | null> => r.status === "fulfilled" && !!r.value)
+    .map((r) => r.value!);
+  if (!hits.length) return null;
+  hits.sort((a, b) => a.priceEur - b.priceEur);
+  const best = hits[0];
+  return {
+    price: toTry(best.priceEur, "EUR", rates),
+    date: best.date,
+    returnDate: best.returnDate,
+    stops: best.stops,
+    mins: best.mins,
+    airlines: best.airlines,
+    airports: best.airports.length ? best.airports : [fallbackAirport],
+    seenDate: best.seenDate,
+  };
+}
+
+/** Popüler uçuş kartları için seçilen kalkış yerlerinden fırsatlar. Yayınlanmış fırsatlar önceliklidir; yoksa ortaklık modunda 60 günlük `groupedPrices`. */
 export async function getDestinationDeals(from: string[], deadlineMs = DEADLINE_MS): Promise<DealMap> {
   const list = popularDestinations.map((d, i) => ({
     id: d.id as string,
@@ -163,13 +263,13 @@ export async function getDestinationDeals(from: string[], deadlineMs = DEADLINE_
     index: i,
   }));
 
+  const src = priceSource();
+  const rates = src !== "demo" ? await getRates() : undefined;
+
   // Yayınlanmış fırsat motoru kayıtları (yalnızca gerçek modda)
   const publishedMap = new Map<string, Deal>();
-  if (dataMode() !== "demo") {
-    const [pubRows, rates] = await Promise.all([
-      publishedDealsForOrigins(from).catch((): DealRow[] => []),
-      getRates(),
-    ]);
+  if (src !== "demo" && rates) {
+    const pubRows = await publishedDealsForOrigins(from).catch((): DealRow[] => []);
     for (const d of list) {
       const destCodes = new Set([d.code, d.to.replace(/^city:/, ""), ...d.airports]);
       const match = pubRows.find((r) => destCodes.has(r.destination) && r.return_date);
@@ -183,6 +283,7 @@ export async function getDestinationDeals(from: string[], deadlineMs = DEADLINE_
           mins: 0,
           airlines: match.airline ? [airlineName(match.airline)] : [],
           airports: [match.destination],
+          seenDate: match.seen_at ?? undefined,
         });
       }
     }
@@ -190,6 +291,22 @@ export async function getDestinationDeals(from: string[], deadlineMs = DEADLINE_
 
   const remaining = list.filter((d) => !publishedMap.has(d.id));
   const byId = new Map(remaining.map((d) => [d.id, d]));
+
+  // Ortaklık modunda (Travelpayouts): yayınlanmış fırsat olmayan her hedef için önümüzdeki 60 günün en ucuz günü (`groupedPrices`)
+  if (src === "travelpayouts" && rates) {
+    const tpFound = remaining.length
+      ? await withDeadline(
+          [...byId.keys()],
+          (id) => {
+            const item = byId.get(id)!;
+            return tpDealFor(from, item.to, item.code, rates);
+          },
+          deadlineMs,
+        )
+      : {};
+    return Object.fromEntries(list.map((d) => [d.id, publishedMap.get(d.id) ?? tpFound[d.id] ?? null]));
+  }
+
   const [found, known] = remaining.length
     ? await Promise.all([
         withDeadline([...byId.keys()], (id) => dealFor(from, byId.get(id)!.to, byId.get(id)!.index), deadlineMs),
@@ -274,6 +391,11 @@ export async function getBestDates(from: string[], to: string[]): Promise<{ date
   if (dataMode() === "demo") {
     const deal = await findDeal(from, to[0], candidateTrips()).catch(() => null);
     return deal ? { date: deal.date, returnDate: deal.returnDate, price: deal.price } : null;
+  }
+  if (priceSource() === "travelpayouts") {
+    const rates = await getRates();
+    const deal = await tpDealFor(from, to[0], to[0].replace(/^city:/, ""), rates).catch(() => null);
+    if (deal) return { date: deal.date, returnDate: deal.returnDate, price: deal.price };
   }
   const known = await bestKnownPrices([{ from, to }]).catch(() => ({}) as Record<string, KnownPrice>);
   const k = known[routeKey({ from, to })];

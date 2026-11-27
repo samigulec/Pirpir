@@ -11,8 +11,9 @@ import {
 import type { CategoryId, PopularDestination } from "@/data/mock/home";
 import type { Deal, DealMap } from "@/lib/deals";
 import { coreCityByCode, countryName, expandMetro, findCoreAirport } from "@/data/airports-core";
+import { isAffiliate } from "@/config/affiliate";
 import { searchHref } from "@/lib/search";
-import { formatRangeShort, minsParts } from "@/lib/dates";
+import { formatDayShort, formatRangeShort, minsParts } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 
 const CATEGORIES: CategoryId[] = ["all", "tr", "eu", "sea", "city"];
@@ -137,8 +138,16 @@ export function PopularFlights({
                   {deal ? (
                     <>
                       <span className="text-[13px] font-bold text-muted">{tc("roundTrip")}</span>
-                      <span className="font-display text-[26px] font-bold leading-[1.15]">{fmt(deal.price)}</span>
-                      {deal.seenAt && <span suppressHydrationWarning className="text-[12px] font-bold text-muted">{t("seen", { time: ago(deal.seenAt) })}</span>}
+                      <span className="font-display text-[26px] font-bold leading-[1.15]">
+                        {deal.seenDate || (live && isAffiliate()) ? t("priceFrom", { price: fmt(deal.price) }) : fmt(deal.price)}
+                      </span>
+                      {deal.seenDate ? (
+                        <span className="text-[12px] font-bold text-muted">{t("seenDate", { date: formatDayShort(deal.seenDate, loc) })}</span>
+                      ) : (
+                        deal.seenAt && (
+                          <span suppressHydrationWarning className="text-[12px] font-bold text-muted">{t("seen", { time: ago(deal.seenAt) })}</span>
+                        )
+                      )}
                     </>
                   ) : (
                     <span className="font-display text-lg font-semibold text-primary">{t("seePrices")}</span>
@@ -170,7 +179,7 @@ export function PopularFlights({
           {expanded ? t("showLess") : t("showMore", { n: hidden })}
         </button>
       )}
-      <p className="m-0 text-sm font-semibold text-muted">{t(live ? "noteLive" : "noteSample")}</p>
+      <p className="m-0 text-sm font-semibold text-muted">{t(live ? (isAffiliate() ? "noteLiveAff" : "noteLive") : "noteSample")}</p>
     </section>
   );
 }

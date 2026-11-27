@@ -181,7 +181,10 @@
     "noteSample": "Données d'exemple : les prix et les compagnies ne sont pas réels. Par personne, aller-retour ; le week-end ou le séjour d'une semaine le moins cher des deux prochains mois.",
     "showMore": "Plus de villes ({n})",
     "showLess": "Afficher moins",
-    "seen": "trouvé {time}"
+    "seen": "trouvé {time}",
+    "priceFrom": "dès {price}",
+    "seenDate": "Vu le {date}",
+    "noteLiveAff": "Prix par personne, aller-retour, basés sur les tarifs les plus bas vus dans le cache Aviasales sur les 60 prochains jours. Chaque carte indique le jour où le prix a été vu ; un clic ouvre les prix en direct."
   },
   "tips": {
     "title": "Les conseils de notre équipe",
@@ -295,11 +298,15 @@
       },
       "bagsAff": {
         "q": "Les bagages sont-ils inclus ?",
-        "a": "Chaque carte de vol indique si l'article personnel, le bagage cabine et le bagage en soute sont inclus. Tu ajoutes des bagages là où tu réserves ; vérifie le prix final sur place."
+        "a": "La franchise bagages dépend de la compagnie et du tarif choisi. Les détails des bagages cabine et en soute s’affichent dans la liste en direct et chez le vendeur, où tu peux aussi ajouter des bagages."
       },
       "checkin": {
         "q": "Où faire l'enregistrement en ligne ?",
         "a": "Sur le site ou l'appli de la compagnie auprès de laquelle tu as réservé. Il ouvre en général 24 à 48 heures avant le départ ; l'e-mail de la compagnie t'indique quand."
+      },
+      "transferAff": {
+        "q": "Dois-je réenregistrer mes bagages en correspondance ?",
+        "a": "En général non si les vols sont sur un même billet. Pour des billets séparés, cela peut être nécessaire : vérifie les conditions de correspondance dans la liste en direct et chez le vendeur avant de réserver."
       }
     }
   },

@@ -23,6 +23,14 @@ test.describe("Ana sayfalar ve gezinme", () => {
     await expect(page.locator("h1")).toBeVisible();
     await expect(page.locator("#populer")).toBeVisible();
 
+    // Kategori filtresi: Tümü / Türkiye / Avrupa / Deniz & güneş / Şehir turu
+    for (const label of ["Türkiye", "Avrupa", "Deniz & güneş", "Şehir turu", "Tümü"]) {
+      const tab = page.getByRole("tab", { name: label });
+      await tab.click();
+      await expect(tab).toHaveAttribute("aria-selected", "true");
+      await expect(page.locator("#populer a").first()).toBeVisible();
+    }
+
     await page.goto("/en", { waitUntil: "networkidle" });
     await expect(page.locator("h1")).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
