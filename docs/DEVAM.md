@@ -362,3 +362,10 @@ Telegram/WhatsApp fırsat kanalı otomasyonu, e-posta bülteni, fırsat sayfalar
 - Süresi geçmiş (tarihi geçmiş) fırsat sayfaları sert 404 yerine ilgili kalıcı rota sayfasına (`/ucuslar/[nereden]/[nereye]`) yönlendiren "Bu fırsat sona erdi — bu rotanın güncel fiyatlarına bak" bilgi kartı (veya `301` yönlendirme) göstererek kazanılan bağlantı değerini korur.
 - Şehir bazlı fırsat arşiv sayfaları (ör. `/firsatlar/amsterdam-cikisli`, `/firsatlar/istanbul-ucuslari`) ile dahili bağlantılar güçlendirilebilir.
 - **Gereken hesap/anahtar:** Ek ücretli anahtar gerekmez; yalnızca Google Search Console ve Bing Webmaster Tools doğrulanıp `https://www.flypirpir.nl/sitemap.xml` bildirilmelidir (isteğe bağlı olarak trafik ölçümü için çerezsiz Plausible/Umami).
+- [kontrol] Claude — 5.1–5.7 onaylandı. Claude'un dosyalarına dokunulmamış. `npm ci`, `npm run lint`, `npx next build`,
+  `npx playwright test` (11/11 geçti, masaüstü + iPhone 13). Canlı rota sayfası gerçek veri: AMS–IST "€131'dan", aylık grafik
+  (veri olmayan ay "—"), yaklaşan tarihlerde görülme günü. Not: rota sayfaları derlemede üretiliyor; token'sız yerel derleme
+  örnek veri gösterir (beklenen).
+- [düzeltme] Claude — canlı liste: widget'ın kendi tarih şeridi gizlendi (sayfada iki şerit vardı, widget'ınkine tıklayınca
+  arama kutusu ve üst şerit eski günde kalıyordu); kart/rozet/düğme/fiyat stili gölge DOM'a eklenerek uygulandı (canlıda
+  masaüstü + telefon doğrulandı). Widget'ın canlı araması bu bulut ortamından 403 alıyor; widget içi filtre testi yapılamadı.
