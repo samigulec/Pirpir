@@ -41,3 +41,41 @@ export function skyscannerUrl(t: OutboundTrip, ctx: { market: MarketId; locale: 
   if (id) p.set("mediaPartnerId", id);
   return `https://www.skyscanner.net/g/referrals/v1/flights/day-view?${p}`;
 }
+
+// ---- Aviasales (Travelpayouts) ----
+// Skyscanner kimliği gelene kadar "Fırsata git" Aviasales'e gider. Komisyonun yazılması için bağlantı Travelpayouts'un
+// yönlendiricisinden (tp.media) geçer: marker = ortak kimliği, trs = proje, campaign_id 100 = Aviasales.
+// Arama adresi biçimi (resmî belge, "Aviasales affiliate links"): /search/AMS2012IST2712 + sınıf + yetişkin/çocuk/bebek.
+// Marker ve proje numarası gizli değildir (her ortaklık bağlantısında görünür).
+export const travelpayoutsMarker = () => process.env.TRAVELPAYOUTS_MARKER?.trim() || "812756";
+export const travelpayoutsProject = () => process.env.TRAVELPAYOUTS_PROJECT?.trim() || "607607";
+const TP_AVIASALES = { campaign: "100", promo: "4114" };
+
+const AVIASALES_CLASS: Record<OutboundTrip["cabin"], string> = { economy: "", premium_economy: "w", business: "c", first: "f" };
+const ddmm = (iso: string) => iso.slice(8, 10) + iso.slice(5, 7);
+
+/** Aviasales arama sonuçları adresi (ortak kimliği olmadan). */
+export function aviasalesSearchUrl(t: OutboundTrip): string {
+  // Aviasales şehir kodlarını (IST, LON, PAR…) doğrudan tanır: tüm havalimanları birlikte aranır
+  const code = (c: string) => (c.startsWith("city:") ? c.slice(5) : c);
+  // Yolcu: yetişkin zorunlu; çocuk/bebek varsa sırayla eklenir (tek hane, en fazla 9)
+  const pax = String(t.adults) + (t.children || t.infants ? String(t.children) + (t.infants ? String(t.infants) : "") : "");
+  const route = code(t.from) + ddmm(t.date) + code(t.to) + (t.returnDate ? ddmm(t.returnDate) : "");
+  return `https://www.aviasales.com/search/${route}${AVIASALES_CLASS[t.cabin]}${pax}`;
+}
+
+export function aviasalesUrl(t: OutboundTrip, ctx: { currency: string; subId?: string }): string {
+  const target = new URL(aviasalesSearchUrl(t));
+  target.searchParams.set("currency", ctx.currency.toLowerCase());
+  const p = new URLSearchParams({
+    marker: travelpayoutsMarker(),
+    trs: travelpayoutsProject(),
+    p: TP_AVIASALES.promo,
+    campaign_id: TP_AVIASALES.campaign,
+    u: target.toString(),
+  });
+  // Alt kimlik: raporlarda hangi sayfadan gelindiği ayrışır (results, deal, alert…)
+  const sub = ctx.subId?.replace(/[^a-z0-9_-]/gi, "").slice(0, 30);
+  if (sub) p.set("sub_id", sub);
+  return `https://tp.media/r?${p}`;
+}

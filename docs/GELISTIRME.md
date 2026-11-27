@@ -86,7 +86,7 @@ Varsayılan olarak site **bilet satmaz**: sonuçlardaki "Fırsata git" düğmesi
 (`src/app/git/route.ts`, bağlantı `src/lib/outbound-server.ts`). Rezervasyon sayfası ana sayfaya döner; Duffel ile
 satış kodu duruyor, `NEXT_PUBLIC_SALES_MODE=booking` ile geri açılır.
 
-- `SKYSCANNER_MEDIA_PARTNER_ID`: Skyscanner (impact.com) ortaklık kimliği. Yokken bağlantılar çalışır ama komisyon yazılmaz.
+- `SKYSCANNER_MEDIA_PARTNER_ID`: Skyscanner (impact.com) ortaklık kimliği. Tanımlıysa "Fırsata git" Skyscanner'a, değilse Aviasales'e (Travelpayouts yönlendirmesi tp.media; marker 812756, proje 607607, değiştirmek için `TRAVELPAYOUTS_MARKER` / `TRAVELPAYOUTS_PROJECT`) gider. Değiştirince yeniden yayınla.
 - Tıklamalar Supabase'deki `clicks` tablosuna yazılır: `supabase/migrations/0005_clicks.sql` dosyasını SQL Editor'da bir kez çalıştır.
 - Sayfa altındaki ortaklık açıklaması (`common.affiliateDisclosure`) yasal bilgilendirmedir, kaldırma.
 

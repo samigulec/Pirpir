@@ -79,7 +79,7 @@
     "manage": "Change, cancel and add bags online",
     "free": "Free to search, no added fees",
     "alerts": "We tell you when prices drop",
-    "partner": "You book with the seller you pick on Skyscanner"
+    "partner": "You book with the seller you pick on {partner, select, aviasales {Aviasales} other {Skyscanner}}"
   },
   "mobileDeal": {
     "title": "Fancy a weekend in Rome?",
@@ -239,7 +239,7 @@
     },
     "flyAff": {
       "title": "Fly",
-      "text": "Book with the seller you pick on Skyscanner. Have a great trip!"
+      "text": "Book with the seller you pick on {partner, select, aviasales {Aviasales} other {Skyscanner}}. Have a great trip!"
     }
   },
   "alert": {
@@ -283,7 +283,7 @@
       },
       "buy": {
         "q": "Where do I buy the ticket?",
-        "a": "pirpir compares flights; it doesn't sell tickets. Tap “View deal” and the flight opens on Skyscanner, where you book with the airline or travel site you choose."
+        "a": "pirpir compares flights; it doesn't sell tickets. Tap “View deal” and the flight opens on {partner, select, aviasales {Aviasales} other {Skyscanner}}, where you book with the airline or travel site you choose."
       },
       "pay": {
         "q": "Who do I pay?",

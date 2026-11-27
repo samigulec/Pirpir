@@ -3,10 +3,11 @@ import { MARKET_COOKIE, MARKET_GUESS_COOKIE, isMarketId, marketById, resolveMark
 import { CURRENCY_COOKIE, isCurrency } from "@/lib/currency";
 import { isLocale } from "@/i18n/config";
 import { parseGo } from "@/lib/outbound";
-import { skyscannerUrl } from "@/lib/outbound-server";
+import { aviasalesUrl, skyscannerUrl } from "@/lib/outbound-server";
+import { outboundPartner } from "@/config/affiliate";
 import { supabaseAdmin } from "@/lib/auth/supabase-server";
 
-// "Fırsata git": tıklamayı sayar ve ziyaretçiyi ortaklık bağlantısıyla Skyscanner'a gönderir.
+// "Fırsata git": tıklamayı sayar ve ziyaretçiyi ortaklık bağlantısıyla Skyscanner'a (kimliği yoksa Aviasales'e) gönderir.
 // Arama motorları izlemez (robots.txt + X-Robots-Tag); geçersiz istek ana sayfaya döner.
 export async function GET(req: NextRequest) {
   const t = parseGo(req.nextUrl.searchParams);
@@ -16,14 +17,16 @@ export async function GET(req: NextRequest) {
   const marketId = isMarketId(saved) ? saved : resolveMarket(null, req.headers.get("x-vercel-ip-country"), locale);
   const cur = req.cookies.get(CURRENCY_COOKIE)?.value;
   const currency = isCurrency(cur) ? cur : marketById(marketId).currency;
-  const url = skyscannerUrl(t, { market: marketId, locale, currency, utmTerm: t.src.split(":")[0] || undefined });
+  const partner = outboundPartner();
+  const srcTag = t.src.split(":")[0] || undefined;
+  const url = partner === "skyscanner" ? skyscannerUrl(t, { market: marketId, locale, currency, utmTerm: srcTag }) : aviasalesUrl(t, { currency, subId: srcTag });
 
   // Tıklama kaydı (Supabase varsa); yönlendirmeyi bekletmez, hata siteyi etkilemez
   const admin = supabaseAdmin();
   if (admin) {
     void admin
       .from("clicks")
-      .insert({ src: t.src || null, origin: t.from, destination: t.to, depart: t.date, return_date: t.returnDate ?? null, market: marketId, partner: "skyscanner" })
+      .insert({ src: t.src || null, origin: t.from, destination: t.to, depart: t.date, return_date: t.returnDate ?? null, market: marketId, partner })
       .then(({ error }) => error && console.error("Tıklama kaydedilemedi:", error.message));
   }
   return NextResponse.redirect(url, { status: 302, headers: { "X-Robots-Tag": "noindex, nofollow", "Cache-Control": "no-store" } });

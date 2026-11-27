@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { OpenFromHash } from "./OpenFromHash";
-import { isAffiliate } from "@/config/affiliate";
+import { isAffiliate, outboundPartner } from "@/config/affiliate";
 
 const ITEMS = ["when", "cancel", "change", "bags", "transfer", "docs", "payment"] as const;
 /** Ortaklık modu: bilet ve ödeme satıcıda; bağlantılar aynı kimliği (sss-bags, sss-docs) korur */
@@ -16,7 +16,7 @@ export async function Faq() {
           <summary className="flex justify-between gap-3 font-display text-xl font-semibold">
             {t(`items.${k}.q`)} <span aria-hidden="true">+</span>
           </summary>
-          <p className="m-0 mt-[10px] text-muted">{t(`items.${k}.a`)}</p>
+          <p className="m-0 mt-[10px] text-muted">{t(`items.${k}.a`, { partner: outboundPartner() })}</p>
         </details>
       ))}
       <OpenFromHash />

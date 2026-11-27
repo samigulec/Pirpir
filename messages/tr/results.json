@@ -220,5 +220,5 @@
     "open": "Fiyat alarmı ayarları"
   },
   "goDeal": "Fırsata git",
-  "partnerNote": "Skyscanner'da açılır"
+  "partnerNote": "{partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} açılır"
 }

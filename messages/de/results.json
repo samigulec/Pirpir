@@ -220,5 +220,5 @@
     "open": "Einstellungen Preisalarm"
   },
   "goDeal": "Zum Angebot",
-  "partnerNote": "Öffnet bei Skyscanner"
+  "partnerNote": "Öffnet bei {partner, select, aviasales {Aviasales} other {Skyscanner}}"
 }

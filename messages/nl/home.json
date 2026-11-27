@@ -79,7 +79,7 @@
     "manage": "Wijzigen, annuleren en bagage online",
     "free": "Gratis zoeken, geen extra kosten",
     "alerts": "We melden het als de prijs daalt",
-    "partner": "Je boekt bij de verkoper die je op Skyscanner kiest"
+    "partner": "Je boekt bij de verkoper die je op {partner, select, aviasales {Aviasales} other {Skyscanner}} kiest"
   },
   "mobileDeal": {
     "title": "Zin in een weekendje Rome?",
@@ -239,7 +239,7 @@
     },
     "flyAff": {
       "title": "Vlieg",
-      "text": "Boek bij de aanbieder die je op Skyscanner kiest. Goede reis!"
+      "text": "Boek bij de aanbieder die je op {partner, select, aviasales {Aviasales} other {Skyscanner}} kiest. Goede reis!"
     }
   },
   "alert": {
@@ -283,7 +283,7 @@
       },
       "buy": {
         "q": "Waar koop ik het ticket?",
-        "a": "pirpir vergelijkt vluchten en verkoopt geen tickets. Tik op “Bekijk deal” en de vlucht opent op Skyscanner, waar je boekt bij de luchtvaartmaatschappij of reissite die je kiest."
+        "a": "pirpir vergelijkt vluchten en verkoopt geen tickets. Tik op “Bekijk deal” en de vlucht opent op {partner, select, aviasales {Aviasales} other {Skyscanner}}, waar je boekt bij de luchtvaartmaatschappij of reissite die je kiest."
       },
       "pay": {
         "q": "Aan wie betaal ik?",

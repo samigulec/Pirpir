@@ -8,7 +8,7 @@ import { BagRules } from "./BagRules";
 import { formatDayWithWeekday, minsParts } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 import type { Leg, Offer } from "@/lib/providers/types";
-import { isAffiliate } from "@/config/affiliate";
+import { isAffiliate, outboundPartner } from "@/config/affiliate";
 import { goHref } from "@/lib/outbound";
 
 type Badge = "cheap" | "fast" | null;
@@ -220,7 +220,7 @@ export function OfferCard({
             >
               {t("goDeal")}
             </a>
-            <span className="text-[12px] font-bold text-muted md:text-center">{t("partnerNote")}</span>
+            <span className="text-[12px] font-bold text-muted md:text-center">{t("partnerNote", { partner: outboundPartner() })}</span>
           </span>
         ) : (
           <button
