@@ -3,9 +3,10 @@
 import "server-only";
 import { brand, siteUrl } from "@/config/brand";
 import { isCurrency, formatPrice, type Currency, type Rates } from "../currency";
-import { formatDayWithWeekday, formatRange } from "../dates";
+import { formatDayShort, formatDayWithWeekday, formatRange } from "../dates";
 import type { AlertBest, AlertCriteria } from "../alert-criteria";
 import { intlLocale } from "../intl";
+import { todayIso } from "../search";
 import { isLocale, type Locale } from "@/i18n/config";
 
 type Texts = {
@@ -28,6 +29,11 @@ type Texts = {
   saving: string;
   perPerson: string;
   cta: string;
+  goDeal: string;
+  seenToday: string;
+  seenYesterday: string;
+  seenDaysAgo: string;
+  seenOnDate: string;
   note: string;
   test: string;
   why: string;
@@ -56,6 +62,11 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     saving: "{price} daha ucuz",
     perPerson: "kişi başı",
     cta: "Uçuşları gör",
+    goDeal: "Fırsata git",
+    seenToday: "Fiyat bugün görüldü",
+    seenYesterday: "Fiyat dün görüldü",
+    seenDaysAgo: "Fiyat {n} gün önce görüldü",
+    seenOnDate: "Fiyat {date} tarihinde görüldü",
     note: "Fiyatlar sık değişir; kesin fiyatı aramada görürsün.",
     test: "Test modu: bu fiyatlar örnek veridir, gerçek bilet fiyatı değildir.",
     why: "Bu e-postayı {brand}'de bu uçuş için fiyat alarmı kurduğun için aldın.",
@@ -82,6 +93,11 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     saving: "{price} cheaper",
     perPerson: "per person",
     cta: "See flights",
+    goDeal: "View deal",
+    seenToday: "Price seen today",
+    seenYesterday: "Price seen yesterday",
+    seenDaysAgo: "Price seen {n} days ago",
+    seenOnDate: "Price seen on {date}",
     note: "Prices change often; you'll see the exact price in the search.",
     test: "Test mode: these are sample prices, not real fares.",
     why: "You're getting this email because you set a price alert for this flight on {brand}.",
@@ -108,6 +124,11 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     saving: "{price} goedkoper",
     perPerson: "per persoon",
     cta: "Bekijk vluchten",
+    goDeal: "Naar deal",
+    seenToday: "Prijs vandaag gezien",
+    seenYesterday: "Prijs gisteren gezien",
+    seenDaysAgo: "Prijs {n} dagen geleden gezien",
+    seenOnDate: "Prijs gezien op {date}",
     note: "Prijzen veranderen vaak; de exacte prijs zie je in de zoekresultaten.",
     test: "Testmodus: dit zijn voorbeeldprijzen, geen echte tarieven.",
     why: "Je krijgt deze e-mail omdat je bij {brand} een prijsalarm voor deze vlucht hebt ingesteld.",
@@ -134,6 +155,11 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     saving: "{price} günstiger",
     perPerson: "pro Person",
     cta: "Flüge ansehen",
+    goDeal: "Zum Angebot",
+    seenToday: "Preis heute gesehen",
+    seenYesterday: "Preis gestern gesehen",
+    seenDaysAgo: "Preis vor {n} Tagen gesehen",
+    seenOnDate: "Preis gesehen am {date}",
     note: "Preise ändern sich oft; den genauen Preis siehst du in der Suche.",
     test: "Testmodus: Das sind Beispielpreise, keine echten Tarife.",
     why: "Du erhältst diese E-Mail, weil du bei {brand} einen Preisalarm für diesen Flug eingerichtet hast.",
@@ -160,6 +186,11 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     saving: "{price} de moins",
     perPerson: "par personne",
     cta: "Voir les vols",
+    goDeal: "Voir l'offre",
+    seenToday: "Prix vu aujourd'hui",
+    seenYesterday: "Prix vu hier",
+    seenDaysAgo: "Prix vu il y a {n} jours",
+    seenOnDate: "Prix vu le {date}",
     note: "Les prix changent souvent ; tu verras le prix exact dans la recherche.",
     test: "Mode test : ce sont des prix d'exemple, pas de vrais tarifs.",
     why: "Tu reçois cet e-mail car tu as créé une alerte prix pour ce vol sur {brand}.",
@@ -186,6 +217,11 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     saving: "{price} más barato",
     perPerson: "por persona",
     cta: "Ver vuelos",
+    goDeal: "Ir a la oferta",
+    seenToday: "Precio visto hoy",
+    seenYesterday: "Precio visto ayer",
+    seenDaysAgo: "Precio visto hace {n} días",
+    seenOnDate: "Precio visto el {date}",
     note: "Los precios cambian a menudo; verás el precio exacto en la búsqueda.",
     test: "Modo de prueba: son precios de ejemplo, no tarifas reales.",
     why: "Recibes este correo porque creaste una alerta de precio para este vuelo en {brand}.",
@@ -212,6 +248,11 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
     saving: "{price} in meno",
     perPerson: "a persona",
     cta: "Vedi i voli",
+    goDeal: "Vai all'offerta",
+    seenToday: "Prezzo visto oggi",
+    seenYesterday: "Prezzo visto ieri",
+    seenDaysAgo: "Prezzo visto {n} giorni fa",
+    seenOnDate: "Prezzo visto il {date}",
     note: "I prezzi cambiano spesso; il prezzo esatto lo vedi nella ricerca.",
     test: "Modalità test: sono prezzi di esempio, non tariffe reali.",
     why: "Ricevi questa email perché hai impostato un avviso prezzo per questo volo su {brand}.",
@@ -222,6 +263,15 @@ export const PRICE_DROP_TEXTS: Record<Locale, Texts> = {
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const fill = (s: string, v: Record<string, string>) => s.replace(/\{(\w+)\}/g, (_, k) => v[k] ?? "");
+
+function formatSeenLine(seenAt: string, t: Texts, loc: string, today: string): string | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(seenAt)) return null;
+  const days = Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${seenAt}T00:00:00Z`)) / 86_400_000);
+  if (days === 0) return t.seenToday;
+  if (days === 1) return t.seenYesterday;
+  if (days > 1 && days <= 30) return fill(t.seenDaysAgo, { n: String(days) });
+  return fill(t.seenOnDate, { date: formatDayShort(seenAt, loc) });
+}
 
 export type PriceDrop = {
   lang: string;
@@ -234,6 +284,10 @@ export type PriceDrop = {
   now: number;
   /** Mutlak bağlantılar */
   searchUrl: string;
+  /** Ortaklık modunda satıcı/White Label bağlantısı (/git?...&src=alert:<id>) */
+  dealUrl?: string | null;
+  /** Önbellekli fiyatın görüldüğü gün (YYYY-MM-DD) */
+  seenAt?: string | null;
   alertsUrl: string;
   stopUrl: string | null;
   testMode: boolean;
@@ -242,6 +296,8 @@ export type PriceDrop = {
   reason?: "target" | "drop";
   criteria?: AlertCriteria;
   rates?: Rates;
+  /** Testler için bugünün tarihi (YYYY-MM-DD) */
+  today?: string;
 };
 
 export function priceDropEmail(d: PriceDrop) {
@@ -266,6 +322,8 @@ export function priceDropEmail(d: PriceDrop) {
   const bestLine = d.best
     ? [d.best.airline, stopsText(d.best.stops), `${formatDayWithWeekday(d.best.date, loc)} ${d.best.dep}`].join(" · ")
     : null;
+  const seenIso = d.seenAt ?? d.best?.seenAt ?? null;
+  const seenLine = seenIso ? formatSeenLine(seenIso, t, loc, d.today ?? todayIso()) : null;
   const saving = fill(t.saving, { price: price(d.was - d.now) });
   const why = fill(t.why, { brand: brand.name });
   const base = siteUrl();
@@ -277,8 +335,10 @@ export function priceDropEmail(d: PriceDrop) {
     ...(chips.length ? [chips.join(" · ")] : []),
     `${t.was}: ${price(d.was)} → ${t.now}: ${price(d.now)} (${t.perPerson}, ${saving})`,
     ...(bestLine ? [`${t.bestLabel}: ${bestLine}`] : []),
+    ...(seenLine ? [seenLine] : []),
     "",
     `${t.cta}: ${d.searchUrl}`,
+    ...(d.dealUrl ? [`${t.goDeal}: ${d.dealUrl}`] : []),
     "",
     t.note,
     ...(d.testMode ? [t.test] : []),
@@ -320,10 +380,14 @@ export function priceDropEmail(d: PriceDrop) {
       </td>
     </tr></table>
     <div style="display:inline-block;margin-top:10px;background:#E4F4EA;color:#2E7A4D;border-radius:999px;padding:6px 14px;font-size:14px;font-weight:800">↓ ${esc(saving)}</div>
-    ${bestLine ? `<div style="margin-top:14px;background:#F5F8FD;border-radius:16px;padding:12px 16px"><div style="font-size:13px;font-weight:800;color:#56607A">${esc(t.bestLabel)}</div><div style="font-size:16px;font-weight:800;margin-top:2px">${esc(bestLine)}</div></div>` : ""}
+    ${bestLine ? `<div style="margin-top:14px;background:#F5F8FD;border-radius:16px;padding:12px 16px"><div style="font-size:13px;font-weight:800;color:#56607A">${esc(t.bestLabel)}</div><div style="font-size:16px;font-weight:800;margin-top:2px">${esc(bestLine)}</div>${seenLine ? `<div style="font-size:13px;font-weight:700;color:#56607A;margin-top:4px">${esc(seenLine)}</div>` : ""}</div>` : seenLine ? `<div style="margin-top:10px;font-size:13px;font-weight:700;color:#56607A">${esc(seenLine)}</div>` : ""}
   </td></tr>
   <tr><td style="padding:22px 28px 0">
-    <a href="${esc(d.searchUrl)}" style="display:inline-block;background:#2F5BD3;color:#FFFFFF;text-decoration:none;border-radius:999px;padding:14px 28px;font-size:18px;font-weight:800">${esc(t.cta)}</a>
+    <a href="${esc(d.searchUrl)}" style="display:inline-block;background:#2F5BD3;color:#FFFFFF;text-decoration:none;border-radius:999px;padding:14px 28px;font-size:18px;font-weight:800;margin:0 8px 8px 0">${esc(t.cta)}</a>${
+      d.dealUrl
+        ? `<a href="${esc(d.dealUrl)}" style="display:inline-block;background:#EAF3FF;color:#1E2A44;text-decoration:none;border-radius:999px;padding:14px 24px;font-size:16px;font-weight:800;margin:0 0 8px 0">${esc(t.goDeal)}</a>`
+        : ""
+    }
   </td></tr>
   <tr><td style="padding:18px 28px 0;font-size:14px;color:#56607A;line-height:1.5">
     ${esc(t.note)}${d.testMode ? `<br><span style="color:#8A5A00;font-weight:700">${esc(t.test)}</span>` : ""}

@@ -22,6 +22,10 @@ export type AlertBest = {
   returnDate?: string;
   dep: string;
   stops: number;
+  /** Önbellekli fiyatın görüldüğü gün (YYYY-MM-DD, Travelpayouts) */
+  seenAt?: string;
+  /** Satıcıdaki aynı uçuşun adresi (Aviasales /search/… yolu) */
+  deepLink?: string;
 };
 
 const hasBags = (b?: BagChoice) => !!b && (b.cabin > 0 || b.checked > 0);
@@ -46,6 +50,8 @@ export function cheapestFor(offers: Offer[], c: AlertCriteria): AlertBest | null
         returnDate: o.inbound?.date,
         dep: o.outbound.dep,
         stops: Math.max(o.outbound.stops, o.inbound?.stops ?? 0),
+        ...(o.seenAt && { seenAt: o.seenAt }),
+        ...(o.deepLink && { deepLink: o.deepLink }),
       };
     }
   }
