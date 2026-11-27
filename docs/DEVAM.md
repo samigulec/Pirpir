@@ -291,3 +291,11 @@ Telegram/WhatsApp fırsat kanalı otomasyonu, e-posta bülteni, fırsat sayfalar
   widget). Ortaklık modunda ve widget kimliği tanımlıyken (`liveOnly`, tek kalkış/varış) önbellekli kart listesi
   gösterilmez; tarih şeridi, fiyat trendi ve fiyat alarmı önbellek verisiyle kalır. Birden çok kalkış/varış yerinde eski
   liste. Widget sayfa içi geçişte (tarih şeridi, arama kutusu) sayfayı yeniden yükleyerek yeni aramayla başlar.
+- [5.1] Son kullanıcı test takımı (`@playwright/test`) — commit 3cac615 — `playwright.config.ts`, `tests/e2e/pirpir.spec.ts`
+  ve `tests/e2e/mobile.spec.ts` eklendi; `package.json`'a `"e2e": "playwright test"`, `.gitignore`'a rapor klasörleri,
+  `docs/GELISTIRME.md`'ye çalıştırma notu işlendi. Tarayıcı yolu hem Linux (`/opt/pw-browsers/chromium`) hem macOS Chrome'u
+  otomatik algılar, `trace: "off"` ve ağsız örnek modda (`next start -p 3111`) koşar. Masaüstü (1440×900) ve iPhone 13
+  (390×844) testleri: ana sayfa (TR/EN), arama kutusu→öneri→takvim→sonuç akışı, sonuçlarda filtre/sıralama/tarih şeridi,
+  `/git` 302+parametreler, `/firsatlar` + `/en/deals`, `/ucuslar/amsterdam/istanbul`, 7 dil gizlilik 200, `/yonetim/*` 307,
+  `/api/cron/*` 401, yatay taşma ve JS/konsol hatası yok. Denendi: `npm run lint`, `npx next build` (92/92), `npm run e2e`
+  (11/11 geçti, 4.9 sn). Bilinen eksik yok.
