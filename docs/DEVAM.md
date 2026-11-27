@@ -473,3 +473,8 @@ yoksa hiçbir şey yapmasın. Gönderim hatası yayınlamayı engellemesin. Toke
   `robots: { index: false }` / `alternates` ayarı uygunsa Claude tarafından kontrol edilebilir.
   Denendi: `npm run lint`, `npx next build` (324/324), `npm run e2e` (canonical, 7 dil hreflang + x-default, FAQPage,
   BreadcrumbList, Offer yok, geçerli rota OG PNG dahil 18/18 geçti, 8.4 sn). Bilinen eksik yok.
+- [7.6] Çeviri bütünlüğü denetimi — commit b7eefef — `scripts/check-messages.mjs` eklendi (`7 dil × 8 dosya` için
+  dosya listesi, anahtar/dizi eşitliği, boş metin yokluğu, dengeli ICU parantezleri, `{brand}` / `{partner, select, …}`
+  yer tutucu ve zengin metin `<tag>` tutarlılığı). `package.json`'a `"check:messages"` eklendi ve `"e2e"` öncesi
+  otomatik çalışacak şekilde bağlandı. 7 dil tarandı: 0 eksik/fazla anahtar, 0 boş metin, 0 çevrilmemiş İngilizce metin.
+  Denendi: `npm run check:messages`, `npm run lint`, `npm run e2e` (18/18 geçti, 9.1 sn). Bilinen eksik yok.
