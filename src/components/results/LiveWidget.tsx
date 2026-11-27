@@ -3,12 +3,15 @@
 import { useEffect, useRef } from "react";
 import { preconnect, preloadModule } from "react-dom";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { liveWidgetSrc } from "@/config/affiliate";
-import { aviasalesRoute } from "@/lib/outbound";
-import type { MultiQuery } from "@/lib/search";
+import { aviasalesRoute, parseAviasalesRoute } from "@/lib/outbound";
+import { searchHref, type MultiQuery } from "@/lib/search";
 
 const SCRIPT_ID = "tpwl-main";
 const STYLE_ID = "pirpir-tpwl";
+
+type W = typeof window & { __tpwlBox?: HTMLElement | null; __tpwlRoute?: string };
 
 /**
  * Widget kartlarını gölge DOM'a (shadow root) çizer: sayfanın CSS'i içeri girmez, yalnızca değişkenler (globals.css)
@@ -26,41 +29,85 @@ const SHADOW_CSS = `
 [class*="TicketsWidget-module__moreTickets___"] { border-radius: 999px !important; border: 2px solid #e3e8f2 !important; background: #fff !important; color: #1e2a44 !important; font-family: var(--font-fredoka), var(--font-baloo), sans-serif !important; font-weight: 600 !important; min-height: 48px; }
 [class*="ClearableParameter-module__root___"] { border-radius: 999px !important; font-weight: 700 !important; }
 [class*="FlightFiltersContent-module__root___"] { background: #f5f8fd !important; border: 0 !important; border-radius: 28px !important; }
-/* Widget'ın kendi tarih şeridi gizlenir: tarih yalnızca sayfanın üstündeki şeritten seçilir (arama kutusu ve şerit
-   widget'tan bağımsız güne geçince sayfa kendi içinde çelişiyordu) */
-[class*="FlightMatrix"] { display: none !important; }
+[class*="FlightMatrix"] { border-radius: 24px !important; font-family: var(--font-fredoka), var(--font-baloo), sans-serif !important; }
 [class*="SearchProgressbar-module__progressInner___"] { background: #2f5bd3 !important; }
 [class*="Toggle-module__root___"] input:checked + span { background: #2f5bd3 !important; }
 `;
 
-/** Gölge köke stil ekler; widget kökü yeniden kurarsa tekrar ekler */
-function styleShadow(host: HTMLElement | null): () => void {
+const CARD = '[data-role="flight-card"]';
+const priceOf = (card: Element) => Number((card.querySelector('[data-testid^="flight-card-price"]')?.textContent ?? "").replace(/[^\d]/g, "")) || 1e9;
+
+/**
+ * Gölge köke stil ekler ve kartları en ucuzdan pahalıya dizer (yalnızca görsel sıra, CSS `order`). Kullanıcı widget'ın
+ * kendi sıralama menüsünden bir seçenek seçerse (Radiolist) bizim sıralamamız kaldırılır, onunki geçerli olur.
+ */
+function enhanceShadow(host: HTMLElement | null): () => void {
   if (!host) return () => {};
-  const apply = () => {
-    const root = host.shadowRoot;
-    if (!root || root.getElementById(STYLE_ID)) return;
-    const style = document.createElement("style");
-    style.id = STYLE_ID;
-    style.textContent = SHADOW_CSS;
-    root.appendChild(style);
+  let observer: MutationObserver | null = null;
+  let userSorted = false;
+  const sortCards = (root: ShadowRoot) => {
+    if (userSorted) return;
+    const cards = [...root.querySelectorAll(CARD)];
+    const parent = cards[0]?.parentElement;
+    if (!parent) return;
+    if (getComputedStyle(parent).display !== "flex") {
+      parent.style.display = "flex";
+      parent.style.flexDirection = "column";
+    }
+    for (const c of cards) if (c.parentElement === parent) (c as HTMLElement).style.order = String(priceOf(c));
+    // Kart dışındaki öğeler (ör. "Daha fazla uçuş göster") en sonda kalsın
+    for (const el of [...parent.children]) if (!el.matches(CARD)) (el as HTMLElement).style.order = "2000000000";
   };
-  apply();
-  // Gölge kök betik yüklenince açılır: kısa aralıkla bakılır (en fazla ~30 sn), sonra içerik değiştikçe
+  const attach = () => {
+    const root = host.shadowRoot;
+    if (!root || observer) return;
+    if (!root.getElementById(STYLE_ID)) {
+      const style = document.createElement("style");
+      style.id = STYLE_ID;
+      style.textContent = SHADOW_CSS;
+      root.appendChild(style);
+    }
+    root.addEventListener(
+      "click",
+      (e) => {
+        const path = e.composedPath() as Element[];
+        if (path.some((n) => n instanceof Element && /Radiolist-module/.test(n.className?.toString?.() ?? ""))) {
+          userSorted = true;
+          root.querySelectorAll<HTMLElement>(CARD).forEach((c) => (c.style.order = ""));
+        }
+      },
+      true,
+    );
+    let raf = 0;
+    observer = new MutationObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => sortCards(root));
+    });
+    observer.observe(root, { childList: true, subtree: true });
+    sortCards(root);
+  };
+  attach();
+  // Gölge kök betik yüklenince açılır: kısa aralıkla bakılır (en fazla ~30 sn)
   let tries = 0;
   const timer = window.setInterval(() => {
-    apply();
-    if (++tries > 120) window.clearInterval(timer);
+    attach();
+    if (observer || ++tries > 120) window.clearInterval(timer);
   }, 250);
-  return () => window.clearInterval(timer);
+  return () => {
+    window.clearInterval(timer);
+    observer?.disconnect();
+  };
 }
 
 /**
- * Canlı sonuçlar (Travelpayouts White Label, Widget türü): Aviasales'in canlı aramasını sonuç sayfasının içinde gösterir.
- * Ortaklık modunda sonuç sayfasının ana listesidir. Arama, adresteki `flightSearch` parametresiyle başlar
- * (White Label'ın kendi biçimi, ör. AMS2712ADB1); betik sayfaya bir kez eklenir.
+ * Canlı uçuşlar (Travelpayouts White Label, Widget türü): sonuç sayfasının ana listesi.
+ * Arama adresteki `flightSearch` koduyla başlar (ör. AMS2712ADB1). Tarih widget'ın kendi canlı şeridinden seçilir;
+ * widget başka güne geçince sayfanın adresi ve arama kutusu da o güne güncellenir (widget yeniden yüklenmez).
+ * Arama kutusundan başka bir aramaya geçilince sayfa yeniden yüklenir (widget aramayı yalnızca açılışta okur).
  */
 export function LiveWidget({ q }: { q: MultiQuery }) {
   const t = useTranslations("results");
+  const router = useRouter();
   const src = liveWidgetSrc();
   const box = useRef<HTMLDivElement>(null);
   const route = aviasalesRoute({
@@ -76,22 +123,20 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
 
   useEffect(() => {
     if (!src) return;
+    const w = window as W;
+    if (document.getElementById(SCRIPT_ID)) {
+      // Widget zaten bu aramayı gösteriyor (kendi şeridinden geçildi) → bir şey yapma; başka arama ya da yeni öğe → yükle
+      if (w.__tpwlBox !== box.current || w.__tpwlRoute !== route) window.location.reload();
+      return;
+    }
     // Widget aramayı adresten okur: sayfa yeniden yüklenmeden parametre eklenir
     const u = new URL(window.location.href);
     if (u.searchParams.get("flightSearch") !== route) {
       u.searchParams.set("flightSearch", route);
       window.history.replaceState(window.history.state, "", u);
     }
-    // Widget bir ES modülü: aynı sayfada ikinci kez çalışmaz ve aramayı yalnızca açılışta okur. Sayfa içi geçişle
-    // (tarih şeridi, arama kutusu) başka bir aramaya gelindiyse sayfa yeniden yüklenir; widget yeni aramayla başlar.
-    // Aynı arama tekrar açılsa da sonuç alanı yeni bir öğedir; widget onu doldurmaz. Aynı öğe için (React'in
-    // geliştirme modundaki çift çalıştırması) yeniden yükleme yapılmaz.
-    const w = window as typeof window & { __tpwlBox?: HTMLElement | null };
-    if (document.getElementById(SCRIPT_ID)) {
-      if (w.__tpwlBox !== box.current) window.location.reload();
-      return;
-    }
     w.__tpwlBox = box.current;
+    w.__tpwlRoute = route;
     const s = document.createElement("script");
     s.id = SCRIPT_ID;
     s.async = true;
@@ -100,8 +145,26 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
     document.head.appendChild(s);
   }, [src, route]);
 
-  // Kart görünümü: widget'ın gölge DOM'una pirpir stili
-  useEffect(() => styleShadow(document.getElementById("tpwl-tickets")), []);
+  // Widget kendi şeridinden başka güne geçince (adresteki flightSearch değişir) sayfayı ve arama kutusunu eşitle
+  useEffect(() => {
+    if (!src) return;
+    const timer = window.setInterval(() => {
+      const w = window as W;
+      const code = new URLSearchParams(window.location.search).get("flightSearch");
+      if (!code || code === w.__tpwlRoute) return;
+      const p = parseAviasalesRoute(code);
+      if (!p) return;
+      const next = aviasalesRoute(p);
+      if (next === w.__tpwlRoute) return;
+      w.__tpwlRoute = next;
+      const href = searchHref({ from: p.from, to: p.to, date: p.date, returnDate: p.returnDate ?? "", pax: { adults: p.adults, children: p.children, infants: p.infants }, cabin: p.cabin });
+      router.replace({ pathname: "/ara", query: { ...href.query, flightSearch: code } }, { scroll: false });
+    }, 700);
+    return () => window.clearInterval(timer);
+  }, [src, router]);
+
+  // Kart görünümü ve en ucuzdan sıralama: widget'ın gölge DOM'u
+  useEffect(() => enhanceShadow(document.getElementById("tpwl-tickets")), []);
 
   if (!src || q.from.length !== 1 || q.to.length !== 1) return null;
   // Hız: betik sayfa açılır açılmaz indirilir (çalıştırılmaz) ve sunucularına bağlantı önceden kurulur

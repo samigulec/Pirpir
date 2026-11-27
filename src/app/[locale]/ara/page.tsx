@@ -98,11 +98,12 @@ export default async function ResultsPage({
         ) : (
           <>
             {/* Arama her değiştiğinde (ör. tarih şeridinden) yükleme ekranı görünsün diye anahtarlı */}
-            <Suspense key={JSON.stringify(q)} fallback={liveListFor(q) ? <StripLoading /> : <ResultsLoading />}>
+            <Suspense key={JSON.stringify(q)} fallback={liveListFor(q) ? null : <ResultsLoading />}>
               <Results q={q} locale={locale} />
             </Suspense>
             {/* Ana liste canlı uçuşlar: sunucudaki kayıtlı fiyat aramasını beklemeden hemen başlar */}
-            {liveListFor(q) && <LiveWidget key={JSON.stringify(q)} q={q} />}
+            {/* Anahtarsız: widget kendi şeridinden başka güne geçince adres güncellenir, widget yerinde kalır */}
+            {liveListFor(q) && <LiveWidget q={q} />}
           </>
         )}
       </main>
@@ -282,17 +283,6 @@ async function SearchFailed({ q, detail }: { q: MultiQuery; detail?: string }) {
       <span className="text-muted">{t("failed.text")}</span>
       {detail && <code className="rounded-[10px] bg-white px-3 py-2 text-[13px] text-muted">{detail}</code>}
       <Link href={searchHref({ ...q, returnDate: q.returnDate ?? "" })} className={pill}>{t("failed.retry")}</Link>
-    </div>
-  );
-}
-
-/** Canlı listede üst bölüm (tarih şeridi) gelene kadar ince bir yer tutucu: sayfa zıplamasın */
-function StripLoading() {
-  return (
-    <div aria-hidden="true" className="grid grid-cols-3 gap-2 md:grid-cols-7">
-      {Array.from({ length: 7 }, (_, i) => (
-        <div key={i} className={`h-[84px] animate-pulse rounded-[18px] bg-field ${i > 2 ? "hidden md:block" : ""}`} />
-      ))}
     </div>
   );
 }
