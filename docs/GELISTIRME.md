@@ -14,8 +14,11 @@ npm run svg      # assets/ içindeki SVG'leri bileşenlere yeniden çevir
 ```
 
 Uçtan uca testler (`playwright.config.ts`, `tests/e2e/`): önce `npx next build`, ardından `npm run e2e`.
-Sistemdeki Chromium/Chrome otomatik bulunur (`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` ile de verilebilir); tarayıcı
-indirmeye gerek yoktur. `--trace off` varsayılandır.
+4 proje birlikte koşar: `desktop` (örnek veri), `mobile` (iPhone 13), `affiliate` (sahte Travelpayouts sunucusu) ve
+`live-widget` (`tpwgt.com/wl_web/main.js` sahte gölge kökle yakalanır, `Europe/Amsterdam` saat dilimi).
+Derleme `NEXT_PUBLIC_TP_WL_WIDGET_ID` ile yapılmış olsa bile örnek/ortaklık sunucuları `PIRPIR_DISABLE_LIVE_WIDGET=1`
+ile korunur. Sistemdeki Chromium/Chrome otomatik bulunur (`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` ile de verilebilir);
+tarayıcı indirmeye gerek yoktur. `--trace off` varsayılandır.
 
 ## Veri modları
 
