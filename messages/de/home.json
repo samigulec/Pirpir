@@ -70,7 +70,8 @@
     "checkedBagsHint": "Pro Person, bis zu 3",
     "bagsNote": "Die Preise enthalten das gewählte Gepäck; Flüge, die es nicht anbieten, werden nicht angezeigt.",
     "withNearby": "{city} + Flughäfen in der Nähe",
-    "nearbyDetail": "{list} · im Umkreis von {km} km"
+    "nearbyDetail": "{list} · im Umkreis von {km} km",
+    "bagsNoteAff": "Gepäckoptionen und eventuelle Zusatzkosten siehst du in der Live-Flugliste und beim Anbieter."
   },
   "trust": {
     "label": "Warum {brand}",

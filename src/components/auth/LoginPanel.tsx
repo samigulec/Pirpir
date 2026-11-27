@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { requestLogin, signInWithProvider, type LoginState, type OAuthProvider } from "@/actions/auth";
 import { LogoMark } from "../Logo";
 import { brand } from "@/config/brand";
+import { isAffiliate } from "@/config/affiliate";
 import { ProviderLogo } from "./ProviderLogo";
 
 const PROVIDERS: OAuthProvider[] = ["google", "facebook", "apple"];
@@ -111,10 +112,14 @@ export function LoginPanel({
       )}
 
       <div className="flex flex-col items-center gap-2 text-center">
-        <button type="button" onClick={() => setHelp(!help)} aria-expanded={help} className="cursor-pointer border-0 bg-transparent p-1 font-extrabold text-ink underline">
-          {t("wrongEmail")}
-        </button>
-        {help && <p className="m-0 text-[15px] text-muted">{t("wrongEmailHelp")}</p>}
+        {!isAffiliate() && (
+          <>
+            <button type="button" onClick={() => setHelp(!help)} aria-expanded={help} className="cursor-pointer border-0 bg-transparent p-1 font-extrabold text-ink underline">
+              {t("wrongEmail")}
+            </button>
+            {help && <p className="m-0 text-[15px] text-muted">{t("wrongEmailHelp")}</p>}
+          </>
+        )}
         <p className="m-0 text-sm text-muted">
           {t.rich("legal", {
             terms: (c) => <Link href="/kosullar" target="_blank" className="font-bold text-ink">{c}</Link>,

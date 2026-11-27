@@ -102,9 +102,9 @@ export function ProfileMenu() {
               )}
               {signedIn &&
                 ([
-                  ["yolcular", "travellers", <User key="u" />],
-                  ["alarmlar", "alerts", <Bell key="b" />],
-                  ["favoriler", "favorites", <Heart key="h" />],
+                  ...(!isAffiliate() ? ([["yolcular", "travellers", <User key="u" />]] as const) : []),
+                  ["alarmlar", "alerts", <Bell key="b" />] as const,
+                  ["favoriler", "favorites", <Heart key="h" />] as const,
                 ] as const).map(([hash, key, ico]) => (
                   <Link key={hash} href={{ pathname: "/hesap", hash }} onClick={close} className={item}>
                     <span className={icon}>{ico}</span>

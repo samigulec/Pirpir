@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { isAffiliate } from "@/config/affiliate";
 import { intlLocale } from "@/lib/intl";
 import { SwapHorizontal, SwapVertical } from "../icons";
 import { AirportField, type AirportValue } from "./AirportField";
@@ -187,7 +188,7 @@ export function SearchForm({
                 onChange={(n) => setBags({ ...bags, cabin: n })} />
               <Counter label={t("checkedBags")} hint={t("checkedBagsHint")} value={bags.checked} min={0} max={MAX_SEARCH_BAGS.checked}
                 onChange={(n) => setBags({ ...bags, checked: n })} />
-              <span className="text-[13px] font-semibold text-muted">{t("bagsNote")}</span>
+              <span className="text-[13px] font-semibold text-muted">{t(isAffiliate() ? "bagsNoteAff" : "bagsNote")}</span>
               <button type="button" onClick={close} className="min-h-[44px] cursor-pointer rounded-pill border-0 bg-ink px-5 font-display text-base font-semibold text-white">
                 {t("done")}
               </button>

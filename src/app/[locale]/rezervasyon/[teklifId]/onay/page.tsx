@@ -10,15 +10,16 @@ import { serverCurrency } from "@/lib/currency-server";
 import { planData } from "@/lib/pdf/plan-data";
 import { planFileName } from "@/lib/trips";
 import { SAMPLE_BOOKING_ID } from "@/data/mock/booking";
+import { isAffiliate } from "@/config/affiliate";
 import { cityByCode } from "@/data/airports";
-import { Link } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { getBookingOrSample } from "@/lib/sample-booking";
 import { formatDateTime, formatDayWithWeekday } from "@/lib/dates";
 import { PayHeldButton } from "@/components/booking/PayHeldButton";
 import { todayIso } from "@/lib/search";
 import { AddBags, CancelBooking, ChangeFlight, TripActions } from "@/components/booking/TripActions";
 import { Price } from "@/components/Price";
-import { intlLocale } from "@/lib/intl";
+import { asLocale, intlLocale } from "@/lib/intl";
 import type { Leg } from "@/lib/providers/types";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -31,6 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 // burada [teklifId] adıyla gelir: /rezervasyon/<rezervasyonId>/onay
 export default async function ConfirmPage({ params }: { params: Promise<{ locale: string; teklifId: string }> }) {
   const { locale, teklifId } = await params;
+  if (isAffiliate()) redirect({ href: "/", locale: asLocale(locale) });
   setRequestLocale(locale);
   const bookingId = decodeURIComponent(teklifId);
   const booking = await getBookingOrSample(bookingId);

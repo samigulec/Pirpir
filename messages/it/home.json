@@ -70,7 +70,8 @@
     "checkedBagsHint": "Per viaggiatore, fino a 3",
     "bagsNote": "I prezzi includono i bagagli che scegli; i voli che non li vendono non vengono mostrati.",
     "withNearby": "{city} + aeroporti vicini",
-    "nearbyDetail": "{list} · entro {km} km"
+    "nearbyDetail": "{list} · entro {km} km",
+    "bagsNoteAff": "Le opzioni bagaglio e gli eventuali costi aggiuntivi sono mostrati nella lista voli dal vivo e sul sito del venditore."
   },
   "trust": {
     "label": "Perché {brand}",

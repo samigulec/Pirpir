@@ -61,16 +61,22 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
         </section>
 
         <nav aria-label={t("title")} className="flex flex-wrap gap-2">
-          {[["yolcular", tl("sections.travellers")], ["alarmlar", tl("sections.alerts")], ["favoriler", tl("sections.favorites")]].map(([id, label]) => (
+          {[
+            ...(!isAffiliate() ? ([["yolcular", tl("sections.travellers")]] as const) : []),
+            ["alarmlar", tl("sections.alerts")] as const,
+            ["favoriler", tl("sections.favorites")] as const,
+          ].map(([id, label]) => (
             <a key={id} href={`#${id}`} className="inline-flex min-h-[44px] items-center rounded-pill bg-field px-5 font-extrabold text-ink no-underline">{label}</a>
           ))}
         </nav>
 
-        <section id="yolcular" className={card}>
-          <h2 className={h2}>{tl("travellers.title")}</h2>
-          <p className={sub}>{tl("travellers.text")}</p>
-          <SavedTravellers initial={travellers.ok ? travellers.value : []} countries={countryOptions(locale)} defaultNationality={DEFAULT_NATIONALITY[locale] ?? ""} />
-        </section>
+        {!isAffiliate() && (
+          <section id="yolcular" className={card}>
+            <h2 className={h2}>{tl("travellers.title")}</h2>
+            <p className={sub}>{tl("travellers.text")}</p>
+            <SavedTravellers initial={travellers.ok ? travellers.value : []} countries={countryOptions(locale)} defaultNationality={DEFAULT_NATIONALITY[locale] ?? ""} />
+          </section>
+        )}
 
         <section id="alarmlar" className={card}>
           <h2 className={h2}>{tl("alerts.title")}</h2>

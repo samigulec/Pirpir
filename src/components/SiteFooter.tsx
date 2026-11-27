@@ -23,9 +23,9 @@ export async function SiteFooter() {
         </nav>
         <nav aria-label={t("help")} className="flex flex-col gap-2">
           <span className="font-extrabold">{t("help")}</span>
-          <a href="#" className={link}>{t("helpCenter")}</a>
-          <a href="#" className={link}>{t("baggage")}</a>
-          <a href="#" className={link}>{t("cancel")}</a>
+          <Link href={{ pathname: "/", hash: "sss" }} className={link}>{t("helpCenter")}</Link>
+          <Link href={{ pathname: "/", hash: "sss-bags" }} className={link}>{t("baggage")}</Link>
+          <Link href={{ pathname: "/", hash: "sss-cancel" }} className={link}>{t("cancel")}</Link>
         </nav>
         <nav aria-label={t("popular")} className="flex flex-col gap-2">
           <span className="font-extrabold">{t("popular")}</span>
@@ -55,7 +55,7 @@ export async function SimpleFooter() {
       <div className="mx-auto flex max-w-page flex-wrap justify-between gap-3 px-4 pb-10 pt-7 md:px-6 text-sm text-muted">
         <span>© {brand.name}</span>
         <span className="flex gap-5">
-          <a href="#" className="text-muted">{t("footer.help")}</a>
+          <Link href={{ pathname: "/", hash: "sss" }} className="text-muted">{t("footer.help")}</Link>
           <Link href="/gizlilik" className="text-muted">{t("footer.privacy")}</Link>
           <Link href="/kosullar" className="text-muted">{t("footer.terms")}</Link>
         </span>

@@ -70,7 +70,8 @@
     "checkedBagsHint": "Per reiziger, max. 3",
     "bagsNote": "Prijzen zijn inclusief de gekozen bagage; vluchten die deze niet verkopen, worden niet getoond.",
     "withNearby": "{city} + luchthavens in de buurt",
-    "nearbyDetail": "{list} · tot {km} km"
+    "nearbyDetail": "{list} · tot {km} km",
+    "bagsNoteAff": "Bagageopties en eventuele toeslagen zie je in de live vluchtlijst en bij de aanbieder waar je boekt."
   },
   "trust": {
     "label": "Waarom {brand}",
