@@ -188,3 +188,19 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   `price-calendar`, `price-drop` e-postası ve `plan-data` PDF'i güncel kurları kullanıyor. Denendi: `npm run lint`,
   `npx next build` (71/71 sayfa, tüm SSG sayfaları korundu) ve uçtan uca test: canlı ECB XML (1 EUR = 55.6474 TRY),
   `100 EUR → 5565 TRY`, SSR HTML içinde güncel kur, kırık ECB URL'inde `100 EUR → 4000 TRY` yedek kur + HTTP 200. Bilinen eksik yok.
+- [3.5] Fırsat motoru (5 alt adım) — commits 70f7284 (1/5 veri+cron), 95c85e5 (2/5 `/yonetim/firsatlar`), 723ac8f (3/5 `/firsatlar`
+  ve `/firsatlar/[id]`, 7 dil), b46776c (4/5 `next/og` görsel + WhatsApp/Telegram paylaşım), 46f1f72 (5/5 ana sayfa fırsat kartları
+  entegrasyonu + async server action düzeltmesi).
+  - `supabase/migrations/0006_deals.sql`: `deals` tablosu, `unique nulls not distinct (origin, destination, depart, return_date)`, RLS açık (politika yok).
+  - `/api/cron/deals` (`vercel.json` 06:00 UTC, `CRON_SECRET`): günlük 24 rota × 3 ay `grouped_prices`; 90 günlük ortancanın ≤%75'i,
+    ≥30 € tasarruf, son 3 günde görülmüş, rota başına en fazla 3 aday.
+  - `/yonetim/firsatlar`: `ADMIN_EMAILS` korumalı (üretimde yalnızca doğrulanmış Supabase oturumu), Yayınla / Reddet / Adaya al / Şimdi tara, `noindex` + `robots.txt`.
+  - `/firsatlar` + `/firsatlar/[id]` (7 dilde yerelleştirilmiş adres ve `messages/*/deals.json`): `goHref(..., "deal:<id>", locale)`,
+    fiyatın görüldüğü gerçek gün (`seen_at`), `next/og` 1200x630 PNG (`Nunito` Türkçe glifli), WhatsApp/Telegram/Kopyala paylaşım.
+  - Ana sayfa (`src/lib/deals.ts` + `PopularFlights.tsx`): yayınlanmış fırsat varsa ondan beslenir, yoksa eski davranış.
+  - Denendi: `npm run lint`, `npx next build` (85/85 sayfa), `/api/cron/deals` (401 + 200, 24 rota, 75%/30 €/3 gün/max-3 eşiği),
+    7 dilde `/firsatlar` (HTTP 200), `/firsatlar/<yok>` (404), `opengraph-image` (geçerli PNG 20199 bayt), `/yonetim/firsatlar` (girişsiz 307 → `/giris`),
+    `/robots.txt` ve `/sitemap.xml`.
+  - Kullanıcı kurulumu gerekiyor (canlı aktivasyon): (1) Supabase SQL Editor'da `supabase/migrations/0006_deals.sql` çalıştırılmalı,
+    (2) Vercel → Environment Variables → `ADMIN_EMAILS` (kendi giriş e-postası, Production) eklenip yeniden yayınlanmalı.
+  - Sıradaki işler: 3.7 (`/yonetim/tiklamalar`) ve 3.8 (Gizlilik/çerez metni).
