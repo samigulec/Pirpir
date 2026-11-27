@@ -41,7 +41,7 @@ function readMarket(): MarketId | null {
 }
 
 // Öncelik: URL (?cur=EUR) → localStorage → çerez → ülkenin para birimi → TRY
-function readInitial(): Currency | null {
+export function readInitial(): Currency | null {
   const fromUrl = new URLSearchParams(window.location.search).get("cur");
   if (isCurrency(fromUrl)) return fromUrl;
   try {

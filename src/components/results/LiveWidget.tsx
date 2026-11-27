@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { preconnect, preloadModule } from "react-dom";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { readInitial as readInitialCurrency, useCurrency } from "../CurrencyProvider";
 import { useRouter } from "@/i18n/navigation";
 import { liveWidgetSrc } from "@/config/affiliate";
 import { aviasalesRoute, parseAviasalesRoute } from "@/lib/outbound";
@@ -11,7 +12,11 @@ import { searchHref, type MultiQuery } from "@/lib/search";
 const SCRIPT_ID = "tpwl-main";
 const STYLE_ID = "pirpir-tpwl";
 
-type W = typeof window & { __tpwlBox?: HTMLElement | null; __tpwlRoute?: string };
+type W = typeof window & { __tpwlBox?: HTMLElement | null; __tpwlRoute?: string; TPWL_CONFIGURATION?: Record<string, unknown> };
+
+/** Widget'ın desteklediği diller ve para birimleri (Travelpayouts panelindeki White Label ayarı) */
+const WIDGET_LANGS = ["tr", "en", "nl", "de"];
+const WIDGET_CURRENCIES = ["EUR", "TRY", "USD"];
 
 /**
  * Widget kartlarını gölge DOM'a (shadow root) çizer: sayfanın CSS'i içeri girmez, yalnızca değişkenler (globals.css)
@@ -108,6 +113,8 @@ function enhanceShadow(host: HTMLElement | null): () => void {
 export function LiveWidget({ q }: { q: MultiQuery }) {
   const t = useTranslations("results");
   const router = useRouter();
+  const locale = useLocale();
+  const { cur } = useCurrency();
   const src = liveWidgetSrc();
   const box = useRef<HTMLDivElement>(null);
   const route = aviasalesRoute({
@@ -137,30 +144,40 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
     }
     w.__tpwlBox = box.current;
     w.__tpwlRoute = route;
+    // Dil ve para birimi sitenin seçimini izler (widget'ın desteklemediğinde İngilizce / EUR)
+    w.TPWL_CONFIGURATION = {
+      ...(w.TPWL_CONFIGURATION ?? {}),
+      defaultLanguage: (WIDGET_LANGS.includes(locale) ? locale : "en").toUpperCase(),
+      // Sağlayıcının ilk değeri henüz yerine oturmamış olabilir (bu etki ondan önce çalışır): kaynağından okunur
+      defaultCurrency: ((c) => (WIDGET_CURRENCIES.includes(c) ? c : "EUR"))(readInitialCurrency() ?? cur),
+    };
     const s = document.createElement("script");
     s.id = SCRIPT_ID;
     s.async = true;
     s.type = "module";
     s.src = src;
     document.head.appendChild(s);
+    // Dil/para birimi yalnızca açılışta okunur; değişince yeni arama gibi sayfa yeniden yüklenir
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src, route]);
 
-  // Widget kendi şeridinden başka güne geçince (adresteki flightSearch değişir) sayfayı ve arama kutusunu eşitle
+  // Widget kendi şeridinden (ya da kendi formundan) başka aramaya geçince `urlchange` olayı yayınlar: sayfanın adresi
+  // ve arama kutusu o aramaya eşitlenir, widget yerinde kalır. (Açılıştaki adres düzeltmesi bu olayı yayınlamaz.)
   useEffect(() => {
     if (!src) return;
-    const timer = window.setInterval(() => {
+    const onChange = () => {
       const w = window as W;
       const code = new URLSearchParams(window.location.search).get("flightSearch");
-      if (!code || code === w.__tpwlRoute) return;
-      const p = parseAviasalesRoute(code);
-      if (!p) return;
+      const p = code ? parseAviasalesRoute(code) : null;
+      if (!code || !p) return;
       const next = aviasalesRoute(p);
       if (next === w.__tpwlRoute) return;
       w.__tpwlRoute = next;
       const href = searchHref({ from: p.from, to: p.to, date: p.date, returnDate: p.returnDate ?? "", pax: { adults: p.adults, children: p.children, infants: p.infants }, cabin: p.cabin });
       router.replace({ pathname: "/ara", query: { ...href.query, flightSearch: code } }, { scroll: false });
-    }, 700);
-    return () => window.clearInterval(timer);
+    };
+    window.addEventListener("urlchange", onChange);
+    return () => window.removeEventListener("urlchange", onChange);
   }, [src, router]);
 
   // Kart görünümü ve en ucuzdan sıralama: widget'ın gölge DOM'u
