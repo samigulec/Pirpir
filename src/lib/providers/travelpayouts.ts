@@ -163,12 +163,12 @@ const AIRLINES: Record<string, string> = {
   X3: "TUI fly", OR: "TUI fly Netherlands", TB: "TUI fly Belgium", BY: "TUI Airways", "6B": "TUI fly Nordic",
   SM: "Air Cairo", PS: "Ukraine International", EN: "Air Dolomiti", WK: "Edelweiss", "2L": "Helvetic", "6E": "IndiGo",
 };
-const airlineName = (code: string) => AIRLINES[code] ?? code;
+export const airlineName = (code: string) => AIRLINES[code] ?? code;
 
 const NO_BAGS: Bags = { cabin: { included: 0, max: 0 }, checked: { included: 0, max: 0 } };
 
 /** Bağlantıdaki search_date (GGAAYYYY): fiyatın Aviasales'te görüldüğü gün */
-function seenOn(link: string): string | undefined {
+export function seenOn(link: string): string | undefined {
   const m = link.match(/[?&]search_date=(\d{2})(\d{2})(\d{4})/);
   return m ? `${m[3]}-${m[2]}-${m[1]}` : undefined;
 }
@@ -431,6 +431,7 @@ export type GroupedPriceItem = {
   duration?: number;
   duration_to?: number;
   duration_back?: number;
+  found_at?: string;
   link?: string;
 };
 
