@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Link } from "@/i18n/navigation";
 import { approveDeal, rejectDeal, restoreDeal, triggerDealScan } from "@/actions/admin-deals";
 import type { DealRow, DealStatus } from "@/lib/deal-store";
 import type { DealScanSummary } from "@/lib/deal-scanner";
@@ -182,14 +183,22 @@ export function AdminDealsTable({ initial }: { initial: AdminDealItem[] }) {
                     </button>
                   )}
                   {d.status === "published" && (
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => act(d.id, "candidate")}
-                      className="min-h-[44px] cursor-pointer rounded-pill border-2 border-solid border-line bg-white px-4 font-display text-[15px] font-semibold text-ink disabled:opacity-60"
-                    >
-                      Adaya al
-                    </button>
+                    <>
+                      <Link
+                        href={{ pathname: "/firsatlar/[id]", params: { id: d.id } }}
+                        className="inline-flex min-h-[44px] items-center rounded-pill bg-sky px-4 font-display text-[15px] font-semibold text-ink no-underline"
+                      >
+                        Fırsat sayfası →
+                      </Link>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => act(d.id, "candidate")}
+                        className="min-h-[44px] cursor-pointer rounded-pill border-2 border-solid border-line bg-white px-4 font-display text-[15px] font-semibold text-ink disabled:opacity-60"
+                      >
+                        Adaya al
+                      </button>
+                    </>
                   )}
                   {d.status !== "rejected" && (
                     <button

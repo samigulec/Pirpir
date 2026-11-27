@@ -4,7 +4,7 @@ import { getPathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getRouteSlugs } from "@/lib/flights";
 
-type Href = "/" | "/gizlilik" | "/kosullar" | { pathname: "/ucuslar/[nereden]/[nereye]"; params: { nereden: string; nereye: string } };
+type Href = "/" | "/firsatlar" | "/gizlilik" | "/kosullar" | { pathname: "/ucuslar/[nereden]/[nereye]"; params: { nereden: string; nereye: string } };
 
 // Arama motorları için herkese açık sayfalar, her dilde ayrı adresle ve diğer dillerin karşılıklarıyla.
 // Rezervasyon, hesap ve giriş sayfaları listede yok (robots.ts'te de kapalı).
@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const url = (href: Href, locale: string) => base + getPathname({ href, locale }).replace(/\/$/, "");
   const pages: Href[] = [
     "/",
+    "/firsatlar",
     ...getRouteSlugs().map((params) => ({ pathname: "/ucuslar/[nereden]/[nereye]" as const, params })),
     "/gizlilik",
     "/kosullar",
