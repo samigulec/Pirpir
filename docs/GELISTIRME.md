@@ -105,6 +105,19 @@ satış kodu duruyor, `NEXT_PUBLIC_SALES_MODE=booking` ile geri açılır.
 - Tıklamalar Supabase'deki `clicks` tablosuna yazılır: `supabase/migrations/0005_clicks.sql` dosyasını SQL Editor'da bir kez çalıştır.
 - Sayfa altındaki ortaklık açıklaması (`common.affiliateDisclosure`) yasal bilgilendirmedir, kaldırma.
 
+## Telegram fırsat kanalı (isteğe bağlı)
+
+`/yonetim/firsatlar` panelinde bir fırsat için **Yayınla** denildiğinde, iki ortam değişkeni tanımlıysa belirlenen Telegram kanalına
+kısa mesaj (rota, fiyat, tarih, görüldüğü gün, fırsat sayfası bağlantısı) ve fırsatın `opengraph-image` görseli gönderilir
+(`src/lib/telegram.ts`, `src/actions/admin-deals.ts`). Değişkenlerden biri bile boşsa özellik tamamen kapalıdır; gönderim sırasında
+hata olursa fırsat yine yayınlanır, yalnızca sunucu günlüğüne yazılır.
+
+Kurulum:
+1. Telegram'da `@BotFather` ile `/newbot` diyerek yeni bir bot oluştur ve verilen token'ı al.
+2. Duyuru kanalını oluştur (ör. `@flypirpir`) ve botu kanala **yönetici** olarak ekle (yalnızca "Post Messages" izni yeterli).
+3. Kanal kimliğini belirle: herkese açık kanallarda `@kanaladi`, gizli kanallarda `-100…` biçimindeki sayısal kimlik.
+4. Vercel → Settings → Environment Variables (Production): `TELEGRAM_BOT_TOKEN` ve `TELEGRAM_CHANNEL_ID` değişkenlerini ekle, ardından yeniden yayınla.
+
 ## Sayfalar
 
 | Rota | Tasarım |

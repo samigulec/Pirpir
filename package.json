@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
-    "e2e": "playwright test",
+    "check:messages": "node scripts/check-messages.mjs",
+    "e2e": "npm run check:messages && playwright test",
     "svg": "node scripts/svg-to-tsx.mjs",
     "airports": "node scripts/build-airports.mjs"
   },

@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { pickDealCandidates } from "../../src/lib/deal-rules";
+import { isTelegramConfigured, postDealToTelegram } from "../../src/lib/telegram";
 
 function trackErrors(page: Page) {
   const errors: string[] = [];
@@ -159,5 +160,72 @@ test.describe("Ortaklık modu (sahte Travelpayouts sunucusu)", () => {
     await expect(dialog.getByText(/gün önce görülen fiyat|Bugün görülen fiyat|Şu an kayıtlı fiyat yok/i)).toBeVisible({ timeout: 10_000 });
 
     expect(errors).toEqual([]);
+  });
+
+  test("Telegram fırsat bildirimi: değişken yoksa kapalı, varsa sendPhoto + OG görseli, hatada engellemez", async () => {
+    const sample = {
+      id: "11111111-2222-3333-4444-555555555555",
+      origin: "AMS",
+      destination: "IST",
+      depart: "2027-02-07",
+      return_date: "2027-02-12",
+      price_eur: 110,
+      median_eur: 200,
+      seen_at: "2027-01-09",
+    };
+
+    // 1. Değişkenler boşsa fetch hiç çağrılmaz
+    let calls = 0;
+    const noopFetch: typeof fetch = async () => {
+      calls++;
+      return new Response("ok", { status: 200 });
+    };
+    expect(isTelegramConfigured({ token: "", channelId: "" })).toBe(false);
+    expect(isTelegramConfigured({ token: "only-token", channelId: "" })).toBe(false);
+    const skipped = await postDealToTelegram(sample, { token: "", channelId: "", fetchImpl: noopFetch });
+    expect(skipped).toEqual({ sent: false, reason: "unconfigured" });
+    expect(calls).toBe(0);
+
+    // 2. Tanımlıysa sendPhoto çağrılır; rota, fiyat, görüldüğü gün, fırsat bağlantısı ve OG görseli yer alır
+    let capturedUrl = "";
+    let capturedBody: { chat_id?: string; photo?: string; caption?: string } = {};
+    const okFetch: typeof fetch = async (input, init) => {
+      capturedUrl = String(input);
+      capturedBody = JSON.parse(String(init?.body ?? "{}")) as typeof capturedBody;
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    };
+    const ok = await postDealToTelegram(sample, {
+      token: "test-bot-token",
+      channelId: "@flypirpir_test",
+      baseUrl: "https://flypirpir.nl",
+      fetchImpl: okFetch,
+    });
+    expect(ok).toEqual({ sent: true });
+    expect(capturedUrl).toBe("https://api.telegram.org/bottest-bot-token/sendPhoto");
+    expect(capturedBody.chat_id).toBe("@flypirpir_test");
+    expect(capturedBody.photo).toBe("https://flypirpir.nl/firsatlar/11111111-2222-3333-4444-555555555555/opengraph-image");
+    expect(capturedBody.caption).toContain("Amsterdam → İstanbul (AMS → IST)");
+    expect(capturedBody.caption).toContain("€110");
+    expect(capturedBody.caption).toContain("normalde €200");
+    expect(capturedBody.caption).toContain("7 – 12 Şubat");
+    expect(capturedBody.caption).toContain("9 Oca tarihinde görüldü");
+    expect(capturedBody.caption).toContain("https://flypirpir.nl/firsatlar/11111111-2222-3333-4444-555555555555");
+
+    // 3. API 500 ya da ağ hatası yayınlamayı engellemez (hata fırlatmaz)
+    const errRes = await postDealToTelegram(sample, {
+      token: "test-bot-token",
+      channelId: "@flypirpir_test",
+      fetchImpl: async () => new Response("bad gateway", { status: 502 }),
+    });
+    expect(errRes).toEqual({ sent: false, reason: "error", status: 502 });
+
+    const netErr = await postDealToTelegram(sample, {
+      token: "test-bot-token",
+      channelId: "@flypirpir_test",
+      fetchImpl: async () => {
+        throw new Error("network down");
+      },
+    });
+    expect(netErr).toEqual({ sent: false, reason: "error" });
   });
 });
