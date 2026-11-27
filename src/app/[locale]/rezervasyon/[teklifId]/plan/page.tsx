@@ -4,8 +4,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { LogoMark } from "@/components/Logo";
 import { PdfLink } from "@/components/account/PdfLink";
 import { PrintButton } from "@/components/booking/PrintButton";
+import { isAffiliate } from "@/config/affiliate";
 import { Download } from "@/components/icons";
-import { Link } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
+import { asLocale } from "@/lib/intl";
 import { getBookingOrSample } from "@/lib/sample-booking";
 import { serverCurrency } from "@/lib/currency-server";
 import { planData } from "@/lib/pdf/plan-data";
@@ -24,6 +26,7 @@ const tones = { green: "bg-green-soft text-green-text", sun: "bg-sun-soft text-s
  */
 export default async function TripPlanPage({ params, searchParams }: { params: Promise<{ locale: string; teklifId: string }>; searchParams: Promise<Raw> }) {
   const { locale, teklifId } = await params;
+  if (isAffiliate()) redirect({ href: "/", locale: asLocale(locale) });
   setRequestLocale(locale);
   const booking = await getBookingOrSample(decodeURIComponent(teklifId));
   if (!booking) notFound();

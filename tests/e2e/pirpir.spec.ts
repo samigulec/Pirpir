@@ -172,4 +172,29 @@ test.describe("İçerik, yönlendirme ve güvenlik kontrolleri", () => {
       expect(res.status(), `${path} durum kodu`).toBe(401);
     }
   });
+
+  test("Ortaklık modunda /biletlerim → /hesap, /rezervasyon/* → / yönlenir ve /kosullar satış iddiası taşımaz", async ({ page, request }) => {
+    const trips = await request.get("/biletlerim", { maxRedirects: 0 });
+    expect(trips.status()).toBe(307);
+    expect(trips.headers()["location"] ?? "").toContain("/hesap");
+
+    const enTrips = await request.get("/en/my-trips", { maxRedirects: 0 });
+    expect(enTrips.status()).toBe(307);
+    expect(enTrips.headers()["location"] ?? "").toContain("/en/account");
+
+    for (const p of ["/rezervasyon/demo_1", "/rezervasyon/demo_1/onay", "/rezervasyon/demo_1/plan", "/en/booking/demo_1/confirmation"]) {
+      const res = await request.get(p, { maxRedirects: 0 });
+      expect(res.status(), `${p} yönlendirme`).toBe(307);
+      const loc = res.headers()["location"] ?? "";
+      expect(loc === "/" || /\/(tr|en)?$/.test(loc)).toBe(true);
+    }
+
+    await page.goto("/kosullar", { waitUntil: "networkidle" });
+    await expect(page.locator("main")).toContainText("doğrudan bilet satmaz");
+    await expect(page.locator("main")).not.toContainText("24 saat içinde ücretsiz iptal");
+
+    await page.goto("/en/terms", { waitUntil: "networkidle" });
+    await expect(page.locator("main")).toContainText("does not sell tickets directly");
+    await expect(page.locator("main")).not.toContainText("cancel for free within 24 hours");
+  });
 });

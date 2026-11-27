@@ -70,7 +70,8 @@
     "checkedBagsHint": "Par voyageur, 3 maximum",
     "bagsNote": "Les prix incluent les bagages choisis ; les vols qui ne les proposent pas ne sont pas affichés.",
     "withNearby": "{city} + aéroports proches",
-    "nearbyDetail": "{list} · dans un rayon de {km} km"
+    "nearbyDetail": "{list} · dans un rayon de {km} km",
+    "bagsNoteAff": "Les options de bagages et les éventuels frais s’affichent dans la liste en direct et chez le vendeur."
   },
   "trust": {
     "label": "Pourquoi {brand}",

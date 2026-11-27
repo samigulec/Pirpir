@@ -4,12 +4,13 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { LoginButton } from "@/components/AccountLinks";
 import { Biletcik } from "@/components/characters";
 import { TripCard } from "@/components/account/TripCard";
+import { isAffiliate } from "@/config/affiliate";
 import { cityByCode } from "@/data/airports";
-import { Link } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { listBookings } from "@/lib/bookings";
 import { formatDayWithWeekday } from "@/lib/dates";
-import { intlLocale } from "@/lib/intl";
+import { asLocale, intlLocale } from "@/lib/intl";
 import { one, type Raw } from "@/lib/search";
 import { TRIP_TABS, daysUntil, sortTrips, tripStatus, tripTab, type TripTab } from "@/lib/trips";
 
@@ -23,6 +24,8 @@ const isTab = (v: unknown): v is TripTab => typeof v === "string" && (TRIP_TABS 
 
 export default async function TripsPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<Raw> }) {
   const { locale } = await params;
+  // Ortaklık modunda bilet satılmaz: /biletlerim doğrudan hesaba yönlenir
+  if (isAffiliate()) redirect({ href: "/hesap", locale: asLocale(locale) });
   setRequestLocale(locale);
   const t = await getTranslations("account.trips");
   const tc = await getTranslations("common.characters");

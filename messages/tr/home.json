@@ -69,7 +69,8 @@
     "checkedBagsHint": "Yolcu başı, en fazla 3",
     "bagsNote": "Fiyatlar seçtiğin bagajla birlikte gösterilir; bu bagajı satmayan uçuşlar listelenmez.",
     "withNearby": "{city} + yakın havalimanları",
-    "nearbyDetail": "{list} · {km} km'ye kadar"
+    "nearbyDetail": "{list} · {km} km'ye kadar",
+    "bagsNoteAff": "Bagaj seçenekleri ve ek ücretler canlı uçuş listesinde ve bileti aldığın satıcıda gösterilir."
   },
   "trust": {
     "label": "Neden {brand}",
