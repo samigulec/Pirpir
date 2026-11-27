@@ -176,6 +176,60 @@ yer tutucuları dosya/satırıyla `docs/yer-tutucular.md`'ye listele; kullanıc�
 Telegram/WhatsApp fırsat kanalı otomasyonu, e-posta bülteni, fırsat sayfalarının SEO'su — her biri için 3–5 satırlık
 öneri ve gereken hesap/anahtar listesi `docs/DEVAM.md` sonuna.
 
+## 7. Üçüncü tur iş listesi (Gemini) — öncelik sırasıyla
+
+Kurallar (bölüm 1), kontrol komutları (bölüm 2) ve teslim biçimi (bölüm 4) aynen geçerli. Ek olarak her işte
+`npm run e2e` geçmeli; yeni davranış için test ekle. **Claude'un alanı (dokunma):** `src/components/results/LiveWidget.tsx`,
+`ResultsView.tsx`, `LiveResults.tsx`, `OfferCard.tsx`, `DateStrip.tsx`, `src/app/[locale]/ara/page.tsx`,
+`src/lib/providers/travelpayouts.ts`, `src/lib/outbound*.ts`, `src/app/git/route.ts`, `globals.css` içindeki `#tpwl-tickets`.
+Bunlarda değişiklik gerekiyorsa iş günlüğüne "CLAUDE'A" diye yaz. Kullanıcı kararı gerekiyorsa "KARAR GEREKİYOR" yaz ve
+sıradaki işe geç.
+
+### 7.1 Travelpayouts için yerel sahte sunucu ve gerçek-veri testleri
+`TRAVELPAYOUTS_API_URL` değişkeni zaten var. `tests/e2e/fixtures/` altında kayıtlı örnek yanıtlarla (prices_for_dates,
+grouped_prices — gerçek yanıt biçiminde, uydurma ama gerçekçi değerler, dosyada "test verisi" notu) küçük bir Node sahte
+sunucusu yaz; e2e'de ikinci bir proje "affiliate" bu sunucuyla çalışsın (`TRAVELPAYOUTS_TOKEN=test`). Kapsam: rota sayfası
+aylık grafik + en ucuz tarihler, ana sayfa popüler uçuş fiyatları, `/api/date-prices?strip=1`, fırsat tarayıcısının aday
+seçimi (`pickDealCandidates` için birim testi de olur). Canlı widget bu projede kapalı (`NEXT_PUBLIC_TP_WL_WIDGET_ID` boş).
+
+### 7.2 Fiyat alarmı penceresi önbellek fiyatıyla
+`src/components/results/PriceAlertButton.tsx` ("Neyi takip edelim?") şu an sonuç kartlarından en ucuzu gösteriyor; sonuç
+listesi artık canlı widget olduğundan kartlar boş ve pencere "Bu seçimle şu an uçuş yok" diyor. Pencere, seçilen
+tarih/esneklik/aktarma için en düşük **önbellekli** fiyatı yeni bir uç noktadan (`/api/alert-price`, `travelpayoutsDayPrices` /
+`prices_for_dates` ile, 10 dk önbellek) alsın; "x gün önce görülen fiyat" yazsın; veri yoksa "Şu an kayıtlı fiyat yok,
+düşünce haber veririz" desin ve alarm yine kurulabilsin. Bileşenin dışarıdan aldığı props değişirse `LiveResults.tsx`'te
+gereken tek satırı iş günlüğüne "CLAUDE'A" diye yaz.
+
+### 7.3 Ortaklık modunda satış kalıntılarını temizle
+Bilet satmıyoruz. `/biletlerim`, `/rezervasyon/*` ortaklık modunda `/hesap`'a (biletlerim) ya da ana sayfaya yönlendirsin
+(satış modunda aynen çalışsın). Hesap, profil menüsü, e-postalar, SSS, koşullar ve ana sayfadaki "rezervasyon / ödeme /
+e-bilet / iptal" ifadelerini tara; ortaklık modunda yanlış olanları düzelt (7 dil). Liste + değişiklikleri günlüğe yaz.
+
+### 7.4 Rota sayfası kataloğu ve iç bağlantılar
+"Türkiye'de başka nereler?" gibi bölümlerdeki bağlantıların bir kısmı rota sayfası yerine aramaya gidiyor. Pazarların
+(`src/config/markets.ts`) tüm popüler rotaları ve Türkiye'nin büyük havalimanları (IST/SAW, AYT, ADB, ESB, DLM, BJV, GZT,
+TZX, ASR) için kalkış şehri × varış rota sayfaları üret (makul bir üst sınır, ör. 150 sayfa), sitemap'e ekle, iç bağlantılar
+rota sayfalarına gitsin. İçerik uydurulmasın: rota rehberi yoksa bölüm gizlensin.
+
+### 7.5 SEO temelleri
+- Her sayfada doğru `alternates` (7 dil hreflang + x-default) ve kanonik adres; rota ve fırsat sayfalarında özgün başlık
+  ve açıklama.
+- Yapılandırılmış veri: ana sayfa SSS → `FAQPage` (yalnızca sayfadaki gerçek metin), rota sayfası `BreadcrumbList`.
+  Fiyat için `Offer` şeması **ekleme** (önbellekli fiyat, yanıltıcı olur).
+- Rota sayfaları için `opengraph-image` (fırsat sayfalarındaki gibi, rota + "…'dan" fiyatı + görüldüğü gün).
+- `docs/denetim.md`'ye SEO bölümü ekle.
+
+### 7.6 Çeviri bütünlüğü
+`scripts/check-messages.mjs`: 7 dilde anahtar kümesi aynı mı, ICU yer tutucuları (`{brand}`, `{partner, select, …}`)
+tutarlı mı, boş metin var mı. `npm run check:messages` ve e2e öncesi çalışsın. Bulunan eksikleri düzelt (çeviri kalitesini
+koru; emin olmadığın dilde İngilizce bırakma, doğru çevir).
+
+### 7.7 Telegram fırsat kanalı (kapalı özellik olarak)
+5.7'deki öneriye göre: fırsat yönetim panelinde "Yayınla" denince, `TELEGRAM_BOT_TOKEN` ve `TELEGRAM_CHANNEL_ID`
+tanımlıysa kanala kısa mesaj (rota, fiyat, görüldüğü gün, fırsat sayfası bağlantısı, OG görseli) gönderilsin. Değişkenler
+yoksa hiçbir şey yapmasın. Gönderim hatası yayınlamayı engellemesin. Token'ı kullanıcıdan isteme; kurulum adımlarını
+`docs/GELISTIRME.md`'ye yaz. Gerçek gönderim testi yok; birim testi sahte fetch ile.
+
 ## İş günlüğü
 
 - [hazırlık] Claude — White Label kodu (`NEXT_PUBLIC_TP_WL_HOST`), Travelpayouts sağlayıcısı, logolar, tazelik etiketi,
