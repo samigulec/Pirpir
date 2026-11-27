@@ -18,9 +18,17 @@ async function changeStatus(id: string, status: DealStatus): Promise<ActionResul
   return { ok: true };
 }
 
-export const approveDeal = (id: string) => changeStatus(id, "published");
-export const rejectDeal = (id: string) => changeStatus(id, "rejected");
-export const restoreDeal = (id: string) => changeStatus(id, "candidate");
+export async function approveDeal(id: string): Promise<ActionResult> {
+  return changeStatus(id, "published");
+}
+
+export async function rejectDeal(id: string): Promise<ActionResult> {
+  return changeStatus(id, "rejected");
+}
+
+export async function restoreDeal(id: string): Promise<ActionResult> {
+  return changeStatus(id, "candidate");
+}
 
 export async function triggerDealScan(): Promise<{ ok: true; summary: DealScanSummary } | { ok: false; error: string }> {
   const admin = await getAdminUser();

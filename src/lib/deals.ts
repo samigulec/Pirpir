@@ -6,14 +6,20 @@
 import "server-only";
 import { after } from "next/server";
 import { popularDestinations } from "@/data/mock/home";
+import { toTry } from "./currency";
+import { getRates } from "./currency-server";
+import { publishedDealsForOrigins, type DealRow } from "./deal-store";
 import { dataMode, priceSource, searchFlightsCached } from "./flights";
 import { backgroundRetryIn, inBackground, isSkipped } from "./providers/rate-limit";
+import { airlineName } from "./providers/travelpayouts";
 import { addDays, todayIso, type MultiQuery } from "./search";
 import type { Offer } from "./providers/types";
 import { cheapestWithBags } from "./extras";
 import { bestKnownPrices, routeKey, travelpayoutsDayPrices, type KnownPrice } from "./price-calendar";
 
 export type Deal = {
+  /** Yayınlanmış fırsat motoru kaydıysa kimliği (kart /firsatlar/[id] sayfasına gider). */
+  dealId?: string;
   /** Kişi başı en düşük gidiş-dönüş fiyatı (TRY). */
   price: number;
   date: string;
@@ -147,15 +153,56 @@ async function withDeadline(keys: string[], run: (key: string) => Promise<Deal |
 
 const DEADLINE_MS = 9000;
 
-/** Popüler uçuş kartları için seçilen kalkış yerlerinden fırsatlar. */
+/** Popüler uçuş kartları için seçilen kalkış yerlerinden fırsatlar. Yayınlanmış fırsatlar önceliklidir; yoksa eski davranış. */
 export async function getDestinationDeals(from: string[], deadlineMs = DEADLINE_MS): Promise<DealMap> {
-  const list = popularDestinations.map((d, i) => ({ id: d.id as string, to: d.searchCode, index: i }));
-  const byId = new Map(list.map((d) => [d.id, d]));
-  const [found, known] = await Promise.all([
-    withDeadline([...byId.keys()], (id) => dealFor(from, byId.get(id)!.to, byId.get(id)!.index), deadlineMs),
-    bestKnownPrices(list.map((d) => ({ from, to: [d.to] }))).catch(() => ({}) as Record<string, KnownPrice>),
-  ]);
-  return Object.fromEntries(list.map((d) => [d.id, cheaper(found[d.id] ?? null, known[routeKey({ from, to: [d.to] })])]));
+  const list = popularDestinations.map((d, i) => ({
+    id: d.id as string,
+    code: d.code,
+    to: d.searchCode,
+    airports: d.airports,
+    index: i,
+  }));
+
+  // Yayınlanmış fırsat motoru kayıtları (yalnızca gerçek modda)
+  const publishedMap = new Map<string, Deal>();
+  if (dataMode() !== "demo") {
+    const [pubRows, rates] = await Promise.all([
+      publishedDealsForOrigins(from).catch((): DealRow[] => []),
+      getRates(),
+    ]);
+    for (const d of list) {
+      const destCodes = new Set([d.code, d.to.replace(/^city:/, ""), ...d.airports]);
+      const match = pubRows.find((r) => destCodes.has(r.destination) && r.return_date);
+      if (match && match.return_date) {
+        publishedMap.set(d.id, {
+          dealId: match.id,
+          price: toTry(match.price_eur, "EUR", rates),
+          date: match.depart,
+          returnDate: match.return_date,
+          stops: match.transfers ?? 0,
+          mins: 0,
+          airlines: match.airline ? [airlineName(match.airline)] : [],
+          airports: [match.destination],
+        });
+      }
+    }
+  }
+
+  const remaining = list.filter((d) => !publishedMap.has(d.id));
+  const byId = new Map(remaining.map((d) => [d.id, d]));
+  const [found, known] = remaining.length
+    ? await Promise.all([
+        withDeadline([...byId.keys()], (id) => dealFor(from, byId.get(id)!.to, byId.get(id)!.index), deadlineMs),
+        bestKnownPrices(remaining.map((d) => ({ from, to: [d.to] }))).catch(() => ({}) as Record<string, KnownPrice>),
+      ])
+    : [{}, {} as Record<string, KnownPrice>];
+
+  return Object.fromEntries(
+    list.map((d) => [
+      d.id,
+      publishedMap.get(d.id) ?? cheaper(found[d.id] ?? null, known[routeKey({ from, to: [d.to] })]),
+    ]),
+  );
 }
 
 /**

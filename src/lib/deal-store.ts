@@ -156,6 +156,28 @@ export async function listPublishedDeals(limit = 100): Promise<DealRow[]> {
   return (data ?? []).map(normalize);
 }
 
+/** Verilen kalkış kodlarından yayınlanmış, tarihi geçmemiş gidiş-dönüş fırsatları (ucuzdan pahalıya). */
+export async function publishedDealsForOrigins(origins: string[]): Promise<DealRow[]> {
+  const admin = supabaseAdmin();
+  const clean = [...new Set(origins.map((c) => c.replace(/^city:/, "")))].filter(Boolean);
+  if (!admin || !clean.length) return [];
+  const { data, error } = await admin
+    .from("deals")
+    .select("*")
+    .eq("status", "published")
+    .in("origin", clean)
+    .not("return_date", "is", null)
+    .gte("depart", todayIso())
+    .order("price_eur", { ascending: true })
+    .limit(100)
+    .returns<DealRow[]>();
+  if (error) {
+    console.error("Kalkış fırsatları okunamadı:", error.message);
+    return [];
+  }
+  return (data ?? []).map(normalize);
+}
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Tek yayınlanmış fırsat ve aynı rotanın diğer yayınlanmış tarihleri. */

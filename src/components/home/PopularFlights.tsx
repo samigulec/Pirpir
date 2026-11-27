@@ -31,7 +31,7 @@ function computedBadges(deals: DealMap, ids: string[]) {
   const found = ids.map((id) => [id, deals[id]] as const).filter((e): e is readonly [string, Deal] => !!e[1]);
   const cheapest = [...found].sort((a, b) => a[1].price - b[1].price)[0]?.[0];
   // En kısa uçuş en ucuz kartla aynıysa ikinci bir rozet verilmez (yanlış karta "en kısa" yazılmasın).
-  const shortest = found.filter(([, d]) => d.stops === 0).sort((a, b) => a[1].mins - b[1].mins)[0]?.[0];
+  const shortest = found.filter(([, d]) => d.stops === 0 && d.mins > 0).sort((a, b) => a[1].mins - b[1].mins)[0]?.[0];
   return { cheapest, fastest: shortest === cheapest ? undefined : shortest };
 }
 
@@ -112,7 +112,9 @@ export function PopularFlights({
         {shown.map((d) => {
           const Illustration = ILLUSTRATIONS[d.id];
           const deal = deals[d.id];
-          const href = searchHref({ from: fromCodes, to: d.searchCode, ...(deal && { date: deal.date, returnDate: deal.returnDate }) });
+          const href = deal?.dealId
+            ? ({ pathname: "/firsatlar/[id]" as const, params: { id: deal.dealId } })
+            : searchHref({ from: fromCodes, to: d.searchCode, ...(deal && { date: deal.date, returnDate: deal.returnDate }) });
           const badge = d.id === badges.cheapest ? t("badges.cheapest") : d.id === badges.fastest ? t("badges.fastest") : t(`cards.${d.id}.badge`);
           return (
             <Link
@@ -146,10 +148,12 @@ export function PopularFlights({
               {deal && (
                 <div className="flex flex-wrap gap-[6px] px-2">
                   <span className="rounded-pill bg-field px-[10px] py-[3px] text-[13px] font-extrabold">
-                    {stopsLabel(deal.stops)} · {tc("duration", minsParts(deal.mins, true))}
+                    {deal.mins > 0 ? `${stopsLabel(deal.stops)} · ${tc("duration", minsParts(deal.mins, true))}` : stopsLabel(deal.stops)}
                   </span>
                   <span className="rounded-pill bg-field px-[10px] py-[3px] text-[13px] font-extrabold">{formatRangeShort(deal.date, deal.returnDate, loc)}</span>
-                  <span className="rounded-pill bg-field px-[10px] py-[3px] text-[13px] font-extrabold">{deal.airlines.join(" · ")}</span>
+                  {deal.airlines.length > 0 && (
+                    <span className="rounded-pill bg-field px-[10px] py-[3px] text-[13px] font-extrabold">{deal.airlines.join(" · ")}</span>
+                  )}
                 </div>
               )}
             </Link>
