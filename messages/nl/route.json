@@ -5,27 +5,42 @@
   "heroTitle": "Vluchten naar {to}",
   "metaTitle": "Vluchten van {from} naar {to}",
   "fromPrice": "retour vanaf <price></price>",
+  "noPriceHero": "Bekijk live prijzen bij het zoeken",
+  "seenOn": "Prijs gezien op {date}",
   "cta": "Kies data, zoek tickets",
   "facts": {
     "label": "Kort overzicht",
     "duration": "Vliegtijd",
     "durationValue": "{h} u {m} min direct",
+    "durationApprox": "~{h} u {m} min",
     "airports": "Luchthavens",
     "airlines": "Maatschappijen",
-    "timeDiff": "Tijdsverschil"
+    "timeDiff": "Tijdsverschil",
+    "timeDiffSame": "Geen tijdsverschil",
+    "timeDiffFixed": "{diff} uur",
+    "timeDiffSeasonal": "{summer} uur in de zomer, {winter} in de winter"
   },
   "monthly": {
     "title": "Welke maand is het goedkoopst?",
     "subtitle": "Laagste retourprijs per maand. Tik op een maand.",
     "groupLabel": "Kies een maand",
     "aria": "{month}: {price}",
+    "ariaEmpty": "{month}: Bekijk prijs",
     "cheapest": "Goedkoopste maand van het jaar!",
     "diff": "{price} duurder dan de goedkoopste maand",
-    "note": "Voorbeeldprijzen. Echte prijzen worden bij het zoeken bijgewerkt."
+    "checkPrice": "Bekijk prijs",
+    "noData": "Geen opgeslagen prijs voor deze maand",
+    "searchMonth": "Zoek in deze maand",
+    "note": "Voorbeeldprijzen. Echte prijzen worden bij het zoeken bijgewerkt.",
+    "noteLive": "Laagste retourprijzen die onlangs in de Aviasales-cache zijn gezien. Live prijzen openen bij het zoeken."
   },
   "deals": {
     "title": "Goedkoopste data binnenkort",
-    "select": "Kies"
+    "select": "Kies",
+    "goDeal": "Naar deal",
+    "nights": "{n} nachten",
+    "empty": "Nog geen opgeslagen prijzen voor deze route. Bekijk live prijzen via zoeken.",
+    "searchLive": "Zoek live vluchten"
   },
   "airports": {
     "title": "Welke luchthaven past bij jou?"
@@ -34,6 +49,7 @@
     "title": "Tips voor {city}"
   },
   "others": {
-    "title": "Waar nog meer in {country}?"
+    "title": "Waar nog meer in {country}?",
+    "titleOrigin": "Meer routes vanaf {from}"
   }
 }

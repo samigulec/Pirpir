@@ -117,10 +117,17 @@ test.describe("İçerik, yönlendirme ve güvenlik kontrolleri", () => {
     expect(errors).toEqual([]);
   });
 
-  test("Rota sayfası (/ucuslar/amsterdam/istanbul) hatasız açılır", async ({ page }) => {
+  test("Rota sayfaları (editöryal + pazar rotası) hatasız açılır, bilinmeyen rota 404 döner", async ({ page, request }) => {
     const errors = trackErrors(page);
     await page.goto("/ucuslar/amsterdam/istanbul", { waitUntil: "networkidle" });
     await expect(page.locator("h1")).toBeVisible();
+    await expect(page.getByRole("radiogroup", { name: /Ay seçimi/i })).toBeVisible();
+
+    await page.goto("/ucuslar/amsterdam/barselona", { waitUntil: "networkidle" });
+    await expect(page.locator("h1")).toBeVisible();
+
+    const bad = await request.get("/ucuslar/mars/jupiter");
+    expect(bad.status()).toBe(404);
     expect(errors).toEqual([]);
   });
 

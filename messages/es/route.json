@@ -5,27 +5,42 @@
   "heroTitle": "Vuelos a {to}",
   "metaTitle": "Vuelos de {from} a {to}",
   "fromPrice": "ida y vuelta desde <price></price>",
+  "noPriceHero": "Ver precios en directo",
+  "seenOn": "Precio visto el {date}",
   "cta": "Elige fechas y encuentra billetes",
   "facts": {
     "label": "Datos rápidos",
     "duration": "Duración del vuelo",
     "durationValue": "{h} h {m} min directo",
+    "durationApprox": "~{h} h {m} min",
     "airports": "Aeropuertos",
     "airlines": "Aerolíneas",
-    "timeDiff": "Diferencia horaria"
+    "timeDiff": "Diferencia horaria",
+    "timeDiffSame": "Sin diferencia horaria",
+    "timeDiffFixed": "{diff} h",
+    "timeDiffSeasonal": "{summer} h en verano, {winter} h en invierno"
   },
   "monthly": {
     "title": "¿Qué mes es el más barato?",
     "subtitle": "La tarifa de ida y vuelta más baja por mes. Toca un mes.",
     "groupLabel": "Elige un mes",
     "aria": "{month}: {price}",
+    "ariaEmpty": "{month}: Ver precio",
     "cheapest": "¡El mes más barato del año!",
     "diff": "{price} más que el mes más barato",
-    "note": "Precios de ejemplo. Los precios reales se actualizan al buscar."
+    "checkPrice": "Ver precio",
+    "noData": "Sin tarifa guardada para este mes",
+    "searchMonth": "Buscar este mes",
+    "note": "Precios de ejemplo. Los precios reales se actualizan al buscar.",
+    "noteLive": "Tarifas de ida y vuelta más bajas vistas recientemente en la caché de Aviasales. Los precios en directo se abren al buscar."
   },
   "deals": {
     "title": "Las próximas fechas más baratas",
-    "select": "Elegir"
+    "select": "Elegir",
+    "goDeal": "Ir a la oferta",
+    "nights": "{n} noches",
+    "empty": "Aún no hay tarifas guardadas para esta ruta. Consulta los precios en directo en la búsqueda.",
+    "searchLive": "Buscar vuelos en directo"
   },
   "airports": {
     "title": "¿Qué aeropuerto te viene mejor?"
@@ -34,6 +49,7 @@
     "title": "Consejos para {city}"
   },
   "others": {
-    "title": "¿Adónde más en {country}?"
+    "title": "¿Adónde más en {country}?",
+    "titleOrigin": "Más rutas desde {from}"
   }
 }

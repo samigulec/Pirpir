@@ -3,27 +3,42 @@
   "home": "Ana sayfa",
   "heroTitle": "{toDat} uçuşlar",
   "fromPrice": "gidiş-dönüş <price></price>'dan başlayan",
+  "noPriceHero": "Canlı fiyatları aramada gör",
+  "seenOn": "Fiyat {date} tarihinde görüldü",
   "cta": "Tarih seç, bilet bul",
   "facts": {
     "label": "Kısa bilgiler",
     "duration": "Uçuş süresi",
     "durationValue": "{h} sa {m} dk direkt",
+    "durationApprox": "~{h} sa {m} dk",
     "airports": "Havalimanları",
     "airlines": "Havayolları",
-    "timeDiff": "Saat farkı"
+    "timeDiff": "Saat farkı",
+    "timeDiffSame": "Saat farkı yok",
+    "timeDiffFixed": "{diff} saat",
+    "timeDiffSeasonal": "Yazın {summer}, kışın {winter} saat"
   },
   "monthly": {
     "title": "Hangi ay daha ucuz?",
     "subtitle": "Aylara göre en düşük gidiş-dönüş fiyatı. Bir aya dokun.",
     "groupLabel": "Ay seçimi",
     "aria": "{month}: {price}",
+    "ariaEmpty": "{month}: Fiyata bak",
     "cheapest": "Yılın en ucuz ayı!",
     "diff": "En ucuz aydan {price} pahalı",
-    "note": "Örnek fiyatlar. Gerçek fiyatlar arama anında güncellenir."
+    "checkPrice": "Fiyata bak",
+    "noData": "Bu ay için kayıtlı fiyat yok",
+    "searchMonth": "Bu ayda ara",
+    "note": "Örnek fiyatlar. Gerçek fiyatlar arama anında güncellenir.",
+    "noteLive": "Aviasales önbelleğinde son günlerde görülen en düşük gidiş-dönüş fiyatları. Kesin ve güncel fiyat aramada açılır."
   },
   "deals": {
     "title": "Yaklaşan en ucuz tarihler",
-    "select": "Seç"
+    "select": "Seç",
+    "goDeal": "Fırsata git",
+    "nights": "{n} gece",
+    "empty": "Bu rota için yaklaşan kayıtlı tarih fiyatı bulunamadı. Canlı fiyatları aramada görebilirsin.",
+    "searchLive": "Canlı fiyatları ara"
   },
   "airports": {
     "title": "Hangi havalimanı sana uygun?"
@@ -32,7 +47,8 @@
     "title": "{city} için ipuçları"
   },
   "others": {
-    "title": "{countryLoc} başka nereler?"
+    "title": "{countryLoc} başka nereler?",
+    "titleOrigin": "{fromAbl} başka rotalar"
   },
   "heroFrom": "{fromAbl}",
   "metaTitle": "{fromAbl} {toDat} uçuşlar"

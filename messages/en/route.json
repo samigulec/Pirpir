@@ -5,27 +5,42 @@
   "heroTitle": "Flights to {to}",
   "metaTitle": "Flights from {from} to {to}",
   "fromPrice": "return from <price></price>",
+  "noPriceHero": "See live fares in search",
+  "seenOn": "Price seen on {date}",
   "cta": "Pick dates, find tickets",
   "facts": {
     "label": "Quick facts",
     "duration": "Flight time",
     "durationValue": "{h} h {m} min direct",
+    "durationApprox": "~{h} h {m} min",
     "airports": "Airports",
     "airlines": "Airlines",
-    "timeDiff": "Time difference"
+    "timeDiff": "Time difference",
+    "timeDiffSame": "No time difference",
+    "timeDiffFixed": "{diff} h",
+    "timeDiffSeasonal": "{summer} h in summer, {winter} h in winter"
   },
   "monthly": {
     "title": "Which month is cheapest?",
     "subtitle": "Lowest return fare by month. Tap a month.",
     "groupLabel": "Choose a month",
     "aria": "{month}: {price}",
+    "ariaEmpty": "{month}: Check price",
     "cheapest": "Cheapest month of the year!",
     "diff": "{price} more than the cheapest month",
-    "note": "Sample prices. Real prices update when you search."
+    "checkPrice": "Check price",
+    "noData": "No cached fare for this month yet",
+    "searchMonth": "Search this month",
+    "note": "Sample prices. Real prices update when you search.",
+    "noteLive": "Lowest return fares recently seen in Aviasales cache. Live prices update when you search."
   },
   "deals": {
     "title": "Cheapest upcoming dates",
-    "select": "Select"
+    "select": "Select",
+    "goDeal": "View deal",
+    "nights": "{n} nights",
+    "empty": "No cached upcoming fares found for this route yet. Check live prices in search.",
+    "searchLive": "Search live flights"
   },
   "airports": {
     "title": "Which airport suits you?"
@@ -34,6 +49,7 @@
     "title": "Tips for {city}"
   },
   "others": {
-    "title": "Where else in {country}?"
+    "title": "Where else in {country}?",
+    "titleOrigin": "More routes from {from}"
   }
 }

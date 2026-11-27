@@ -5,27 +5,42 @@
   "heroTitle": "Vols pour {to}",
   "metaTitle": "Vols de {from} à {to}",
   "fromPrice": "aller-retour dès <price></price>",
+  "noPriceHero": "Voir les prix en direct",
+  "seenOn": "Prix vu le {date}",
   "cta": "Choisis tes dates, trouve tes billets",
   "facts": {
     "label": "En bref",
     "duration": "Durée de vol",
     "durationValue": "{h} h {m} min en direct",
+    "durationApprox": "~{h} h {m} min",
     "airports": "Aéroports",
     "airlines": "Compagnies aériennes",
-    "timeDiff": "Décalage horaire"
+    "timeDiff": "Décalage horaire",
+    "timeDiffSame": "Aucun décalage",
+    "timeDiffFixed": "{diff} h",
+    "timeDiffSeasonal": "{summer} h en été, {winter} h en hiver"
   },
   "monthly": {
     "title": "Quel mois est le moins cher ?",
     "subtitle": "Prix aller-retour le plus bas par mois. Touche un mois.",
     "groupLabel": "Choisis un mois",
     "aria": "{month} : {price}",
+    "ariaEmpty": "{month} : Voir le prix",
     "cheapest": "Le mois le moins cher de l'année !",
     "diff": "{price} de plus que le mois le moins cher",
-    "note": "Prix donnés à titre d'exemple. Les vrais prix se mettent à jour quand tu lances une recherche."
+    "checkPrice": "Voir le prix",
+    "noData": "Aucun prix en cache pour ce mois",
+    "searchMonth": "Chercher ce mois-ci",
+    "note": "Prix donnés à titre d'exemple. Les vrais prix se mettent à jour quand tu lances une recherche.",
+    "noteLive": "Tarifs aller-retour les plus bas vus récemment dans le cache Aviasales. Les prix en direct s'affichent lors de la recherche."
   },
   "deals": {
     "title": "Prochaines dates les moins chères",
-    "select": "Choisir"
+    "select": "Choisir",
+    "goDeal": "Voir l'offre",
+    "nights": "{n} nuits",
+    "empty": "Aucun tarif en cache pour cette liaison pour l'instant. Consulte les prix en direct dans la recherche.",
+    "searchLive": "Chercher les vols en direct"
   },
   "airports": {
     "title": "Quel aéroport te convient ?"
@@ -34,6 +49,7 @@
     "title": "Conseils pour {city}"
   },
   "others": {
-    "title": "Où aller d'autre en {country} ?"
+    "title": "Où aller d'autre en {country} ?",
+    "titleOrigin": "Autres destinations au départ de {from}"
   }
 }
