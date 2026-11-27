@@ -121,6 +121,61 @@ Her işi bitirdiğinde bu dosyanın en altındaki **İş günlüğü**ne bir sat
 
 Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tahminle ilerleme.
 
+---
+
+## 5. İkinci tur iş listesi (Gemini) — öncelik sırasıyla
+
+Kurallar (bölüm 1) ve kontrol komutları (bölüm 2) aynen geçerli. Her alt adım ayrı commit, her iş sonunda iş günlüğüne
+satır. **Claude'un alanına dokunma:** `src/components/results/LiveWidget.tsx`, `ResultsView.tsx`, `LiveResults.tsx`,
+`OfferCard.tsx`, `src/app/[locale]/ara/page.tsx` ve `globals.css` içindeki `#tpwl-tickets` bloğu Claude'da (canlı liste
+ve stili üzerinde çalışıyor). Bu dosyalarda değişiklik gerekirse iş günlüğüne yaz, Claude yapsın.
+Bitince bir sonraki işe geç; kullanıcı kararı gereken yerde dur ve günlüğe "KARAR GEREKİYOR" diye yaz.
+
+### 5.1 Uçtan uca test paketi (önce bu — sonraki işlerin güvenlik ağı)
+- `@playwright/test` geliştirme bağımlılığı (ortamda Playwright kurulu; sürümü ona uydur, tarayıcı indirme yok:
+  `executablePath` gerekirse `/opt/pw-browsers/chromium`). `playwright.config.ts`, `tests/e2e/`, `npm run e2e`.
+- Testler **örnek veri modunda** çalışsın (token yok → `priceSource()` "demo"; ağ gerektirmez): `npx next build &&
+  npx next start` üzerinde. Kapsam: ana sayfa (TR + EN), arama kutusundan sonuç sayfasına (şehir yaz → öneriden seç →
+  takvimden tarih → Bilet bul), sonuç sayfasında filtre/sıralama/tarih şeridi, `/git` yönlendirmesi (302, parametreler),
+  `/firsatlar`, rota sayfası, gizlilik sayfası (7 dil 200), `/yonetim/*` girişsiz 307, `/api/cron/*` anahtarsız 401,
+  telefon boyutu (iPhone 13) için ana sayfa + sonuç sayfası, sayfalarda JS hatası olmaması.
+- `--trace off` varsayılan. README/GELISTIRME.md'ye nasıl çalıştırılacağını yaz.
+
+### 5.2 Rota sayfaları gerçek veriye (en önemli içerik işi)
+Şu an `/ucuslar/[nereden]/[nereye]` (`Destination.dc.html`) **örnek veri** (`src/data/mock/routes.ts`) gösteriyor:
+aylık fiyat grafiği, en ucuz tarihler uydurma. Ortaklık modunda gerçek veriye çevir:
+- Aylık grafik ve "en ucuz tarihler": `groupedPrices` (Travelpayouts, `group_by=month` ve ay içi `departure_at`),
+  `unstable_cache` 6–12 saat. Fiyatın görüldüğü gün yazılsın; veri yoksa o ay "Fiyata bak" (uydurma yok).
+- Her tarih/ay satırı arama sayfasına (`searchHref`) gitsin; "Fırsata git" gerekiyorsa `goHref(..., "route:<slug>")`.
+- Rota listesi: mevcut rotalar + pazarların (`src/config/markets.ts`) popüler rotaları; `generateStaticParams` +
+  ISR (`revalidate`), sitemap'e ekle. Şehir başına havalimanları ve ipuçları bölümü tasarımdaki gibi kalsın.
+- Tasarıma birebir sadakat (CLAUDE.md altın kural) ve 7 dil. Demo modda eski örnek veri çalışmaya devam etsin.
+
+### 5.3 Ana sayfa ortaklık moduna tam uyum
+- Popüler uçuşlar / karakter ipuçlarındaki fiyatlar: yayınlanmış fırsat yoksa `groupedPrices` ile rotanın
+  önümüzdeki 60 gündeki en ucuz gününden ("…'dan", görüldüğü gün ile). Boş kart kalmasın.
+- Kategori filtresi (Tümü / Türkiye / Avrupa / Deniz & güneş / Şehir turu) gerçek veriyle çalışsın.
+- "Fiyat alarmı" formu ve SSS metinleri ortaklık modunda doğru mu kontrol et (bilet satmıyoruz, ödeme satıcıda).
+
+### 5.4 Fiyat alarmı e-postası ortaklık moduna
+`src/lib/emails/price-drop.ts`: e-postadaki ana düğme sonuç sayfasına (canlı liste) gitsin; "Fırsata git" için
+`goHref(..., "alert:<id>")` bağlantısı da olsun (tıklama raporunda `alert` kaynağı görünsün). Önbellekli fiyatın
+görüldüğü gün e-postada yazsın ("Fiyat x gün önce görüldü"). 7 dil, mevcut tasarım.
+
+### 5.5 Performans ve erişilebilirlik denetimi
+- Lighthouse (Chromium, `--headless --no-sandbox`) ile `/`, `/ara?...`, `/firsatlar`, bir rota sayfası: masaüstü + mobil.
+  Raporu `docs/denetim.md`'ye özetle (puanlar, en büyük 5 sorun). Kolay ve güvenli olanları düzelt (görsel boyutları,
+  `alt`/`aria-label`, kontrast ≥ 4.5:1, dokunma hedefi ≥ 44 px, gereksiz istemci JS).
+- Üçüncü taraf betikler (tpwgt.com) için yalnızca rapor, değişiklik Claude'da.
+
+### 5.6 Hukuki yer tutucular listesi (yalnızca rapor)
+`[ŞİRKET ADI]`, `[ADRES]`, `[İLETİŞİM E-POSTASI]`, `[İPTAL KOŞULLARI]`, `[DESTEK SAATLERİ]` vb. tüm köşeli parantezli
+yer tutucuları dosya/satırıyla `docs/yer-tutucular.md`'ye listele; kullanıcı dolduracak. Metinleri değiştirme.
+
+### 5.7 Sonraki fikirler (kod yazma, yalnızca öneri yaz)
+Telegram/WhatsApp fırsat kanalı otomasyonu, e-posta bülteni, fırsat sayfalarının SEO'su — her biri için 3–5 satırlık
+öneri ve gereken hesap/anahtar listesi `docs/DEVAM.md` sonuna.
+
 ## İş günlüğü
 
 - [hazırlık] Claude — White Label kodu (`NEXT_PUBLIC_TP_WL_HOST`), Travelpayouts sağlayıcısı, logolar, tazelik etiketi,
