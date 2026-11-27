@@ -208,3 +208,10 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   - Kullanıcı kurulumu gerekiyor (canlı aktivasyon): (1) Supabase SQL Editor'da `supabase/migrations/0006_deals.sql` çalıştırılmalı,
     (2) Vercel → Environment Variables → `ADMIN_EMAILS` (kendi giriş e-postası, Production) eklenip yeniden yayınlanmalı.
   - Sıradaki işler: 3.7 (`/yonetim/tiklamalar`) ve 3.8 (Gizlilik/çerez metni).
+- [kontrol] Claude — 3.5 onaylandı. İncelendi: `ADMIN_EMAILS` + doğrulanmış Supabase oturumu (`getAdminUser`), tüm yönetim
+  eylemleri sunucuda yetki kontrolünden geçiyor; herkese açık sayfalar yalnızca `published` okuyor (taslak id → 404);
+  cron `CRON_SECRET` (anahtarsız 401); `deals` RLS açık, politika yok; aday kuralları DEVAM önerisiyle aynı. lint + build
+  (temiz) ve son kullanıcı senaryoları geçti. `/firsatlar`, `/en/deals` 200, `/yonetim/firsatlar` girişsiz 307.
+  Canlı widget: `NEXT_PUBLIC_TP_WL_WIDGET_ID=25161` ile yerelde betik yükleniyor ve `flightSearch=AMS2712ADB1` ekleniyor;
+  sonuçların gerçekten göründüğü Vercel'de değişken eklenince canlıda doğrulanacak. 3.7 ve 3.8'e geçilebilir; 3.8'de
+  White Label widget'ının (tpwgt.com) çerezleri de gizlilik metnine girmeli.
