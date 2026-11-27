@@ -134,3 +134,11 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   Denendi: `npm audit --omit=dev` (0 açık), `npm run lint` (`tsc --noEmit` hatasız), `npx next build` (71/71 sayfa),
   yerel `npx next start -p 3123` üzerinde `/` (HTTP 200), `/ara?from=AMS&to=IST&date=2027-01-22&return=2027-01-25` (HTTP 200) ve
   `/git?from=AMS&to=IST&d=2027-01-22&r=2027-01-25&a=1&l=tr&src=results` (HTTP 302 → `tp.media`). Bilinen eksik yok.
+- [3.4] Tarih şeridi ve fiyat takvimi ay verisine çevrildi — commit 80b50e7 — `src/lib/providers/travelpayouts.ts` içine
+  `groupedPrices` (`/aviasales/v3/grouped_prices`) ve `returnMonthPrices` eklendi; `src/lib/price-calendar.ts` ortaklık
+  modunda (`priceSource() === "travelpayouts"`) 10 dk `unstable_cache` ile ay verisini kullanıyor (Duffel/örnek mod korundu).
+  `DateStrip` (`monthlyPrices`) `/api/date-prices?strip=1` ile ±3 günü tek istekte dolduruyor, kayıt olmayan günler `null` ("Fiyata bak")
+  kalıyor. Denendi: `npm run lint`, `npx next build` (71/71 sayfa) ve yerel mock Travelpayouts sunucusu + demo mod üzerinde
+  8 uçtan uca kontrol (`strip=1` tek istek, önbellek isabeti, ay sınırı birleştirme, gidiş/dönüş/tek yön `/api/calendar-prices`,
+  `/ara` HTTP 200, demo geri dönüşü). Not: Gerçek `TRAVELPAYOUTS_TOKEN` yalnızca Vercel'de olduğu için canlı veri doğrulaması
+  yayın sonrası `flypirpir.nl` üzerinde yapılmalı.
