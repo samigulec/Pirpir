@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { isAffiliate, liveWidgetId } from "@/config/affiliate";
+import { isAffiliate, liveListFor, liveWidgetId } from "@/config/affiliate";
 import { LiveWidget } from "./LiveWidget";
 import { goHref } from "@/lib/outbound";
 import { Link } from "@/i18n/navigation";
@@ -88,13 +88,12 @@ export function LiveResults({
   // Ana liste canlı uçuşlar (White Label widget): gerçek uçuşlar, güncel fiyat, kendi filtreleri. Kayıtlı (önbellekli)
   // fiyatlar burada liste olarak gösterilmez; tarih şeridi, fiyat trendi ve alarm onlardan beslenir.
   // Birden çok kalkış/varış yeri seçildiyse widget tek rota aradığı için eski liste kullanılır.
-  const liveOnly = isAffiliate() && !!liveWidgetId() && q.from.length === 1 && q.to.length === 1;
-  if (liveOnly)
+  // Canlı liste sayfada ayrıca (hemen) başlatılır; burada yalnızca üst bölüm
+  if (liveListFor(q))
     return (
       <>
         {chunk.done && <DateStrip q={q} current={cheapest} monthlyPrices={monthlyPrices} />}
         {chunk.done && <PriceTrends q={q} actions={<PriceAlertButton q={q} offers={chunk.offers} filters={filters} />} />}
-        <LiveWidget q={q} />
       </>
     );
   return (

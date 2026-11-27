@@ -9,6 +9,8 @@ import { cityByCode } from "@/data/airports";
 import { intlLocale } from "@/lib/intl";
 import { formatDayLong, formatRange } from "@/lib/dates";
 import { nearbyOffers } from "@/lib/providers/travelpayouts";
+import { liveListFor } from "@/config/affiliate";
+import { LiveWidget } from "@/components/results/LiveWidget";
 import { dataMode, priceSource, getFlexibleDateTip, searchFlightsCached, watchSearch } from "@/lib/flights";
 import { paxTotal, searchHref, todayIso, type MultiQuery } from "@/lib/search";
 import { ResultsSearchBar } from "@/components/results/ResultsSearchBar";
@@ -96,9 +98,11 @@ export default async function ResultsPage({
         ) : (
           <>
             {/* Arama her değiştiğinde (ör. tarih şeridinden) yükleme ekranı görünsün diye anahtarlı */}
-            <Suspense key={JSON.stringify(q)} fallback={<ResultsLoading />}>
+            <Suspense key={JSON.stringify(q)} fallback={liveListFor(q) ? <StripLoading /> : <ResultsLoading />}>
               <Results q={q} locale={locale} />
             </Suspense>
+            {/* Ana liste canlı uçuşlar: sunucudaki kayıtlı fiyat aramasını beklemeden hemen başlar */}
+            {liveListFor(q) && <LiveWidget key={JSON.stringify(q)} q={q} />}
           </>
         )}
       </main>
@@ -215,7 +219,7 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
   let first: LiveChunk;
   let tip: ResultsTip = null;
   try {
-    const [chunk, flex] = await Promise.all([liveChain(q, locale, flexSearches(q)), q.flex ? null : getFlexibleDateTip(q)]);
+    const [chunk, flex] = await Promise.all([liveChain(q, locale, flexSearches(q)), q.flex || liveListFor(q) ? null : getFlexibleDateTip(q)]);
     first = chunk;
     if (flex) {
       tip = { href: searchHref({ ...flex.query, returnDate: flex.query.returnDate ?? "" }), day: formatDayLong(flex.query.date, loc), price: flex.price, save: flex.save };
@@ -229,7 +233,8 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
   }
   // Önbellekli fiyatlarda tam tarihlere kayıt yoksa yakın günlerin kayıtlı fiyatları (her biri kendi tarihleriyle)
   let nearby: { sections: { title: "nearbyTitle" | "nearbyOut" | "nearbyBack"; offers: Offer[]; want: { date: string; returnDate?: string } }[]; cityNames: Record<string, string> } | undefined;
-  if (priceSource() === "travelpayouts" && first.done && !first.offers.length && q.from.length === 1 && q.to.length === 1) {
+  // Ana liste canlıysa yakın tarihlere bakılmaz (gösterilmeyecekler)
+  if (!liveListFor(q) && priceSource() === "travelpayouts" && first.done && !first.offers.length && q.from.length === 1 && q.to.length === 1) {
     const code = (c: string) => c.replace(/^city:/, "");
     const from = code(q.from[0]);
     const to = code(q.to[0]);
@@ -277,6 +282,17 @@ async function SearchFailed({ q, detail }: { q: MultiQuery; detail?: string }) {
       <span className="text-muted">{t("failed.text")}</span>
       {detail && <code className="rounded-[10px] bg-white px-3 py-2 text-[13px] text-muted">{detail}</code>}
       <Link href={searchHref({ ...q, returnDate: q.returnDate ?? "" })} className={pill}>{t("failed.retry")}</Link>
+    </div>
+  );
+}
+
+/** Canlı listede üst bölüm (tarih şeridi) gelene kadar ince bir yer tutucu: sayfa zıplamasın */
+function StripLoading() {
+  return (
+    <div aria-hidden="true" className="grid grid-cols-3 gap-2 md:grid-cols-7">
+      {Array.from({ length: 7 }, (_, i) => (
+        <div key={i} className={`h-[84px] animate-pulse rounded-[18px] bg-field ${i > 2 ? "hidden md:block" : ""}`} />
+      ))}
     </div>
   );
 }

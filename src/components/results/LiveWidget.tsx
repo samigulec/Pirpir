@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { preconnect, preloadModule } from "react-dom";
 import { useTranslations } from "next-intl";
 import { liveWidgetSrc } from "@/config/affiliate";
 import { aviasalesRoute } from "@/lib/outbound";
@@ -55,6 +56,9 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
   }, [src, route]);
 
   if (!src || q.from.length !== 1 || q.to.length !== 1) return null;
+  // Hız: betik sayfa açılır açılmaz indirilir (çalıştırılmaz) ve sunucularına bağlantı önceden kurulur
+  preloadModule(src, { as: "script" });
+  for (const host of ["https://tpwgt.com", "https://img.avs.io"]) preconnect(host, { crossOrigin: "anonymous" });
   return (
     <section aria-labelledby="live-title" className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
@@ -62,7 +66,7 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
         <p className="m-0 text-[15px] font-semibold text-muted">{t("liveText")}</p>
       </div>
       {/* Widget arama formunu ve sonuçlarını bu alanlara yerleştirir */}
-      <div ref={box} className="min-h-[480px] overflow-hidden rounded-[28px] border-2 border-solid border-line bg-white p-2 md:p-4">
+      <div ref={box} className="min-h-[480px]">
         <div id="tpwl-search" className="hidden" aria-hidden="true" />
         <div id="tpwl-tickets" />
       </div>

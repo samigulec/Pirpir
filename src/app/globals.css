@@ -49,3 +49,76 @@
     -webkit-print-color-adjust: exact;
   }
 }
+
+/* ---- Canlı uçuşlar (Travelpayouts White Label widget) — pirpir tasarımına uyum ----
+   Widget sayfanın içine çizilir (iframe değil). Renk/yazı/köşe değişkenleri satır içi gelir; !important ile ezilir.
+   Sınıf adları "Bileşen-module__ad___karma" biçiminde: yalnızca kararlı ön ek ([class*=…]) hedeflenir. */
+#tpwl-tickets {
+  --font-main: var(--font-nunito), system-ui, sans-serif !important;
+  --font-color: #1e2a44 !important;
+  --main-accent: #2f5bd3 !important;
+  --main-accent-darken: #1e3f9e !important;
+  --main-accent-opacified: rgba(47, 91, 211, 0.1) !important;
+  --main-accent-contrast-color: #ffffff !important;
+  --link-color: #2f5bd3 !important;
+  --link-color-darken: #1e3f9e !important;
+  --search-form-icon-color: #2f5bd3 !important;
+  --search-form-link-color: #1e2a44 !important;
+  --border-color: #e3e8f2 !important;
+  --border-radius: 18px !important;
+  --ticket-cards-background: #ffffff !important;
+  font-family: var(--font-nunito), system-ui, sans-serif !important;
+  color: #1e2a44;
+}
+#tpwl-tickets [class*="FlightCard-module__card___"] {
+  border: 2px solid #e3e8f2 !important;
+  border-radius: 28px !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+#tpwl-tickets [class*="FlightCard-module__cardLeft___"] {
+  background: #f5f8fd !important;
+}
+#tpwl-tickets [class*="FlightCard-module__cardBadges___"] {
+  background: #ffd166 !important;
+  color: #1e2a44 !important;
+  border-radius: 999px !important;
+  font-family: var(--font-fredoka), var(--font-baloo), sans-serif !important;
+  font-weight: 600 !important;
+}
+#tpwl-tickets [class*="FlightCard-module__cardLeftPrice___"],
+#tpwl-tickets [class*="Flight-module__cardFlightTime___"] {
+  font-family: var(--font-fredoka), var(--font-baloo), sans-serif !important;
+  font-weight: 700 !important;
+  color: #1e2a44 !important;
+}
+#tpwl-tickets [class*="FlightCard-module__cardLeftPrice___"] {
+  font-size: 30px !important;
+}
+#tpwl-tickets [class*="Button-module__root___"],
+#tpwl-tickets [class*="TicketsWidget-module__moreTickets___"] {
+  border-radius: 999px !important;
+  font-family: var(--font-fredoka), var(--font-baloo), sans-serif !important;
+  font-weight: 600 !important;
+  min-height: 48px;
+}
+#tpwl-tickets [class*="Button-module__primary___"] {
+  background: #2f5bd3 !important;
+  color: #ffffff !important;
+}
+#tpwl-tickets [class*="TicketsWidget-module__moreTickets___"] {
+  background: #ffffff !important;
+  color: #1e2a44 !important;
+  border: 2px solid #e3e8f2 !important;
+}
+#tpwl-tickets [class*="ClearableParameter-module__root___"] {
+  border-radius: 999px !important;
+  font-weight: 700 !important;
+}
+#tpwl-tickets [class*="FlightFiltersContent-module__root___"] {
+  background: #f5f8fd !important;
+  border-radius: 28px !important;
+}
+#tpwl-tickets [class*="SearchProgressbar-module__progressInner___"] {
+  background: #2f5bd3 !important;
+}

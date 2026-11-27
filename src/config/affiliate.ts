@@ -34,3 +34,7 @@ export function liveWidgetSrc(): string | null {
   const id = v.replace(/\D/g, "");
   return id ? `https://tpwgt.com/wl_web/main.js?wl_id=${id}` : null;
 }
+
+/** Sonuç sayfasının ana listesi canlı uçuşlar mı (ortaklık modu + widget kimliği + tek kalkış ve tek varış yeri)? */
+export const liveListFor = (q: { from: string[]; to: string[] }) =>
+  isAffiliate() && !!liveWidgetId() && q.from.length === 1 && q.to.length === 1;
