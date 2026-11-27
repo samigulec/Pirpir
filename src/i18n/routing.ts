@@ -41,6 +41,7 @@ export const routing = defineRouting({
     "/hesap": { tr: "/hesap", en: "/account", nl: "/account", de: "/konto", fr: "/compte", es: "/cuenta", it: "/account" },
     "/gizlilik": { tr: "/gizlilik", en: "/privacy", nl: "/privacy", de: "/datenschutz", fr: "/confidentialite", es: "/privacidad", it: "/privacy" },
     "/kosullar": { tr: "/kosullar", en: "/terms", nl: "/voorwaarden", de: "/agb", fr: "/conditions", es: "/condiciones", it: "/termini" },
+    "/yonetim/firsatlar": "/yonetim/firsatlar",
   },
 });
 
