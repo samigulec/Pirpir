@@ -71,7 +71,7 @@
     "bagsNote": "Les prix incluent les bagages choisis ; les vols qui ne les proposent pas ne sont pas affichés.",
     "withNearby": "{city} + aéroports proches",
     "nearbyDetail": "{list} · dans un rayon de {km} km",
-    "bagsNoteAff": "Les options de bagages et les éventuels frais s’affichent dans la liste en direct et chez le vendeur."
+    "bagsNoteAff": "Le bagage en soute active le filtre « Bagage inclus » dans la liste en direct ; le bagage cabine et les frais s’affichent sur chaque vol et chez le vendeur."
   },
   "trust": {
     "label": "Pourquoi {brand}",

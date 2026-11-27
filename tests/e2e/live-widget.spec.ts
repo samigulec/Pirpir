@@ -179,4 +179,78 @@ test.describe("Canlı widget (8.1 tarih kayması ve URL koruması)", () => {
     expect(page.url()).toContain("flightSearch=AMS1501ADB22011");
     await expect(page.locator("#results-search")).toContainText("15 – 22 Oca");
   });
+
+  test("8.2 Masaüstünde checkedBags=1 'Bagaj dahil' filtresini açar, yenilemede korur, kullanıcı kapatınca tekrar açmaz", async ({ page }) => {
+    await interceptWidget(page);
+    await page.goto("/ara?from=AMS&to=ADB&date=2027-01-02&return=2027-01-09&adults=1&checkedBags=1", { waitUntil: "networkidle" });
+    await page.waitForURL(/flightSearch=AMS0201ADB09011/);
+
+    // Masaüstü "Bagaj dahil" çipi otomatik açılır ve kartlar bagajlı fiyata geçer
+    await expect.poll(async () =>
+      page.evaluate(() => {
+        const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+        const chip = sr?.querySelector('[data-testid="baggage-included-filter"]');
+        const price = sr?.querySelector('[data-testid="flight-card-price"]')?.textContent?.trim();
+        return { active: /valueChanged/.test(chip?.className ?? ""), price };
+      }),
+    ).toEqual({ active: true, price: "€ 312" });
+
+    // Sayfa yenilenince (adresten checkedBags düşmüş olsa bile) bagaj filtresi ve üst çubuktaki seçim korunur
+    await page.reload({ waitUntil: "networkidle" });
+    await expect.poll(async () =>
+      page.evaluate(() => {
+        const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+        const chip = sr?.querySelector('[data-testid="baggage-included-filter"]');
+        return /valueChanged/.test(chip?.className ?? "");
+      }),
+    ).toBe(true);
+    await expect(page.locator('#results-search [aria-label*="1 kontrol edilen bagaj"]')).toBeVisible();
+
+    // Kullanıcı çipi kendisi kapatınca (trusted click) yenilemede bir daha zorla açılmaz
+    await page.locator("#tpwl-tickets").locator('[data-testid="baggage-included-filter"]').click();
+    await expect.poll(async () =>
+      page.evaluate(() => {
+        const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+        return /valueChanged/.test(sr?.querySelector('[data-testid="baggage-included-filter"]')?.className ?? "");
+      }),
+    ).toBe(false);
+    await page.waitForTimeout(120);
+    await page.reload({ waitUntil: "networkidle" });
+    await page.waitForTimeout(600);
+    const activeAfterOff = await page.evaluate(() => {
+      const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+      return /valueChanged/.test(sr?.querySelector('[data-testid="baggage-included-filter"]')?.className ?? "");
+    });
+    expect(activeAfterOff).toBe(false);
+  });
+
+  test("8.2 Mobil görünümde (390px) gizli masaüstü çipi yerine görünür mobil 'Bagaj dahil' çipi açılır ve yenilemede korunur", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await interceptWidget(page);
+    await page.goto("/ara?from=AMS&to=ADB&date=2027-01-02&return=2027-01-09&adults=1&checkedBags=1", { waitUntil: "networkidle" });
+    await page.waitForURL(/flightSearch=AMS0201ADB09011/);
+
+    await expect.poll(async () =>
+      page.evaluate(() => {
+        const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+        const mobileChip = sr?.querySelector('[class*="FlightFiltersMobileMenu-module__list"] [class*="ClearableParameter-module__root"]');
+        const price = sr?.querySelector('[data-testid="flight-card-price"]')?.textContent?.trim();
+        return {
+          visible: (mobileChip?.getBoundingClientRect().width ?? 0) > 0,
+          active: /valueChanged/.test(mobileChip?.className ?? ""),
+          price,
+        };
+      }),
+    ).toEqual({ visible: true, active: true, price: "€ 312" });
+
+    // Yenilemede mobil çip yine açık kalır
+    await page.reload({ waitUntil: "networkidle" });
+    await expect.poll(async () =>
+      page.evaluate(() => {
+        const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+        const mobileChip = sr?.querySelector('[class*="FlightFiltersMobileMenu-module__list"] [class*="ClearableParameter-module__root"]');
+        return /valueChanged/.test(mobileChip?.className ?? "");
+      }),
+    ).toBe(true);
+  });
 });

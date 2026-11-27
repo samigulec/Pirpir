@@ -12,6 +12,8 @@ import { DateRangePicker } from "./DateRangePicker";
 import { formatRangeShort } from "@/lib/dates";
 import { CabinBagIcon, CheckedBagIcon } from "../results/BagIcons";
 import { CABINS, MAX_PASSENGERS, MAX_SEARCH_BAGS, addDays, paxTotal, searchHref, validateSearch, type CabinClass, type Flex, type Passengers, type SearchError } from "@/lib/search";
+import { aviasalesRoute } from "@/lib/outbound";
+import { readWidgetBags, saveWidgetBags } from "@/lib/live-widget-bags";
 
 type Trip = "rt" | "ow";
 
@@ -69,6 +71,16 @@ export function SearchForm({
   const [datesTouched, setDatesTouched] = useState(!!initial);
   const [suggested, setSuggested] = useState(false);
 
+  // Canlı widget adresi yalnızca `?flightSearch=...` biçimine indirdiği için yenilemede bagaj `sessionStorage`'dan geri yüklenir
+  useEffect(() => {
+    if (!compact || initial?.bags?.cabin || initial?.bags?.checked) return;
+    const sp = new URLSearchParams(window.location.search);
+    const fs = sp.get("flightSearch");
+    if (!fs || sp.has("from")) return;
+    const saved = readWidgetBags(fs);
+    if (saved) setBags(saved);
+  }, [compact, initial?.bags?.cabin, initial?.bags?.checked]);
+
   const routeKey = `${from.map((p) => p.code).join(",")}>${to.map((p) => p.code).join(",")}`;
   useEffect(() => {
     if (datesTouched || !from.length || !to.length) return;
@@ -104,6 +116,19 @@ export function SearchForm({
     const err = validateSearch(q);
     setError(err);
     if (err) return;
+    if (q.from.length === 1 && q.to.length === 1) {
+      const route = aviasalesRoute({
+        from: q.from[0],
+        to: q.to[0],
+        date: q.date,
+        returnDate: q.returnDate,
+        adults: q.pax.adults,
+        children: q.pax.children,
+        infants: q.pax.infants,
+        cabin: q.cabin,
+      });
+      saveWidgetBags(route, q.bags);
+    }
     router.push(searchHref({ ...q, returnDate: q.returnDate ?? "" }));
   };
 

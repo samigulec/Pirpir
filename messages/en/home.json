@@ -71,7 +71,7 @@
     "bagsNote": "Prices include the bags you pick; flights that don't sell them are not listed.",
     "withNearby": "{city} + nearby airports",
     "nearbyDetail": "{list} · within {km} km",
-    "bagsNoteAff": "Baggage options and extra fees are shown in the live flight list and at the seller’s checkout."
+    "bagsNoteAff": "Selecting checked baggage turns on the \"Baggage included\" filter in the live list; cabin baggage and extra fees are shown on each flight and at checkout."
   },
   "trust": {
     "label": "Why {brand}",

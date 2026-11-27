@@ -71,7 +71,7 @@
     "bagsNote": "Los precios incluyen el equipaje que elijas; no mostramos los vuelos que no lo venden.",
     "withNearby": "{city} + aeropuertos cercanos",
     "nearbyDetail": "{list} · a menos de {km} km",
-    "bagsNoteAff": "Las opciones de equipaje y los cargos adicionales se muestran en la lista en directo y en la web del vendedor."
+    "bagsNoteAff": "El equipaje facturado activa el filtro «Equipaje incluido» en la lista en directo; el equipaje de mano y los cargos se muestran en cada vuelo y en el vendedor."
   },
   "trust": {
     "label": "Por qué {brand}",

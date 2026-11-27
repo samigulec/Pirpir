@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { readInitial as readInitialCurrency, useCurrency } from "../CurrencyProvider";
 import { useRouter } from "@/i18n/navigation";
 import { liveWidgetSrc } from "@/config/affiliate";
+import { readWidgetBags, saveWidgetBags } from "@/lib/live-widget-bags";
 import { cleanWidgetUrl, widgetSyncQuery } from "@/lib/live-widget-url";
 import { aviasalesRoute, parseAviasalesRoute } from "@/lib/outbound";
 import type { MultiQuery } from "@/lib/search";
@@ -107,22 +108,112 @@ function enhanceShadow(host: HTMLElement | null): () => void {
   };
 }
 
+const isVisible = (el: Element | null): el is HTMLElement => {
+  if (!(el instanceof HTMLElement)) return false;
+  const r = el.getBoundingClientRect();
+  return r.width > 0 && r.height > 0;
+};
+
 /**
- * Arama kutusunda bagaj seçildiyse widget'ın kendi "Bagaj dahil" filtresi açılır (widget bunu adresten okumaz).
- * Çip ilk sonuçlarla belirir; bir kez tıklanır. Kullanıcı sonra widget'ta kaldırabilir.
+ * Widget'taki "Bagaj dahil" filtre çipini bulur:
+ * - Masaüstünde "Popüler filtreler" içindeki `[data-testid="baggage-included-filter"]`
+ * - Telefonda (masaüstü yan paneli gizliyken) mobil filtre çubuğunun ilk çipi (her dilde bagaj dahil)
  */
-function applyBaggageFilter(host: HTMLElement | null): () => void {
+function findBaggageChip(root: ShadowRoot): HTMLElement | null {
+  const desktop = root.querySelector<HTMLElement>('[data-testid="baggage-included-filter"]');
+  if (isVisible(desktop)) return desktop;
+  const mobile = root.querySelector<HTMLElement>(
+    '[class*="FlightFiltersMobileMenu-module__list"] [class*="ClearableParameter-module__root"]',
+  );
+  if (isVisible(mobile)) return mobile;
+  return desktop;
+}
+
+const isBaggageActive = (el: HTMLElement) => /valueChanged/.test(el.className);
+
+/**
+ * Arama kutusunda kontrol edilen bagaj seçildiyse (veya `sessionStorage`'da bu rota için kayıtlıysa)
+ * widget'ın "Bagaj dahil" filtresini açar ve `valueChanged` sınıfıyla etkinleştiğini doğrular.
+ * Kullanıcı çipi kendisi kapatırsa `sessionStorage` güncellenir ve bir daha zorla açılmaz.
+ */
+function applyBaggageFilter(host: HTMLElement | null, route: string, wantOn: boolean): () => void {
   if (!host) return () => {};
   let tries = 0;
+  let clicks = 0;
+  let userTouched = false;
+  let attachedRoot: ShadowRoot | null = null;
+
+  const onUserClick = (e: Event) => {
+    if (!e.isTrusted) return;
+    const path = e.composedPath() as Element[];
+    const hit = path.some(
+      (n) =>
+        n instanceof HTMLElement &&
+        (n.getAttribute("data-testid") === "baggage-included-filter" ||
+          (n.matches('[class*="ClearableParameter-module__root"]') &&
+            !!n.closest('[class*="FlightFiltersMobileMenu-module__list"]') &&
+            n === n.closest('[class*="FlightFiltersMobileMenu-module__list"]')?.querySelector('[class*="ClearableParameter-module__root"]'))),
+    );
+    if (!hit) return;
+    userTouched = true;
+    // Tıklamadan sonraki durumu kaydet (kullanıcı kapattıysa yenilemede tekrar açılmasın)
+    window.setTimeout(() => {
+      const chip = attachedRoot ? findBaggageChip(attachedRoot) : null;
+      if (!chip) return;
+      const active = isBaggageActive(chip);
+      const prev = readWidgetBags(route);
+      saveWidgetBags(route, { cabin: prev?.cabin ?? 0, checked: active ? Math.max(1, prev?.checked ?? 1) : 0 });
+    }, 50);
+  };
+
+  const attachListener = (root: ShadowRoot) => {
+    if (attachedRoot === root) return;
+    attachedRoot = root;
+    root.addEventListener("click", onUserClick, true);
+  };
+
   const timer = window.setInterval(() => {
     const root = host.shadowRoot;
-    const chip = root?.querySelector<HTMLElement>('[data-testid="baggage-included-filter"]');
-    if (chip && root?.querySelector(CARD)) {
-      chip.click();
+    if (!root) {
+      if (++tries > 240) window.clearInterval(timer);
+      return;
+    }
+    attachListener(root);
+    if (userTouched) {
       window.clearInterval(timer);
-    } else if (++tries > 240) window.clearInterval(timer); // ~60 sn
+      return;
+    }
+    const chip = findBaggageChip(root);
+    if (chip && root.querySelector(CARD)) {
+      const active = isBaggageActive(chip);
+      if (wantOn) {
+        if (active) {
+          window.clearInterval(timer);
+          return;
+        }
+        if (clicks < 8 && tries % 2 === 0) {
+          chip.click();
+          clicks++;
+        }
+      } else {
+        // Kullanıcı üst çubuktan bagajı 0'a çektiyse ve çip açıksa kapat
+        if (!active) {
+          window.clearInterval(timer);
+          return;
+        }
+        if (clicks < 4) {
+          chip.click();
+          clicks++;
+        }
+      }
+    }
+    if (++tries > 240) window.clearInterval(timer); // ~60 sn
   }, 250);
-  return () => window.clearInterval(timer);
+
+  return () => {
+    window.clearInterval(timer);
+    attachedRoot?.removeEventListener("click", onUserClick, true);
+  };
 }
 
 /**
@@ -152,6 +243,9 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
   useEffect(() => {
     if (!src) return;
     const w = window as W;
+    const sp = new URLSearchParams(window.location.search);
+    // Açık arama adresi (`?from=...`) geldiyse bagaj seçimi `sessionStorage`'a yazılır (yenilemede korunsun)
+    if (sp.has("from")) saveWidgetBags(route, q.bags ?? null);
     const clean = cleanWidgetUrl(window.location.href, route);
     if (document.getElementById(SCRIPT_ID)) {
       // Widget zaten bu aramayı gösteriyor (kendi şeridinden geçildi) → bir şey yapma; başka arama ya da yeni öğe → temiz adresle yükle
@@ -193,6 +287,8 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
       if (!code || !p) return;
       const next = aviasalesRoute(p);
       if (next === w.__tpwlRoute) return;
+      const prevBags = w.__tpwlRoute ? readWidgetBags(w.__tpwlRoute) : null;
+      if (prevBags) saveWidgetBags(next, prevBags);
       w.__tpwlRoute = next;
       router.replace({ pathname: "/ara", query: widgetSyncQuery(code, window.location.search) }, { scroll: false });
     };
@@ -203,9 +299,13 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
   // Kart görünümü ve en ucuzdan sıralama: widget'ın gölge DOM'u
   useEffect(() => enhanceShadow(document.getElementById("tpwl-tickets")), []);
 
-  // Bagaj seçimi widget'ın "Bagaj dahil" filtresine aktarılır (yeni aramada ve bagaj değişince)
+  // Bagaj seçimi widget'ın "Bagaj dahil" filtresine aktarılır (URL'den veya yenilemede `sessionStorage`'dan)
   const checked = q.bags?.checked ?? 0;
-  useEffect(() => (checked > 0 ? applyBaggageFilter(document.getElementById("tpwl-tickets")) : undefined), [checked, route]);
+  useEffect(() => {
+    if (!src) return;
+    const wantOn = checked > 0 || (readWidgetBags(route)?.checked ?? 0) > 0;
+    return applyBaggageFilter(document.getElementById("tpwl-tickets"), route, wantOn);
+  }, [src, checked, route]);
 
   if (!src || q.from.length !== 1 || q.to.length !== 1) return null;
   // Hız: betik sayfa açılır açılmaz indirilir (çalıştırılmaz) ve sunucularına bağlantı önceden kurulur

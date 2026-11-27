@@ -71,7 +71,7 @@
     "bagsNote": "Prijzen zijn inclusief de gekozen bagage; vluchten die deze niet verkopen, worden niet getoond.",
     "withNearby": "{city} + luchthavens in de buurt",
     "nearbyDetail": "{list} · tot {km} km",
-    "bagsNoteAff": "Bagageopties en eventuele toeslagen zie je in de live vluchtlijst en bij de aanbieder waar je boekt."
+    "bagsNoteAff": "Ruimbagage schakelt het filter \"Bagage inbegrepen\" in de live lijst in; handbagage en toeslagen zie je per vlucht en bij de aanbieder."
   },
   "trust": {
     "label": "Waarom {brand}",
