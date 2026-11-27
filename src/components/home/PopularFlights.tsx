@@ -138,7 +138,7 @@ export function PopularFlights({
                   {deal ? (
                     <>
                       <span className="text-[13px] font-bold text-muted">{tc("roundTrip")}</span>
-                      <span className="font-display text-[26px] font-bold leading-[1.15]">
+                      <span suppressHydrationWarning className="font-display text-[26px] font-bold leading-[1.15]">
                         {deal.seenDate || (live && isAffiliate()) ? t("priceFrom", { price: fmt(deal.price) }) : fmt(deal.price)}
                       </span>
                       {deal.seenDate ? (
