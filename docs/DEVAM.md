@@ -595,3 +595,21 @@ değişkensiz derle, ya da canlı mod için ayrı bir proje ekle (widget betiği
     (widget'ın gerçek `Vl()` hatasını simüle eden sahte betikle ana sayfa → sonuç → yenileme → üst çubuk → `urlchange`) eklendi.
   - Denendi: `npm run lint`, `npm run check:messages`, `npx next build` (324/324), `npm run e2e` (21/21 geçti, 11.5 sn).
     Not: Canlı `flypirpir.nl` üzerinde son doğrulama Vercel'e yayınlandıktan sonra yapılabilir.
+- [8.2] Bavul seçimi masaüstü ve mobilde düzeltildi — commit 5adbd88 — Canlıda (`https://www.flypirpir.nl/ara?from=AMS&to=ADB&date=2027-01-02&return=2027-01-09&adults=1&checkedBags=1`, masaüstü 1440×900 + iPhone 13 390×844) bulgular:
+  - **Neden çalışmıyordu:** (1) 8.1'deki `window.location.replace` yönlendirmesi `checkedBags=1`'i daha widget başlamadan
+    adresten siliyordu; üst çubuk bile `0 0` görünüyordu (`docs/ekran/8-2-bagaj-desktop.png`). (2) Mobil görünümde
+    `[data-testid="baggage-included-filter"]` gizli (`display: none`), görünür çip `FlightFiltersMobileMenu-module__list`
+    içindeki ilk `ClearableParameter-module__root` düğmesi (`data-testid` yok, `docs/ekran/8-2-bagaj-mobile.png`).
+    (3) Eski `applyBaggageFilter` ilk karta tıklayıp hemen duruyordu (`valueChanged` doğrulaması yoktu). (4) Sayfa
+    yenilenince (`?flightSearch=...`) `checkedBags` adresten düştüğü için seçim kayboluyordu.
+  - **Canlıda kart fiyatı doğrulaması:** Masaüstü ve mobilde "Bagaj dahil" açıldığında (`valueChanged` aktif) kart
+    fiyatları doğrudan **bagajlı toplam fiyata** dönüyor (ör. SunExpress `€ 291 (+€ 21)` → `€ 312`, `Bagaj dahil 1x20 kilogram`;
+    Ajet/SunExpress `€ 267 (+€ 51)` → `€ 318`, `Bagaj dahil 1x15 kilogram`; mobil ilk kart `€ 312 · Bagajlı en ucuz`).
+  - **Düzeltme:** `src/lib/live-widget-bags.ts` (`sessionStorage`, anahtar `pirpir:bags:<flightSearch>`) eklendi;
+    `SearchForm.tsx` gönderimde bagajı kaydeder ve yenilemede üst çubuğu geri yükler; `LiveWidget.tsx` masaüstünde
+    `[data-testid="baggage-included-filter"]`, mobilde görünür mobil çipi bulup `valueChanged` sınıfı aktifleşene kadar
+    doğrular, kullanıcı çipi kendisi kapatırsa (`e.isTrusted`) seçimi günceller, `urlchange` geçişinde yeni rotaya taşır.
+    7 dilde `messages/*/home.json` (`search.bagsNoteAff`) kontrol edilen bagajın "Bagaj dahil" filtresini açtığını, kabin
+    bagajı ve ek ücretlerin uçuş kartında ve satıcıda göründüğünü netleştirdi.
+  - Denendi: `npm run lint`, `npm run check:messages`, `npx next build` (324/324), `npm run e2e` (masaüstü + 390px mobil +
+    yenileme + kullanıcı kapatma testleri dahil 23/23 geçti, 12.3 sn). Bilinen eksik yok.
