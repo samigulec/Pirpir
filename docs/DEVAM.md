@@ -613,3 +613,50 @@ değişkensiz derle, ya da canlı mod için ayrı bir proje ekle (widget betiği
     bagajı ve ek ücretlerin uçuş kartında ve satıcıda göründüğünü netleştirdi.
   - Denendi: `npm run lint`, `npm run check:messages`, `npx next build` (324/324), `npm run e2e` (masaüstü + 390px mobil +
     yenileme + kullanıcı kapatma testleri dahil 23/23 geçti, 12.3 sn). Bilinen eksik yok.
+- [8.3] Sonuç sayfası uçtan uca canlı gözden geçirmesi ve düzeltmeler — commit d45f4a2 — `https://www.flypirpir.nl`
+  üzerinde gerçek Chrome (masaüstü 1440×900 + iPhone 13 390×844, TR ve EN, `Europe/Amsterdam`) ile denendi
+  (`docs/ekran/8-3-sonuc-en.png`):
+  - **Düzeltilen bulgular:**
+    1. *Para birimi ve dil değişiminde widget güncellenmiyordu:* Adım: `/ara?flightSearch=AMS0201ADB09011` üzerinde
+       üstteki bölge ayarından para birimi (`EUR` → `TRY`/`USD`) veya dil (`Türkçe` → `English`) değiştirildi →
+       beklenen: widget yeni para birimi/dille açılsın → görülen: `LiveWidget.tsx` bağımlılık dizisi yalnızca
+       `[src, route]` olduğu için widget eski para birimi/dilde takılı kalıyordu. Düzeltildi: `w.__tpwlLang` /
+       `w.__tpwlCur` izlenir, değişiklikte sayfa temiz adresle (`cleanWidgetUrl`) yeniden yüklenir.
+    2. *Canlı kart sıralaması yerinde fiyat değişimlerinde ve birden çok kapsayıcıda güncel kalmıyordu:* Adım:
+       canlı sonuçlar akarken ve "Bagaj dahil" açıldığında kart `style.order` değerleri incelendi → beklenen:
+       tüm kartlar güncel fiyata göre en ucuzdan pahalıya sıralansın → görülen: `MutationObserver` `characterData`
+       izlemediği ve yalnızca `cards[0].parentElement`'a baktığı için bazı kartlarda `order` boş veya eski fiyatta
+       kalıyordu (`€ 318` kartında `order: 327`). Düzeltildi: tüm kart kapsayıcıları gruplanıp sıralanır ve
+       `characterData: true` gözlenir.
+    3. *Sonuç sayfası indeksleme:* `src/app/[locale]/ara/page.tsx` `generateMetadata` içine `robots: { index: false, follow: true }`
+       eklendi (7.5'teki not kapandı).
+  - **Canlıda sorunsuz çalışan kontroller:**
+    - `Aktarmasız` filtresi: çalıştı (`€ 594` → `€ 291` SunExpress direkt).
+    - `Göre sırala` (`Radiolist`): 7 sıralama seçeneği açılıyor, tıklanınca bizim CSS `order` temizlenip widget sıralaması devralıyor.
+    - `Daha fazla uçuş göster`: çalıştı (`10` → `200` kart).
+    - `Seçme bilet` → `tpwl-modals` gölge kökünde `Satın al`: `https://tpwgt.com/wl/redirect?locale=tr&gate_name=City.Travel&redirect_url=...&fallback_url=...`
+      adresine gidiyor ve canlı arama isteği `"marker":"812756.Zz...-812756"` ile başlıyor.
+    - Mobil görünüm (iPhone 13, 390×844): yatay taşma yok (`scrollWidth: 390 === innerWidth: 390`), JS hatası yok.
+    - Yükleme süresi: ana sayfa ~2.0 sn; canlı sonuçların ilk kartları ~10.8 sn (8.1'deki çift sayfa yenilemesi
+      kaldırıldığı için gerçek kullanımda ~3–4 sn hızlanacak).
+  - **Bilinen / dış kaynaklı notlar (KARAR GEREKİYOR / gözlem):**
+    - *Widget'ın kendi Türkçe metinleri:* Travelpayouts'un `tpwgt.com/wl_web/tr-*.js` paketi masaüstünde `"Seçme bilet"`,
+      mobilde `"Seçme"`, `"1 konaklama"`, kenar çubuğunda `"Airports"`, `"Aircraft types"`, `"Göre sırala"` yazıyor.
+      Bu metinler widget paketinden geliyor; kırılgan DOM metin değiştirmesi yapılmadı.
+    - *Ana sayfada React `#418` hidrasyon uyarısı:* Canlı `/` açılışında 3 kez `Minified React error #418` gözlendi
+      (`/ara` sayfasında 0 hata). Ayrı küçük takip işi olarak bakılabilir.
+  - Denendi: `npm run lint`, `npm run check:messages`, `npx next build` (324/324), `npm run e2e` (24/24 geçti, 12.0 sn).
+- [8.4 — KULLANICI KARARI BEKLENİYOR] Fiyat trendleri — kod değişikliği yok — İki seçenek için hazır uygulama planı:
+  - **Seçenek (a) — Canlı sonuç sayfasından kaldır (Claude'un önerisi):** `src/components/results/LiveResults.tsx` satır
+    93–94'te `liveListFor(q)` dalında `<PriceTrends q={q} actions={...} />` yerine yalnızca `<PriceAlertButton q={q} offers={chunk.offers} filters={filters} />`
+    (sağa/sola hizalı tek düğme çubuğu) döndürülür; önbellekli modda (çoklu havalimanı / widget kapalı) `PriceTrends`
+    aynen kalır. (~10 satır değişiklik, sıfır çeviri riski.)
+  - **Seçenek (b) — Önbellek etiketiyle tut:** `src/components/results/PriceTrends.tsx` içine ortaklık + canlı liste
+    modunda başlık altına 7 dilde kısa, dürüst bir not (`messages/*/results.json` → `trends.cachedNote`:
+    "Grafik Aviasales önbellek fiyatlarını gösterir; aşağıdaki canlı fiyatlarla farklılık gösterebilir.") eklenir.
+    Kullanıcı onayı gelmeden kod yazılmadı.
+- [8.5] E2E test ortamı `NEXT_PUBLIC_TP_WL_WIDGET_ID` dayanıklılığı — commits 6ee73d7 + 5b43285 — `src/config/affiliate.ts`
+  sunucuda `PIRPIR_DISABLE_LIVE_WIDGET=1` (örnek/ortaklık test sunucuları için) ve `TP_WL_WIDGET_ID` (canlı widget test
+  sunucusu için) çalışma zamanı geçersiz kılmalarını destekler; `playwright.config.ts` 4 proje (`desktop`, `mobile`,
+  `affiliate`, `live-widget`) ile koşar; `docs/GELISTIRME.md` güncellendi. Doğrulandı: `NEXT_PUBLIC_TP_WL_WIDGET_ID=25161 npx next build`
+  sonrasında `npm run e2e` tüm 24/24 testi hatasız geçti (12.0 sn). Bilinen eksik yok.
