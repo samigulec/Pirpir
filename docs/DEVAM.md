@@ -215,3 +215,15 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   Canlı widget: `NEXT_PUBLIC_TP_WL_WIDGET_ID=25161` ile yerelde betik yükleniyor ve `flightSearch=AMS2712ADB1` ekleniyor;
   sonuçların gerçekten göründüğü Vercel'de değişken eklenince canlıda doğrulanacak. 3.7 ve 3.8'e geçilebilir; 3.8'de
   White Label widget'ının (tpwgt.com) çerezleri de gizlilik metnine girmeli.
+- [3.7] Tıklama raporu (`/yonetim/tiklamalar`) — commit e241125 — `src/lib/click-report.ts` Supabase `clicks` tablosundan
+  son 30 günü tek sorguda okuyup 7/30 gün toplamı, günlük dağılım, en çok tıklanan rotalar, kaynaklar (`src`: `results`, `empty`,
+  `deal:...`), ortak (`partner`) ve pazar (`market`) kırılımını hesaplıyor (salt okunur). `/yonetim/tiklamalar` sayfası
+  `ADMIN_EMAILS` + doğrulanmış Supabase oturumu korumalı, `noindex` + `robots.txt`, `/yonetim/firsatlar` ile karşılıklı bağlantılı.
+  Denendi: `npm run lint`, `npx next build` (92/92 sayfa), `/yonetim/tiklamalar` girişsiz 307 → `/giris`. Bilinen eksik yok.
+- [3.8] Gizlilik ve çerez metni (7 dil) — commit c331099 — `src/content/legal/privacy.ts` içinde 7 dilin tamamına (`tr`, `en`, `nl`,
+  `de`, `fr`, `es`, `it`) "Ortaklık bağlantıları ve canlı arama" (`id: "ortaklik"`) bölümü eklendi ve `id: "cerezler"` bölümü
+  Travelpayouts / Aviasales White Label arama sayfası ile canlı arama widget'ının (`tpwgt.com`) üçüncü taraf çerezlerini dürüstçe
+  açıklayacak şekilde güncellendi; tüm hukuki yer tutucular (`[ŞİRKET ADI]`, `[ADRES]`, `[İLETİŞİM E-POSTASI]`, `[SAKLAMA SÜRESİ]`,
+  `[ORTAKLIK ÇEREZ DETAYLARI]`) köşeli parantezle korundu. Denendi: `npm run lint`, `npx next build` (92/92 sayfa), 7 dilde
+  `/gizlilik`, `/en/privacy`, `/nl/privacy`, `/de/datenschutz`, `/fr/confidentialite`, `/es/privacidad`, `/it/privacy` HTTP 200
+  ve içerik doğrulaması (`tpwgt.com`, `Travelpayouts`, `[ORTAKLIK ÇEREZ DETAYLARI]`). İş listesindeki 3.1–3.8 maddelerinin tamamı tamamlandı.
