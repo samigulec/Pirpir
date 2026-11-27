@@ -230,6 +230,89 @@ tanımlıysa kanala kısa mesaj (rota, fiyat, görüldüğü gün, fırsat sayfa
 yoksa hiçbir şey yapmasın. Gönderim hatası yayınlamayı engellemesin. Token'ı kullanıcıdan isteme; kurulum adımlarını
 `docs/GELISTIRME.md`'ye yaz. Gerçek gönderim testi yok; birim testi sahte fetch ile.
 
+## 8. Dördüncü tur (Gemini) — kullanıcının bildirdiği hatalar, öncelik sırasıyla
+
+Kullanıcı: "halen aynı sorunlar". Bu turda sonuç sayfası ve canlı widget dahil **her dosyaya dokunabilirsin**;
+bölüm 7'deki "Claude'un alanı" kısıtı bu tur için kalktı. Kurallar (bölüm 1), kontrol komutları (bölüm 2) ve teslim biçimi
+(bölüm 4) aynen geçerli; her işte `npm run lint`, `npm run check:messages`, `npm run e2e` geçmeli.
+
+**En önemli kural — canlıda, gerçek tarayıcıda, son kullanıcı gibi dene.** Claude'un ortamından widget'ın canlı araması
+(`tickets-api.apistp.com`) 403 veriyor. Bu yüzden aşağıdaki hatalar yerelde hiç görülemedi. Sen https://flypirpir.nl
+üzerinde gerçek bir tarayıcıyla dene: masaüstü ve telefon, Türkçe ve İngilizce, Hollanda saati. Her iş için iş günlüğüne
+şunları yaz: denediğin adımlar, adres çubuğundaki tam URL (özellikle `flightSearch=` kodu) ve gördüğün sonuç.
+Ekran görüntüsü alabiliyorsan `docs/ekran/` altına koy. Bot tespitini atlatmaya çalışma (UA/webdriver gizleme yok);
+normal tarayıcı kullan.
+
+**Canlı widget nasıl çalışıyor (bilmen gerekenler):**
+- `src/components/results/LiveWidget.tsx`: Travelpayouts White Label widget'ı (wl_id 25161, `tpwgt.com/wl_web/main.js`)
+  `#tpwl-tickets` içine yüklenir. Widget açık bir **shadow root** içine çizer. Stil oraya `<style>` ile enjekte edilir
+  (`SHADOW_CSS`). Kartlar `MutationObserver` ile en ucuzdan sıralanır (`enhanceShadow`).
+- Widget aramayı yalnızca açılışta adresteki `flightSearch` kodundan okur. Kod biçimi:
+  `AMS0201ADB09011` = AMS, 02.01, ADB, 09.01, 1 yetişkin. Ayrıştırıcı ve üretici: `src/lib/outbound.ts`
+  (`aviasalesRoute`, `parseAviasalesRoute`).
+- Widget kendi tarih şeridinden ya da formundan başka aramaya geçince window'a `urlchange` olayı yayınlar. Sayfa bunu
+  dinleyip adresi ve arama kutusunu eşitler (`LiveWidget.tsx`, `onChange`).
+- Widget'ın kaynak kodu okunabilir: `https://tpwgt.com/wl_web/main.js?wl_id=25161` ve onun yüklediği `main-*.js`,
+  `index-*.js`. Adresten okuduğu parametreler: flightSearch, origin/destination(_iata/_airports), depart_date,
+  return_date, adults, children, infants, trip_class, currency, language, locale, marker, ticketId, open_datepicker.
+  **Bagaj parametresi yok.**
+
+### 8.1 Tarih kayması: "2–9 Ocak seçtim, 1–8 Ocak geldi"
+Claude'un bulguları:
+- Ana sayfa → Amsterdam → İzmir → takvimde 2 ve 9 Ocak → "Bilet bul" akışını yerelde UTC, Europe/Amsterdam ve
+  Europe/Istanbul saatleriyle denedi. Her seferinde adres `date=2027-01-02&return=2027-01-09&flightSearch=AMS0201ADB09011`,
+  kutu "2 – 9 Oca" çıktı.
+- Canlı sitede (firecrawl) widget kartları da "Sat, Jan 2" / "Sat, Jan 9" gösterdi.
+- Yani kayma ya yalnızca gerçek tarayıcıda widget'ın canlı araması çalışınca oluyor, ya da başka bir yoldan geliyor.
+
+Yapılacaklar:
+1. Kullanıcının akışını canlıda birebir dene. Ana sayfadaki "en ucuz" tarih önerisinin üzerine tarih seçmeyi ve
+   takvimde "± gün esnek" seçeneklerini de dene. Ayrıca sonuç sayfasındaki küçük arama kutusundan tarih değiştirmeyi,
+   widget'ın kendi tarih şeridine/matrisine tıklamayı ve sayfayı yenilemeyi dene.
+2. Her adımda `flightSearch` kodunu, `date`/`return` parametrelerini ve widget'ın gösterdiği günleri karşılaştır. Bir
+   gün kayma nerede başlıyor: bizim kodumuzda mı (adres yanlış), yoksa widget mı yanlış günü arıyor (adres doğru,
+   kartlar yanlış)?
+3. Kökü düzelt ve bu durum için bir e2e testi ekle. Widget'ın kendisi yanlış arıyorsa: adres doğruyken kartların günü
+   farklıysa sayfa uyarı göstersin ya da widget doğru kodla yeniden yüklensin. Hangisini seçtiğini günlüğe yaz.
+4. Saat dilimi tuzakları: `toISOString()`, `new Date("YYYY-MM-DD")` (UTC) ile `getDate()` (yerel) karışımı. Bizim
+   tarih kodumuz (`src/lib/search.ts`, `src/lib/dates.ts`, `DateRangePicker.tsx`) UTC'de tutarlı görünüyor; widget'ın
+   `urlchange` ile verdiği kodu da kontrol et.
+
+### 8.2 Bavul seçimi çalışmıyor
+Mevcut durum (Claude, son commit): arama kutusunda kontrol edilen bagaj (`checkedBags`) seçilince `applyBaggageFilter`
+widget'ın `[data-testid="baggage-included-filter"]` çipine bir kez tıklıyor. Bu yalnızca sahte gölge kökle denendi.
+Kullanıcı "halen aynı" diyor.
+
+Yapılacaklar:
+1. Canlıda dene: bavul 1 seç, ara, listede "Bagaj dahil" açık mı, kartlar bagajlı fiyata göre mi?
+2. Çalışmıyorsa nedenini bul. Olasılıklar: çip o test etiketiyle yalnızca masaüstü "Popüler filtreler" içinde var
+   (telefon menüsündeki çipte test etiketi yok); çipe programla tıklamak Preact'in olayını tetiklemiyor; çip kartlardan
+   önce çiziliyor ve sonra sıfırlanıyor. Düzelt.
+3. Ayrıca widget adresi kendi biçimine çevirince `checkedBags` adresten düşüyor; sayfa yenilenince bavul seçimi
+   kayboluyor. Bunu da çöz (ör. seçimi `sessionStorage`'da rota koduyla tut).
+4. Kabin bagajının widget'ta karşılığı yok. Bagaj panelindeki not ("Bagaj seçenekleri ve ek ücretler canlı uçuş
+   listesinde … gösterilir") bunu dürüstçe anlatıyor; gerekirse metni netleştir (7 dil).
+5. Kartlardaki fiyat: "Bagaj dahil" açıkken kartta bagajlı toplam mı görünüyor? Görünmüyorsa günlüğe yaz.
+
+### 8.3 Sonuç sayfasının uçtan uca gözden geçirmesi
+Kullanıcı "hata üzerine hata" diyor. Canlıda sonuç sayfasını baştan sona son kullanıcı gibi kullan: filtreler, sıralama,
+"Daha fazla", "Bileti seç" (satıcıya gidiyor mu, marker 812756 adreste mi), para birimi ve dil değiştirme, telefon
+görünümü, yükleme süresi. Bulduğun her hatayı iş günlüğüne madde madde yaz: adım, beklenen, görülen. Küçükleri düzelt,
+büyükleri "KARAR GEREKİYOR" ya da "CLAUDE'A" diye işaretle.
+
+### 8.4 Fiyat trendleri — KULLANICI KARARI BEKLENİYOR
+Kullanıcı: "trend fiyatları doğru vermiyor". Trendler Aviasales önbelleğinden geliyor, canlı widget fiyatlarıyla
+uyuşmuyor. İki seçenek kullanıcıya soruldu, **henüz cevap yok**:
+(a) canlı listenin olduğu sonuç sayfasından kaldır (Claude'un önerisi), (b) "önbellek fiyatı, canlı değil" diye etiketle.
+Kullanıcıdan cevap almadan kod yazma; ikisini de kolay uygulanır halde planla ve günlüğe yaz.
+
+### 8.5 Test ortamı notu
+`NEXT_PUBLIC_TP_WL_WIDGET_ID` derleme anında koda gömülür. Bu değişkenle derlenen bir yapıyla `npm run e2e` çalıştırılırsa
+4 test (örnek veri modunu bekleyenler) düşer. `playwright.config.ts` / testleri buna dayanıklı yap: ya e2e öncesi
+değişkensiz derle, ya da canlı mod için ayrı bir proje ekle (widget betiği engellenip sahte gölge kökle).
+
+---
+
 ## İş günlüğü
 
 - [hazırlık] Claude — White Label kodu (`NEXT_PUBLIC_TP_WL_HOST`), Travelpayouts sağlayıcısı, logolar, tazelik etiketi,
