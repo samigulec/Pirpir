@@ -28,7 +28,10 @@ function detectChromium(): string | undefined {
 }
 
 const PORT = Number(process.env.E2E_PORT || 3111);
+const AFF_PORT = Number(process.env.E2E_AFF_PORT || 3112);
+const MOCK_TP_PORT = Number(process.env.MOCK_TP_PORT || 3119);
 const BASE_URL = process.env.E2E_BASE_URL || `http://localhost:${PORT}`;
+const AFF_BASE_URL = process.env.E2E_AFF_BASE_URL || `http://localhost:${AFF_PORT}`;
 const executablePath = detectChromium();
 
 export default defineConfig({
@@ -52,7 +55,7 @@ export default defineConfig({
         viewport: { width: 1440, height: 900 },
         launchOptions: executablePath ? { executablePath, args: ["--no-sandbox"] } : { args: ["--no-sandbox"] },
       },
-      testIgnore: /mobile\.spec\.ts/,
+      testIgnore: /(mobile|affiliate)\.spec\.ts/,
     },
     {
       name: "mobile",
@@ -63,21 +66,58 @@ export default defineConfig({
       },
       testMatch: /mobile\.spec\.ts/,
     },
+    {
+      name: "affiliate",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: AFF_BASE_URL,
+        viewport: { width: 1440, height: 900 },
+        launchOptions: executablePath ? { executablePath, args: ["--no-sandbox"] } : { args: ["--no-sandbox"] },
+      },
+      testMatch: /affiliate\.spec\.ts/,
+    },
   ],
   webServer: process.env.E2E_BASE_URL
     ? undefined
-    : {
-        command: `npx next start -p ${PORT}`,
-        url: BASE_URL,
-        reuseExistingServer: false,
-        timeout: 30_000,
-        env: {
-          ...process.env,
-          // Testler çevrimdışı ve örnek veri modunda çalışır (ağ gerektirmez)
-          TRAVELPAYOUTS_TOKEN: "",
-          DUFFEL_ACCESS_TOKEN: "",
-          NEXT_PUBLIC_TP_WL_WIDGET_ID: "",
-          ECB_RATES_URL: "http://127.0.0.1:1/offline",
+    : [
+        {
+          command: `npx next start -p ${PORT}`,
+          url: BASE_URL,
+          reuseExistingServer: false,
+          timeout: 30_000,
+          env: {
+            ...process.env,
+            // Örnek veri modu (ağ gerektirmez)
+            TRAVELPAYOUTS_TOKEN: "",
+            DUFFEL_ACCESS_TOKEN: "",
+            NEXT_PUBLIC_TP_WL_WIDGET_ID: "",
+            ECB_RATES_URL: "http://127.0.0.1:1/offline",
+          },
         },
-      },
+        {
+          command: `node tests/e2e/fixtures/mock-travelpayouts.mjs`,
+          url: `http://127.0.0.1:${MOCK_TP_PORT}/health`,
+          reuseExistingServer: false,
+          timeout: 15_000,
+          env: {
+            ...process.env,
+            MOCK_TP_PORT: String(MOCK_TP_PORT),
+          },
+        },
+        {
+          command: `npx next start -p ${AFF_PORT}`,
+          url: AFF_BASE_URL,
+          reuseExistingServer: false,
+          timeout: 30_000,
+          env: {
+            ...process.env,
+            // Ortaklık + yerel sahte Travelpayouts modu (canlı widget kapalı)
+            TRAVELPAYOUTS_TOKEN: "test",
+            TRAVELPAYOUTS_API_URL: `http://127.0.0.1:${MOCK_TP_PORT}`,
+            DUFFEL_ACCESS_TOKEN: "",
+            NEXT_PUBLIC_TP_WL_WIDGET_ID: "",
+            ECB_RATES_URL: "http://127.0.0.1:1/offline",
+          },
+        },
+      ],
 });
