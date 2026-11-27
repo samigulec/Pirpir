@@ -42,7 +42,21 @@ export class TravelpayoutsError extends Error {
 // Sınıf: Data API yalnızca ekonomi (0) ve business (1) bilir; premium ve first için sonuç verilmez (yanlış fiyat göstermemek için)
 const TRIP_CLASS: Partial<Record<NonNullable<SearchQuery["cabin"]>, string>> = { economy: "0", business: "1" };
 
+/**
+ * Önbellek her gün (ya da tarih çifti) için sınırlı sayıda, en ucuz biletleri tutar: en ucuzu aktarmalıysa direkt uçuş
+ * listede görünmeyebilir (ör. AMS→ADB'de 130 € aktarmalı AJet, 131 € direkt SunExpress'i gizler). Bu yüzden
+ * "yalnızca direkt" sorgusu da yapılır, ikisi birleşir. Direkt sorgu başarısız olursa yalnızca ilki kullanılır.
+ */
 async function fetchPrices(q: SearchQuery, range?: { depart?: string; ret?: string }): Promise<TpItem[]> {
+  const [all, direct] = await Promise.allSettled([fetchOnce(q, range, false), fetchOnce(q, range, true)]);
+  if (all.status === "rejected") {
+    if (direct.status === "fulfilled") return direct.value;
+    throw all.reason;
+  }
+  return direct.status === "fulfilled" ? [...all.value, ...direct.value] : all.value;
+}
+
+async function fetchOnce(q: SearchQuery, range: { depart?: string; ret?: string } | undefined, direct: boolean): Promise<TpItem[]> {
   const token = travelpayoutsToken();
   if (!token) throw new TravelpayoutsError("TRAVELPAYOUTS_TOKEN tanımlı değil");
   const cls = TRIP_CLASS[q.cabin ?? "economy"];
@@ -58,6 +72,7 @@ async function fetchPrices(q: SearchQuery, range?: { depart?: string; ret?: stri
     trip_class: cls,
   });
   if (q.returnDate) p.set("return_at", range?.ret ?? q.returnDate);
+  if (direct) p.set("direct", "true");
   const res = await fetch(`${API}/aviasales/v3/prices_for_dates?${p}`, {
     headers: { "X-Access-Token": token, "Accept-Encoding": "gzip" },
     signal: AbortSignal.timeout(12_000),
