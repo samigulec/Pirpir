@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cityByCode } from "@/data/airports";
 import { getAdminUser } from "@/lib/auth/admin";
 import { scanDeals, type DealScanSummary } from "@/lib/deal-scanner";
-import { setDealStatus, type DealStatus } from "@/lib/deal-store";
+import { getPublishedDeal, setDealStatus, type DealStatus } from "@/lib/deal-store";
+import { isTelegramConfigured, postDealToTelegram } from "@/lib/telegram";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -19,7 +21,23 @@ async function changeStatus(id: string, status: DealStatus): Promise<ActionResul
 }
 
 export async function approveDeal(id: string): Promise<ActionResult> {
-  return changeStatus(id, "published");
+  const res = await changeStatus(id, "published");
+  if (res.ok && isTelegramConfigured()) {
+    try {
+      const found = await getPublishedDeal(id);
+      if (found) {
+        const { deal } = found;
+        await postDealToTelegram({
+          ...deal,
+          fromCity: cityByCode(deal.origin, "tr"),
+          toCity: cityByCode(deal.destination, "tr"),
+        });
+      }
+    } catch (e) {
+      console.error("Telegram bildirim akışı hatası:", e instanceof Error ? e.message : e);
+    }
+  }
+  return res;
 }
 
 export async function rejectDeal(id: string): Promise<ActionResult> {
