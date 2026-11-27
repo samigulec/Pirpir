@@ -225,5 +225,6 @@
   "seen": "{days, plural, =0 {Fiyat bugün görüldü} =1 {Fiyat dün görüldü} other {Fiyat # gün önce görüldü}}",
   "cachedNote": "fiyatlar Aviasales'te son günlerde görülen fiyatlardır; güncel fiyat satıcıda",
   "liveSearch": "{partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} canlı ara",
-  "noResultsCached": "Bu tarihler için kayıtlı fiyat yok. Güncel uçuşları {partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} canlı arayabilirsin."
+  "noResultsCached": "Bu tarihler için kayıtlı fiyat yok. Güncel uçuşları {partner, select, aviasales {Aviasales'te} other {Skyscanner'da}} canlı arayabilirsin.",
+  "nearbyTitle": "Yakın tarihlerdeki kayıtlı fiyatlar"
 }

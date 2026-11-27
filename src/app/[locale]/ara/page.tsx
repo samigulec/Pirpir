@@ -8,6 +8,7 @@ import { LiveResults, type LiveChunk } from "@/components/results/LiveResults";
 import { cityByCode } from "@/data/airports";
 import { intlLocale } from "@/lib/intl";
 import { formatDayLong, formatRange } from "@/lib/dates";
+import { nearbyOffers } from "@/lib/providers/travelpayouts";
 import { dataMode, priceSource, getFlexibleDateTip, searchFlightsCached, watchSearch } from "@/lib/flights";
 import { paxTotal, searchHref, todayIso, type MultiQuery } from "@/lib/search";
 import { ResultsSearchBar } from "@/components/results/ResultsSearchBar";
@@ -226,11 +227,18 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
     const detail = dataMode() === "test" ? [status, e instanceof Error ? e.message : String(e)].filter(Boolean).join(" · ").slice(0, 300) : undefined;
     return <SearchFailed q={q} detail={detail} />;
   }
+  // Önbellekli fiyatlarda tam tarihlere kayıt yoksa yakın günlerin kayıtlı fiyatları (her biri kendi tarihleriyle)
+  let nearby: { offers: Offer[]; cityNames: Record<string, string> } | undefined;
+  if (priceSource() === "travelpayouts" && first.done && !first.offers.length && q.from.length === 1 && q.to.length === 1) {
+    const code = (c: string) => c.replace(/^city:/, "");
+    const offers = await nearbyOffers({ from: code(q.from[0]), to: code(q.to[0]), date: q.date, returnDate: q.returnDate || undefined, pax: q.pax, cabin: q.cabin }).catch(() => []);
+    if (offers.length) nearby = { offers, cityNames: cityNamesFor(offers, locale) };
+  }
   const mode = dataMode();
   const modeNote = mode === "demo" ? t("demoNote") : mode === "test" ? t("testNote") : priceSource() === "travelpayouts" ? t("cachedNote") : undefined;
   const note = [q.flex ? t("flexNote", { n: q.flex }) : undefined, modeNote].filter(Boolean).join(" · ") || undefined;
   return (
-    <LiveResults first={first} q={q} oneWay={!q.returnDate} initialBags={q.bags} tip={tip} note={note} retryHref={searchHref({ ...q, returnDate: q.returnDate ?? "" })} />
+    <LiveResults first={first} q={q} oneWay={!q.returnDate} initialBags={q.bags} tip={tip} note={note} retryHref={searchHref({ ...q, returnDate: q.returnDate ?? "" })} nearby={nearby} />
   );
 }
 

@@ -30,6 +30,9 @@ type TpItem = {
   link: string; // /search/AMS2012IST27121?t=…&search_date=21112026…
 };
 
+/** Kalkışına bu kadardan az kalan uçuş gösterilmez (satın alınamaz) */
+const SOON_MS = 3 * 3600 * 1000;
+
 export class TravelpayoutsError extends Error {
   constructor(message: string, readonly status?: number) {
     super(message);
@@ -39,7 +42,7 @@ export class TravelpayoutsError extends Error {
 // Sınıf: Data API yalnızca ekonomi (0) ve business (1) bilir; premium ve first için sonuç verilmez (yanlış fiyat göstermemek için)
 const TRIP_CLASS: Partial<Record<NonNullable<SearchQuery["cabin"]>, string>> = { economy: "0", business: "1" };
 
-async function fetchPrices(q: SearchQuery): Promise<TpItem[]> {
+async function fetchPrices(q: SearchQuery, range?: { depart?: string; ret?: string }): Promise<TpItem[]> {
   const token = travelpayoutsToken();
   if (!token) throw new TravelpayoutsError("TRAVELPAYOUTS_TOKEN tanımlı değil");
   const cls = TRIP_CLASS[q.cabin ?? "economy"];
@@ -47,14 +50,14 @@ async function fetchPrices(q: SearchQuery): Promise<TpItem[]> {
   const p = new URLSearchParams({
     origin: q.from,
     destination: q.to,
-    departure_at: q.date,
+    departure_at: range?.depart ?? q.date,
     one_way: q.returnDate ? "false" : "true",
     currency: "eur",
     sorting: "price",
     limit: "100",
     trip_class: cls,
   });
-  if (q.returnDate) p.set("return_at", q.returnDate);
+  if (q.returnDate) p.set("return_at", range?.ret ?? q.returnDate);
   const res = await fetch(`${API}/aviasales/v3/prices_for_dates?${p}`, {
     headers: { "X-Access-Token": token, "Accept-Encoding": "gzip" },
     signal: AbortSignal.timeout(12_000),
@@ -63,8 +66,9 @@ async function fetchPrices(q: SearchQuery): Promise<TpItem[]> {
   if (!res.ok) throw new TravelpayoutsError(`Travelpayouts ${res.status}`, res.status);
   const body = (await res.json()) as { success?: boolean; data?: TpItem[]; error?: string };
   if (body.success === false) throw new TravelpayoutsError(`Travelpayouts: ${body.error ?? "hata"}`, 502);
+  if (range) return body.data ?? [];
   // Aynı gün ve (varsa) dönüş günü olanlar; API ay aralığı da döndürebilir
-  return (body.data ?? []).filter((x) => x.departure_at.startsWith(q.date) && (!q.returnDate || x.return_at?.startsWith(q.returnDate)));
+  return (body.data ?? []).filter((x) => Date.parse(x.departure_at) > Date.now() + SOON_MS && x.departure_at.startsWith(q.date) && (!q.returnDate || x.return_at?.startsWith(q.returnDate)));
 }
 
 // ---- Saat dilimi: varış saati için (API yalnızca kalkış saati ve süre verir) ----
@@ -212,3 +216,53 @@ export const travelpayoutsProvider: FlightProvider = {
   changeConfirm: unsupported,
   addBags: unsupported,
 };
+
+const dayDiff = (a: string, b: string) => Math.abs(Date.parse(a.slice(0, 10)) - Date.parse(b)) / 86_400_000;
+
+/**
+ * Tam tarihlerde kayıt yoksa: ±`days` gün içindeki kayıtlı en ucuz uçuşlar (her biri kendi tarihleriyle).
+ * Gidiş-dönüşte biri sabit tutulup diğeri ay içinde aranır (iki istek); tek yönde ay aranır.
+ */
+export async function nearbyOffers(q: SearchQuery, days = 3, limit = 8): Promise<Offer[]> {
+  const month = (d: string) => d.slice(0, 7);
+  const calls = q.returnDate
+    ? [
+        fetchPrices(q, { depart: q.date, ret: month(q.returnDate) }),
+        fetchPrices(q, { depart: month(q.date), ret: q.returnDate }),
+        // İkisi de birkaç gün kaysın (±7 için)
+        fetchPrices(q, { depart: month(q.date), ret: month(q.returnDate) }),
+      ]
+    : [fetchPrices(q, { depart: month(q.date) })];
+  const today = new Date().toISOString().slice(0, 10);
+  const all = (await Promise.allSettled(calls)).flatMap((r) => (r.status === "fulfilled" ? r.value : []));
+  // Önce ±days, hiç yoksa ±7 gün
+  for (const d of days < 7 ? [days, 7] : [days]) {
+    const found = pick(all, q, d, today, limit);
+    if (found.length) return found;
+  }
+  return [];
+}
+
+function pick(all: TpItem[], q: SearchQuery, days: number, today: string, limit: number): Offer[] {
+  const items = all
+    .filter(
+      (x) =>
+        x.departure_at.slice(0, 10) >= today &&
+        Date.parse(x.departure_at) > Date.now() + SOON_MS &&
+        dayDiff(x.departure_at, q.date) <= days &&
+        (!q.returnDate || (x.return_at && dayDiff(x.return_at, q.returnDate) <= days && x.return_at > x.departure_at)),
+    )
+    .sort((a, b) => a.price - b.price);
+  // Her tarih çifti için en ucuz tek uçuş: liste farklı günleri göstersin
+  const seen = new Set<string>();
+  const out: Offer[] = [];
+  for (const x of items) {
+    const k = `${x.departure_at.slice(0, 10)}|${x.return_at?.slice(0, 10) ?? ""}`;
+    if (seen.has(k)) continue;
+    seen.add(k);
+    const dq = { ...q, date: x.departure_at.slice(0, 10), returnDate: x.return_at?.slice(0, 10) };
+    out.push(toOffer(x, dq));
+    if (out.length >= limit) break;
+  }
+  return out;
+}

@@ -35,7 +35,10 @@ export function LiveResults({
   note,
   retryHref,
   initialBags,
+  nearby,
 }: {
+  /** Tam tarihlerde sonuç yoksa yakın günlerin kayıtlı fiyatları */
+  nearby?: { offers: Offer[]; cityNames: Record<string, string> };
   /** Arama kutusunda seçilen bagaj: bagaj filtresinin başlangıcı */
   initialBags?: { cabin: number; checked: number };
   first: LiveChunk;
@@ -104,6 +107,7 @@ export function LiveResults({
         initialBags={initialBags}
         onFiltersChange={setFilters}
         liveHref={liveHref}
+        nearby={nearby}
       />
     </>
   );

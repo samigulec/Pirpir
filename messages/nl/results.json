@@ -225,5 +225,6 @@
   "seen": "{days, plural, =0 {Prijs vandaag gezien} =1 {Prijs gisteren gezien} other {Prijs # dagen geleden gezien}}",
   "cachedNote": "prijzen zijn de afgelopen dagen op Aviasales gezien; check de actuele prijs bij de aanbieder",
   "liveSearch": "Live zoeken op {partner, select, aviasales {Aviasales} other {Skyscanner}}",
-  "noResultsCached": "Geen opgeslagen prijzen voor deze data. Je kunt actuele vluchten live zoeken op {partner, select, aviasales {Aviasales} other {Skyscanner}}."
+  "noResultsCached": "Geen opgeslagen prijzen voor deze data. Je kunt actuele vluchten live zoeken op {partner, select, aviasales {Aviasales} other {Skyscanner}}.",
+  "nearbyTitle": "Opgeslagen prijzen op data in de buurt"
 }

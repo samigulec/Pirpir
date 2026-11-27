@@ -225,5 +225,6 @@
   "seen": "{days, plural, =0 {Precio visto hoy} =1 {Precio visto ayer} other {Precio visto hace # días}}",
   "cachedNote": "precios vistos en Aviasales en los últimos días; comprueba el precio actual en el vendedor",
   "liveSearch": "Buscar en directo en {partner, select, aviasales {Aviasales} other {Skyscanner}}",
-  "noResultsCached": "No hay precios guardados para estas fechas. Puedes buscar vuelos actuales en directo en {partner, select, aviasales {Aviasales} other {Skyscanner}}."
+  "noResultsCached": "No hay precios guardados para estas fechas. Puedes buscar vuelos actuales en directo en {partner, select, aviasales {Aviasales} other {Skyscanner}}.",
+  "nearbyTitle": "Precios guardados en fechas cercanas"
 }

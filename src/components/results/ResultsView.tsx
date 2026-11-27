@@ -62,7 +62,9 @@ export function ResultsView({
   initialBags,
   onFiltersChange,
   liveHref,
+  nearby,
 }: {
+  nearby?: { offers: Offer[]; cityNames: Record<string, string> };
   /** Sonuç yoksa ortakta canlı arama bağlantısı (ortaklık modu) */
   liveHref?: string;
   initialBags?: { cabin: number; checked: number };
@@ -203,6 +205,14 @@ export function ResultsView({
           ) : (
             <p className="m-0 font-bold text-muted">{t("noResults")}</p>
           ))}
+        {offers.length === 0 && nearby && (
+          <>
+            <h2 className="m-0 mt-2 font-display text-[24px] font-bold">{t("nearbyTitle")}</h2>
+            {nearby.offers.map((o) => (
+              <OfferCard key={o.id} offer={o} price={o.price} bagsAdded={false} fareCount={1} onSelect={() => {}} cityNames={nearby.cityNames} badge={null} />
+            ))}
+          </>
+        )}
         {offers.length > 0 && list.length === 0 && <p className="m-0 font-bold text-muted">{t("empty")}</p>}
 
         {list.map((g) => (
