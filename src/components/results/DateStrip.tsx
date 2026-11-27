@@ -111,7 +111,8 @@ export function DateStrip({ q, current, monthlyPrices }: { q: MultiQuery; curren
   const found = Object.values(prices).filter((p): p is number => typeof p === "number");
   const allDone = keys.every((k) => k in prices);
   const min = allDone && found.length > 1 ? Math.min(...found) : null;
-  if (allDone && found.length < 2) return null;
+  // Önbellekli fiyatlarda şerit hep görünür ("Fiyata bak" günleri de tıklanabilir); diğer modda en az iki fiyat gerekir
+  if (allDone && found.length < 2 && !monthlyPrices) return null;
 
   return (
     <nav aria-label={t("label")} aria-busy={!allDone} className="-mx-1 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]">

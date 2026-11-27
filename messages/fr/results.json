@@ -234,5 +234,6 @@
   "nearbySeparate": "Aucun prix aller-retour enregistré pour ces dates ; tu peux réserver l'aller et le retour en billets séparés.",
   "partnerNoteWL": "S'ouvre avec les prix en direct",
   "liveSearchWL": "Voir les prix en direct",
-  "noResultsCachedWL": "Aucun prix enregistré pour ces dates. Tu peux voir les vols actuels avec les prix en direct."
+  "noResultsCachedWL": "Aucun prix enregistré pour ces dates. Tu peux voir les vols actuels avec les prix en direct.",
+  "shiftDays": "{n, plural, one {# jour} other {# jours}} {dir, select, before {plus tôt} other {plus tard}}"
 }

@@ -171,3 +171,7 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   RLS açık, politika yok (yalnızca service role). Aday eşiği: rotanın önümüzdeki 90 günlük gün fiyatlarının ortancasının
   **%75'i veya altı** VE en az **30 €** tasarruf VE fiyat **son 3 gün içinde görülmüş**; rota başına en fazla 3 aday.
   Fırsat sayfasında fiyatın görüldüğü gün yazılır; uydurma tazelik ("x saat önce") yazılmaz.
+- [düzeltme] Claude — kullanıcı geri bildirimi (sonuç sayfası, seyrek rotalar): yakın tarih kartları seçilen tarihe
+  yakınlığa göre sıralanıyor (önce tam gün, sonra ±1…), seçilenden farklı günde "Gidiş: Per 17 Ara · 1 gün önce" etiketi;
+  önbellekli modda tarih şeridi hep görünüyor; sonuç yokken filtre paneli ve sıralama sekmeleri gizli (yakın tarih
+  kartlarına uygulanmıyorlardı); "Filtreleri temizle" tek satır. Denendi: AMS–ADB 18–25 Ara (lint, build, ekran görüntüsü).

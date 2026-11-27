@@ -234,5 +234,6 @@
   "nearbySeparate": "No saved round-trip prices for these dates; you can book the outbound and return as separate tickets.",
   "partnerNoteWL": "Opens with live prices",
   "liveSearchWL": "See live prices",
-  "noResultsCachedWL": "No saved prices for these dates. You can see current flights with live prices."
+  "noResultsCachedWL": "No saved prices for these dates. You can see current flights with live prices.",
+  "shiftDays": "{n, plural, one {# day} other {# days}} {dir, select, before {earlier} other {later}}"
 }

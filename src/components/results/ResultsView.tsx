@@ -3,12 +3,14 @@
 import { brand } from "@/config/brand";
 import { outboundPartner } from "@/config/affiliate";
 import { seenDays } from "@/lib/freshness";
+import { formatDayWithWeekday } from "@/lib/dates";
+import { intlLocale } from "@/lib/intl";
 import { Link } from "@/i18n/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useAuthUi } from "../auth/LoginModal";
 import { getFavorites, toggleFavorite } from "@/actions/user";
 import { favoriteKey } from "@/lib/user-types";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCurrency } from "../CurrencyProvider";
 import { Bulut } from "../characters";
 import { OfferCard } from "./OfferCard";
@@ -68,7 +70,7 @@ export function ResultsView({
   liveHref,
   nearby,
 }: {
-  nearby?: { sections: { title: "nearbyTitle" | "nearbyOut" | "nearbyBack"; offers: Offer[] }[]; cityNames: Record<string, string> };
+  nearby?: { sections: { title: "nearbyTitle" | "nearbyOut" | "nearbyBack"; offers: Offer[]; want: { date: string; returnDate?: string } }[]; cityNames: Record<string, string> };
   /** Sonuç yoksa ortakta canlı arama bağlantısı (ortaklık modu) */
   liveHref?: string;
   initialBags?: { cabin: number; checked: number };
@@ -152,7 +154,9 @@ export function ResultsView({
   const active = activeFilterCount(filters);
 
   return (
-    <div className="grid items-start gap-5 md:grid-cols-[260px_minmax(0,1fr)] md:gap-8">
+    // Sonuç yokken filtre ve sıralama gösterilmez (yakın tarih kartlarına uygulanmazlar)
+    <div className={`grid items-start gap-5 md:gap-8 ${offers.length ? "md:grid-cols-[260px_minmax(0,1fr)]" : ""}`}>
+      {offers.length > 0 && <>
       <button
         type="button"
         aria-expanded={showFilters}
@@ -165,10 +169,11 @@ export function ResultsView({
       <aside id="filters" className={`${showFilters ? "block" : "hidden"} rounded-[28px] bg-field px-5 py-5 md:sticky md:top-4 md:block md:max-h-[calc(100vh-32px)] md:overflow-y-auto`}>
         <FiltersPanel value={filters} onChange={setFilters} airlines={airlines} oneWay={oneWay} bounds={bounds} hideBags={offers.every((o) => o.bagsUnknown)} />
       </aside>
+      </>}
 
       <div className="flex min-w-0 flex-col gap-5">
         {/* Telefonda tek satır, yana kayar */}
-        <div role="tablist" aria-label={t("sortLabel")} className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
+        {offers.length > 0 && <div role="tablist" aria-label={t("sortLabel")} className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
           {SORTS.map((s) => {
             const on = sort === s;
             return (
@@ -186,8 +191,8 @@ export function ResultsView({
               </button>
             );
           })}
-        </div>
-        <span className="-mt-2 text-sm font-bold text-muted">
+        </div>}
+        <span className={`text-sm font-bold text-muted ${offers.length ? "-mt-2" : ""}`}>
           {t("count", { count: list.length })} · {oneWay ? t("countNoteOneWay") : t("countNote")}
           {sort === "best" && <> · {t("bestHint")}</>}
           {note && <> · {note}</>}
@@ -216,7 +221,10 @@ export function ResultsView({
                 <h2 className="m-0 mt-2 font-display text-[24px] font-bold">{t(s.title)}</h2>
                 {s.title !== "nearbyTitle" && i === 0 && <p className="m-0 -mt-2 text-[15px] font-semibold text-muted">{t("nearbySeparate")}</p>}
                 {s.offers.map((o) => (
-                  <OfferCard key={o.id} offer={o} price={o.price} bagsAdded={false} fareCount={1} onSelect={() => {}} cityNames={nearby.cityNames} badge={null} />
+                  <div key={o.id} className="flex flex-col gap-2">
+                    <DateShift want={s.want} offer={o} />
+                    <OfferCard offer={o} price={o.price} bagsAdded={false} fareCount={1} onSelect={() => {}} cityNames={nearby.cityNames} badge={null} />
+                  </div>
                 ))}
               </section>
             ))}
@@ -254,5 +262,26 @@ export function ResultsView({
       </div>
       <TripModal group={selected && (groups.find((g) => g.key === selected.key) ?? selected)} wantBags={filters.bags} cityNames={cityNames} onClose={() => setSelected(null)} />
     </div>
+  );
+}
+
+/** Yakın tarih kartının üstünde: seçilen günden farklıysa hangi gün olduğu ve kaç gün kaydığı */
+function DateShift({ want, offer }: { want: { date: string; returnDate?: string }; offer: Offer }) {
+  const t = useTranslations("results");
+  const loc = intlLocale(useLocale());
+  const parts = [
+    { label: t("outbound"), want: want.date, got: offer.outbound.date },
+    ...(want.returnDate && offer.inbound ? [{ label: t("inbound"), want: want.returnDate, got: offer.inbound.date }] : []),
+  ].map((p) => ({ ...p, n: Math.round((Date.parse(p.got) - Date.parse(p.want)) / 86_400_000) }));
+  if (parts.every((p) => p.n === 0)) return null;
+  return (
+    <p className="m-0 flex flex-wrap gap-2 text-[14px] font-bold">
+      {parts.map((p) => (
+        <span key={p.label} className={`rounded-pill px-3 py-1 ${p.n ? "bg-sun-soft text-ink" : "bg-field text-muted"}`}>
+          {p.label}: {formatDayWithWeekday(p.got, loc)}
+          {p.n !== 0 && <> · {t("shiftDays", { n: Math.abs(p.n), dir: p.n < 0 ? "before" : "after" })}</>}
+        </span>
+      ))}
+    </p>
   );
 }
