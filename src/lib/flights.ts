@@ -118,7 +118,7 @@ const cachedSearch = unstable_cache(
       return offers;
     });
   }).bind(null),
-  ["search-v2"],
+  ["search-v3"],
   { revalidate: SEARCH_TTL },
 );
 

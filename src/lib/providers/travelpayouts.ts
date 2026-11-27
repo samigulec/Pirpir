@@ -204,8 +204,8 @@ function legFromTicket(d: TDir, airline: string): Leg {
   };
 }
 
-/** Havayolunun resmî logosu (Aviasales görsel sunucusu) */
-const logoOf = (code: string) => `https://pics.avs.io/96/96/${encodeURIComponent(code)}.png`;
+/** Havayolunun resmî kare simgesi (Aviasales görsel sunucusu; yatay logolar küçük karede okunmuyor) */
+const logoOf = (code: string) => `https://pics.avs.io/al_square/96/96/${encodeURIComponent(code)}.png`;
 
 export function toOffer(x: TpItem, q: SearchQuery): Offer {
   const ticket = parseTicket(x.link);
