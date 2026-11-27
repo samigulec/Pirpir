@@ -7,16 +7,21 @@ import { SimpleFooter } from "@/components/SiteFooter";
 import { Price } from "@/components/Price";
 import {
   Amsterdam,
+  Ankara,
   Antalya,
   Barselona,
+  Bodrum,
   Dubai,
+  Gaziantep,
   IstanbulHero,
   Izmir,
+  Kayseri,
   Lizbon,
   Londra,
   NewYork,
   Paris,
   Roma,
+  Trabzon,
 } from "@/components/cities";
 import { MonthlyPrices } from "@/components/route/MonthlyPrices";
 import { Airports, CheapestDates, OtherCities, QuickFacts, RouteTips } from "@/components/route/RouteSections";
@@ -76,6 +81,11 @@ const HERO_ART: Record<HeroArtKey, (props: SVGProps<SVGSVGElement>) => React.JSX
   istanbul: IstanbulHero,
   antalya: Antalya,
   izmir: Izmir,
+  ankara: Ankara,
+  bodrum: Bodrum,
+  gaziantep: Gaziantep,
+  trabzon: Trabzon,
+  kayseri: Kayseri,
   londra: Londra,
   barselona: Barselona,
   roma: Roma,

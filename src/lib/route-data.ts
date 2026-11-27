@@ -7,7 +7,7 @@ import { unstable_cache } from "next/cache";
 import { MARKETS } from "@/config/markets";
 import { expandCode, findAirport } from "@/data/airports";
 import { routes as editorialRoutes, type L, type RouteData } from "@/data/mock/routes";
-import { guideForDestination, type AirportCard, type HeroArtKey, type TipCard } from "@/data/route-guides";
+import { guideForDestination, heroArtForDestination, type AirportCard, type HeroArtKey, type TipCard } from "@/data/route-guides";
 import { RATES, toTry } from "./currency";
 import { getRates } from "./currency-server";
 import { itemSeenAt, targetMonths } from "./deal-scanner";
@@ -95,6 +95,10 @@ type RouteEntry = {
 };
 
 const PRIORITY_MARKETS = new Set(["NL", "TR", "DE"]);
+/** Türkiye'nin büyük havalimanları (7.4): kalkış merkezleri × TR varış rota sayfaları */
+const TR_MAJOR_DESTS = ["city:IST", "AYT", "ADB", "ESB", "DLM", "BJV", "GZT", "TZX", "ASR"] as const;
+const TR_CORRIDOR_ORIGINS = ["AMS", "DUS", "FRA", "city:BRU", "city:IST"] as const;
+const MAX_CATALOG_ROUTES = 180;
 
 function placeMeta(rawCode: string): { slug: string; searchCode: string; tpCode: string; airportCode: string } | null {
   const airportCode = expandCode(rawCode, 1)[0];
@@ -107,31 +111,35 @@ function placeMeta(rawCode: string): { slug: string; searchCode: string; tpCode:
 function buildCatalog(): RouteEntry[] {
   const byKey = new Map<string, RouteEntry>();
 
+  const add = (rawFrom: string, rawTo: string, prerender: boolean, editorial?: RouteData) => {
+    const from = placeMeta(rawFrom);
+    const to = placeMeta(rawTo);
+    if (!from || !to || from.slug === to.slug) return;
+    const key = `${from.slug}/${to.slug}`;
+    const existing = byKey.get(key);
+    if (existing) {
+      if (prerender) existing.prerender = true;
+      return;
+    }
+    if (byKey.size >= MAX_CATALOG_ROUTES) return;
+    byKey.set(key, { from, to, editorial, prerender });
+  };
+
   // 1. Mevcut editöryal rotalar (amsterdam/istanbul)
   for (const r of editorialRoutes) {
-    const key = `${r.from.slug}/${r.to.slug}`;
-    byKey.set(key, {
-      from: { slug: r.from.slug, searchCode: r.from.code, tpCode: r.from.code.replace(/^city:/, ""), airportCode: expandCode(r.from.code, 1)[0] },
-      to: { slug: r.to.slug, searchCode: r.to.code, tpCode: r.to.code.replace(/^city:/, ""), airportCode: expandCode(r.to.code, 1)[0] },
-      editorial: r,
-      prerender: true,
-    });
+    add(r.from.code, r.to.code, true, r);
   }
 
-  // 2. Pazarların (MARKETS) popüler rotaları
+  // 2. Pazarların (MARKETS) tüm popüler rotaları
   for (const m of MARKETS) {
     const isPriority = PRIORITY_MARKETS.has(m.id);
-    for (const [rawFrom, rawTo] of m.routes) {
-      const from = placeMeta(rawFrom);
-      const to = placeMeta(rawTo);
-      if (!from || !to || from.slug === to.slug) continue;
-      const key = `${from.slug}/${to.slug}`;
-      const existing = byKey.get(key);
-      if (existing) {
-        if (isPriority) existing.prerender = true;
-        continue;
-      }
-      byKey.set(key, { from, to, prerender: isPriority });
+    for (const [rawFrom, rawTo] of m.routes) add(rawFrom, rawTo, isPriority);
+  }
+
+  // 3. Ana kalkış merkezleri × Türkiye'nin büyük havalimanları (iç bağlantılar rota sayfalarına gitsin)
+  for (const rawFrom of TR_CORRIDOR_ORIGINS) {
+    for (const rawTo of TR_MAJOR_DESTS) {
+      add(rawFrom, rawTo, rawFrom === "AMS");
     }
   }
 
@@ -141,18 +149,26 @@ function buildCatalog(): RouteEntry[] {
 const CATALOG = buildCatalog();
 const CATALOG_MAP = new Map(CATALOG.map((e) => [`${e.from.slug}/${e.to.slug}`, e]));
 
-/** Sitemap ve doğrulama için tüm geçerli rota adresleri (editöryal + tüm pazarlar). */
+/** Sitemap ve doğrulama için tüm geçerli rota adresleri (editöryal + tüm pazarlar + TR koridorları). */
 export function getAllRouteSlugs(): { nereden: string; nereye: string }[] {
   return CATALOG.map((e) => ({ nereden: e.from.slug, nereye: e.to.slug }));
 }
 
-/** Derleme anında önceden üretilecek öncelikli rotalar (kalan pazar rotaları ISR ile isteğe bağlı üretilir). */
+/** Derleme anında önceden üretilecek öncelikli rotalar (kalan katalog rotaları ISR ile isteğe bağlı üretilir). */
 export function getStaticRouteSlugs(): { nereden: string; nereye: string }[] {
   return CATALOG.filter((e) => e.prerender).map((e) => ({ nereden: e.from.slug, nereye: e.to.slug }));
 }
 
 export function resolveRoute(fromSlug: string, toSlug: string): RouteEntry | null {
   return CATALOG_MAP.get(`${fromSlug}/${toSlug}`) ?? null;
+}
+
+/** İki havalimanı/şehir kodu için katalogda rota sayfası varsa `{ nereden, nereye }` döndürür; yoksa null. */
+export function routeSlugsForCodes(fromCode: string, toCode: string): { nereden: string; nereye: string } | null {
+  const from = placeMeta(fromCode);
+  const to = placeMeta(toCode);
+  if (!from || !to) return null;
+  return CATALOG_MAP.has(`${from.slug}/${to.slug}`) ? { nereden: from.slug, nereye: to.slug } : null;
 }
 
 // ---- Coğrafi mesafe ve saat dilimi yardımcıları ----
@@ -299,14 +315,6 @@ function upcomingYearMonths(today: string): string[] {
   });
 }
 
-function buildFallbackAirports(airportCode: string): AirportCard[] {
-  const ap = findAirport(airportCode);
-  if (!ap) return [];
-  const label: L = { tr: ap.name, en: ap.name, nl: ap.name, de: ap.name, fr: ap.name, es: ap.name, it: ap.name };
-  const side: L = { tr: ap.city, en: ap.i18n?.en ?? ap.city, nl: ap.i18n?.nl ?? ap.city, de: ap.i18n?.de ?? ap.city, fr: ap.i18n?.fr ?? ap.city, es: ap.i18n?.es ?? ap.city, it: ap.i18n?.it ?? ap.city };
-  return [{ code: ap.code, name: label, side, tone: "ink", facts: [] }];
-}
-
 function buildOtherCities(entry: RouteEntry, live: boolean): { list: RouteOtherView[]; sameCountry: boolean } {
   const toCountry = findAirport(entry.to.airportCode)?.country ?? "";
   if (!live && entry.editorial) {
@@ -326,18 +334,26 @@ function buildOtherCities(entry: RouteEntry, live: boolean): { list: RouteOtherV
   }
 
   const guide = guideForDestination(entry.to.tpCode);
-  const candidates = (guide?.others ?? []).filter((c) => {
+  const rawPool = guide?.others ?? (toCountry === "TR" ? TR_MAJOR_DESTS.map((c) => c.replace(/^city:/, "")) : []);
+  // Önce rota sayfası olan şehirleri öne al ki iç bağlantılar rota sayfalarına gitsin
+  const candidates = rawPool.filter((c) => {
     const ap = findAirport(expandCode(c, 1)[0]);
     return ap && ap.slug !== entry.from.slug && ap.slug !== entry.to.slug;
   });
 
   const sameCountryCodes = candidates.filter((c) => findAirport(expandCode(c, 1)[0])?.country === toCountry);
-  const chosen = sameCountryCodes.length >= 2 ? sameCountryCodes : candidates;
+  const chosen = (sameCountryCodes.length >= 2 ? sameCountryCodes : candidates).sort((a, b) => {
+    const slugA = findAirport(expandCode(a, 1)[0])?.slug ?? "";
+    const slugB = findAirport(expandCode(b, 1)[0])?.slug ?? "";
+    const hasA = CATALOG_MAP.has(`${entry.from.slug}/${slugA}`) ? 0 : 1;
+    const hasB = CATALOG_MAP.has(`${entry.from.slug}/${slugB}`) ? 0 : 1;
+    return hasA - hasB;
+  });
   const sameCountry = sameCountryCodes.length >= 2;
 
   return {
     sameCountry,
-    list: chosen.slice(0, 5).map((c) => {
+    list: chosen.slice(0, 6).map((c) => {
       const ap = findAirport(expandCode(c, 1)[0]);
       const slug = ap?.slug ?? c.toLowerCase();
       return {
@@ -383,10 +399,12 @@ export async function getRoutePageData(fromSlug: string, toSlug: string): Promis
   const today = todayIso();
   const yms = upcomingYearMonths(today);
   const guide = guideForDestination(entry.to.tpCode);
-  const airports = entry.editorial?.airports ?? guide?.airports ?? buildFallbackAirports(entry.to.airportCode);
+  // İçerik uydurulmaz: şehir rehberi yoksa havalimanları ve ipuçları boş kalır (bölümler gizlenir)
+  const airports = entry.editorial?.airports ?? guide?.airports ?? [];
   const tips = entry.editorial?.tips ?? guide?.tips ?? [];
-  const illustration: HeroArtKey = guide?.illustration ?? (entry.editorial?.to.illustration ?? "sky");
-  const heroBg = guide?.heroBg ?? "#FFD9C7";
+  const art = heroArtForDestination(entry.to.tpCode);
+  const illustration: HeroArtKey = guide?.illustration ?? art.illustration;
+  const heroBg = guide?.heroBg ?? art.heroBg;
   const airportsShort = entry.editorial?.airportsShort ?? guide?.airportsShort ?? entry.to.airportCode;
   const timeDiff: TimeDiffSpec = entry.editorial
     ? { kind: "custom", label: entry.editorial.timeDiff }

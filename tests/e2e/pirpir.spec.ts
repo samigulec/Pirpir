@@ -125,14 +125,40 @@ test.describe("İçerik, yönlendirme ve güvenlik kontrolleri", () => {
     expect(errors).toEqual([]);
   });
 
-  test("Rota sayfaları (editöryal + pazar rotası) hatasız açılır, bilinmeyen rota 404 döner", async ({ page, request }) => {
+  test("Rota sayfaları (editöryal + pazar + TR koridorları), iç bağlantılar ve rehbersiz bölüm gizleme", async ({ page, request }) => {
     const errors = trackErrors(page);
     await page.goto("/ucuslar/amsterdam/istanbul", { waitUntil: "networkidle" });
     await expect(page.locator("h1")).toBeVisible();
     await expect(page.getByRole("radiogroup", { name: /Ay seçimi/i })).toBeVisible();
 
-    await page.goto("/ucuslar/amsterdam/barselona", { waitUntil: "networkidle" });
-    await expect(page.locator("h1")).toBeVisible();
+    // "Türkiye'de başka nereler?" bölümündeki tüm bağlantılar rota sayfalarına (/ucuslar/amsterdam/...) gitmeli
+    const othersHeading = page.getByRole("heading", { name: /başka nereler/i });
+    const othersSection = othersHeading.locator("..");
+    const otherLinks = othersSection.locator("a");
+    const otherCount = await otherLinks.count();
+    expect(otherCount).toBeGreaterThanOrEqual(4);
+    for (let i = 0; i < otherCount; i++) {
+      const href = (await otherLinks.nth(i).getAttribute("href")) ?? "";
+      expect(href, `iç bağlantı #${i}`).toMatch(/^\/ucuslar\/amsterdam\//);
+    }
+
+    // Rehberi olmayan TR rota sayfası (Amsterdam → Ankara): açılır ama havalimanı/ipucu uydurmaz (bölümler gizli)
+    await page.goto("/ucuslar/amsterdam/ankara", { waitUntil: "networkidle" });
+    await expect(page.locator("h1")).toContainText(/Ankara/i);
+    await expect(page.getByRole("heading", { name: /Hangi havalimanı/i })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: /için ipuçları/i })).toHaveCount(0);
+
+    // Ana sayfadaki Popüler rotalar iç bağlantıları rota sayfalarına gider
+    await page.goto("/", { waitUntil: "networkidle" });
+    const routeLinks = page.locator("#rotalar a");
+    expect(await routeLinks.count()).toBeGreaterThanOrEqual(5);
+    const firstHref = (await routeLinks.first().getAttribute("href")) ?? "";
+    expect(firstHref).toMatch(/^\/ucuslar\//);
+
+    // Sitemap TR koridorlarını içerir; bilinmeyen rota 404 döner
+    const sm = await (await request.get("/sitemap.xml")).text();
+    expect(sm).toContain("/ucuslar/amsterdam/ankara");
+    expect(sm).toContain("/ucuslar/amsterdam/trabzon");
 
     const bad = await request.get("/ucuslar/mars/jupiter");
     expect(bad.status()).toBe(404);
