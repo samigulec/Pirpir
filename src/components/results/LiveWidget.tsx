@@ -36,9 +36,16 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
       u.searchParams.set("flightSearch", route);
       window.history.replaceState(window.history.state, "", u);
     }
-    const old = document.getElementById(SCRIPT_ID);
-    // Başka bir arama için yüklenmişse yeniden başlatılır (widget yalnızca açılışta okur)
-    if (old) old.remove();
+    // Widget bir ES modülü: aynı sayfada ikinci kez çalışmaz ve aramayı yalnızca açılışta okur. Sayfa içi geçişle
+    // (tarih şeridi, arama kutusu) başka bir aramaya gelindiyse sayfa yeniden yüklenir; widget yeni aramayla başlar.
+    // Aynı arama tekrar açılsa da sonuç alanı yeni bir öğedir; widget onu doldurmaz. Aynı öğe için (React'in
+    // geliştirme modundaki çift çalıştırması) yeniden yükleme yapılmaz.
+    const w = window as typeof window & { __tpwlBox?: HTMLElement | null };
+    if (document.getElementById(SCRIPT_ID)) {
+      if (w.__tpwlBox !== box.current) window.location.reload();
+      return;
+    }
+    w.__tpwlBox = box.current;
     const s = document.createElement("script");
     s.id = SCRIPT_ID;
     s.async = true;
