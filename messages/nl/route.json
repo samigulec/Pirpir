@@ -51,5 +51,7 @@
   "others": {
     "title": "Waar nog meer in {country}?",
     "titleOrigin": "Meer routes vanaf {from}"
-  }
+  },
+  "metaDescription": "Goedkoopste maanden, aankomende data en recente prijzen voor vluchten van {from} naar {to}. Vergelijk data en bekijk live tickets.",
+  "ogFromPrice": "vanaf {price}"
 }

@@ -51,5 +51,7 @@
   "others": {
     "title": "Where else in {country}?",
     "titleOrigin": "More routes from {from}"
-  }
+  },
+  "metaDescription": "Cheapest months, upcoming dates and recent fares for flights from {from} to {to}. Compare dates and check live tickets.",
+  "ogFromPrice": "from {price}"
 }

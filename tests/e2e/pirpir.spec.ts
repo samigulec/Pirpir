@@ -223,4 +223,44 @@ test.describe("İçerik, yönlendirme ve güvenlik kontrolleri", () => {
     await expect(page.locator("main")).toContainText("does not sell tickets directly");
     await expect(page.locator("main")).not.toContainText("cancel for free within 24 hours");
   });
+
+  test("SEO temelleri: canonical, 7 dil hreflang + x-default, FAQPage, BreadcrumbList (Offer yok) ve rota OG PNG", async ({ page, request }) => {
+    // 1. Ana sayfa: canonical, 7 dil + x-default, FAQPage JSON-LD (Offer yok)
+    await page.goto("/", { waitUntil: "networkidle" });
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /.+/);
+    for (const lang of ["tr", "en", "nl", "de", "fr", "es", "it", "x-default"]) {
+      await expect(page.locator(`link[rel="alternate"][hreflang="${lang}"]`), `home hreflang ${lang}`).toHaveCount(1);
+    }
+    const homeLd = await page.locator('script[type="application/ld+json"]').allTextContents();
+    expect(homeLd.length).toBeGreaterThanOrEqual(1);
+    const faqObj = homeLd.map((s) => JSON.parse(s)).find((o) => o["@type"] === "FAQPage");
+    expect(faqObj).toBeTruthy();
+    expect(Array.isArray(faqObj.mainEntity) && faqObj.mainEntity.length).toBeGreaterThanOrEqual(5);
+    expect(homeLd.join("")).not.toContain('"@type":"Offer"');
+
+    // 2. Rota sayfası: canonical, 7 dil + x-default, özgün meta description, BreadcrumbList (Offer yok)
+    await page.goto("/ucuslar/amsterdam/istanbul", { waitUntil: "networkidle" });
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/ucuslar\/amsterdam\/istanbul$/);
+    for (const lang of ["tr", "en", "nl", "de", "fr", "es", "it", "x-default"]) {
+      await expect(page.locator(`link[rel="alternate"][hreflang="${lang}"]`), `route hreflang ${lang}`).toHaveCount(1);
+    }
+    const desc = (await page.locator('meta[name="description"]').getAttribute("content")) ?? "";
+    expect(desc).toContain("Amsterdam");
+    expect(desc).toContain("İstanbul");
+
+    const routeLd = await page.locator('script[type="application/ld+json"]').allTextContents();
+    const bcObj = routeLd.map((s) => JSON.parse(s)).find((o) => o["@type"] === "BreadcrumbList");
+    expect(bcObj).toBeTruthy();
+    expect(bcObj.itemListElement).toHaveLength(3);
+    expect(routeLd.join("")).not.toContain('"@type":"Offer"');
+
+    // 3. Rota OpenGraph görseli: geçerli PNG
+    const ogUrl = await page.locator('meta[property="og:image"]').first().getAttribute("content");
+    expect(ogUrl).toContain("/opengraph-image");
+    const ogRes = await request.get(new URL(ogUrl!).pathname);
+    expect(ogRes.status()).toBe(200);
+    expect(ogRes.headers()["content-type"]).toContain("image/png");
+    const png = await ogRes.body();
+    expect(png.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47]))).toBe(true);
+  });
 });

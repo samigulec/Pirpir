@@ -12,13 +12,22 @@ import { listPublishedDeals, type DealRow } from "@/lib/deal-store";
 import { formatDayWithWeekday, formatRange } from "@/lib/dates";
 import { intlLocale } from "@/lib/intl";
 import { airlineName } from "@/lib/providers/travelpayouts";
+import { alternatesFor } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "deals" });
-  return { title: t("metaTitle"), description: t("metaDescription") };
+  const title = t("metaTitle");
+  const description = t("metaDescription");
+  return {
+    title,
+    description,
+    alternates: alternatesFor("/firsatlar", locale),
+    openGraph: { title, description },
+    twitter: { card: "summary_large_image", title, description },
+  };
 }
 
 type RouteGroup = { best: DealRow; count: number };
