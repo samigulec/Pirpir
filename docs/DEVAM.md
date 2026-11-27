@@ -321,3 +321,9 @@ Telegram/WhatsApp fırsat kanalı otomasyonu, e-posta bülteni, fırsat sayfalar
   satıcıda; `[İPTAL KOŞULLARI]` yer tutucusuna dokunulmadı). Denendi: `npm run lint`, `npx next build` (274/274),
   yerel mock Travelpayouts doğrulaması (`/api/deals?from=AMS` → 17/17 hedef dolu, `seenDate`, `"…’dan"`, SSS metinleri)
   ve `npm run e2e` (tüm 5 kategori sekmesi dahil 11/11 geçti). Bilinen eksik yok.
+- [5.4] Fiyat alarmı e-postası ortaklık moduna uyarlandı — commit 6cbfa00 — `src/lib/alert-criteria.ts` (`AlertBest` içine
+  `seenAt` ve `deepLink` eklendi), `src/lib/price-alerts.ts` (ana düğme canlı sonuç sayfasına `searchUrl` giderken
+  ortaklık modunda ikincil `dealUrl = goHref(..., "alert:<id>", lang)` ve `best.seenAt` iletilir; böylece tıklama
+  raporunda `alert:<id>` kaynağı görünür), `src/lib/emails/price-drop.ts` (7 dilde `"Fırsata git"` ikincil düğmesi ve
+  `"Fiyat bugün / dün / {n} gün önce görüldü"` satırı hem HTML hem düz metin e-postaya eklendi, mevcut e-posta tasarımı
+  korundu). Denendi: `npm run lint`, `npx next build` (274/274), `npm run e2e` (11/11 geçti). Bilinen eksik yok.
