@@ -299,3 +299,15 @@ Telegram/WhatsApp fırsat kanalı otomasyonu, e-posta bülteni, fırsat sayfalar
   `/git` 302+parametreler, `/firsatlar` + `/en/deals`, `/ucuslar/amsterdam/istanbul`, 7 dil gizlilik 200, `/yonetim/*` 307,
   `/api/cron/*` 401, yatay taşma ve JS/konsol hatası yok. Denendi: `npm run lint`, `npx next build` (92/92), `npm run e2e`
   (11/11 geçti, 4.9 sn). Bilinen eksik yok.
+- [5.2] Rota sayfaları gerçek veriye ve pazar rotalarına bağlandı — commit 0d4ad0d — `src/lib/providers/travelpayouts.ts`
+  (`groupedPrices` için `departureAt` isteğe bağlı), `src/data/route-guides.ts` (14 popüler varış şehri için 7 dilde
+  havalimanı kartları, karakter ipuçları ve illüstrasyon eşlemesi), `src/lib/route-data.ts` (editöryal + tüm `MARKETS`
+  rotaları kataloğu, Travelpayouts `grouped_prices` `group_by=month` + 3 ay `departure_at`, 8 saat `unstable_cache`,
+  ECB döviz kurları, otomatik saat farkı ve süre). `MonthlyPrices.tsx` veri olmayan aylarda "Fiyata bak" gösterir (fiyat
+  uydurmaz) ve görüldüğü gün (`seenAt`) ile arama bağlantısı sunar; `CheapestDates` her satırda `searchHref` ("Seç") ve
+  ortaklık modunda `goHref(..., "route:<slug>")` ("Fırsata git") + `seenAt` verir. `page.tsx` öncelikli rotaları statik
+  (`generateStaticParams`), kalan pazar rotalarını ISR (`revalidate = 21600`) ile sunar, bilinmeyen rotalar 404;
+  `sitemap.ts` tüm katalog rotalarını 7 dilde içerir; 7 dil `messages/*/route.json` güncellendi; demo mod korundu.
+  Denendi: `npm run lint`, `npx next build` (274/274 sayfa), yerel mock Travelpayouts doğrulaması (`grouped_prices`
+  ay+gün çağrıları, `26 Kas` görülme tarihi, `src=route:viyana-istanbul`, "Fiyata bak", 404, EN rota, `/sitemap.xml`),
+  `npm run e2e` (11/11 geçti). Bilinen eksik yok.
