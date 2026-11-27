@@ -23,12 +23,20 @@ export const outboundPartner = (): OutboundPartner =>
 /**
  * Travelpayouts White Label "Widget" kimliği: kayıtlı fiyat az ya da yokken sonuç sayfasında canlı Aviasales sonuçları
  * gösterilir (`src/components/results/LiveWidget.tsx`). Gizli değildir (sayfa kaynağında görünür).
+ * Sunucuda test ortamı için `PIRPIR_DISABLE_LIVE_WIDGET=1` veya çalışma zamanı `TP_WL_WIDGET_ID` desteklenir.
  */
-export const liveWidgetId = () => process.env.NEXT_PUBLIC_TP_WL_WIDGET_ID?.trim() || null;
+export function liveWidgetId(): string | null {
+  if (typeof window === "undefined") {
+    if (process.env.PIRPIR_DISABLE_LIVE_WIDGET === "1") return null;
+    const runtime = process.env.TP_WL_WIDGET_ID?.trim();
+    if (runtime) return runtime;
+  }
+  return process.env.NEXT_PUBLIC_TP_WL_WIDGET_ID?.trim() || null;
+}
 
 /** Widget betiğinin adresi: değişkende tam adres (Travelpayouts kodundaki `script.src`) ya da yalnızca `wl_id` olabilir */
-export function liveWidgetSrc(): string | null {
-  const v = liveWidgetId();
+export function liveWidgetSrc(idOverride?: string | null): string | null {
+  const v = idOverride !== undefined ? idOverride?.trim() || null : liveWidgetId();
   if (!v) return null;
   if (/^https:\/\/tpwgts?\.com\/wl_web\/main\.js\?wl_id=\d+$/.test(v)) return v;
   const id = v.replace(/\D/g, "");
@@ -36,5 +44,7 @@ export function liveWidgetSrc(): string | null {
 }
 
 /** Sonuç sayfasının ana listesi canlı uçuşlar mı (ortaklık modu + widget kimliği + tek kalkış ve tek varış yeri)? */
-export const liveListFor = (q: { from: string[]; to: string[] }) =>
-  isAffiliate() && !!liveWidgetId() && q.from.length === 1 && q.to.length === 1;
+export const liveListFor = (q: { from: string[]; to: string[] }, widgetId?: string | null) => {
+  const id = widgetId !== undefined ? widgetId : liveWidgetId();
+  return isAffiliate() && !!id && q.from.length === 1 && q.to.length === 1;
+};

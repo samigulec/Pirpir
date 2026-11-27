@@ -6,8 +6,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { readInitial as readInitialCurrency, useCurrency } from "../CurrencyProvider";
 import { useRouter } from "@/i18n/navigation";
 import { liveWidgetSrc } from "@/config/affiliate";
+import { cleanWidgetUrl, widgetSyncQuery } from "@/lib/live-widget-url";
 import { aviasalesRoute, parseAviasalesRoute } from "@/lib/outbound";
-import { searchHref, type MultiQuery } from "@/lib/search";
+import type { MultiQuery } from "@/lib/search";
 
 const SCRIPT_ID = "tpwl-main";
 const STYLE_ID = "pirpir-tpwl";
@@ -130,16 +131,13 @@ function applyBaggageFilter(host: HTMLElement | null): () => void {
  * widget başka güne geçince sayfanın adresi ve arama kutusu da o güne güncellenir (widget yeniden yüklenmez).
  * Arama kutusundan başka bir aramaya geçilince sayfa yeniden yüklenir (widget aramayı yalnızca açılışta okur).
  */
-export function LiveWidget({ q }: { q: MultiQuery }) {
+export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string | null }) {
   const t = useTranslations("results");
   const router = useRouter();
   const locale = useLocale();
   const { cur } = useCurrency();
-  const src = liveWidgetSrc();
+  const src = liveWidgetSrc(widgetId);
   const box = useRef<HTMLDivElement>(null);
-  // Widget adresi kendi biçimine çevirince bagaj bilgisi düşer; eşitlemede korunur
-  const bagsRef = useRef(q.bags);
-  bagsRef.current = q.bags;
   const route = aviasalesRoute({
     from: q.from[0],
     to: q.to[0],
@@ -154,16 +152,16 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
   useEffect(() => {
     if (!src) return;
     const w = window as W;
+    const clean = cleanWidgetUrl(window.location.href, route);
     if (document.getElementById(SCRIPT_ID)) {
-      // Widget zaten bu aramayı gösteriyor (kendi şeridinden geçildi) → bir şey yapma; başka arama ya da yeni öğe → yükle
-      if (w.__tpwlBox !== box.current || w.__tpwlRoute !== route) window.location.reload();
+      // Widget zaten bu aramayı gösteriyor (kendi şeridinden geçildi) → bir şey yapma; başka arama ya da yeni öğe → temiz adresle yükle
+      if (w.__tpwlBox !== box.current || w.__tpwlRoute !== route) window.location.replace(clean);
       return;
     }
-    // Widget aramayı adresten okur: sayfa yeniden yüklenmeden parametre eklenir
-    const u = new URL(window.location.href);
-    if (u.searchParams.get("flightSearch") !== route) {
-      u.searchParams.set("flightSearch", route);
-      window.history.replaceState(window.history.state, "", u);
+    // Widget `adults`/`children`/`infants` ile `flightSearch`'ü bir arada görünce yerel gece yarısına `.toISOString()`
+    // uygulayıp UTC+ saat dilimlerinde tarihi 1 gün geri kaydırıyor; betik yüklenmeden adres yalnızca `flightSearch`'e indirgenir
+    if (window.location.href !== clean) {
+      window.history.replaceState(window.history.state, "", clean);
     }
     w.__tpwlBox = box.current;
     w.__tpwlRoute = route;
@@ -185,7 +183,7 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
   }, [src, route]);
 
   // Widget kendi şeridinden (ya da kendi formundan) başka aramaya geçince `urlchange` olayı yayınlar: sayfanın adresi
-  // ve arama kutusu o aramaya eşitlenir, widget yerinde kalır. (Açılıştaki adres düzeltmesi bu olayı yayınlamaz.)
+  // ve arama kutusu o aramaya eşitlenir, widget yerinde kalır. `adults` vb. parametreler geri eklenmez (yenilemede tarih kaymasın).
   useEffect(() => {
     if (!src) return;
     const onChange = () => {
@@ -196,8 +194,7 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
       const next = aviasalesRoute(p);
       if (next === w.__tpwlRoute) return;
       w.__tpwlRoute = next;
-      const href = searchHref({ from: p.from, to: p.to, date: p.date, returnDate: p.returnDate ?? "", pax: { adults: p.adults, children: p.children, infants: p.infants }, cabin: p.cabin, bags: bagsRef.current });
-      router.replace({ pathname: "/ara", query: { ...href.query, flightSearch: code } }, { scroll: false });
+      router.replace({ pathname: "/ara", query: widgetSyncQuery(code, window.location.search) }, { scroll: false });
     };
     window.addEventListener("urlchange", onChange);
     return () => window.removeEventListener("urlchange", onChange);

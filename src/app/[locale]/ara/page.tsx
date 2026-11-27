@@ -9,7 +9,7 @@ import { cityByCode } from "@/data/airports";
 import { intlLocale } from "@/lib/intl";
 import { formatDayLong, formatRange } from "@/lib/dates";
 import { nearbyOffers } from "@/lib/providers/travelpayouts";
-import { liveListFor } from "@/config/affiliate";
+import { liveListFor, liveWidgetId } from "@/config/affiliate";
 import { LiveWidget } from "@/components/results/LiveWidget";
 import { dataMode, priceSource, getFlexibleDateTip, searchFlightsCached, watchSearch } from "@/lib/flights";
 import { paxTotal, searchHref, todayIso, type MultiQuery } from "@/lib/search";
@@ -60,6 +60,8 @@ export default async function ResultsPage({
   const t = await getTranslations("results");
   const tSearch = await getTranslations("home.search");
   const error = validateSearchServer(q);
+  const widgetId = liveWidgetId();
+  const isLiveList = liveListFor(q, widgetId);
   const fromCity = q.from.map((c) => cityByCode(c, locale)).join(", ");
   const toCity = q.to.map((c) => cityByCode(c, locale)).join(", ");
 
@@ -98,12 +100,12 @@ export default async function ResultsPage({
         ) : (
           <>
             {/* Arama her değiştiğinde (ör. tarih şeridinden) yükleme ekranı görünsün diye anahtarlı */}
-            <Suspense key={JSON.stringify(q)} fallback={liveListFor(q) ? null : <ResultsLoading />}>
-              <Results q={q} locale={locale} />
+            <Suspense key={JSON.stringify(q)} fallback={isLiveList ? null : <ResultsLoading />}>
+              <Results q={q} locale={locale} widgetId={widgetId} />
             </Suspense>
             {/* Ana liste canlı uçuşlar: sunucudaki kayıtlı fiyat aramasını beklemeden hemen başlar */}
             {/* Anahtarsız: widget kendi şeridinden başka güne geçince adres güncellenir, widget yerinde kalır */}
-            {liveListFor(q) && <LiveWidget q={q} />}
+            {isLiveList && <LiveWidget q={q} widgetId={widgetId} />}
           </>
         )}
       </main>
@@ -214,13 +216,14 @@ function flexSearches(q: MultiQuery): Promise<Offer[]>[] {
 }
 
 /** Uçuş araması: sayfanın geri kalanı beklemeden görünür; uçuşlar geldikçe listeye eklenir. */
-async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
+async function Results({ q, locale, widgetId }: { q: MultiQuery; locale: string; widgetId: string | null }) {
   const t = await getTranslations("results");
   const loc = intlLocale(locale);
+  const isLiveList = liveListFor(q, widgetId);
   let first: LiveChunk;
   let tip: ResultsTip = null;
   try {
-    const [chunk, flex] = await Promise.all([liveChain(q, locale, flexSearches(q)), q.flex || liveListFor(q) ? null : getFlexibleDateTip(q)]);
+    const [chunk, flex] = await Promise.all([liveChain(q, locale, flexSearches(q)), q.flex || isLiveList ? null : getFlexibleDateTip(q)]);
     first = chunk;
     if (flex) {
       tip = { href: searchHref({ ...flex.query, returnDate: flex.query.returnDate ?? "" }), day: formatDayLong(flex.query.date, loc), price: flex.price, save: flex.save };
@@ -235,7 +238,7 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
   // Önbellekli fiyatlarda tam tarihlere kayıt yoksa yakın günlerin kayıtlı fiyatları (her biri kendi tarihleriyle)
   let nearby: { sections: { title: "nearbyTitle" | "nearbyOut" | "nearbyBack"; offers: Offer[]; want: { date: string; returnDate?: string } }[]; cityNames: Record<string, string> } | undefined;
   // Ana liste canlıysa yakın tarihlere bakılmaz (gösterilmeyecekler)
-  if (!liveListFor(q) && priceSource() === "travelpayouts" && first.done && !first.offers.length && q.from.length === 1 && q.to.length === 1) {
+  if (!isLiveList && priceSource() === "travelpayouts" && first.done && !first.offers.length && q.from.length === 1 && q.to.length === 1) {
     const code = (c: string) => c.replace(/^city:/, "");
     const from = code(q.from[0]);
     const to = code(q.to[0]);
@@ -271,6 +274,7 @@ async function Results({ q, locale }: { q: MultiQuery; locale: string }) {
       retryHref={searchHref({ ...q, returnDate: q.returnDate ?? "" })}
       nearby={nearby}
       monthlyPrices={source === "travelpayouts"}
+      widgetId={widgetId}
     />
   );
 }

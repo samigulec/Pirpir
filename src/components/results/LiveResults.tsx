@@ -38,7 +38,10 @@ export function LiveResults({
   initialBags,
   nearby,
   monthlyPrices,
+  widgetId,
 }: {
+  /** Sunucudan aktarılan canlı widget kimliği (test/çalışma zamanı geçersiz kılma için) */
+  widgetId?: string | null;
   /** Travelpayouts ortaklık modunda tarih şeridi tek ay isteğiyle (`grouped_prices`) doldurulur */
   monthlyPrices?: boolean;
   /** Tam tarihlerde sonuç yoksa yakın günlerin kayıtlı fiyatları */
@@ -90,7 +93,7 @@ export function LiveResults({
   // Birden çok kalkış/varış yeri seçildiyse widget tek rota aradığı için eski liste kullanılır.
   // Canlı liste sayfada ayrıca (hemen) başlatılır; burada yalnızca fiyat trendi ve alarm. Tarih seçimi widget'ın kendi
   // canlı şeridinden yapılır (kayıtlı fiyatlı şerit canlı fiyatlarla uyuşmadığı için gösterilmez).
-  if (liveListFor(q))
+  if (liveListFor(q, widgetId))
     return chunk.done ? <PriceTrends q={q} actions={<PriceAlertButton q={q} offers={chunk.offers} filters={filters} />} /> : null;
   return (
     <>
@@ -119,7 +122,7 @@ export function LiveResults({
         onFiltersChange={setFilters}
         liveHref={liveHref}
         nearby={nearby}
-        live={chunk.done && isAffiliate() && liveWidgetId() ? <LiveWidget q={q} /> : undefined}
+        live={chunk.done && isAffiliate() && (widgetId !== undefined ? widgetId : liveWidgetId()) ? <LiveWidget q={q} widgetId={widgetId} /> : undefined}
       />
     </>
   );

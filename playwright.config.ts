@@ -29,9 +29,11 @@ function detectChromium(): string | undefined {
 
 const PORT = Number(process.env.E2E_PORT || 3111);
 const AFF_PORT = Number(process.env.E2E_AFF_PORT || 3112);
+const LIVE_PORT = Number(process.env.E2E_LIVE_PORT || 3113);
 const MOCK_TP_PORT = Number(process.env.MOCK_TP_PORT || 3119);
 const BASE_URL = process.env.E2E_BASE_URL || `http://localhost:${PORT}`;
 const AFF_BASE_URL = process.env.E2E_AFF_BASE_URL || `http://localhost:${AFF_PORT}`;
+const LIVE_BASE_URL = process.env.E2E_LIVE_BASE_URL || `http://localhost:${LIVE_PORT}`;
 const executablePath = detectChromium();
 
 export default defineConfig({
@@ -55,7 +57,7 @@ export default defineConfig({
         viewport: { width: 1440, height: 900 },
         launchOptions: executablePath ? { executablePath, args: ["--no-sandbox"] } : { args: ["--no-sandbox"] },
       },
-      testIgnore: /(mobile|affiliate)\.spec\.ts/,
+      testIgnore: /(mobile|affiliate|live-widget)\.spec\.ts/,
     },
     {
       name: "mobile",
@@ -76,6 +78,17 @@ export default defineConfig({
       },
       testMatch: /affiliate\.spec\.ts/,
     },
+    {
+      name: "live-widget",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: LIVE_BASE_URL,
+        viewport: { width: 1440, height: 900 },
+        timezoneId: "Europe/Amsterdam",
+        launchOptions: executablePath ? { executablePath, args: ["--no-sandbox"] } : { args: ["--no-sandbox"] },
+      },
+      testMatch: /live-widget\.spec\.ts/,
+    },
   ],
   webServer: process.env.E2E_BASE_URL
     ? undefined
@@ -87,10 +100,11 @@ export default defineConfig({
           timeout: 30_000,
           env: {
             ...process.env,
-            // Örnek veri modu (ağ gerektirmez)
+            // Örnek veri modu (ağ gerektirmez; derlemede widget kimliği olsa bile demo testleri etkilenmez)
             TRAVELPAYOUTS_TOKEN: "",
             DUFFEL_ACCESS_TOKEN: "",
             NEXT_PUBLIC_TP_WL_WIDGET_ID: "",
+            PIRPIR_DISABLE_LIVE_WIDGET: "1",
             ECB_RATES_URL: "http://127.0.0.1:1/offline",
           },
         },
@@ -116,6 +130,23 @@ export default defineConfig({
             TRAVELPAYOUTS_API_URL: `http://127.0.0.1:${MOCK_TP_PORT}`,
             DUFFEL_ACCESS_TOKEN: "",
             NEXT_PUBLIC_TP_WL_WIDGET_ID: "",
+            PIRPIR_DISABLE_LIVE_WIDGET: "1",
+            ECB_RATES_URL: "http://127.0.0.1:1/offline",
+          },
+        },
+        {
+          command: `npx next start -p ${LIVE_PORT}`,
+          url: LIVE_BASE_URL,
+          reuseExistingServer: false,
+          timeout: 30_000,
+          env: {
+            ...process.env,
+            // Canlı widget modu (tpwgt.com betiği testte sahte gölge kökle yakalanır, ağ gerektirmez)
+            TRAVELPAYOUTS_TOKEN: "test",
+            TRAVELPAYOUTS_API_URL: `http://127.0.0.1:${MOCK_TP_PORT}`,
+            DUFFEL_ACCESS_TOKEN: "",
+            TP_WL_WIDGET_ID: "25161",
+            PIRPIR_DISABLE_LIVE_WIDGET: "",
             ECB_RATES_URL: "http://127.0.0.1:1/offline",
           },
         },
