@@ -439,3 +439,19 @@ yoksa hiçbir şey yapmasın. Gönderim hatası yayınlamayı engellemesin. Toke
   "x gün önce görülen fiyat" yazar, veri yoksa "Şu an kayıtlı fiyat yok, düşünce haber veririz." diyerek alarm kurulumunu
   açık bırakır. 7 dilde `messages/*/results.json` güncellendi. Denendi: `npm run lint`, `npx next build` (275/275),
   `npm run e2e` (yeni `/api/alert-price` + pencere akışı testi dahil 16/16 geçti, 6.8 sn). Bilinen eksik yok.
+- [7.3] Ortaklık modunda satış kalıntıları temizlendi — commit 97ab49d — Taranan ve düzeltilen kalıntılar (tümü
+  `isAffiliate()` korumalı, satış modu bozulmadı):
+  (1) Yönlendirmeler: `src/proxy.ts` (7 dilde `/biletlerim` → `/hesap`, `/rezervasyon/*` → `/` HTTP 307) ve
+  `biletlerim/page.tsx`, `rezervasyon/[teklifId]/onay/page.tsx`, `rezervasyon/[teklifId]/plan/page.tsx` sunucu
+  yönlendirmeleri eklendi.
+  (2) Hesap ve profil menüsü: `hesap/page.tsx` ve `ProfileMenu.tsx` içinde "Kayıtlı yolcular" (`#yolcular` — "rezervasyonda
+  tek tıkla doldur") ortaklık modunda gizlendi; alarmlar ve favoriler kaldı.
+  (3) Giriş penceresi: `LoginPanel.tsx` içinde "Rezervasyonu yanlış e-postayla mı yaptın?" satırı ortaklık modunda gizlendi.
+  (4) Arama kutusu & altbilgi: `SearchForm.tsx` ve 7 dilde `messages/*/home.json` (`search.bagsNoteAff`) bagaj ücretlerinin
+  satıcıda gösterildiğini dürüstçe yazar; `SiteFooter.tsx` Yardım/Bagaj/İptal linkleri `/#sss`, `/#sss-bags`, `/#sss-cancel`
+  bölümlerine bağlandı.
+  (5) Kullanım Koşulları: `src/content/legal/terms.ts` içine 7 dilde `termsAffiliate` eklendi ("bilet satmaz", ödeme/iptal/bagaj
+  satıcıda, hukuki yer tutucular korundu) ve `kosullar/page.tsx` ortaklık modunda bunu gösterir. (E-postalar, SSS, `Steps`,
+  `HomeHero`, `MobileNav` kontrol edildi — zaten ortaklık moduna uyumlu.)
+  Denendi: `npm run lint`, `npx next build` (275/275), `npm run e2e` (TR/EN 307 yönlendirmeleri ve `/kosullar` doğrulaması
+  dahil 17/17 geçti, 7.1 sn). Bilinen eksik yok.
