@@ -10,7 +10,7 @@ const SCRIPT_ID = "tpwl-main";
 
 /**
  * Canlı sonuçlar (Travelpayouts White Label, Widget türü): Aviasales'in canlı aramasını sonuç sayfasının içinde gösterir.
- * Önbellekte kayıt az ya da yokken kullanılır. Arama, adresteki `flightSearch` parametresiyle başlar
+ * Ortaklık modunda sonuç sayfasının ana listesidir. Arama, adresteki `flightSearch` parametresiyle başlar
  * (White Label'ın kendi biçimi, ör. AMS2712ADB1); betik sayfaya bir kez eklenir.
  */
 export function LiveWidget({ q }: { q: MultiQuery }) {
@@ -62,7 +62,7 @@ export function LiveWidget({ q }: { q: MultiQuery }) {
         <p className="m-0 text-[15px] font-semibold text-muted">{t("liveText")}</p>
       </div>
       {/* Widget arama formunu ve sonuçlarını bu alanlara yerleştirir */}
-      <div ref={box} className="min-h-[120px] overflow-hidden rounded-[28px] border-2 border-solid border-line bg-white p-2 md:p-4">
+      <div ref={box} className="min-h-[480px] overflow-hidden rounded-[28px] border-2 border-solid border-line bg-white p-2 md:p-4">
         <div id="tpwl-search" className="hidden" aria-hidden="true" />
         <div id="tpwl-tickets" />
       </div>

@@ -232,3 +232,7 @@ Yapamadığın ya da kullanıcı kararı gereken bir şey olursa onu da yaz; tah
   3.7 ve 3.8 onaylandı (tıklama raporu yönetici korumalı ve salt okunur; gizlilik metni 7 dilde, yer tutucular korunmuş).
   Düzeltme: widget adresi `?flightSearch=AMS2712ADB1` biçimine çeviriyor; `parseSearch` bu kodu okuyor
   (`fromAviasalesRoute`), yenilemede/paylaşımda arama korunuyor.
+- [karar + uygulama] Claude — kullanıcı kararı: sonuç sayfasının ana listesi her aramada **canlı uçuşlar** (White Label
+  widget). Ortaklık modunda ve widget kimliği tanımlıyken (`liveOnly`, tek kalkış/varış) önbellekli kart listesi
+  gösterilmez; tarih şeridi, fiyat trendi ve fiyat alarmı önbellek verisiyle kalır. Birden çok kalkış/varış yerinde eski
+  liste. Widget sayfa içi geçişte (tarih şeridi, arama kutusu) sayfayı yeniden yükleyerek yeni aramayla başlar.

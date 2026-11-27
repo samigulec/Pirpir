@@ -85,6 +85,18 @@ export function LiveResults({
   const liveHref = isAffiliate()
     ? goHref({ from: q.from[0], to: q.to[0], date: q.date, returnDate: q.returnDate || undefined, adults: q.pax.adults, children: q.pax.children, infants: q.pax.infants, cabin: q.cabin ?? "economy" }, "empty", locale)
     : undefined;
+  // Ana liste canlı uçuşlar (White Label widget): gerçek uçuşlar, güncel fiyat, kendi filtreleri. Kayıtlı (önbellekli)
+  // fiyatlar burada liste olarak gösterilmez; tarih şeridi, fiyat trendi ve alarm onlardan beslenir.
+  // Birden çok kalkış/varış yeri seçildiyse widget tek rota aradığı için eski liste kullanılır.
+  const liveOnly = isAffiliate() && !!liveWidgetId() && q.from.length === 1 && q.to.length === 1;
+  if (liveOnly)
+    return (
+      <>
+        {chunk.done && <DateStrip q={q} current={cheapest} monthlyPrices={monthlyPrices} />}
+        {chunk.done && <PriceTrends q={q} actions={<PriceAlertButton q={q} offers={chunk.offers} filters={filters} />} />}
+        <LiveWidget q={q} />
+      </>
+    );
   return (
     <>
       {chunk.done && <DateStrip q={q} current={cheapest} monthlyPrices={monthlyPrices} />}
