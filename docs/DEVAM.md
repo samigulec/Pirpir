@@ -339,3 +339,26 @@ Telegram/WhatsApp fırsat kanalı otomasyonu, e-posta bülteni, fırsat sayfalar
   destek yer tutucuları (`[ŞİRKET ADI]`, `[ADRES]`, `[İLETİŞİM E-POSTASI]`, `[SAKLAMA SÜRESİ]`, `[ORTAKLIK ÇEREZ DETAYLARI]`,
   `[UYGULANACAK HUKUK]`, `[DESTEK TELEFONU]`, `[İPTAL KOŞULLARI]`, `[DESTEK SAATLERİ]`, teknik `[PNR]`) dosya/satır
   numaraları ve öncelik tablosuyla `docs/yer-tutucular.md`'ye listelendi. Hiçbir metin değiştirilmedi. Bilinen eksik yok.
+- [5.7] Sonraki fikirler öneri bölümü eklendi — kod değişikliği yok — Telegram/WhatsApp fırsat kanalı otomasyonu,
+  haftalık e-posta bülteni ve fırsat sayfaları SEO'su için 3–5 satırlık öneriler ve gereken hesap/anahtar listesi
+  aşağıdaki bölüme eklendi. İkinci tur iş listesindeki 5.1–5.7 maddelerinin tamamı tamamlandı.
+
+---
+
+## 6. Sonraki Fikirler (5.7 Önerileri — Kod Yok, Kullanıcı Kararı İçin)
+
+### 6.1 Telegram / WhatsApp Fırsat Kanalı Otomasyonu
+- `/yonetim/firsatlar` panelinde bir fırsat "Yayınla" dendiğinde, halihazırda üretilen `opengraph-image` (1200×630 PNG) görseli, fiyat/tasarruf özeti ve `goHref(..., "tg:<id>")` / `firsatlar/<id>` bağlantısıyla otomatik olarak Telegram kanalına gönderilebilir (`sendPhoto`).
+- WhatsApp Kanalları (Channels) için resmî Meta Cloud API doğrudan otomatik yayın açmadığından, şimdilik yönetim panelindeki tek tıkla "WhatsApp paylaşım metnini kopyala" akışı korunabilir; ileri aşamada yalnızca onaylı şablonlarla WhatsApp Business API (birebir bildirim) düşünülebilir.
+- **Gereken hesap/anahtar:** Telegram için `@BotFather` botu (`TELEGRAM_BOT_TOKEN`) + herkese açık kanal adı/kimliği (`TELEGRAM_CHANNEL_ID`, bot kanalda yönetici olmalı). WhatsApp Business API istenirse Meta Business doğrulaması + `WHATSAPP_TOKEN` + `WHATSAPP_PHONE_ID` (ücretli konuşma tarifesi).
+
+### 6.2 Haftalık Fırsat E-posta Bülteni
+- Ana sayfa ve `/firsatlar` altına tek satırlık çift onaylı (double opt-in, GDPR/KVKK uyumlu) "Haftanın en ucuz uçuşları" kaydı eklenebilir; kalkış pazarı (ör. Hollanda / Almanya / Türkiye) ve dil bilgisi Supabase `newsletter_subscribers` tablosunda tutulur.
+- Haftada bir (ör. Perşembe sabahı) yayınlanmış en iyi 5 fırsat seçilip mevcut Resend altyapısı ve `price-drop.ts` tasarım diliyle gönderilir; her e-postada tek tıkla `List-Unsubscribe` ve `src=newsletter:<tarih>` tıklama takibi bulunur.
+- **Gereken hesap/anahtar:** Mevcut `RESEND_API_KEY` ve `EMAIL_FROM` yeterli (ücretsiz katman günde 100 / ayda 3.000 e-posta; abone büyüyünce Resend Pro veya Brevo/Buttondown düşünülebilir) + yeni Supabase göçü (`0007_newsletter.sql`). Vercel Hobby'de 2 cron sınırı dolu olduğundan gönderim ya `/yonetim/firsatlar` içinden tek tuşla ("Haftalık bülteni gönder") tetiklenir ya da Vercel Pro'ya geçilir.
+
+### 6.3 Fırsat Sayfalarının SEO'su
+- `/firsatlar/[id]` sayfalarına `Event`/`Offer` veya `Product` yerine Google'ın kurallarına uygun `BreadcrumbList` + `FAQPage` (veya temiz `WebPage` + `Offer` yapılandırılmış veri) ve her yayınlanmış fırsatın `sitemap.xml` içine dinamik eklenmesi organik trafik getirir.
+- Süresi geçmiş (tarihi geçmiş) fırsat sayfaları sert 404 yerine ilgili kalıcı rota sayfasına (`/ucuslar/[nereden]/[nereye]`) yönlendiren "Bu fırsat sona erdi — bu rotanın güncel fiyatlarına bak" bilgi kartı (veya `301` yönlendirme) göstererek kazanılan bağlantı değerini korur.
+- Şehir bazlı fırsat arşiv sayfaları (ör. `/firsatlar/amsterdam-cikisli`, `/firsatlar/istanbul-ucuslari`) ile dahili bağlantılar güçlendirilebilir.
+- **Gereken hesap/anahtar:** Ek ücretli anahtar gerekmez; yalnızca Google Search Console ve Bing Webmaster Tools doğrulanıp `https://www.flypirpir.nl/sitemap.xml` bildirilmelidir (isteğe bağlı olarak trafik ölçümü için çerezsiz Plausible/Umami).
