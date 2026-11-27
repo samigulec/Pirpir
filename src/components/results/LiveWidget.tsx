@@ -26,6 +26,9 @@ const SHADOW_CSS = `
 [class*="TicketsWidget-module__moreTickets___"] { border-radius: 999px !important; border: 2px solid #e3e8f2 !important; background: #fff !important; color: #1e2a44 !important; font-family: var(--font-fredoka), var(--font-baloo), sans-serif !important; font-weight: 600 !important; min-height: 48px; }
 [class*="ClearableParameter-module__root___"] { border-radius: 999px !important; font-weight: 700 !important; }
 [class*="FlightFiltersContent-module__root___"] { background: #f5f8fd !important; border: 0 !important; border-radius: 28px !important; }
+/* Widget'ın kendi tarih şeridi gizlenir: tarih yalnızca sayfanın üstündeki şeritten seçilir (arama kutusu ve şerit
+   widget'tan bağımsız güne geçince sayfa kendi içinde çelişiyordu) */
+[class*="FlightMatrix"] { display: none !important; }
 [class*="SearchProgressbar-module__progressInner___"] { background: #2f5bd3 !important; }
 [class*="Toggle-module__root___"] input:checked + span { background: #2f5bd3 !important; }
 `;
