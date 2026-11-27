@@ -327,3 +327,11 @@ Telegram/WhatsApp fırsat kanalı otomasyonu, e-posta bülteni, fırsat sayfalar
   raporunda `alert:<id>` kaynağı görünür), `src/lib/emails/price-drop.ts` (7 dilde `"Fırsata git"` ikincil düğmesi ve
   `"Fiyat bugün / dün / {n} gün önce görüldü"` satırı hem HTML hem düz metin e-postaya eklendi, mevcut e-posta tasarımı
   korundu). Denendi: `npm run lint`, `npx next build` (274/274), `npm run e2e` (11/11 geçti). Bilinen eksik yok.
+- [5.5] Performans ve erişilebilirlik denetimi — commit 17e7069 — Lighthouse 13.6.0 (`--headless=new --no-sandbox`) ile
+  `/`, `/ara?...`, `/firsatlar` ve `/ucuslar/amsterdam/istanbul` masaüstü + mobil profillerde denetlendi; özet ve en
+  büyük 5 bulgu `docs/denetim.md`'ye yazıldı. İki güvenli erişilebilirlik düzeltmesi yapıldı: (1) `src/app/[locale]/page.tsx`
+  ana içeriği `<main>` içine alındı (`landmark-one-main`, ana sayfa Erişilebilirlik 98 → 100), (2) `HeaderControls.tsx`
+  bölge düğmesinde `aria-label` yerine `title` + `sr-only` kullanıldı (`label-content-name-mismatch` tüm sayfalarda
+  sıfırlandı). Düzeltme sonrası tüm 4 sayfada (masaüstü + mobil) Erişilebilirlik 100, En İyi Uygulamalar 100, SEO 100,
+  Performans 90–100. Canlı widget betiği (`tpwgt.com`) için yalnızca rapor yazıldı, Claude'un dosyalarına dokunulmadı.
+  Denendi: `npm run lint`, `npx next build` (274/274), 8 Lighthouse ölçümü ve `npm run e2e` (11/11 geçti). Bilinen eksik yok.
