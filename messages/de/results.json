@@ -248,5 +248,6 @@
   "separateNote": "Hin- und Rückflug werden getrennt gebucht",
   "fewResults": "Für diese Daten sind nur wenige Flüge gespeichert. Alle Flüge und aktuellen Preise siehst du in der Live-Suche.",
   "liveTitle": "Live-Flüge",
-  "liveText": "Aktuelle Flüge und Preise für deine Daten. Du buchst beim Anbieter deiner Wahl."
+  "liveText": "Aktuelle Flüge und Preise für deine Daten. Du buchst beim Anbieter deiner Wahl.",
+  "liveBaggage": "Gepäck inklusive"
 }

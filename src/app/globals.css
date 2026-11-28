@@ -65,9 +65,12 @@
   --search-form-icon-color: #2f5bd3 !important;
   --search-form-link-color: #1e2a44 !important;
   --border-color: #e3e8f2 !important;
-  --border-radius: 18px !important;
+  --border-radius: 28px !important;
   --ticket-cards-background: #ffffff !important;
   font-family: var(--font-nunito), system-ui, sans-serif !important;
   color: #1e2a44;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 }
 /* Kart, rozet, düğme ve fiyat kuralları widget'ın gölge DOM'una eklenir: src/components/results/LiveWidget.tsx */
