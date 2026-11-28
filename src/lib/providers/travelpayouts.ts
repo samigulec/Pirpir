@@ -7,6 +7,7 @@ import { findAirport } from "@/data/airports";
 import { RATES, toTry, type Rates } from "../currency";
 import { getRates } from "../currency-server";
 import type { SearchQuery } from "../search";
+import { airlineName } from "../airlines";
 import type { Bags, FlightProvider, Leg, Offer } from "./types";
 
 const API = process.env.TRAVELPAYOUTS_API_URL?.trim() || "https://api.travelpayouts.com";
@@ -149,21 +150,7 @@ function leg(depIso: string, mins: number, stops: number, from: string, to: stri
 }
 
 // ---- Havayolu adları (API yalnızca IATA kodu verir) ----
-const AIRLINES: Record<string, string> = {
-  TK: "Turkish Airlines", PC: "Pegasus", VF: "AJet", XQ: "SunExpress", KL: "KLM", HV: "Transavia", TO: "Transavia France",
-  FR: "Ryanair", RK: "Ryanair UK", U2: "easyJet", EC: "easyJet Europe", DS: "easyJet Switzerland", W6: "Wizz Air", W4: "Wizz Air Malta",
-  W9: "Wizz Air UK", VY: "Vueling", IB: "Iberia", I2: "Iberia Express", UX: "Air Europa", V7: "Volotea", LH: "Lufthansa",
-  EW: "Eurowings", DE: "Condor", "4Y": "Discover Airlines", LX: "SWISS", OS: "Austrian", SN: "Brussels Airlines", AF: "Air France",
-  BA: "British Airways", EI: "Aer Lingus", LS: "Jet2", AZ: "ITA Airways", LO: "LOT", JU: "Air Serbia", A3: "Aegean",
-  OA: "Olympic Air", CY: "Cyprus Airways", RO: "TAROM", FB: "Bulgaria Air", OU: "Croatia Airlines", TP: "TAP Air Portugal",
-  SK: "SAS", DY: "Norwegian", D8: "Norwegian", AY: "Finnair", BT: "airBaltic", LG: "Luxair", KM: "KM Malta Airlines",
-  EK: "Emirates", QR: "Qatar Airways", EY: "Etihad", FZ: "flydubai", G9: "Air Arabia", "3O": "Air Arabia Maroc",
-  J2: "Azerbaijan Airlines", A9: "Georgian Airways", MS: "EgyptAir", AT: "Royal Air Maroc", RJ: "Royal Jordanian",
-  ME: "Middle East Airlines", LY: "El Al", TU: "Tunisair", BJ: "Nouvelair", CD: "Corendon Dutch Airlines", XC: "Corendon Airlines",
-  X3: "TUI fly", OR: "TUI fly Netherlands", TB: "TUI fly Belgium", BY: "TUI Airways", "6B": "TUI fly Nordic",
-  SM: "Air Cairo", PS: "Ukraine International", EN: "Air Dolomiti", WK: "Edelweiss", "2L": "Helvetic", "6E": "IndiGo",
-};
-export const airlineName = (code: string) => AIRLINES[code] ?? code;
+export { airlineName };
 
 const NO_BAGS: Bags = { cabin: { included: 0, max: 0 }, checked: { included: 0, max: 0 } };
 

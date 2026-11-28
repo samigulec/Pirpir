@@ -252,5 +252,19 @@
   "liveBaggage": "Equipaje incluido",
   "liveLoading": "Pırpır está comprobando los precios en directo más recientes…",
   "liveCabinNote": "Las normas de equipaje de mano se muestran en el vendedor.",
-  "liveRelaxed": "Ningún vuelo cumple todos tus filtros. Hemos flexibilizado algunos filtros para mostrar opciones cercanas — pueden aparecer vuelos con escala."
+  "liveRelaxed": "Ningún vuelo cumple todos tus filtros. Hemos flexibilizado algunos filtros para mostrar opciones cercanas — pueden aparecer vuelos con escala.",
+  "liveMatrixNote": "Precio aprox. (1 ad., sin equipaje)",
+  "liveTotalFor": "Total para {count} viajeros",
+  "liveSelect": "Elegir",
+  "liveShowMore": "Mostrar más vuelos",
+  "liveStopsCount": "{count, plural, one {# escala} other {# escalas}}",
+  "liveBadge": {
+    "onlyDirect": "Único vuelo directo",
+    "cheapBag": "Más barato con equipaje",
+    "cheapLayover": "Más barato con escala corta",
+    "cheap": "Más barato",
+    "fast": "Más rápido",
+    "optimal": "Mejor opción",
+    "interest": "Puede interesarte"
+  }
 }

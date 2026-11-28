@@ -252,5 +252,19 @@
   "liveBaggage": "Baggage included",
   "liveLoading": "Pırpır is checking the latest live prices…",
   "liveCabinNote": "Cabin bag rules are shown at the seller.",
-  "liveRelaxed": "No flights match all your filters. We relaxed some filters to show nearby options — connecting flights may be included."
+  "liveRelaxed": "No flights match all your filters. We relaxed some filters to show nearby options — connecting flights may be included.",
+  "liveMatrixNote": "Approx. price (1 adult, no bag)",
+  "liveTotalFor": "Total for {count} travellers",
+  "liveSelect": "Select ticket",
+  "liveShowMore": "Show more flights",
+  "liveStopsCount": "{count, plural, one {# stop} other {# stops}}",
+  "liveBadge": {
+    "onlyDirect": "Only direct flight",
+    "cheapBag": "Cheapest with baggage",
+    "cheapLayover": "Cheapest with short layover",
+    "cheap": "Cheapest",
+    "fast": "Fastest",
+    "optimal": "Best",
+    "interest": "May be of interest"
+  }
 }

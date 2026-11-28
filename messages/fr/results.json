@@ -252,5 +252,19 @@
   "liveBaggage": "Bagage inclus",
   "liveLoading": "Pırpır vérifie les prix en direct les plus récents…",
   "liveCabinNote": "Les règles de bagage cabine s'affichent chez le vendeur.",
-  "liveRelaxed": "Aucun vol ne correspond à tous tes filtres. Nous avons assoupli certains filtres pour afficher des options proches — des vols avec escale peuvent apparaître."
+  "liveRelaxed": "Aucun vol ne correspond à tous tes filtres. Nous avons assoupli certains filtres pour afficher des options proches — des vols avec escale peuvent apparaître.",
+  "liveMatrixNote": "Prix indicatif (1 ad., sans bagage)",
+  "liveTotalFor": "Total pour {count} voyageurs",
+  "liveSelect": "Choisir",
+  "liveShowMore": "Afficher plus de vols",
+  "liveStopsCount": "{count, plural, one {# escale} other {# escales}}",
+  "liveBadge": {
+    "onlyDirect": "Seul vol direct",
+    "cheapBag": "Moins cher avec bagage",
+    "cheapLayover": "Moins cher avec escale courte",
+    "cheap": "Moins cher",
+    "fast": "Plus rapide",
+    "optimal": "Meilleur choix",
+    "interest": "Peut t'intéresser"
+  }
 }

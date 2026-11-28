@@ -252,5 +252,19 @@
   "liveBaggage": "Bagage inbegrepen",
   "liveLoading": "Pırpır zoekt de meest actuele live prijzen…",
   "liveCabinNote": "Regels voor handbagage zie je bij de aanbieder.",
-  "liveRelaxed": "Geen vluchten die bij al je filters passen. We hebben enkele filters versoepeld om alternatieven te tonen — er kunnen vluchten met overstap tussen staan."
+  "liveRelaxed": "Geen vluchten die bij al je filters passen. We hebben enkele filters versoepeld om alternatieven te tonen — er kunnen vluchten met overstap tussen staan.",
+  "liveMatrixNote": "Richtprijs (1 volw., zonder bagage)",
+  "liveTotalFor": "Totaal voor {count} reizigers",
+  "liveSelect": "Kies ticket",
+  "liveShowMore": "Meer vluchten tonen",
+  "liveStopsCount": "{count, plural, one {# overstap} other {# overstappen}}",
+  "liveBadge": {
+    "onlyDirect": "Enige directe vlucht",
+    "cheapBag": "Goedkoopst met bagage",
+    "cheapLayover": "Goedkoopst met korte overstap",
+    "cheap": "Goedkoopst",
+    "fast": "Snelst",
+    "optimal": "Beste keuze",
+    "interest": "Ook interessant"
+  }
 }

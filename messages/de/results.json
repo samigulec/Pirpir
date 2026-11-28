@@ -252,5 +252,19 @@
   "liveBaggage": "Gepäck inklusive",
   "liveLoading": "Pırpır prüft die aktuellsten Live-Preise…",
   "liveCabinNote": "Handgepäck-Regeln siehst du beim Anbieter.",
-  "liveRelaxed": "Keine Flüge passen zu allen deinen Filtern. Wir haben einige Filter gelockert, um ähnliche Optionen zu zeigen — es können Flüge mit Umstieg dabei sein."
+  "liveRelaxed": "Keine Flüge passen zu allen deinen Filtern. Wir haben einige Filter gelockert, um ähnliche Optionen zu zeigen — es können Flüge mit Umstieg dabei sein.",
+  "liveMatrixNote": "Richtpreis (1 Erw., ohne Gepäck)",
+  "liveTotalFor": "Gesamt für {count} Reisende",
+  "liveSelect": "Ticket wählen",
+  "liveShowMore": "Mehr Flüge anzeigen",
+  "liveStopsCount": "{count, plural, one {# Stopp} other {# Stopps}}",
+  "liveBadge": {
+    "onlyDirect": "Einziger Direktflug",
+    "cheapBag": "Günstigst mit Gepäck",
+    "cheapLayover": "Günstigst mit kurzem Stopp",
+    "cheap": "Günstigste",
+    "fast": "Schnellste",
+    "optimal": "Beste Wahl",
+    "interest": "Auch interessant"
+  }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { preconnect, preloadModule } from "react-dom";
 import { useLocale, useTranslations } from "next-intl";
 import { readInitial as readInitialCurrency, useCurrency } from "../CurrencyProvider";
@@ -8,6 +8,7 @@ import { Pirpir } from "../characters";
 import { CabinBagIcon, CheckedBagIcon } from "./BagIcons";
 import { useRouter } from "@/i18n/navigation";
 import { liveWidgetSrc } from "@/config/affiliate";
+import { knownAirlineName } from "@/lib/airlines";
 import {
   normalizeWidgetBags,
   readWidgetBags,
@@ -15,10 +16,9 @@ import {
   subscribeWidgetBags,
   type WidgetBags,
 } from "@/lib/live-widget-bags";
-import { computeTabSummaries, readCardMetrics, type WidgetTabSummaries } from "@/lib/live-widget-summary";
 import { cleanWidgetUrl, syncWidgetCookies, widgetSyncQuery } from "@/lib/live-widget-url";
 import { aviasalesRoute, parseAviasalesRoute } from "@/lib/outbound";
-import { MAX_SEARCH_BAGS, type MultiQuery } from "@/lib/search";
+import { MAX_SEARCH_BAGS, paxTotal, type MultiQuery } from "@/lib/search";
 
 const SCRIPT_ID = "tpwl-main";
 const STYLE_ID = "pirpir-tpwl";
@@ -45,13 +45,19 @@ const WIDGET_CURRENCIES = ["EUR", "TRY", "USD"];
 const widgetLangFor = (l: string) => (WIDGET_LANGS.includes(l) ? l : "en").toUpperCase();
 const widgetCurFor = (c: string) => (WIDGET_CURRENCIES.includes(c) ? c : "EUR");
 
+/** CSS `content` özelliği için güvenli çift tırnaklı dize */
+const cssString = (s: string) => `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+
 /**
  * Widget kartlarını ve sol filtre sütununu açık gölge DOM'a (shadow root) çizer.
- * 11. tur düzeni:
- * - Kiwi yerleşimi: üstte tek parça sıralama sekme çubuğu (dışarıda), solda 260 px filtre sütunu (iç kaydırma yok),
- *   sağda çakışmayan tarih şeridi + iki bölmeli pirpir kartları;
- * - Tekrar eden Popüler filtre çipleri, widget'ın Bagaj ve Sıralama bölümleri ile İngilizce yumuşak filtre uyarısı
- *   görünmez yapılır (programatik erişim için DOM'da kalır).
+ * 12. tur güncellemeleri:
+ * - 12.1 Çok aktarmalı uçuşlarda havalimanı kodları eşit aralıklı flex satırda (çakışma yok, "SAWDB" bitti);
+ * - 12.2 Telefonda (360–390 px) 2 satırlı saat/süre düzeni (12s/24s biçimde çakışma yok, >=12 px kenar boşluğu);
+ * - 12.3 Tarih şeridinde 7 dilde yaklaşık fiyat notu;
+ * - 12.5 Bagaj seçiliyken sol sütundaki bagajsız fiyatlar gizlenir;
+ * - 12.6 2+ yolcuda kart fiyatının altında "X kişi toplam" notu;
+ * - 12.7 Seç butonu, rozetler, "Daha fazla" ve "1 konaklama" metinleri Preact DOM'unu bozmadan CSS ::after ile yerelleştirilir;
+ * - 12.8 Çok havayollu kartlarda masaüstünde logonun yanında havayolu adı gösterilir (logolara dokunulmaz).
  */
 const SHADOW_CSS = `
 *, *::before, *::after { box-sizing: border-box; }
@@ -171,7 +177,18 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   font-size: 13px !important;
 }
 
-/* 11.4 Tarih şeridi (FlightMatrix): negatif üst kenar boşluğu (-20px) sıfırlanır, kesik hücre ve İngilizce Show kalkar */
+/* 12.5 Bagaj seçiliyken sol sütundaki bagajsız filtre fiyatları kafa karıştırmasın diye gizlenir */
+:host([data-baggage="1"]) [class*="Layovers-module__price___"],
+:host([data-baggage="1"]) [class*="Alliances-module__price___"],
+:host([data-baggage="1"]) [class*="Agencies-module__price___"],
+:host([data-baggage="1"]) [class*="AirportsIn-module__price___"],
+:host([data-baggage="1"]) [class*="ConnectingAirports-module__price___"],
+:host([data-baggage="1"]) [class*="AircraftTypes-module__price___"],
+:host([data-baggage="1"]) [class*="FlightSchedule-module__price___"] {
+  display: none !important;
+}
+
+/* 11.4 & 12.3 Tarih şeridi (FlightMatrix): negatif üst kenar boşluğu sıfırlanır, yaklaşık fiyat notu eklenir */
 [class*="FlightMatrixDesktop-module__root___"][data-pirpir-empty="1"],
 [class*="FlightMatrixMobile-module__flightMatrixMobile___"][data-pirpir-empty="1"] {
   display: none !important;
@@ -202,7 +219,10 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   overflow-x: auto !important;
 }
 [class*="FlightMatrixDesktop-module__flightMatrixButton___"] {
-  width: auto !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  width: 100% !important;
   min-width: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
@@ -212,7 +232,15 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   font-weight: 600 !important;
   font-size: 15px !important;
   color: #1e2a44 !important;
-  gap: 8px !important;
+  gap: 4px 10px !important;
+}
+[class*="FlightMatrixDesktop-module__flightMatrixButton___"]::after {
+  content: var(--pirpir-matrix-note, "");
+  margin-left: auto;
+  font-family: var(--font-nunito), system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #56607a;
 }
 [class*="FlightMatrixDesktop-module__dateCellList___"] {
   display: grid !important;
@@ -329,7 +357,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   background: transparent !important;
 }
 
-/* 10.3 Kiwi'den ilham: masaüstünde solda uçuş satırları (cardRight), sağda dikey çizgiyle ayrılmış fiyat+Seç (cardLeft) */
+/* 10.3 & 12.8 Masaüstü kart: solda uçuşlar + çok havayollu kartlarda havayolu adları; sağda fiyat+Seç */
 @media (min-width: 641px) {
   [class*="FlightCard-module__card___"] {
     display: grid !important;
@@ -356,6 +384,25 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
     justify-content: center !important;
     align-items: stretch !important;
     gap: 10px !important;
+  }
+  [class*="FlightCard-module__cardTopLeft___"] {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 4px 10px !important;
+  }
+  [data-role="flight-card-air-company"][data-pirpir-airline] {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+  [data-role="flight-card-air-company"][data-pirpir-airline]::after {
+    content: attr(data-pirpir-airline);
+    font-family: var(--font-nunito), system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #56607a;
+    white-space: nowrap;
   }
 }
 
@@ -409,11 +456,32 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   border-radius: 999px !important;
   height: 6px !important;
 }
+
+/* 12.1 Çok aktarmalı uçuşta havalimanı kodları oransal dar genişlikten kurtulup eşit aralıklı dizilir ("SAWDB" bitti) */
+[class*="Flight-module__cardFlightTravelLineAirport___"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 6px !important;
+  width: 100% !important;
+  flex-wrap: nowrap !important;
+  margin-top: 4px !important;
+}
+[class*="Flight-module__cardFlightTravelLineAirport___"] > * {
+  width: auto !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+}
+[class*="Flight-module__cardFlightTravelLineFlight___"]:not([class*="Origin"]):not([class*="Destination"]) {
+  display: none !important;
+}
 [class*="Flight-module__airportCode___"],
+[class*="Flight-module__differentAirportsText___"],
 [class*="Flight-module__cardFlightAirport___"] {
-  font-size: 13px !important;
+  font-size: 12px !important;
   font-weight: 800 !important;
   color: #1e2a44 !important;
+  white-space: nowrap !important;
 }
 
 /* Havayolu satırı: 15px, 600, #56607A */
@@ -458,13 +526,23 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   border: 0 !important;
 }
 
-/* Fiyat: Fredoka 700, 30px, #1E2A44 */
+/* Fiyat: Fredoka 700, 30px, #1E2A44 + 12.6 birden çok yolcuda toplam notu */
 [class*="FlightCard-module__cardLeftPrice___"] {
   font-family: var(--font-fredoka), var(--font-baloo), sans-serif !important;
   font-weight: 700 !important;
   font-size: 30px !important;
   line-height: 1.1 !important;
   color: #1e2a44 !important;
+}
+:host([data-multi-pax="1"]) [class*="FlightCard-module__cardLeftPrice___"]::after {
+  content: var(--pirpir-pax-note, "");
+  display: block;
+  font-family: var(--font-nunito), system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #56607a;
+  margin-top: 2px;
 }
 
 /* Seç butonu: #2F5BD3, beyaz Fredoka 600 19px, 12px 26px, 999px, min 48px */
@@ -498,6 +576,28 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 [class*="TicketsWidget-module__moreTickets___"]:hover { border-color: #2f5bd3 !important; }
 
+/* 12.7 Preact metin düğümüne dokunmadan yerelleştirme (CSS ::after) */
+[data-pirpir-l10n] {
+  font-size: 0 !important;
+  line-height: 0 !important;
+}
+[data-pirpir-l10n]::after {
+  content: attr(data-pirpir-l10n);
+  line-height: 1.2;
+}
+[data-role="flight-card"] button[class*="Button-module__primary___"][data-pirpir-l10n]::after {
+  font-size: 19px;
+}
+[class*="FlightCard-module__cardBadges___"][data-pirpir-l10n]::after {
+  font-size: 14px;
+}
+[class*="TicketsWidget-module__moreTickets___"][data-pirpir-l10n]::after {
+  font-size: 17px;
+}
+[class*="Flight-module__cardFlightTravelMobile___"][data-pirpir-l10n]::after {
+  font-size: 13px;
+}
+
 /* Filtre sıfırlama uyarısı ve iskelet kartlar */
 [class*="FlightFiltersReset-module__root___"] {
   background: #fff4d6 !important;
@@ -508,7 +608,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 [class*="SkeletonCard-module__root___"] { border-radius: 28px !important; border: 2px solid #e3e8f2 !important; box-shadow: none !important; }
 
-/* 10.4 Mobil (<= 640 px — design/Mobile.dc.html dili) */
+/* 10.4 & 12.2 Mobil (<= 640 px — 360/375/390 px, 12s & 24s biçimde sıfır sıkışma, >= 12px kenar boşluğu) */
 @media (max-width: 640px) {
   [class*="FlightCard-module__card___"] {
     padding: 16px !important;
@@ -519,9 +619,6 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
     padding: 0 !important;
     border: 0 !important;
   }
-  [class*="Flight-module__cardFlightTime___"] {
-    font-size: 22px !important;
-  }
   [class*="FlightCard-module__cardLeftPrice___"] {
     font-size: 26px !important;
   }
@@ -530,16 +627,147 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
     padding: 10px 20px !important;
     min-height: 44px !important;
   }
+  [data-role="flight-card"] button[class*="Button-module__primary___"][data-pirpir-l10n]::after {
+    font-size: 16px;
+  }
+  [class*="FlightCard-module__cardBlockFlight___"] {
+    gap: 10px !important;
+    align-items: flex-start !important;
+  }
+  [class*="FlightCard-module__cardBlockFlightAirCompany___"] img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  [class*="Flight-module__cardFlight___"] {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 4px 12px !important;
+    align-items: start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  [class*="Flight-module__cardFlightInfo___"] {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    flex: none !important;
+    text-align: left !important;
+  }
+  [class*="Flight-module__cardFlightTravel___"] + [class*="Flight-module__cardFlightInfo___"] {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    text-align: right !important;
+  }
+  [class*="Flight-module__cardFlightTime___"] {
+    font-size: 18px !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+  }
+  [class*="Flight-module__cardFlightTravel___"] {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 2px 0 0 0 !important;
+    padding: 0 !important;
+  }
+  [class*="Flight-module__cardFlightTravelTop___"] {
+    justify-content: flex-start !important;
+    width: 100% !important;
+  }
+  [class*="Flight-module__cardFlightTravelTime___"] {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 2px 8px !important;
+    font-size: 13px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+  [class*="Flight-module__cardFlightTravelDetailMobile___"] {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    margin-top: 4px !important;
+  }
 }
 `;
 
 const CARD = '[data-role="flight-card"]';
-const CHEAP_BADGE_RE = /en ucuz|cheapest|goedkoopst|günstigst|moins cher|más barato|più economico/i;
 
-function styleBadges(root: ShadowRoot) {
+type WidgetL10n = {
+  select: string;
+  showMore: string;
+  stopsCount: (n: number) => string;
+  badges: {
+    onlyDirect: string;
+    cheapBag: string;
+    cheapLayover: string;
+    cheap: string;
+    fast: string;
+    optimal: string;
+    interest: string;
+  };
+};
+
+function classifyBadge(raw: string): { kind: "cheap" | "fast"; key?: keyof WidgetL10n["badges"] } {
+  const s = raw.trim();
+  if (/only direct|tek direkt|enige directe|einziger direkt|seul vol direct/i.test(s)) return { kind: "fast", key: "onlyDirect" };
+  if (/(cheapest|en ucuz|goedkoopst|günstigst|moins cher|más barato|più economico).*(baggage|bagaj|bagage|gepäck)|bagajlı en ucuz/i.test(s)) {
+    return { kind: "cheap", key: "cheapBag" };
+  }
+  if (/convenient layover|rahat aktarma|korte overstap|gutem umstieg|kurzem stopp/i.test(s)) return { kind: "cheap", key: "cheapLayover" };
+  if (/cheapest|en ucuz|goedkoopst|günstigst|moins cher|más barato|più economico/i.test(s)) return { kind: "cheap", key: "cheap" };
+  if (/fastest|en hızlı|snelst|schnellst|plus rapide|más rápido|più veloce/i.test(s)) return { kind: "fast", key: "fast" };
+  if (/optimal|en uygun|beste keuze|beste wahl/i.test(s)) return { kind: "fast", key: "optimal" };
+  if (/may be of interest|ilginizi çekebilir|ook interessant|auch interessant/i.test(s)) return { kind: "fast", key: "interest" };
+  return { kind: "fast" };
+}
+
+/** 12.7 Rozet, Seç butonu, Daha fazla ve mobil "1 konaklama" metinlerini Preact DOM düğümüne dokunmadan yerelleştirir. */
+function localizeWidgetTexts(root: ShadowRoot, l10n: WidgetL10n) {
   root.querySelectorAll<HTMLElement>('[data-role="flight-card-badge"], [class*="FlightCard-module__cardBadges___"]').forEach((badge) => {
-    const kind = CHEAP_BADGE_RE.test(badge.textContent ?? "") ? "cheap" : "fast";
+    const { kind, key } = classifyBadge(badge.textContent ?? "");
     if (badge.dataset.pirpirBadge !== kind) badge.dataset.pirpirBadge = kind;
+    if (key) {
+      const label = l10n.badges[key];
+      if (badge.dataset.pirpirL10n !== label) badge.dataset.pirpirL10n = label;
+    } else if (badge.dataset.pirpirL10n) {
+      delete badge.dataset.pirpirL10n;
+    }
+  });
+
+  root.querySelectorAll<HTMLButtonElement>('[data-role="flight-card"] button[class*="Button-module__primary___"]').forEach((btn) => {
+    if (btn.childElementCount > 0) return;
+    if (btn.dataset.pirpirL10n !== l10n.select) {
+      btn.dataset.pirpirL10n = l10n.select;
+      btn.setAttribute("aria-label", l10n.select);
+    }
+  });
+
+  root.querySelectorAll<HTMLButtonElement>('[class*="TicketsWidget-module__moreTickets___"]').forEach((btn) => {
+    // "Update search" durumunda içinde alt <span> vardır; yalnızca normal "Show more options" yerelleştirilir
+    if (btn.childElementCount > 0) {
+      if (btn.dataset.pirpirL10n) delete btn.dataset.pirpirL10n;
+      return;
+    }
+    if (btn.dataset.pirpirL10n !== l10n.showMore) {
+      btn.dataset.pirpirL10n = l10n.showMore;
+      btn.setAttribute("aria-label", l10n.showMore);
+    }
+  });
+
+  root.querySelectorAll<HTMLElement>('[class*="Flight-module__cardFlightTravelMobile___"]').forEach((el) => {
+    if (el.childElementCount > 0) return;
+    const m = /^\s*(\d+)\s+(?:konaklama|layover|layovers|tussenstop|tussenstops|zwischenstopp|zwischenstopps|stop|stops|escale|escales|escala|escalas|scalo|scali)\s*$/i.exec(
+      el.textContent ?? "",
+    );
+    if (m) {
+      const label = l10n.stopsCount(Number(m[1]));
+      if (el.dataset.pirpirL10n !== label) el.dataset.pirpirL10n = label;
+    } else if (el.dataset.pirpirL10n) {
+      delete el.dataset.pirpirL10n;
+    }
   });
 }
 
@@ -590,9 +818,11 @@ function hideDuplicateFilterBlocks(root: ShadowRoot) {
   if (lastVisible) lastVisible.dataset.pirpirLastVisible = "1";
 }
 
-/** 11.5 Kırık / yüklenemeyen havayolu logolarını gizler (özel logo çizilmez). */
-function fixAirlineLogos(root: ShadowRoot) {
-  root.querySelectorAll<HTMLImageElement>('[data-role="flight-card-air-company"] img').forEach((img) => {
+/** 11.5 & 12.8 Kırık logoları gizler; çok havayollu kartlarda (logoya dokunmadan) bilinen havayolu adını yanına etiketler. */
+function enhanceAirlineLogos(root: ShadowRoot) {
+  root.querySelectorAll<HTMLElement>('[data-role="flight-card-air-company"]').forEach((wrap) => {
+    const img = wrap.querySelector<HTMLImageElement>("img");
+    if (!img) return;
     const target = img.closest("picture") ?? img;
     if (img.complete && img.naturalWidth === 0) {
       target.setAttribute("data-pirpir-broken-logo", "1");
@@ -602,6 +832,17 @@ function fixAirlineLogos(root: ShadowRoot) {
       img.addEventListener("error", () => {
         target.setAttribute("data-pirpir-broken-logo", "1");
       });
+    }
+    // 12.8 Çok havayollu kartta widget metin koymamışsa IATA kodundan bilinen havayolu adını data özniteliğine ekle
+    if ((wrap.textContent ?? "").trim() === "") {
+      const src = img.getAttribute("src") ?? img.currentSrc ?? "";
+      const codeMatch = /\/al_square\/([A-Z0-9]{2})@/i.exec(src);
+      const name = codeMatch ? knownAirlineName(codeMatch[1]) : undefined;
+      if (name && wrap.dataset.pirpirAirline !== name) {
+        wrap.dataset.pirpirAirline = name;
+      }
+    } else if (wrap.dataset.pirpirAirline) {
+      delete wrap.dataset.pirpirAirline;
     }
   });
 }
@@ -690,8 +931,6 @@ type WidgetUiState = {
   ready: boolean;
   widgetFilters: number;
   softNotice: boolean;
-  hasMoreTickets: boolean;
-  summaries: WidgetTabSummaries;
 };
 
 type EnhanceController = {
@@ -701,12 +940,13 @@ type EnhanceController = {
 };
 
 /**
- * Gölge köke pirpir stilini ekler; çift filtreleri, kırık logoları ve İngilizce yumuşak filtre uyarısını yönetir;
- * tarih şeridini temizler ve özet/durum bilgisini React üst katmanına aktarır.
+ * Gölge köke pirpir stilini ekler; çift filtreleri, kırık logoları, havayolu adlarını, tarih şeridini,
+ * İngilizce/bozuk metin yerelleştirmesini ve yumuşak filtre uyarısını yönetir.
+ * Kullanıcı kararı: "En iyi" sekmesinde kart sırasına asla müdahale edilmez.
  */
 function enhanceShadow(
   host: HTMLElement | null,
-  locale: string,
+  l10n: WidgetL10n,
   onState: (s: WidgetUiState) => void,
   ctrlRef: React.MutableRefObject<EnhanceController | null>,
 ): () => void {
@@ -715,30 +955,22 @@ function enhanceShadow(
   let defaultSectionsOpened = false;
 
   const processDom = (root: ShadowRoot) => {
-    styleBadges(root);
+    localizeWidgetTexts(root, l10n);
     syncMatrixVisibility(root);
     hideDuplicateFilterBlocks(root);
-    fixAirlineLogos(root);
+    enhanceAirlineLogos(root);
     if (!defaultSectionsOpened) {
       if (openDefaultFilterSections(root)) defaultSectionsOpened = true;
     }
   };
 
   const syncUi = (root: ShadowRoot) => {
-    const cards = [...root.querySelectorAll(CARD)];
-    const ready = cards.length > 0;
+    const ready = root.querySelector(CARD) !== null;
     const softNotice = root.querySelector('[data-testid="soft-tickets-notice"], [class*="SoftTicketsNotice-module__root___"]') !== null;
-    const hasMoreTickets = root.querySelector('[class*="TicketsWidget-module__moreTickets___"]') !== null;
-    // 11.0 #9: Yalnızca tüm kartlar DOM'dayken ve filtreler gevşetilmemişken özet gösterilir; kısmi listeden tahmin yapılmaz
-    const summaries = ready && !hasMoreTickets && !softNotice
-      ? computeTabSummaries(cards.map((c) => readCardMetrics(c, locale)), locale)
-      : {};
     onState({
       ready,
       widgetFilters: countWidgetNonBagFilters(root),
       softNotice,
-      hasMoreTickets,
-      summaries,
     });
   };
 
@@ -773,7 +1005,6 @@ function enhanceShadow(
             inp.click();
             unchecked++;
           });
-          // Aktarmalar kapalıyken "Aktarmasız" seçili kaldıysa yedek olarak Popüler çipi temizle
           if (unchecked === 0) {
             panel
               .querySelectorAll<HTMLElement>('[class*="Popular-module__body___"] [class*="ClearableParameter-module__valueChanged___"]')
@@ -886,10 +1117,7 @@ function BaggageCard({
 
 /**
  * Canlı uçuşlar (Travelpayouts White Label, Widget türü): sonuç sayfasının ana listesi.
- * 11. tur Kiwi düzeni:
- * - Üstte tek parça sıralama sekme çubuğu (En iyi / En ucuz / En hızlı — tek seçim, alt çizgili);
- * - Masaüstünde (>= 1024 px): solda 260 px filtre sütunu (en üstte Bagaj sayaçları, altında widget filtreleri, iç kaydırmasız);
- * - Telefonda (< 1024 px): üstte tek parça sekme çubuğu, altında "Filtreler (N)" düğmesi (açılınca en üstte Bagaj sayaçları + filtreler).
+ * Varsayılan sıralama kullanıcı kararıyla "En iyi" kalır (direkt + en ucuz ilk iki sırada).
  */
 export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string | null }) {
   const t = useTranslations("results");
@@ -908,8 +1136,6 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
     ready: false,
     widgetFilters: 0,
     softNotice: false,
-    hasMoreTickets: false,
-    summaries: {},
   });
 
   const route = aviasalesRoute({
@@ -922,6 +1148,27 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
     infants: q.pax.infants,
     cabin: q.cabin ?? "economy",
   });
+  const totalPax = paxTotal(q.pax);
+  const matrixNote = t("liveMatrixNote");
+  const paxNote = totalPax > 1 ? t("liveTotalFor", { count: totalPax }) : "";
+
+  const l10n = useMemo<WidgetL10n>(
+    () => ({
+      select: t("liveSelect"),
+      showMore: t("liveShowMore"),
+      stopsCount: (count: number) => t("liveStopsCount", { count }),
+      badges: {
+        onlyDirect: t("liveBadge.onlyDirect"),
+        cheapBag: t("liveBadge.cheapBag"),
+        cheapLayover: t("liveBadge.cheapLayover"),
+        cheap: t("liveBadge.cheap"),
+        fast: t("liveBadge.fast"),
+        optimal: t("liveBadge.optimal"),
+        interest: t("liveBadge.interest"),
+      },
+    }),
+    [t],
+  );
 
   // Widget betiği yükleme, URL temizliği ve dil/para birimi çerez eşitlemesi
   useEffect(() => {
@@ -1010,30 +1257,34 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
   // Gölge DOM gözlemcisi (aynı değerde gereksiz yeniden çizim önlenir)
   const updateUi = useCallback((next: WidgetUiState) => {
     setUi((prev) => {
-      if (
-        prev.ready === next.ready &&
-        prev.widgetFilters === next.widgetFilters &&
-        prev.softNotice === next.softNotice &&
-        prev.hasMoreTickets === next.hasMoreTickets &&
-        JSON.stringify(prev.summaries) === JSON.stringify(next.summaries)
-      ) {
+      if (prev.ready === next.ready && prev.widgetFilters === next.widgetFilters && prev.softNotice === next.softNotice) {
         return prev;
       }
       return next;
     });
   }, []);
-  useEffect(() => enhanceShadow(document.getElementById("tpwl-tickets"), locale, updateUi, ctrlRef), [locale, updateUi]);
+  useEffect(() => enhanceShadow(document.getElementById("tpwl-tickets"), l10n, updateUi, ctrlRef), [l10n, updateUi]);
 
-  // Mobil filtre aç/kapa özniteliği
+  // 12.3, 12.5, 12.6 Host öznitelikleri ve CSS değişkenleri (tarih şeridi notu, bagaj gizleme, çoklu yolcu notu)
+  const wantBagOn = bags.checked > 0;
   useEffect(() => {
     const el = document.getElementById("tpwl-tickets");
     if (!el) return;
     if (filtersOpen) el.setAttribute("data-filters", "open");
     else el.removeAttribute("data-filters");
-  }, [filtersOpen]);
+    if (wantBagOn) el.setAttribute("data-baggage", "1");
+    else el.removeAttribute("data-baggage");
+    if (totalPax > 1) {
+      el.setAttribute("data-multi-pax", "1");
+      el.style.setProperty("--pirpir-pax-note", cssString(paxNote));
+    } else {
+      el.removeAttribute("data-multi-pax");
+      el.style.removeProperty("--pirpir-pax-note");
+    }
+    el.style.setProperty("--pirpir-matrix-note", cssString(matrixNote));
+  }, [filtersOpen, wantBagOn, totalPax, paxNote, matrixNote]);
 
   // 11.2 Kontrol edilen bagaj >= 1 ise widget'ın "Bagaj dahil" filtresi açılır, 0 ise kapanır
-  const wantBagOn = bags.checked > 0;
   useEffect(() => {
     if (!src) return;
     const host = document.getElementById("tpwl-tickets");
@@ -1111,13 +1362,10 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
   const bagFilterCount = (bags.checked > 0 ? 1 : 0) + (bags.cabin > 0 ? 1 : 0);
   const totalActiveFilters = ui.widgetFilters + bagFilterCount;
 
-  const formatSummary = (s?: { priceText: string; durText?: string }) =>
-    s ? [s.priceText, s.durText].filter(Boolean).join(" · ") : null;
-
-  const tabs: { id: SortMode; label: string; summary?: { priceText: string; durText?: string } }[] = [
-    { id: "best", label: t("sort.best"), summary: ui.summaries.best },
-    { id: "cheap", label: t("sort.cheap"), summary: ui.summaries.cheap },
-    { id: "fast", label: t("sort.fast"), summary: ui.summaries.fast },
+  const tabs: { id: SortMode; label: string }[] = [
+    { id: "best", label: t("sort.best") },
+    { id: "cheap", label: t("sort.cheap") },
+    { id: "fast", label: t("sort.fast") },
   ];
 
   return (
@@ -1127,7 +1375,7 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
         <p className="m-0 text-[15px] font-semibold text-muted">{t("liveText")}</p>
       </div>
 
-      {/* 11.1 Üst satır: solda Filtreler başlığı + Temizle; sağda Kiwi tarzı tek parça sıralama sekme çubuğu */}
+      {/* 11.1 & 12.4 Üst satır: solda Filtreler + Temizle; sağda sade tek parça sıralama sekme çubuğu (En iyi varsayılan) */}
       <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:items-center lg:gap-6">
         <div className="hidden items-center justify-between px-1 lg:flex">
           <span className="font-display text-[18px] font-semibold text-ink">{t("filters.title")}</span>
@@ -1142,7 +1390,6 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
           )}
         </div>
 
-        {/* Tek parça sıralama sekme çubuğu: tek seçim, alt çizgiyle vurgulu (#2F5BD3), hap görünümü yok */}
         <div
           role="tablist"
           aria-label={t("sortLabel")}
@@ -1150,7 +1397,6 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
         >
           {tabs.map((tab) => {
             const active = sortMode === tab.id;
-            const summaryText = formatSummary(tab.summary);
             return (
               <button
                 key={tab.id}
@@ -1161,19 +1407,11 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
                   setSortMode(tab.id);
                   ctrlRef.current?.setSort(tab.id);
                 }}
-                className={`relative flex min-h-[52px] cursor-pointer flex-col items-center justify-center border-0 px-2 py-2.5 text-center font-display text-[15px] font-semibold leading-tight transition-colors lg:min-h-[56px] lg:px-4 lg:text-[17px] focus-visible:z-10 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-primary ${
+                className={`relative flex min-h-[52px] cursor-pointer items-center justify-center border-0 px-2 py-2.5 text-center font-display text-[15px] font-semibold leading-tight transition-colors lg:min-h-[56px] lg:px-4 lg:text-[17px] focus-visible:z-10 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-primary ${
                   active ? "bg-white text-primary" : "bg-white text-ink hover:bg-field/70"
                 }`}
               >
-                <span className="truncate max-w-full">{tab.label}</span>
-                {summaryText && (
-                  <span
-                    data-testid={`tab-summary-${tab.id}`}
-                    className={`hidden font-sans text-[13px] font-bold leading-tight lg:block ${active ? "text-primary/80" : "text-muted"}`}
-                  >
-                    {summaryText}
-                  </span>
-                )}
+                <span className="max-w-full truncate">{tab.label}</span>
                 <span
                   aria-hidden="true"
                   className={`pointer-events-none absolute inset-x-0 bottom-0 h-[3px] transition-colors ${active ? "bg-primary" : "bg-transparent"}`}
@@ -1216,7 +1454,7 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
           <BaggageCard bags={bags} onChange={handleBagsChange} compact />
         </div>
 
-        {/* 11.2 Mobil Filtreler açılınca en üstte Bagaj sayaçları + Kapat başlığı (hemen altında widget filtreleri açılır) */}
+        {/* 11.2 Mobil Filtreler açılınca en üstte Bagaj sayaçları + Kapat başlığı */}
         {filtersOpen && (
           <div className="flex flex-col gap-3 lg:hidden">
             <div className="flex items-center justify-between px-1">

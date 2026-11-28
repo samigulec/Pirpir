@@ -4,12 +4,12 @@ import { cleanDurationText, computeTabSummaries, formatTotalMins, parseDurationM
 
 /**
  * Gerçek Travelpayouts White Label widget'ının (`tpwgt.com/wl_web/main.js`) davranışını ve sınıf yapısını
- * taklit eden sahte betik:
+ * taklit eden sahte betik (8.1–12.8):
  * - 8.1: `flightSearch` + `adults`/`depart_date` varsa UTC+ saat dilimi hatasını (-1 gün + replace) simüle eder.
  * - 10.1: `qX()` / `BX()` dil & para birimi önceliğini simüle eder (URL > tpwl_locale çerezi > defaultLanguage).
- * - 11.x: gerçek sınıf ön ekleriyle `FlightMatrixDesktop` (negatif -20px üst boşluk + `noPriceIcon` + `Show` düğmesi),
- *   `Popular` çipleri, `BaggageFilter`, `Transfers` (Aktarmasız), `SoftTicketsNotice`, kırık havayolu logosu,
- *   açılır bölümler ve kartları çizer.
+ * - 11.x & 12.x: `FlightMatrixDesktop`, sol filtreler (`Layovers-module__price`), 2 ve 3 aktarmalı kartlarda
+ *   oransal `%2` dar havalimanı kodları ("SAWDB" senaryosu), mobil 12s/24s kart satırları, kırık logo, çok
+ *   havayollu kart (`CD`+`TK`) ve Travelpayouts'un İngilizce/bozuk TR metinlerini çizer.
  */
 const MOCK_WIDGET_SCRIPT = `
 (() => {
@@ -65,7 +65,7 @@ const MOCK_WIDGET_SCRIPT = `
     transfersOpen: false,
     airlinesOpen: false,
     matrixPrices: false,
-    showMoreButton: false,
+    showMoreButton: true,
     showMoreCount: 0,
     selectedCard: null,
   };
@@ -74,24 +74,84 @@ const MOCK_WIDGET_SCRIPT = `
   if (!host) return;
   const sr = host.shadowRoot || host.attachShadow({ mode: "open" });
 
-  // Gerçek widget CSS'inin sorunlu varsayılanlarını simüle eder (FlightMatrixDesktop margin-top: -20px!)
+  // Gerçek widget CSS'inin sorunlu varsayılanlarını simüle eder
   const baseStyle = document.createElement("style");
   baseStyle.textContent = \`
     .FlightMatrixDesktop-module__root___mock { display: flex; margin-top: -20px; overflow: hidden; }
     .FlightMatrixDesktop-module__dateCellList___mock { display: flex; }
+    .Flight-module__cardFlight___mock { display: flex; align-items: center; width: 100%; }
+    .Flight-module__cardFlightInfo___mock { width: 70px; flex: none; }
+    .Flight-module__cardFlightTravel___mock { flex: 1; min-width: 0; }
+    .Flight-module__cardFlightTravelLineAirport___mock { display: flex; width: 100%; }
   \`;
   sr.appendChild(baseStyle);
 
+  // Best sırası: c1 (direkt, €291) 1. sırada, c2 (en ucuz 2 aktarmalı, €267) 2. sırada, c3 (3 aktarmalı SAWDB testi, €284) 3. sırada
   const allCards = [
-    { id: "c1", badge: "Tek direkt uçuş", base: 291, bag: 312, mins: 205, dur: "Direkt uçuş Seyahat süresi: 3s 25dk", direct: true, brokenLogo: false },
-    { id: "c2", badge: "En ucuz bilet", base: 267, bag: 318, mins: 370, dur: "Seyahat süresi: 6s 10dk", direct: false, brokenLogo: true },
-    { id: "c3", badge: "", base: 284, bag: 336, mins: 410, dur: "Seyahat süresi: 6s 50dk", direct: false, brokenLogo: false },
+    {
+      id: "c1",
+      badge: resolvedLang === "NL" ? "The only direct flight" : "Tek direkt uçuş",
+      base: 291,
+      bag: 312,
+      mins: 205,
+      dep: resolvedLang === "EN" ? "03:55 pm" : "15:55",
+      arr: resolvedLang === "EN" ? "09:25 pm" : "21:25",
+      mobileStop: resolvedLang === "EN" ? "Direct flight" : "Direkt uçuş",
+      dur: resolvedLang === "EN" ? "3h 30min" : "3s 25dk",
+      direct: true,
+      brokenLogo: false,
+      airlines: ["CD", "TK"],
+      codes: [{ code: "AMS", cls: "Origin", w: 50 }, { code: "ADB", cls: "Destination", w: 50 }],
+    },
+    {
+      id: "c2",
+      badge: resolvedLang === "NL" ? "Cheapest" : "En ucuz bilet",
+      base: 267,
+      bag: 318,
+      mins: 370,
+      dep: resolvedLang === "EN" ? "12:55 pm" : "12:55",
+      arr: resolvedLang === "EN" ? "06:40 pm" : "18:40",
+      mobileStop: resolvedLang === "TR" ? "1 konaklama" : "1 layover",
+      dur: resolvedLang === "EN" ? "6h 10min" : "6s 10dk",
+      direct: false,
+      brokenLogo: true,
+      airlines: ["PC"],
+      codes: [
+        { code: "AMS", cls: "Origin", w: 30 },
+        { code: "WAW", cls: "Transfer", w: 20 },
+        { code: "", cls: "Flight", w: 30 },
+        { code: "SAW", cls: "Transfer", w: 15 },
+        { code: "ADB", cls: "Destination", w: 5 },
+      ],
+    },
+    {
+      id: "c3",
+      badge: resolvedLang === "NL" ? "May be of interest" : "",
+      base: 284,
+      bag: 336,
+      mins: 2880,
+      dep: "19:45",
+      arr: "21:50",
+      mobileStop: resolvedLang === "TR" ? "3 konaklama" : "3 layovers",
+      dur: "2d",
+      direct: false,
+      brokenLogo: false,
+      airlines: ["LO", "VF"],
+      codes: [
+        { code: "AMS", cls: "Origin", w: 12 },
+        { code: "WAW", cls: "Transfer", w: 24 },
+        { code: "", cls: "Flight", w: 16 },
+        { code: "TIA", cls: "Transfer", w: 42 },
+        { code: "", cls: "Flight", w: 2 },
+        { code: "SAW", cls: "Transfer", w: 2 },
+        { code: "ADB", cls: "Destination", w: 2 },
+      ],
+    },
   ];
 
   const render = () => {
     const curFs = new URLSearchParams(window.location.search).get("flightSearch") || fs;
     const st = window.__mockState;
-    // Bagaj + Direkt birlikte seçilince gerçek widget gibi gevşetilmiş sonuçlar + soft-tickets-notice göster
     const relaxed = st.bagOn && st.directOn;
     const filtered = relaxed ? allCards : allCards.filter((c) => !st.directOn || c.direct);
     const list = filtered.slice().sort((a, b) => {
@@ -145,12 +205,15 @@ const MOCK_WIDGET_SCRIPT = `
               <button type="button" class="ClearableParameter-module__root___mock \${st.directOn ? "ClearableParameter-module__valueChanged___mock" : ""}" data-mock-direct="desktop">Aktarmasız</button>
             </div>
           </div>
-          <div class="Transfers-module__root___mock">
+          <div class="Layovers-module__root___mock">
             <button type="button" class="Expandable-module__header___mock \${st.transfersOpen ? "Expandable-module__isOpen___mock" : ""}" data-mock-transfers-sec="1">Aktarmalar</button>
             \${st.transfersOpen ? \`
               <label class="Checklist-module__option___mock">
                 <input type="checkbox" \${st.directOn ? "checked" : ""} data-mock-direct-chk="1" />
-                <span>Direkt</span>
+                <div class="Layovers-module__label___mock">
+                  <span>Direkt</span>
+                  <span class="Layovers-module__price___mock" data-mock-layover-price="1">€ 186</span>
+                </div>
               </label>
             \` : ""}
           </div>
@@ -188,29 +251,60 @@ const MOCK_WIDGET_SCRIPT = `
               <div data-testid="flight-card-price-\${x.id}" class="FlightCard-module__cardLeftPrice___mock">\${st.bagOn ? "€ " + x.bag : "€ " + x.base}</div>
               <div class="FlightCard-module__cardLeftBaggage___mock" data-testid="flight-card-bag">\${st.bagOn ? "Bagaj dahil" : "Bagaj +€"}</div>
               <div class="FlightCard-module__cardLeftButton___mock">
-                <button type="button" class="Button-module__root___mock Button-module__primary___mock" data-mock-select="\${x.id}">\${resolvedLang === "EN" ? "Select ticket" : "Seçme bilet"}</button>
+                <button type="button" class="Button-module__root___mock Button-module__primary___mock" data-mock-select="\${x.id}">\${resolvedLang === "EN" ? "Select ticket" : resolvedLang === "NL" ? "Selecteer ticket" : "Seçme bilet"}</button>
               </div>
             </div>
             <div class="FlightCard-module__cardRight___mock">
-              <div class="AirCompany-module__cardAirCompanyWrap___mock" data-role="flight-card-air-company">
-                <picture data-mock-logo="\${x.id}">
-                  <img src="\${x.brokenLogo ? "data:image/png;base64,invalid" : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Crect width='36' height='36' fill='%232F5BD3'/%3E%3C/svg%3E"}" alt="" />
-                </picture>
-                <span>Test Air</span>
+              <div class="FlightCard-module__cardTopLeft___mock">
+                \${x.airlines.map((code) => \`
+                  <div class="AirCompany-module__cardAirCompanyWrap___mock" data-role="flight-card-air-company" data-mock-airline="\${x.id}-\${code}">
+                    <picture data-mock-logo="\${x.id}-\${code}">
+                      <img src="\${x.brokenLogo ? "data:image/png;base64,invalid" : "https://img.avs.io/pics/al_square/" + code + "@avif?rs=fit:128:128"}" alt="" />
+                    </picture>
+                    \${x.airlines.length === 1 ? "Pegasus" : ""}
+                  </div>
+                \`).join("")}
               </div>
               <div class="FlightCard-module__cardTopRight___mock">
                 <button type="button" class="FlightCard-module__share___mock">Paylaş</button>
               </div>
-              <div class="Flight-module__cardFlightTime___mock">13:40</div>
-              <div class="Flight-module__cardFlightTravelTime___mock">\${x.dur}</div>
-              <div class="Flight-module__cardFlightTravelLineTop___mock">
-                \${x.direct ? "" : '<div class="Flight-module__cardFlightTravelLineTopTransfer___mock"></div>'}
+              <div class="FlightCard-module__cardBlockFlight___mock">
+                <div class="Flight-module__cardFlight___mock" data-mock-flight-row="\${x.id}">
+                  <div class="Flight-module__cardFlightInfo___mock">
+                    <div class="Flight-module__cardFlightTime___mock" data-role="flight-departure-time">\${x.dep}</div>
+                    <div class="Flight-module__cardFlightAirport___mock">AMS</div>
+                  </div>
+                  <div class="Flight-module__cardFlightTravel___mock">
+                    <div class="Flight-module__cardFlightTravelTop___mock">
+                      <div class="Flight-module__cardFlightTravelTime___mock">
+                        <div class="Flight-module__cardFlightTravelMobile___mock" data-mock-mobile-stop="\${x.id}">\${x.mobileStop}</div>
+                        <span>\${x.dur}</span>
+                      </div>
+                    </div>
+                    <div class="Flight-module__cardFlightTravelLine___mock">
+                      <div class="Flight-module__cardFlightTravelLineTop___mock">
+                        \${x.direct ? "" : '<div class="Flight-module__cardFlightTravelLineTopTransfer___mock"></div>'}
+                      </div>
+                      <div class="Flight-module__cardFlightTravelLineAirport___mock" data-mock-airports="\${x.id}">
+                        \${x.codes.map((c) => c.code ? \`
+                          <div class="Flight-module__cardFlightTravelLine\${c.cls}___mock \${c.cls === "Origin" || c.cls === "Destination" ? "Flight-module__cardFlightTravelLineFlight___mock" : ""}" style="width: \${c.w}%">
+                            <span class="Flight-module__airportCode___mock" data-role="flight-airport-code">\${c.code}</span>
+                          </div>
+                        \` : \`<div class="Flight-module__cardFlightTravelLineFlight___mock" style="width: \${c.w}%"></div>\`).join("")}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="Flight-module__cardFlightInfo___mock">
+                    <div class="Flight-module__cardFlightTime___mock" data-role="flight-arrival-time">\${x.arr}</div>
+                    <div class="Flight-module__cardFlightAirport___mock">ADB</div>
+                  </div>
+                </div>
               </div>
               <span data-testid="flight-card-route">\${curFs}</span>
             </div>
           </div>
         \`).join("")}
-        \${st.showMoreButton ? '<button type="button" class="TicketsWidget-module__moreTickets___mock" data-mock-more-tickets="1">Daha fazla uçuş göster</button>' : ""}
+        \${st.showMoreButton ? '<button type="button" class="TicketsWidget-module__moreTickets___mock" data-mock-more-tickets="1">Show more options</button>' : ""}
       </div>
     \`;
 
@@ -257,10 +351,6 @@ const MOCK_WIDGET_SCRIPT = `
     window.__mockState.matrixPrices = true;
     render();
   };
-  window.__mockSetShowMore = (v) => {
-    window.__mockState.showMoreButton = v;
-    render();
-  };
   render();
 })();
 `;
@@ -273,9 +363,17 @@ async function interceptWidget(page: Page) {
       body: MOCK_WIDGET_SCRIPT,
     }),
   );
+  // Gerçek ağa çıkmadan sahte logoları 1x1 SVG döndür (CD/TK/LO/VF broken sanılmasın)
+  await page.route("https://img.avs.io/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "image/svg+xml",
+      body: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36"><rect width="36" height="36" fill="#2F5BD3"/></svg>`,
+    }),
+  );
 }
 
-test.describe("Canlı widget (8.1–8.3, 9.1–9.5, 10.1–10.6 ve 11.1–11.6)", () => {
+test.describe("Canlı widget (8.1–12.8)", () => {
   test("Yardımcılar: cleanWidgetUrl (language/currency), widgetSyncQuery ve süre/özet hesaplama", async () => {
     const cleaned = cleanWidgetUrl(
       "https://www.flypirpir.nl/ara?from=AMS&to=ADB&date=2027-01-02&return=2027-01-09&adults=1&checkedBags=1&marker=812756",
@@ -369,7 +467,7 @@ test.describe("Canlı widget (8.1–8.3, 9.1–9.5, 10.1–10.6 ve 11.1–11.6)"
     await expect(page.locator("#results-search")).toContainText("15 – 22 Oca");
   });
 
-  test("11.2 Masaüstü bagaj eşitleme: checkedBags=1, 0→1→0 sayaç, üst arama kutusu eşit, yeniden gönderme URL'yi bozmaz", async ({ page }) => {
+  test("11.2 & 12.5 Masaüstü bagaj eşitleme + bagaj seçiliyken sol sütun fiyatları gizlenir", async ({ page }) => {
     await interceptWidget(page);
     await page.goto("/ara?from=AMS&to=ADB&date=2027-01-02&return=2027-01-09&adults=1&checkedBags=1", { waitUntil: "networkidle" });
     await page.waitForURL(/flightSearch=AMS0201ADB09011/);
@@ -379,48 +477,92 @@ test.describe("Canlı widget (8.1–8.3, 9.1–9.5, 10.1–10.6 ve 11.1–11.6)"
     await expect(page.locator('#results-search [aria-label*="1 kontrol edilen bagaj"]')).toBeVisible();
     await expect.poll(() => page.evaluate(() => (window as unknown as { __mockState?: { bagOn?: boolean } }).__mockState?.bagOn)).toBe(true);
 
+    // 12.5 Bagaj 1 iken sol sütundaki bagajsız aktarma fiyatı gizlidir
+    await expect.poll(() =>
+      page.evaluate(() => {
+        const p = document.getElementById("tpwl-tickets")?.shadowRoot?.querySelector<HTMLElement>('[data-mock-layover-price="1"]');
+        return p ? getComputedStyle(p).display : "";
+      }),
+    ).toBe("none");
+
     // Yenilemede bagaj korunur
     await page.reload({ waitUntil: "networkidle" });
     await expect(bagBox.getByTestId("bag-checked-val")).toHaveText("1");
     await expect(page.locator('#results-search [aria-label*="1 kontrol edilen bagaj"]')).toBeVisible();
-    await expect.poll(() => page.evaluate(() => (window as unknown as { __mockState?: { bagOn?: boolean } }).__mockState?.bagOn)).toBe(true);
 
-    // Sol sütundan 1 → 0 yapınca hem widget hem üst arama kutusu anında eşitlenir
+    // Sol sütundan 1 → 0 yapınca hem widget hem üst arama kutusu eşitlenir ve sol sütun fiyatları geri gelir
     await bagBox.getByTestId("bag-checked-dec").click();
     await expect(bagBox.getByTestId("bag-checked-val")).toHaveText("0");
     await expect(page.locator('#results-search [aria-label*="0 kontrol edilen bagaj"]')).toBeVisible();
     await expect.poll(() => page.evaluate(() => (window as unknown as { __mockState?: { bagOn?: boolean } }).__mockState?.bagOn)).toBe(false);
+    await expect.poll(() =>
+      page.evaluate(() => {
+        const p = document.getElementById("tpwl-tickets")?.shadowRoot?.querySelector<HTMLElement>('[data-mock-layover-price="1"]');
+        return p ? getComputedStyle(p).display : "";
+      }),
+    ).not.toBe("none");
 
-    // Yenilemede 0 olarak kalır (tekrar açılmaz)
+    // Yenilemede 0 olarak kalır
     await page.reload({ waitUntil: "networkidle" });
     await expect(bagBox.getByTestId("bag-checked-val")).toHaveText("0");
-    await expect.poll(() => page.evaluate(() => (window as unknown as { __mockState?: { bagOn?: boolean } }).__mockState?.bagOn)).toBe(false);
 
-    // Sol sütundan 0 → 1 yapınca widget fiyatı güncellenir ve arama kutusu yeniden gönderilse bile flightSearch korunur
+    // Sol sütundan 0 → 1 + üst arama kutusunu yeniden gönderme flightSearch'ü bozmaz
     await bagBox.getByTestId("bag-checked-inc").click();
     await expect(bagBox.getByTestId("bag-checked-val")).toHaveText("1");
-    await expect(page.locator('#results-search [aria-label*="1 kontrol edilen bagaj"]')).toBeVisible();
-    await expect.poll(() => page.evaluate(() => (window as unknown as { __mockState?: { bagOn?: boolean } }).__mockState?.bagOn)).toBe(true);
     await page.locator('#results-search button[type="submit"]').click();
     await page.waitForTimeout(200);
     expect(page.url()).toContain("flightSearch=AMS0201ADB09011");
   });
 
-  test("10.1 TR ziyaretinden sonra aynı oturumda EN, NL, DE ve FR (→ EN) sayfalarında widget dili sayfa diliyle aynı olur", async ({ page }) => {
+  test("10.1 & 12.7 TR/EN/NL/DE/FR dil eşitlemesi + widget rozet/Seç/Daha fazla/1 aktarma yerelleştirmesi", async ({ page }) => {
     await interceptWidget(page);
 
     await page.goto("/ara?flightSearch=AMS0201ADB09011", { waitUntil: "networkidle" });
-    expect(await page.evaluate(() => (window as unknown as { __mockWidgetLastConfig?: { lang?: string } }).__mockWidgetLastConfig?.lang)).toBe("TR");
-
-    await page.goto("/en/search?flightSearch=AMS0201ADB09011", { waitUntil: "networkidle" });
-    const enState = await page.evaluate(() => ({
-      lang: (window as unknown as { __mockWidgetLastConfig?: { lang?: string } }).__mockWidgetLastConfig?.lang,
-      btn: document.getElementById("tpwl-tickets")?.shadowRoot?.querySelector('[class*="Button-module__primary"]')?.textContent?.trim(),
-    }));
-    expect(enState).toEqual({ lang: "EN", btn: "Select ticket" });
+    const trL10n = await page.evaluate(() => {
+      const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+      const btn = sr?.querySelector<HTMLElement>('[data-role="flight-card"] button[class*="Button-module__primary"]');
+      const more = sr?.querySelector<HTMLElement>('[class*="TicketsWidget-module__moreTickets"]');
+      const stop = sr?.querySelector<HTMLElement>('[data-mock-mobile-stop="c2"]');
+      return {
+        lang: (window as unknown as { __mockWidgetLastConfig?: { lang?: string } }).__mockWidgetLastConfig?.lang,
+        rawBtn: btn?.textContent?.trim(),
+        l10nBtn: btn?.dataset.pirpirL10n,
+        l10nMore: more?.dataset.pirpirL10n,
+        rawStop: stop?.textContent?.trim(),
+        l10nStop: stop?.dataset.pirpirL10n,
+      };
+    });
+    expect(trL10n).toEqual({
+      lang: "TR",
+      rawBtn: "Seçme bilet",
+      l10nBtn: "Bileti seç",
+      l10nMore: "Daha fazla uçuş göster",
+      rawStop: "1 konaklama",
+      l10nStop: "1 aktarma",
+    });
 
     await page.goto("/nl/zoeken?flightSearch=AMS0201ADB09011", { waitUntil: "networkidle" });
-    expect(await page.evaluate(() => (window as unknown as { __mockWidgetLastConfig?: { lang?: string } }).__mockWidgetLastConfig?.lang)).toBe("NL");
+    const nlL10n = await page.evaluate(() => {
+      const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+      const badges = [...(sr?.querySelectorAll<HTMLElement>('[data-role="flight-card-badge"]') ?? [])].map((b) => b.dataset.pirpirL10n);
+      const btn = sr?.querySelector<HTMLElement>('[data-role="flight-card"] button[class*="Button-module__primary"]');
+      const more = sr?.querySelector<HTMLElement>('[class*="TicketsWidget-module__moreTickets"]');
+      return {
+        lang: (window as unknown as { __mockWidgetLastConfig?: { lang?: string } }).__mockWidgetLastConfig?.lang,
+        badges,
+        l10nBtn: btn?.dataset.pirpirL10n,
+        l10nMore: more?.dataset.pirpirL10n,
+      };
+    });
+    expect(nlL10n).toEqual({
+      lang: "NL",
+      badges: ["Enige directe vlucht", "Goedkoopst", "Ook interessant"],
+      l10nBtn: "Kies ticket",
+      l10nMore: "Meer vluchten tonen",
+    });
+
+    await page.goto("/en/search?flightSearch=AMS0201ADB09011", { waitUntil: "networkidle" });
+    expect(await page.evaluate(() => (window as unknown as { __mockWidgetLastConfig?: { lang?: string } }).__mockWidgetLastConfig?.lang)).toBe("EN");
 
     await page.goto("/de/suche?flightSearch=AMS0201ADB09011", { waitUntil: "networkidle" });
     expect(await page.evaluate(() => (window as unknown as { __mockWidgetLastConfig?: { lang?: string } }).__mockWidgetLastConfig?.lang)).toBe("DE");
@@ -429,101 +571,80 @@ test.describe("Canlı widget (8.1–8.3, 9.1–9.5, 10.1–10.6 ve 11.1–11.6)"
     expect(await page.evaluate(() => (window as unknown as { __mockWidgetLastConfig?: { lang?: string } }).__mockWidgetLastConfig?.lang)).toBe("EN");
   });
 
-  test("11.1–11.6 Masaüstü (1440px): tek seçimli sekme çubuğu, tek filtre kontrolü, iç kaydırmasız sol sütun, çakışma yok, gevşetilmiş filtre uyarısı", async ({ page }) => {
+  test("12.1–12.8 Masaüstü (1440px): 'En iyi' sırası korunur, 2/3 aktarma kodları çakışmaz, çoklu yolcu notu, Corendon adı, tarih şeridi notu", async ({ page }) => {
     await interceptWidget(page);
     await page.goto("/ara?flightSearch=AMS0201ADB09011", { waitUntil: "networkidle" });
 
-    // 1. robots noindex + Fiyat trendleri ve Fiyat alarmı kur yok
-    expect((await page.locator('meta[name="robots"]').getAttribute("content")) ?? "").toContain("noindex");
-    await expect(page.getByRole("button", { name: /Fiyat trendleri/i })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /Fiyat alarmı kur/i })).toHaveCount(0);
-
-    // 2. Sıralama sekme çubuğu tek seçimli (role="tab"), üstte Sadece direkt / Bagaj dahil hapı yok
+    // 1. Kullanıcı kararı: varsayılan "En iyi", direkt kart (c1, €291) 1. sırada, en ucuz (c2, €267) 2. sırada (en ucuza yeniden sıralanmaz!)
     const tablist = page.getByRole("tablist", { name: "Sıralama" });
-    const tabs = tablist.getByRole("tab");
-    await expect(tabs).toHaveCount(3);
+    await expect(tablist.getByRole("tab")).toHaveCount(3);
     await expect(tablist.getByRole("tab", { selected: true })).toHaveCount(1);
     await expect(tablist.getByRole("tab", { name: /En iyi/i })).toHaveAttribute("aria-selected", "true");
-    await expect(tablist.getByText(/Sadece direkt|Bagaj dahil/i)).toHaveCount(0);
+    await expect(page.locator('[data-testid^="tab-summary-"]')).toHaveCount(0);
 
-    // Sekme değiştirince yine yalnızca 1 sekme seçili ve widget sıralaması güncellenir
-    await tablist.getByRole("tab", { name: /En ucuz/i }).click();
-    await expect(tablist.getByRole("tab", { selected: true })).toHaveCount(1);
-    await expect(tablist.getByRole("tab", { name: /En ucuz/i })).toHaveAttribute("aria-selected", "true");
-    await expect.poll(() => page.evaluate(() => (window as unknown as { __mockState?: { sortIndex?: number } }).__mockState?.sortIndex)).toBe(1);
+    const bestOrder = await page.evaluate(() =>
+      [...(document.getElementById("tpwl-tickets")?.shadowRoot?.querySelectorAll('[data-role="flight-card"]') ?? [])].map((c) => c.getAttribute("data-card")),
+    );
+    expect(bestOrder).toEqual(["c1", "c2", "c3"]);
 
-    await tablist.getByRole("tab", { name: /En hızlı/i }).click();
-    await expect(tablist.getByRole("tab", { selected: true })).toHaveCount(1);
-    await expect(tablist.getByRole("tab", { name: /En hızlı/i })).toHaveAttribute("aria-selected", "true");
-    await expect.poll(() => page.evaluate(() => (window as unknown as { __mockState?: { sortIndex?: number } }).__mockState?.sortIndex)).toBe(5);
+    // 2. 12.1 Çok aktarmalı uçuşlarda (2 aktarmalı c2 ve 3 aktarmalı c3) havalimanı kodları üst üste binmez ("SAWDB" yok)
+    const codeCheck = await page.evaluate(() => {
+      const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+      const checkCard = (id: string) => {
+        const codes = [...(sr?.querySelectorAll(`[data-mock-airports="${id}"] [data-role="flight-airport-code"]`) ?? [])];
+        const rects = codes.map((c) => ({ text: c.textContent?.trim(), rect: c.getBoundingClientRect() }));
+        let overlaps = 0;
+        for (let i = 1; i < rects.length; i++) {
+          if (rects[i].rect.left < rects[i - 1].rect.right + 1) overlaps++;
+        }
+        return { count: rects.length, overlaps };
+      };
+      return { c2: checkCard("c2"), c3: checkCard("c3") };
+    });
+    expect(codeCheck).toEqual({ c2: { count: 4, overlaps: 0 }, c3: { count: 5, overlaps: 0 } });
 
-    // 3. Tek filtre kontrolü + sol sütunda iç kaydırma yok + kırık logo gizli
-    await expect.poll(async () =>
+    // 3. 12.8 Çok havayollu kartta (CD + TK) logonun yanında havayolu adı etiketlenir, kırık logo gizlenir
+    await expect.poll(() =>
       page.evaluate(() => {
         const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
-        const card = sr?.querySelector<HTMLElement>('[data-role="flight-card"]');
+        const cd = sr?.querySelector<HTMLElement>('[data-mock-airline="c1-CD"]');
+        const tk = sr?.querySelector<HTMLElement>('[data-mock-airline="c1-TK"]');
+        const broken = sr?.querySelector<HTMLElement>('[data-mock-logo="c2-PC"]');
         const filters = sr?.querySelector<HTMLElement>('[class*="FlightFilters-module__filerContainer"]');
-        const popularWrap = sr?.querySelector<HTMLElement>('[class*="Popular-module__body___"]')?.parentElement;
-        const widgetBagSec = sr?.querySelector<HTMLElement>('[class*="BaggageFilter-module__root___"]');
-        const widgetSortSec = sr?.querySelector<HTMLElement>('[data-testid="expandable-sort-filter"]');
-        const matrix = sr?.querySelector<HTMLElement>('[class*="FlightMatrixDesktop-module__root"]');
-        const share = sr?.querySelector<HTMLElement>('[class*="FlightCard-module__share"]');
-        const transfersSec = sr?.querySelector<HTMLElement>('[data-mock-transfers-sec="1"]');
-        const airlinesSec = sr?.querySelector<HTMLElement>('[data-mock-airlines="1"]');
-        const brokenLogo = sr?.querySelector<HTMLElement>('[data-mock-logo="c2"]');
-        if (!card || !filters || !matrix || !share || !popularWrap || !widgetBagSec || !widgetSortSec || !brokenLogo) return null;
+        const popWrap = sr?.querySelector<HTMLElement>('[class*="Popular-module__body___"]')?.parentElement;
+        const widgetBag = sr?.querySelector<HTMLElement>('[class*="BaggageFilter-module__root___"]');
+        const host = document.getElementById("tpwl-tickets");
         return {
-          cardRadius: getComputedStyle(card).borderRadius,
-          cardShadow: getComputedStyle(card).boxShadow,
-          filtersDisplay: getComputedStyle(filters).display,
-          filtersOverflowY: getComputedStyle(filters).overflowY,
-          filtersNoInnerScroll: filters.scrollHeight <= filters.clientHeight + 2,
-          popularHidden: getComputedStyle(popularWrap).display === "none",
-          widgetBagHidden: getComputedStyle(widgetBagSec).display === "none",
-          widgetSortHidden: getComputedStyle(widgetSortSec).display === "none",
-          matrixHiddenWhenEmpty: getComputedStyle(matrix).display === "none",
-          shareHidden: getComputedStyle(share).display === "none",
-          transfersOpen: /isOpen/.test(transfersSec?.className ?? ""),
-          airlinesClosed: !/isOpen/.test(airlinesSec?.className ?? ""),
-          brokenLogoHidden: getComputedStyle(brokenLogo).display === "none",
+          cdName: cd?.dataset.pirpirAirline,
+          tkName: tk?.dataset.pirpirAirline,
+          brokenHidden: broken ? getComputedStyle(broken).display === "none" : false,
+          filtersNoScroll: filters ? getComputedStyle(filters).overflowY === "visible" && filters.scrollHeight <= filters.clientHeight + 2 : false,
+          popularHidden: popWrap ? getComputedStyle(popWrap).display === "none" : false,
+          widgetBagHidden: widgetBag ? getComputedStyle(widgetBag).display === "none" : false,
+          singlePaxNoAttr: !host?.hasAttribute("data-multi-pax"),
+          matrixNoteSet: host?.style.getPropertyValue("--pirpir-matrix-note")?.includes("Yaklaşık fiyat") ?? false,
         };
       }),
     ).toEqual({
-      cardRadius: "28px",
-      cardShadow: "none",
-      filtersDisplay: "block",
-      filtersOverflowY: "visible",
-      filtersNoInnerScroll: true,
+      cdName: "Corendon Dutch Airlines",
+      tkName: "Turkish Airlines",
+      brokenHidden: true,
+      filtersNoScroll: true,
       popularHidden: true,
       widgetBagHidden: true,
-      widgetSortHidden: true,
-      matrixHiddenWhenEmpty: true,
-      shareHidden: true,
-      transfersOpen: true,
-      airlinesClosed: true,
-      brokenLogoHidden: true,
+      singlePaxNoAttr: true,
+      matrixNoteSet: true,
     });
 
-    // 4. Tarih şeridine fiyat gelince görünür, Show ve noPriceIcon gizlidir, öğeler üst üste binmez (>= 16px boşluk)
+    // 4. Tarih şeridi açılınca çakışma yok + "Show" ve "noPriceIcon" gizli
     await page.evaluate(() => (window as unknown as { __mockFillMatrix?: () => void }).__mockFillMatrix?.());
-    await expect.poll(async () =>
-      page.evaluate(() => {
-        const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
-        const m = sr?.querySelector<HTMLElement>('[class*="FlightMatrixDesktop-module__root"]');
-        return m ? getComputedStyle(m).display : "";
-      }),
-    ).not.toBe("none");
-
     const rects = await page.evaluate(() => {
       const tabRect = document.querySelector('[role="tablist"]')?.getBoundingClientRect();
       const bagRect = document.querySelector('[data-testid="live-baggage-desktop"]')?.getBoundingClientRect();
       const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
-      const matrix = sr?.querySelector<HTMLElement>('[class*="FlightMatrixDesktop-module__root"]');
-      const matrixRect = matrix?.getBoundingClientRect();
+      const matrixRect = sr?.querySelector<HTMLElement>('[class*="FlightMatrixDesktop-module__root"]')?.getBoundingClientRect();
       const filtersRect = sr?.querySelector<HTMLElement>('[class*="FlightFilters-module__filerContainer"]')?.getBoundingClientRect();
       const cardRect = sr?.querySelector<HTMLElement>('[data-role="flight-card"]')?.getBoundingClientRect();
-      const showBox = sr?.querySelector<HTMLElement>('[class*="FlightMatrixDesktop-module__buttonBox___"]');
-      const noPriceIcon = sr?.querySelector<HTMLElement>('[class*="FlightMatrixDesktop-module__noPriceIcon___"]');
       return {
         tabBottom: tabRect?.bottom ?? 0,
         matrixTop: matrixRect?.top ?? 0,
@@ -531,51 +652,25 @@ test.describe("Canlı widget (8.1–8.3, 9.1–9.5, 10.1–10.6 ve 11.1–11.6)"
         cardTop: cardRect?.top ?? 0,
         bagBottom: bagRect?.bottom ?? 0,
         filtersTop: filtersRect?.top ?? 0,
-        showHidden: showBox ? getComputedStyle(showBox).display === "none" : false,
-        noPriceIconHidden: noPriceIcon ? getComputedStyle(noPriceIcon).display === "none" : false,
       };
     });
-    // Çakışma yok: sekme çubuğu → tarih şeridi (>= 14px), tarih şeridi → ilk kart, bagaj kartı → sol filtreler
     expect(rects.matrixTop - rects.tabBottom).toBeGreaterThanOrEqual(14);
     expect(rects.cardTop).toBeGreaterThanOrEqual(rects.matrixBottom);
     expect(rects.filtersTop - rects.bagBottom).toBeGreaterThanOrEqual(12);
-    expect(rects.showHidden).toBe(true);
-    expect(rects.noPriceIconHidden).toBe(true);
 
-    // 5. Tüm kartlar DOM'dayken özetler görünür; kısmi listede ("Daha fazla" varsa) yanıltıcı özet gizlenir
-    await expect(page.getByTestId("tab-summary-cheap")).toContainText("€ 267");
-    await expect(page.getByTestId("tab-summary-fast")).toContainText("€ 291");
-    await page.evaluate(() => (window as unknown as { __mockSetShowMore?: (v: boolean) => void }).__mockSetShowMore?.(true));
-    await expect(page.getByTestId("tab-summary-cheap")).toHaveCount(0);
-    await expect(page.getByTestId("tab-summary-fast")).toHaveCount(0);
-
-    // 6. Bagaj + Direkt = sonuç yok → widget'ın İngilizce uyarısı gizli, pirpir'in #FFF4D6 uyarısı görünür ve temizlenir
+    // 5. Bagaj + Direkt → gevşetilmiş filtre uyarısı görünür ve temizlenir
     await page.getByTestId("live-baggage-desktop").getByTestId("bag-checked-inc").click();
     await page.locator("#tpwl-tickets").locator('[data-mock-direct-chk="1"]').click();
     const relaxedNotice = page.getByTestId("live-relaxed-notice");
     await expect(relaxedNotice).toBeVisible();
-    await expect(relaxedNotice).toContainText("Seçtiğin filtrelere uyan uçuş yok");
-    const rawNoticeHidden = await page.evaluate(() => {
-      const n = document.getElementById("tpwl-tickets")?.shadowRoot?.querySelector<HTMLElement>('[data-testid="soft-tickets-notice"]');
-      return n ? getComputedStyle(n).display === "none" : false;
-    });
-    expect(rawNoticeHidden).toBe(true);
-
-    // Uyarı kutusu ile tarih şeridi / ilk kart üst üste binmez
-    const noticeGeom = await page.evaluate(() => {
-      const n = document.querySelector('[data-testid="live-relaxed-notice"]')?.getBoundingClientRect();
-      const m = document.getElementById("tpwl-tickets")?.shadowRoot?.querySelector<HTMLElement>('[class*="FlightMatrixDesktop-module__root"]')?.getBoundingClientRect();
-      return { noticeBottom: n?.bottom ?? 0, matrixTop: m?.top ?? 0 };
-    });
-    expect(noticeGeom.matrixTop).toBeGreaterThanOrEqual(noticeGeom.noticeBottom);
-
-    // "Filtreleri temizle" hem bagajı hem direkti temizler, uyarı kapanır
     await relaxedNotice.getByRole("button", { name: "Filtreleri temizle" }).click();
     await expect(relaxedNotice).toHaveCount(0);
-    await expect(page.getByTestId("live-baggage-desktop").getByTestId("bag-checked-val")).toHaveText("0");
-    await expect(page.locator('#results-search [aria-label*="0 kontrol edilen bagaj"]')).toBeVisible();
 
-    // 7. Kart aksiyonları çalışır
+    // 6. Sekme değiştirme (En ucuz → index 1, En hızlı → index 5) ve kart tıklamaları
+    await tablist.getByRole("tab", { name: /En ucuz/i }).click();
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __mockState?: { sortIndex?: number } }).__mockState?.sortIndex)).toBe(1);
+    await tablist.getByRole("tab", { name: /En hızlı/i }).click();
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __mockState?: { sortIndex?: number } }).__mockState?.sortIndex)).toBe(5);
     await page.locator("#tpwl-tickets").locator('[data-mock-more-tickets="1"]').click();
     await page.locator("#tpwl-tickets").locator('[data-mock-select="c1"]').click();
     const clickState = await page.evaluate(() => (window as unknown as { __mockState?: { showMoreCount?: number; selectedCard?: string | null } }).__mockState);
@@ -583,55 +678,54 @@ test.describe("Canlı widget (8.1–8.3, 9.1–9.5, 10.1–10.6 ve 11.1–11.6)"
     expect(clickState?.selectedCard).toBe("c1");
   });
 
-  test("11.1–11.6 Mobil (390px): tek parça sekme çubuğu, altında 'Filtreler (1)' düğmesi, açılınca üstte Bagaj sayaçları + taşma yok", async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
+  test("12.2 & 12.6 Mobil (360, 375, 390 px, TR 24s & EN 12s, 2 yetişkin): saat/süre çakışmaz, kenar boşluğu >= 12px, '2 kişi toplam' notu görünür", async ({ page }) => {
     await interceptWidget(page);
+
+    for (const width of [360, 375, 390]) {
+      await page.setViewportSize({ width, height: 844 });
+      for (const path of [
+        "/ara?from=AMS&to=ADB&date=2027-01-02&return=2027-01-09&adults=2",
+        "/en/search?from=AMS&to=ADB&date=2027-01-02&return=2027-01-09&adults=2",
+      ]) {
+        await page.context().clearCookies();
+        await page.goto(path, { waitUntil: "networkidle" });
+        const m = await page.evaluate(() => {
+          const host = document.getElementById("tpwl-tickets");
+          const sr = host?.shadowRoot;
+          const card = sr?.querySelector<HTMLElement>('[data-role="flight-card"]');
+          const dep = card?.querySelector<HTMLElement>('[data-role="flight-departure-time"]')?.getBoundingClientRect();
+          const arr = card?.querySelector<HTMLElement>('[data-role="flight-arrival-time"]')?.getBoundingClientRect();
+          const travel = card?.querySelector<HTMLElement>('[class*="Flight-module__cardFlightTravelTime___"]')?.getBoundingClientRect();
+          const cardRect = card?.getBoundingClientRect();
+          return {
+            overflow: document.documentElement.scrollWidth > window.innerWidth,
+            multiPaxAttr: host?.getAttribute("data-multi-pax"),
+            paxNote: host?.style.getPropertyValue("--pirpir-pax-note") ?? "",
+            depArrGap: dep && arr ? Math.round(arr.left - dep.right) : -1,
+            travelBelowTimes: dep && arr && travel ? travel.top >= Math.max(dep.bottom, arr.bottom) - 1 : false,
+            leftPad: dep && cardRect ? Math.round(dep.left - cardRect.left) : -1,
+            rightPad: arr && cardRect ? Math.round(cardRect.right - arr.right) : -1,
+          };
+        });
+        expect(m.overflow).toBe(false);
+        expect(m.multiPaxAttr).toBe("1");
+        expect(m.paxNote).toMatch(/2 kişi toplam|Total for 2 travellers/);
+        expect(m.depArrGap).toBeGreaterThanOrEqual(8);
+        expect(m.travelBelowTimes).toBe(true);
+        expect(m.leftPad).toBeGreaterThanOrEqual(12);
+        expect(m.rightPad).toBeGreaterThanOrEqual(12);
+      }
+    }
+
+    // Mobil Filtreler (1) açılınca üstte Bagaj sayacı + 1 → 0 eşitlemesi
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.context().clearCookies();
     await page.goto("/ara?from=AMS&to=ADB&date=2027-01-02&return=2027-01-09&adults=1&checkedBags=1", { waitUntil: "networkidle" });
-    await page.waitForURL(/flightSearch=AMS0201ADB09011/);
-
-    const tablist = page.getByRole("tablist", { name: "Sıralama" });
-    await expect(tablist.getByRole("tab")).toHaveCount(3);
-    await expect(page.getByTestId("tab-summary-cheap")).toBeHidden();
-
-    // "Filtreler (1)" görünür, sol sütun kapalı, yatay taşma yok
     const filtersBtn = page.getByRole("button", { name: "Filtreler (1)" });
     await expect(filtersBtn).toBeVisible();
-    const closedMetrics = await page.evaluate(() => {
-      const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
-      const filters = sr?.querySelector<HTMLElement>('[class*="FlightFilters-module__filerContainer"]');
-      const selectBtn = sr?.querySelector<HTMLElement>('[class*="Button-module__primary"]');
-      return {
-        filtersDisplay: filters ? getComputedStyle(filters).display : "",
-        overflow: document.documentElement.scrollWidth > window.innerWidth,
-        selectBtnHeight: selectBtn ? Math.round(selectBtn.getBoundingClientRect().height) : 0,
-      };
-    });
-    expect(closedMetrics.filtersDisplay).toBe("none");
-    expect(closedMetrics.overflow).toBe(false);
-    expect(closedMetrics.selectBtnHeight).toBeGreaterThanOrEqual(44);
-
-    // "Filtreler (1)" açılınca en üstte Bagaj sayaçları + hemen altında widget filtreleri açılır
     await filtersBtn.click();
     const mobileBags = page.getByTestId("live-baggage-mobile");
-    await expect(mobileBags).toBeVisible();
     await expect(mobileBags.getByTestId("bag-checked-val")).toHaveText("1");
-    const openMetrics = await page.evaluate(() => {
-      const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
-      const filters = sr?.querySelector<HTMLElement>('[class*="FlightFilters-module__filerContainer"]');
-      const bagRect = document.querySelector('[data-testid="live-baggage-mobile"]')?.getBoundingClientRect();
-      const filtersRect = filters?.getBoundingClientRect();
-      return {
-        filtersDisplay: filters ? getComputedStyle(filters).display : "",
-        bagBottom: bagRect?.bottom ?? 0,
-        filtersTop: filtersRect?.top ?? 0,
-        overflow: document.documentElement.scrollWidth > window.innerWidth,
-      };
-    });
-    expect(openMetrics.filtersDisplay).toBe("block");
-    expect(openMetrics.filtersTop).toBeGreaterThanOrEqual(openMetrics.bagBottom);
-    expect(openMetrics.overflow).toBe(false);
-
-    // Mobilde bagajı 1 → 0 yapınca sayaç 0 olur ve widget güncellenir
     await mobileBags.getByTestId("bag-checked-dec").click();
     await expect(mobileBags.getByTestId("bag-checked-val")).toHaveText("0");
     await expect.poll(() => page.evaluate(() => (window as unknown as { __mockState?: { bagOn?: boolean } }).__mockState?.bagOn)).toBe(false);

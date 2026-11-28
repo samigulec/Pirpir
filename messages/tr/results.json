@@ -252,5 +252,19 @@
   "liveBaggage": "Bagaj dahil",
   "liveLoading": "Pırpır en güncel fiyatlara bakıyor…",
   "liveCabinNote": "Kabin bagajı kuralları satıcıda gösterilir.",
-  "liveRelaxed": "Seçtiğin filtrelere uyan uçuş yok. Bazı filtreleri kaldırıp yakın seçenekleri gösteriyoruz — örneğin aktarmalı uçuşlar listelenebilir."
+  "liveRelaxed": "Seçtiğin filtrelere uyan uçuş yok. Bazı filtreleri kaldırıp yakın seçenekleri gösteriyoruz — örneğin aktarmalı uçuşlar listelenebilir.",
+  "liveMatrixNote": "Yaklaşık fiyat (1 kişi, bagajsız)",
+  "liveTotalFor": "{count} kişi toplam",
+  "liveSelect": "Bileti seç",
+  "liveShowMore": "Daha fazla uçuş göster",
+  "liveStopsCount": "{count} aktarma",
+  "liveBadge": {
+    "onlyDirect": "Tek direkt uçuş",
+    "cheapBag": "Bagajlı en ucuz",
+    "cheapLayover": "Rahat aktarmalı en ucuz",
+    "cheap": "En ucuz",
+    "fast": "En hızlı",
+    "optimal": "En iyi",
+    "interest": "İlginizi çekebilir"
+  }
 }
