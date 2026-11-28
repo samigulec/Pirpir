@@ -726,3 +726,76 @@ Teslimde iş günlüğüne her alt iş için ekran görüntüsü yolu, değişen
   sunucusu için) çalışma zamanı geçersiz kılmalarını destekler; `playwright.config.ts` 4 proje (`desktop`, `mobile`,
   `affiliate`, `live-widget`) ile koşar; `docs/GELISTIRME.md` güncellendi. Doğrulandı: `NEXT_PUBLIC_TP_WL_WIDGET_ID=25161 npx next build`
   sonrasında `npm run e2e` tüm 24/24 testi hatasız geçti (12.0 sn). Bilinen eksik yok.
+- [9.6] Ana sayfa React `#418` hidrasyon uyarısı düzeltildi — commit fbbf71b — Akışlı `<Suspense>` sınırları
+  (`MobileDealFrom`, `LiveFlights`, `TipsWithDeals`) `CurrencyProvider`'ın `useEffect`'i `TRY → EUR` (NL) yaptıktan
+  sonra hidrate olduğu için 3 fiyat metninde SSR (`₺`) / istemci (`€`) uyuşmazlığı oluşuyordu. `src/components/Price.tsx`,
+  `src/components/home/MobileDeal.tsx` ve `src/components/home/PopularFlights.tsx` fiyat yaprak düğümlerine
+  `suppressHydrationWarning` eklendi (324 statik SSG sayfası bozulmadı). Canlıda `https://www.flypirpir.nl/` üzerinde
+  doğrulandı: **0 `pageerror` / 0 React `#418`**.
+- [9.1–9.5] Canlı widget pirpir tasarımına yaklaştırıldı ve sadeleştirildi — commit b229bfb — Değişen dosyalar:
+  `src/components/results/LiveWidget.tsx`, `src/app/globals.css`, 7 dilde `messages/*/results.json` (`liveBaggage`),
+  `tests/e2e/live-widget.spec.ts`.
+  - **9.1 Uçuş kartı (`design/Results.dc.html`):** Kart `#FFFFFF`, `2px solid #E3E8F2`, `28px` köşe, `20px 24px` iç boşluk,
+    `16px 28px` aralık, gölge yok; kalkış/varış saatleri Fredoka 600 `28px` (mobilde `22px`), satır yüksekliği 1;
+    süre `13px` 700 `#56607A`, noktalı mavi rota çizgisi (`3px dotted #9CC3FF`) + aktarma çubuğu `#FF8A65`; havayolu
+    satırı `15px` 600 `#56607A`; bilgi hapları (bagaj `#F5F8FD`, aktarma `#FFE8E0`, `13px` 800, `999px`); fiyat
+    Fredoka 700 `30px`; Seç butonu `#2F5BD3`, Fredoka 600 `19px`, `12px 26px`, `999px`, en az `48px` (mobilde `44px`);
+    rozetler `enhanceShadow` ile sınıflandırılıp "En ucuz" `#FFD166`, diğerleri (`Tek direkt uçuş`, `İlginizi çekebilir` vb.)
+    `#CFE0FF` boyanır (`Fredoka 600 14px`, `4px 12px`, `999px`, `#1E2A44`).
+  - **9.2 Sadeleştirme:** Sayfa tek sütunlu (`880px`) düzene alındı. Üste 7 dilde pirpir hap çubuğu eklendi:
+    `En ucuz | En hızlı | Sadece direkt | Bagaj dahil | Filtreler ▾` (`#1E2A44`/beyaz aktif, `#F5F8FD`/`#1E2A44` pasif,
+    Fredoka 600 `17px`, `10px 22px`, min `44px`). Uzun filtre paneli varsayılan kapalı (`display: none`); "Filtreler"
+    tıklanınca masaüstünde 3 sütunlu `#F5F8FD` `28px` panel olarak açılır (tüm filtreler eksiksiz çalışır), mobilde
+    widget'ın kendi mobil filtre penceresini açar. Gürültü öğeleri (`FlightCard-module__share`, `cardTopRight`,
+    `DirectFlights`, mükerrer mobil filtre şeridi) `display: none` ile gizlendi. Yükleme çubuğu (`SearchProgressbar`)
+    `#2F5BD3` / `#F5F8FD` / `999px` pirpir stilinde.
+  - **9.3 Mobil (390 px) & 9.4 Erişilebilirlik:** Yatay taşma yok (`390 === 390`), Seç butonu `44px`, haplar ≥ `44px`,
+    tüm kontrastlar ≥ 4.5:1 (`#1E2A44`/`#F5F8FD` 13.7:1, `#FFFFFF`/`#2F5BD3` 5.8:1), gizli öğeler yalnızca `display: none`
+    (`opacity: 0` yok), `:focus-visible` halkası eklendi.
+  - **9.5 Testler:** `tests/e2e/live-widget.spec.ts` sahte gölge kökü gerçek sınıf yapısıyla genişletildi (kart `28px`,
+    gölge yok, rozet renkleri, gürültü ve kapalı filtre `display: none`, açılır filtre paneli, `En hızlı`/`Sadece direkt`/
+    `Bagaj dahil` hapları, `Daha fazla` ve `Seçme bilet` tıklanabilirliği, 390px mobil taşma ve düğme yüksekliği).
+  - **Canlı doğrulama (`https://www.flypirpir.nl`, gerçek Chrome, `Europe/Amsterdam`, TR + EN, masaüstü + iPhone 13):**
+    - URL: `https://www.flypirpir.nl/ara?flightSearch=AMS0201ADB09011` (`2 – 9 Oca`, tarih kayması yok) ve
+      `https://www.flypirpir.nl/en/search?flightSearch=AMS0201ADB09011` (`2 – 9 Jan`).
+    - Canlı etkileşimler: `Sadece direkt` (`1` kart, `€ 280`, `aria-pressed="true"`), `Bagaj dahil` (`€ 303` = bagajlı toplam,
+      `aria-pressed="true"`), `En hızlı` (en kısa `3s 25dk` direkt uçuşlar en üstte), `Seçme bilet` → `Satın al`
+      (`https://tpwgt.com/wl/redirect?locale=tr&gate_name=Farera&...`, marker `812756` aktif).
+    - Mobil (390×844): `scrollWidth: 390 === innerWidth: 390`, `Seçme` yüksekliği `44px`.
+    - Ekran görüntüleri: öncesi `docs/ekran/9-before-desktop-tr.png`, `docs/ekran/9-before-mobile-tr.png`;
+      sonrası `docs/ekran/9-after-desktop-tr.png`, `docs/ekran/9-after-desktop-filters-tr.png`,
+      `docs/ekran/9-after-mobile-tr.png`, `docs/ekran/9-after-desktop-en.png`.
+  - **WIDGET SINIRI maddeleri:**
+    1. Kart içi kolon düzeni: Travelpayouts widget'ı fiyat+bagaj+Seç alanını solda (`cardLeft`), gidiş ve dönüşü sağda
+       iki ayrı satır (`cardRight`) olarak çizer (`design/Results.dc.html`'de gidiş/dönüş tek blokta solda, fiyat+Seç
+       sağda). Olay akışını ve responsive yapıyı bozmamak için grid yönü zorlanmadı; tüm ölçü, renk, font, köşe ve
+       boşluklar birebir eşlendi.
+    2. Widget Türkçe metinleri: `"Seçme bilet"`, `"Seçme"`, `"1 konaklama"`, `"Airports"`, `"Aircraft types"`, `"Göre sırala"`
+       Travelpayouts'un `tr-*.js` paketinden geliyor; kural gereği widget'ın kendi metni değiştirilmedi.
+    3. Rota çizgisi: Widget'ın kendi gri uçuş çizgisi alt katmanda duruyor; üstüne `3px dotted #9CC3FF` ve aktarma
+       bölümüne `#FF8A65` eklendi.
+  - Denendi: `npm run lint`, `npm run check:messages`, `npx next build` (324/324), `npm run e2e` (24/24 geçti, 12.8 sn)
+    ve canlı `https://www.flypirpir.nl` doğrulaması. 8.4 (fiyat trendleri) kullanıcı kararı beklediği için dokunulmadı.
+- [CLAUDE'A ÖNERİLER — Gemini (9. tur sonrası fikirler)] Canlı sitedeki 8. ve 9. tur gözlemlerine dayanarak daha iyi sonuç
+  vereceğini düşündüğüm somut öneriler:
+  1. **Sayfa genişliği bütünlüğü (`ara/page.tsx`):** Canlı liste modunda (`isLiveList`) `<main>`'in tamamını `max-w-[928px]`
+     yapmak ya da sağda kalan ~240 px alana tek bir sakin "Fiyat alarmı" kartı yerleştirmek üst arama çubuğu ile `880px`
+     uçuş kartları arasındaki sağ boşluğu dengeler.
+  2. **8.4 Fiyat trendleri + tek satır aksiyon:** Kullanıcı (a) seçeneğini onaylarsa, canlı sonuç sayfasından `PriceTrends`'i
+     kaldırıp `"Fiyat alarmı kur"` düğmesini doğrudan üstteki `En ucuz / En hızlı / Sadece direkt / Bagaj dahil / Filtreler`
+     çubuğunun sağ ucuna (`ml-auto`) koymak sayfayı ~60 px kısaltır ve ilk uçuş kartı masaüstü ve mobilde hemen görünür.
+  3. **Aktif filtre sayacı (`Filtreler (2)`):** Kullanıcı `"Filtreler"` panelinden havayolu/saat/aktarma seçip paneli
+     kapattığında aktif filtre sayısını hap üzerinde göstermek (7 dilde `results.filters.active` anahtarı zaten var)
+     ve yanına küçük "Temizle" eklemek "sonuçlar neden az?" karışıklığını önler.
+  4. **Widget Türkçe çeviri kalitesi (`"Seçme bilet"` / `"1 konaklama"`):** Tasarım artık pirpir'e çok yakın; canlıda en
+     çok göze batan kusur Travelpayouts'un makine çevirisi. Önce Travelpayouts destek/panelinden TR düzeltmesi istenebilir;
+     olmazsa kullanıcı onayıyla yalnızca sabit seçicilerdeki (`Button-module__primary` gibi) 3–4 metin için kontrollü bir
+     düzeltme değerlendirilebilir.
+  5. **İlk yükleme algısı (4–6 sn):** 8.1'deki çift yenileme kalkınca yükleme hızlandı; ilk kart gelene kadar
+     `SearchProgressbar` üstünde küçük bir Pırpır uçuş durumu (`"Havayollarından canlı fiyatlar getiriliyor…"`) göstermek
+     ve ilk kartla gizlemek bekleme algısını yumuşatır.
+  6. **Tek komutluk canlı duman testi (`scripts/verify-live.mjs`):** 8.1 (UTC+1 tarih kayması) ve 8.2 (mobil bagaj) yerel
+     örnek modda değil yalnızca gerçek `flypirpir.nl` + gerçek Chrome'da yakalanabildi. Yayın sonrası elle çalıştırılacak
+     küçük bir canlı doğrulama betiği (2–9 Oca → `AMS0201ADB09011`, `Sadece direkt`, `Bagaj dahil`, `Satın al` →
+     `tpwgt.com/wl/redirect`, 0 React hatası, 390px taşma yok) Travelpayouts widget güncellemelerinin sessizce gerileme
+     yaratmasını anında yakalar.
