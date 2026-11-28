@@ -879,3 +879,52 @@ Teslimde iş günlüğüne her alt iş için önce/sonra ekran görüntüsü, de
      küçük bir canlı doğrulama betiği (2–9 Oca → `AMS0201ADB09011`, `Sadece direkt`, `Bagaj dahil`, `Satın al` →
      `tpwgt.com/wl/redirect`, 0 React hatası, 390px taşma yok) Travelpayouts widget güncellemelerinin sessizce gerileme
      yaratmasını anında yakalar.
+- [10.1–10.6] Sonuç sayfası Kiwi'den ilham yerleşim + dil/tarih şeridi hataları + `verify:live` — commits bcccc6e, c697d66 —
+  Değişen dosyalar: `src/lib/live-widget-url.ts`, `src/lib/live-widget-summary.ts`, `src/components/results/LiveWidget.tsx`,
+  7 dilde `messages/*/results.json` (`liveLoading`), `scripts/verify-live.mjs`, `package.json`, `docs/GELISTIRME.md`,
+  `tests/e2e/live-widget.spec.ts`.
+  - **10.1 İngilizce sayfada Türkçe widget hatası (canlıda yakalanıp düzeltildi):**
+    - *Kök neden (`tpwl-main.js`, `qX()` & `BX()`):* Widget dil ve para biriminde sırasıyla (1) URL `?language=`/`?currency=`,
+      (2) kendi `.flypirpir.nl` çerezleri (`tpwl_locale`, `tpwl_currency`), (3) `TPWL_CONFIGURATION.defaultLanguage`
+      önceliğini kullanıyor. Önceki bir Türkçe `/ara` ziyareti `.flypirpir.nl` üzerinde `tpwl_locale=tr` bıraktığı için
+      `/en/search` açıldığında `defaultLanguage: "EN"` yok sayılıyor, widget Türkçe ("Seçme bilet", "Tek direkt uçuş")
+      kalıyordu (`docs/ekran/10-before-desktop-en.png`).
+    - *Düzeltme:* `syncWidgetCookies` (`.flypirpir.nl` + yerel alan adı `tpwl_locale`/`tpwl_currency`) ve
+      `cleanWidgetUrl(..., { language, currency })` birlikte uygulanır; widget URL'deki `language`/`currency`'yi 1. öncelikle
+      okuyup kendi `Fc()` çağrısıyla adresten temizler (`adults` olmadığı için 8.1 tarih kayması tetiklenmez).
+    - *Canlı doğrulama (`https://www.flypirpir.nl`, aynı tarayıcı oturumunda peş peşe):* TR `"Seçme bilet"` →
+      EN `"Select ticket"` (`"The only direct flight"`) → NL `"Selecteer ticket"` → DE `"Auswählen"` → FR `"Select ticket"` (EN).
+  - **10.2 Boş tarih şeridi (`FlightMatrix`) gizlendi:** `enhanceShadow` içindeki `syncMatrixVisibility`,
+    `FlightMatrixDesktop-module__root___` ve `FlightMatrixMobile-module__flightMatrixMobile___` içindeki `dateCellPrice___`
+    hücrelerinde rakam (`/\d/`) yoksa `data-pirpir-empty="1"` ile (`display: none !important`) gizler; fiyat sonradan
+    gelirse özniteliği kaldırıp pirpir stiliyle (`2px solid #E3E8F2`, `24px`, gölgesiz) görünür kılar.
+  - **10.3 Masaüstü (≥ 1024 px, 1120 px) Kiwi'den ilham yerleşim:**
+    - *Sol sütun (`260 px`, yapışkan `sticky`, üstte `"Filtreler"` + yalnızca aktif filtre varken `"Filtreleri temizle"`):*
+      beyaz zemin, `#E3E8F2` ince çizgiler, Fredoka 600 `17px` başlıklar, Nunito `15px` seçenekler, `#2F5BD3` onay/radyo,
+      en az `44px` dokunma alanı. Aktarmalar, Bagaj ve Kalkış/varış saatleri açık; Havayolları, Havalimanları, Uçak tipleri,
+      Acenteler ve Sıralama kapalı başlar (`openDefaultFilterSections`).
+    - *Üst özetli sıralama sekmeleri:* `En ucuz`, `En hızlı`, `Sadece direkt` hapları kartlardan okunan gerçek fiyat ve
+      süreyi küçük satırda gösterir (`src/lib/live-widget-summary.ts`; gün içeren `1g 1s` / `1d 2h` süreleri doğru hesaplanır,
+      okunamayan değer uydurulmaz). `Bagaj dahil` hapı korunur; masaüstünde `"Filtreler"` hapı gizlenir.
+    - *İki bölmeli kart (≥ 641 px):* Saf CSS Grid ile solda gidiş/dönüş uçuş satırları (`cardRight`), sağda `2px solid #E3E8F2`
+      dikey çizgiyle ayrılmış fiyat + bagaj hapı + Seç sütunu (`cardLeft`, `232 px`). Sağda boş 3. sütun/reklam yok.
+  - **10.4 Telefon (< 1024 px):** Sol sütun `display: none`; özet alt satırları gizli (yalnızca etiket), `"Filtreler"`
+    (aktif varsa `"Filtreler (N)"`) widget'ın mobil filtre modalını açar; kartlar tek sütun, yatay taşma yok (`390 === 390`).
+  - **10.5 Küçük iyileştirmeler:** İlk kart gelene kadar küçük `<Pirpir />` + 7 dilde `results.liveLoading` ("Pırpır en
+    güncel fiyatlara bakıyor…"); mobilde aktif filtre sayacı + masaüstünde `"Filtreleri temizle"`; tek komutluk canlı
+    duman testi `scripts/verify-live.mjs` (`npm run verify:live`, `docs/GELISTIRME.md`'ye eklendi).
+  - **10.6 Testler & canlı doğrulama:**
+    - `npm run lint`, `npm run check:messages` (0 hata).
+    - `npm run e2e` iki derlemede de geçti: widget kimliksiz (**25/25**, 15.5 sn) ve `NEXT_PUBLIC_TP_WL_WIDGET_ID=25161`
+      ile (**25/25**, 13.6 sn); süre düzeltmesi sonrası tekrar (**25/25**, 13.1 sn).
+    - Canlı `npm run verify:live` (`https://www.flypirpir.nl`): **9/9 geçti** (TR+EN kartlar, `AMS0201ADB09011`,
+      TR `"Seçme bilet"` → EN `"Select ticket"`, `marker="812756…"`, `tpwgt.com/wl/redirect`, 0 JS/React hatası).
+    - Ekran görüntüleri: öncesi `docs/ekran/10-before-desktop-tr.png`, `docs/ekran/10-before-desktop-en.png`,
+      `docs/ekran/10-before-mobile-tr.png`; sonrası `docs/ekran/10-after-desktop-tr.png`, `docs/ekran/10-after-desktop-en.png`,
+      `docs/ekran/10-after-mobile-tr.png`.
+  - **WIDGET SINIRI maddeleri:**
+    1. Kart içi "İzmir'de 7 gece" ayırıcısı: widget gidiş ve dönüş satırlarını ayrı tarih nesneleri yerine yerelleştirilmiş
+       kısa metinlerle ("2 oca, Ct", "Sat, Jan 2") çizdiği için arada gece sayısı ayırıcısı eklenmedi (uydurma hesap riski yok).
+    2. Kart içi dikey hizalama: `FlightCard-module__cardLeft___` ve `cardRight___` saf CSS Grid ile sağ/sol yer değiştirdi;
+       Preact olayları ve mobil düzen korundu.
+    3. Canlı sonuç sayfasında Claude'un kaldırdığı "Fiyat trendleri" ve "Fiyat alarmı kur" geri eklenmedi.
