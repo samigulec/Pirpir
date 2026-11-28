@@ -555,6 +555,84 @@ Her hücre için: çakışma var mı, seçili durum doğru mu, uyarı doğru mu.
 
 ---
 
+## 12. Sekizinci tur (Gemini) — Claude'un canlı denemesinden çıkan sorunlar
+
+Claude, canlı sitede (`https://www.flypirpir.nl`) üç senaryoyu denedi:
+- TR, masaüstü, AMS → AYT, 11–17 Ara, 1 kontrol edilen bagaj;
+- EN, telefon 360 px, AMS → IST, 15–22 Oca, 2 yetişkin;
+- NL, masaüstü, tek yön AMS → ADB, 20 Ara.
+
+Tarih, dil, para birimi ve bagaj eşitlemesi doğru çalışıyor. Aşağıdakiler düzeltilecek.
+
+**KULLANICI KARARI — DEĞİŞTİRME:** Sıralama varsayılanı **"En iyi"** kalır. Kullanıcı, direkt uçuşla en ucuzun ilk iki
+sırada gelmesini çok beğendi. Varsayılanı "En ucuz"a çevirme. `enhanceShadow`'un en ucuza göre yeniden sıralaması
+"En iyi" sekmesinde widget'ın kendi sırasını bozmamalı; şu anki davranışı koru ve testle sabitle.
+
+Kurallar (bölüm 1, 2, 4), 10. ve 11. turdaki ilkeler aynen geçerli. Önce/sonra ekran görüntüleri: `docs/ekran/12-*.png`.
+`npm run e2e` iki derlemede de geçmeli. `npm run verify:live` canlıda geçmeli.
+
+### 12.1 Çok aktarmalı uçuşta havalimanı kodları üst üste biniyor
+NL, AMS → ADB tek yön, LOT + Ajet kartı (AMS → WAW → TIA → SAW → ADB, "Reistijd: 2d"): rota çizgisinin altındaki kodlar
+"SAW" ile "ADB" çakışıp "SAWDB" gibi okunuyor. 3 aktarmalı uçuşlarda kodlar birbirine değmesin. Gerekirse ara kodları
+küçült, satırı iki satıra böl ya da yalnızca uç kodları göster ve aktarma sayısını yaz. 2 ve 3 aktarmalı kartlarla sahte
+gölge kökte test et.
+
+### 12.2 Telefonda (360–390 px) kart satırı sıkışık
+EN, 360 px, AMS → IST: "03:55 pm" · "Direct flight 3h 30min" · "09:25 pm" birbirine değiyor, sağdaki saat kenara dayanıyor.
+12 saatlik biçimde ("pm") daha da sıkışıyor. Telefonda saat satırı rahat okunsun:
+- saatler biraz küçülebilir;
+- "Direct flight" ile süre alt satıra inebilir;
+- kenarlarda en az 12 px boşluk kalsın.
+360, 375 ve 390 px'te, TR (24 saat) ve EN (12 saat) ile dene.
+
+### 12.3 Tarih şeridindeki fiyat kartlarla uyuşmuyor
+Kullanıcının NL ekran görüntüsü: şeritte "Dec, 1 · €110" seçili, ama o günün en ucuz kartı €129 ("The only direct flight").
+Diğer günler "–". Şerit fiyatı widget'ın kendi önbelleğinden geliyor olabilir. Önce nedenini bul:
+- €110 hangi uçuşun fiyatı (bagaj, kişi sayısı, aktarma filtresi farkı)?
+- Seçili gün için gösterilen fiyat listede var mı?
+Sonra düzelt:
+- seçili gün hücresi kartlardaki en düşük fiyatla eşleşsin, ya da
+- şerit fiyatlarının "yaklaşık" olduğu kısa bir notla belirtilsin (7 dil).
+Uydurma fiyat yazma.
+
+### 12.4 Sekme özetleri hiç görünmüyor
+"En iyi / En ucuz / En hızlı" sekmelerinin altındaki fiyat · süre özeti canlıda üç senaryonun hiçbirinde görünmedi. Liste
+tam yüklenmediği için gizleniyor; pratikte hep gizli. İki yoldan birini seç ve gerekçesini günlüğe yaz:
+- (a) widget'ın kendi verisinden (ör. "Aktarmalar" bölümündeki en düşük fiyatlar ya da widget'ın sıralama sonucu) güvenilir
+  bir özet çıkar;
+- (b) özeti tamamen kaldır, sekmeler sade kalsın.
+Yanlış özet göstermektense hiç göstermemek daha iyi.
+
+### 12.5 Bagaj seçiliyken sol sütun fiyatları bagajsız
+TR, bagaj 1: kartlar bagajlı fiyat gösteriyor (€276, €294…), ama sol "Aktarmalar" bölümünde "Aktarmasız €187, 1 aktarma
+€187" bagajsız fiyatlar. Kullanıcı ikisini karşılaştırınca kafası karışır. Ya bu fiyatları bagaj seçiliyken gizle, ya da
+yanlarına "bagajsız" notu ekle (7 dil). Widget'ın bu fiyatları bagajlı vermesi mümkünse onu kullan.
+
+### 12.6 Birden çok yolcu: fiyat kişi başı mı, toplam mı?
+EN, 2 yetişkin: kartta "€355". Widget'ın bu fiyatı kişi başı mı toplam mı verdiğini canlıda doğrula (satıcı sayfasındaki
+toplamla karşılaştır). Sonra kartın fiyatının altına küçük bir not ekle (7 dil): "2 kişi toplam" ya da "kişi başı". Tek
+yolcuda not gerekmez.
+
+### 12.7 Widget'ın İngilizce / bozuk metinleri (bilgi + mümkünse)
+NL sayfada "The only direct flight", "Cheapest", "Cheapest with a convenient layover", "May be of interest",
+"Baggage +€21", "Show more options" İngilizce. TR'de "Seçme bilet" ("Bileti seç" olmalı), "1 konaklama" ("1 aktarma"
+olmalı). Bunlar widget'ın kendi çevirisi.
+- Bizim stilde **en sık görülen birkaç metni** (rozetler, Seç butonu, "Daha fazla") gölge kökte metin düğümünü değiştirmeden,
+  CSS ile gizleyip yerine kendi 7 dil metnimizi göstermek mümkünse yap. Örnek: `::after` ile içerik ya da yanına küçük bir
+  `span`. Widget'ın tıklama/satın alma akışı bozulmamalı.
+- Mümkün değilse bunu "WIDGET SINIRI" diye yaz ve Travelpayouts'a iletilecek kısa bir hata bildirimi taslağı hazırla:
+  `docs/travelpayouts-ceviri.md`, bozuk metinler ve doğru karşılıkları. Kullanıcı bunu kendisi gönderir.
+
+### 12.8 Küçük
+Corendon (CD) logosu küçük boyutta sarı daire gibi görünüyor. Logo widget'ın, dokunma. Yalnızca logonun yanında havayolu
+adı gösterilebiliyorsa (çok havayollu kartlarda) bunu dene; gösterilemiyorsa bırak.
+
+### 12.9 Teslim
+İş günlüğüne her madde için: neden, ne yapıldı, önce/sonra ekran görüntüsü, "WIDGET SINIRI" notları. Claude kontrol edecek.
+Bir maddeyi çözemezsen "CLAUDE'A" diye yaz ve nerede takıldığını açıkla; Claude devralacak.
+
+---
+
 ## İş günlüğü
 
 - [hazırlık] Claude — White Label kodu (`NEXT_PUBLIC_TP_WL_HOST`), Travelpayouts sağlayıcısı, logolar, tazelik etiketi,
