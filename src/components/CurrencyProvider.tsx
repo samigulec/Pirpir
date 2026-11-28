@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useLocale } from "next-intl";
 import { INTL_LOCALE, isLocale } from "@/i18n/config";
 import { MARKET_COOKIE, MARKET_GUESS_COOKIE, isMarketId, marketById, type MarketId } from "@/config/markets";
@@ -104,11 +104,32 @@ export function CurrencyProvider({ children, rates = RATES }: { children: React.
     [cur, setCur, rates, market, setMarket, intl],
   );
 
-  return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
+  // Sunucu her zaman TRY ile çizer. Akışla sonradan gelen (Suspense) bölümler, sağlayıcı seçili para birimine geçtikten
+  // sonra hidrate olabilir; o anda sunucu metniyle aynı çizim gerekir (yoksa React #418). Bkz. useCurrency.
+  const serverValue = useMemo<CurrencyContextValue>(
+    () => ({ ...value, cur: "TRY", fmt: (n) => formatPrice(n, "TRY", intl, rates), fmtShort: (n) => formatShort(n, "TRY", intl, rates) }),
+    [value, intl, rates],
+  );
+
+  return (
+    <CurrencyContext.Provider value={value}>
+      <ServerCurrencyContext.Provider value={serverValue}>{children}</ServerCurrencyContext.Provider>
+    </CurrencyContext.Provider>
+  );
 }
 
+const ServerCurrencyContext = createContext<CurrencyContextValue | null>(null);
+const noopSubscribe = () => () => {};
+
+/**
+ * Hidrasyon sırasında sunucunun çizdiği TRY değeri, hemen ardından seçili para birimi döner.
+ * (`useSyncExternalStore`: hidrasyonda sunucu anlık görüntüsü `false`, sonra istemci `true` → bileşen yeniden çizilir.)
+ * Uyarıyı `suppressHydrationWarning` ile susturmak yetmez: React sunucu metnini bırakır, fiyat ₺ kalır.
+ */
 export function useCurrency(): CurrencyContextValue {
   const ctx = useContext(CurrencyContext);
+  const server = useContext(ServerCurrencyContext);
+  const hydrated = useSyncExternalStore(noopSubscribe, () => true, () => false);
   if (!ctx) throw new Error("useCurrency, CurrencyProvider içinde kullanılmalı");
-  return ctx;
+  return hydrated || !server ? ctx : server;
 }

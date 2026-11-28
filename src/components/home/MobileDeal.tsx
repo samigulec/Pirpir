@@ -18,7 +18,7 @@ export function MobileDeal({ deal, from }: { deal: Deal | null; from: string[] }
       <Bulut aria-label={tc("bulut")} bold highlights={false} width={64} height={44} className="flex-none" />
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="font-display text-[17px] font-semibold leading-[1.25]">{t("title")}</span>
-        <span suppressHydrationWarning className="text-sm font-bold text-muted">{deal ? t.rich("price", { price: () => fmt(deal.price) }) : t("noPrice")}</span>
+        <span className="text-sm font-bold text-muted">{deal ? t.rich("price", { price: () => fmt(deal.price) }) : t("noPrice")}</span>
       </div>
       <Link
         href={searchHref({ from, to: "city:ROM", ...(deal && { date: deal.date, returnDate: deal.returnDate }) })}
