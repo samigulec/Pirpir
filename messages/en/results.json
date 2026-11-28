@@ -250,5 +250,7 @@
   "liveTitle": "Live flights",
   "liveText": "Current flights and prices for your dates. You book with the seller you choose.",
   "liveBaggage": "Baggage included",
-  "liveLoading": "Pırpır is checking the latest live prices…"
+  "liveLoading": "Pırpır is checking the latest live prices…",
+  "liveCabinNote": "Cabin bag rules are shown at the seller.",
+  "liveRelaxed": "No flights match all your filters. We relaxed some filters to show nearby options — connecting flights may be included."
 }

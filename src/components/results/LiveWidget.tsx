@@ -1,20 +1,35 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { preconnect, preloadModule } from "react-dom";
 import { useLocale, useTranslations } from "next-intl";
 import { readInitial as readInitialCurrency, useCurrency } from "../CurrencyProvider";
 import { Pirpir } from "../characters";
+import { CabinBagIcon, CheckedBagIcon } from "./BagIcons";
 import { useRouter } from "@/i18n/navigation";
 import { liveWidgetSrc } from "@/config/affiliate";
-import { readWidgetBags, saveWidgetBags } from "@/lib/live-widget-bags";
+import {
+  normalizeWidgetBags,
+  readWidgetBags,
+  saveWidgetBags,
+  subscribeWidgetBags,
+  type WidgetBags,
+} from "@/lib/live-widget-bags";
 import { computeTabSummaries, readCardMetrics, type WidgetTabSummaries } from "@/lib/live-widget-summary";
 import { cleanWidgetUrl, syncWidgetCookies, widgetSyncQuery } from "@/lib/live-widget-url";
 import { aviasalesRoute, parseAviasalesRoute } from "@/lib/outbound";
-import type { MultiQuery } from "@/lib/search";
+import { MAX_SEARCH_BAGS, type MultiQuery } from "@/lib/search";
 
 const SCRIPT_ID = "tpwl-main";
 const STYLE_ID = "pirpir-tpwl";
+
+type SortMode = "best" | "cheap" | "fast";
+
+const SORT_INDEX: Record<SortMode, number> = {
+  best: 0,
+  cheap: 1,
+  fast: 5,
+};
 
 type W = typeof window & {
   __tpwlBox?: HTMLElement | null;
@@ -32,16 +47,18 @@ const widgetCurFor = (c: string) => (WIDGET_CURRENCIES.includes(c) ? c : "EUR");
 
 /**
  * Widget kartlarını ve sol filtre sütununu açık gölge DOM'a (shadow root) çizer.
- * 10. tur düzeni: masaüstünde (>= 1024 px) Kiwi yerleşiminden ilham alan iki sütun (solda 260 px yapışkan filtreler,
- * sağda iki bölmeli pirpir kartları — sol uçuşlar, sağ fiyat+Seç); telefonda (< 1024 px) tek sütun + mobil filtre modalı.
- * Yalnızca kararlı sınıf ön ekleri (`-module__ad___`) hedeflenir.
+ * 11. tur düzeni:
+ * - Kiwi yerleşimi: üstte tek parça sıralama sekme çubuğu (dışarıda), solda 260 px filtre sütunu (iç kaydırma yok),
+ *   sağda çakışmayan tarih şeridi + iki bölmeli pirpir kartları;
+ * - Tekrar eden Popüler filtre çipleri, widget'ın Bagaj ve Sıralama bölümleri ile İngilizce yumuşak filtre uyarısı
+ *   görünmez yapılır (programatik erişim için DOM'da kalır).
  */
 const SHADOW_CSS = `
 *, *::before, *::after { box-sizing: border-box; }
 :host { display: block; width: 100%; max-width: 100%; color: #1e2a44; font-family: var(--font-nunito), system-ui, sans-serif; }
 button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #2f5bd3 !important; outline-offset: 2px !important; }
 
-/* Varsayılan (mobil / tablet < 1024 px): tek sütun, sol filtre gizli (display:none) */
+/* Varsayılan (mobil / tablet < 1024 px): tek sütun, sol filtre varsayılan gizli (data-filters="open" ile açılır) */
 [class*="TicketsWidget-module__root___"] {
   display: block !important;
   width: 100% !important;
@@ -57,14 +74,22 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   padding: 0 !important;
   gap: 16px !important;
 }
-[class*="FlightFilters-module__filerContainer___"] { display: none !important; }
+[class*="FlightFilters-module__filerContainer___"] {
+  display: none !important;
+  position: static !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
 :host([data-filters="open"]) [class*="FlightFilters-module__filerContainer___"] {
   display: block !important;
   width: 100% !important;
   margin: 0 0 20px 0 !important;
+  position: static !important;
+  max-height: none !important;
+  overflow: visible !important;
 }
 
-/* 10.3 Masaüstü (>= 1024 px): 1120 px içinde 260 px yapışkan sol filtre + sağda sonuç kartları */
+/* 11.4 Masaüstü (>= 1024 px): 1120 px içinde 260 px sol filtre (iç kaydırmasız) + sağda sonuç kartları */
 @media (min-width: 1024px) {
   [class*="TicketsWidget-module__root___"] {
     display: grid !important;
@@ -76,14 +101,12 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
     display: block !important;
     grid-column: 1 !important;
     grid-row: 1 / span 12 !important;
-    position: sticky !important;
-    top: 16px !important;
-    max-height: calc(100vh - 32px) !important;
-    overflow-y: auto !important;
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
     width: 260px !important;
-    margin: 0 !important;
+    margin: var(--pirpir-bags-offset, 0px) 0 0 0 !important;
     padding: 0 !important;
-    scrollbar-width: thin;
   }
   [class*="TicketsWidget-module__progressBar___"],
   [class*="TicketsWidget-module__wrapper___"],
@@ -105,13 +128,15 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   border: 2px solid #e3e8f2 !important;
   border-radius: 24px !important;
   box-shadow: none !important;
+  overflow: visible !important;
 }
 [class*="FlightFiltersContent-module__root___"] > * {
   border-bottom: 1px solid #e3e8f2 !important;
   padding: 10px 0 !important;
   margin: 0 !important;
 }
-[class*="FlightFiltersContent-module__root___"] > *:last-child {
+[class*="FlightFiltersContent-module__root___"] > *:last-child,
+[class*="FlightFiltersContent-module__root___"] > [data-pirpir-last-visible="1"] {
   border-bottom: 0 !important;
 }
 [class*="FlightFiltersContent-module__filterHeader___"],
@@ -146,31 +171,123 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   font-size: 13px !important;
 }
 
-/* 10.2 Boş tarih şeridi (fiyat yerine "-" veya ikon varsa) tamamen gizlenir; fiyat gelince görünür */
+/* 11.4 Tarih şeridi (FlightMatrix): negatif üst kenar boşluğu (-20px) sıfırlanır, kesik hücre ve İngilizce Show kalkar */
 [class*="FlightMatrixDesktop-module__root___"][data-pirpir-empty="1"],
 [class*="FlightMatrixMobile-module__flightMatrixMobile___"][data-pirpir-empty="1"] {
   display: none !important;
 }
-[class*="FlightMatrixDesktop-module__root___"],
-[class*="FlightMatrixMobile-module__flightMatrixMobile___"] {
+[class*="FlightMatrixDesktop-module__root___"] {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 0 16px 0 !important;
+  padding: 14px 16px !important;
   border: 2px solid #e3e8f2 !important;
   border-radius: 24px !important;
   background: #ffffff !important;
   box-shadow: none !important;
-  margin-bottom: 16px !important;
+  overflow: visible !important;
+}
+[class*="FlightMatrixMobile-module__flightMatrixMobile___"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 0 16px 0 !important;
+  border: 2px solid #e3e8f2 !important;
+  border-radius: 20px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  overflow-x: auto !important;
+}
+[class*="FlightMatrixDesktop-module__flightMatrixButton___"] {
+  width: auto !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  font-family: var(--font-fredoka), var(--font-baloo), sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  color: #1e2a44 !important;
+  gap: 8px !important;
+}
+[class*="FlightMatrixDesktop-module__dateCellList___"] {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(92px, 1fr)) !important;
+  gap: 6px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  padding-bottom: 2px !important;
+}
+[class*="FlightMatrixDesktop-module__dateCell___"] {
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  padding: 10px 6px !important;
+  margin: 0 !important;
+  border: 1px solid #e3e8f2 !important;
+  border-radius: 14px !important;
+  background: #f5f8fd !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  text-align: center !important;
+}
+[class*="FlightMatrixDesktop-module__dateCell___"]:hover {
+  border-color: #2f5bd3 !important;
 }
 [class*="FlightMatrixDesktop-module__dateCellCurrent___"] {
   background: #eaf3ff !important;
+  border: 2px solid #2f5bd3 !important;
   color: #1e2a44 !important;
-  border-radius: 16px !important;
+  border-radius: 14px !important;
+}
+[class*="FlightMatrixDesktop-module__dateCellPrice___"] {
+  font-family: var(--font-fredoka), var(--font-baloo), sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  color: #1e2a44 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 20px !important;
+}
+[class*="FlightMatrixDesktop-module__dateCellPrice___"][data-pirpir-noprice="1"]::after {
+  content: "—";
+  color: #56607a;
+  font-weight: 700;
+}
+[class*="FlightMatrixDesktop-module__dateCellDay___"] {
+  font-family: var(--font-nunito), system-ui, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #56607a !important;
+  white-space: nowrap !important;
 }
 
-/* Gürültü öğeleri tamamen gizlenir (display:none; opacity:0 kullanılmaz) */
+/* 11.1–11.5 Çift kontroller, İngilizce uyarı, Show düğmesi, kırık logolar ve gürültü gizlenir (DOM'da kalır) */
+[data-pirpir-hide="1"],
+[class*="BaggageFilter-module__root___"],
+[data-testid="expandable-sort-filter"],
+[data-testid="soft-tickets-notice"],
+[class*="SoftTicketsNotice-module__root___"],
+[class*="FlightMatrixDesktop-module__buttonBox___"],
+[class*="FlightMatrixDesktop-module__noPriceIcon___"],
 [class*="FlightFiltersMobileMenu-module__root___"],
 [class*="FlightCard-module__share___"],
 [class*="FlightCard-module__cardTopRight___"],
 [class*="DirectFlights-module__root___"],
-[class*="DirectFlightsItem-module__"] { display: none !important; }
+[class*="DirectFlightsItem-module__"],
+[data-pirpir-broken-logo="1"] {
+  display: none !important;
+}
 
 /* Yükleme çubuğu: pirpir renkleri, 999px köşe */
 [class*="SearchProgressbar-module__searchProgressbar___"] {
@@ -381,19 +498,13 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 [class*="TicketsWidget-module__moreTickets___"]:hover { border-color: #2f5bd3 !important; }
 
-/* Filtre içi haplar ve iskelet kartlar */
-[class*="ClearableParameter-module__root___"] {
-  border-radius: 999px !important;
-  font-family: var(--font-fredoka), var(--font-baloo), sans-serif !important;
-  font-weight: 600 !important;
-  background: #f5f8fd !important;
+/* Filtre sıfırlama uyarısı ve iskelet kartlar */
+[class*="FlightFiltersReset-module__root___"] {
+  background: #fff4d6 !important;
+  border: 2px solid #e3e8f2 !important;
+  border-radius: 20px !important;
   color: #1e2a44 !important;
-  min-height: 40px !important;
-  padding: 6px 14px !important;
-}
-[class*="ClearableParameter-module__valueChanged___"] {
-  background: #1e2a44 !important;
-  color: #ffffff !important;
+  margin-bottom: 12px !important;
 }
 [class*="SkeletonCard-module__root___"] { border-radius: 28px !important; border: 2px solid #e3e8f2 !important; box-shadow: none !important; }
 
@@ -423,9 +534,6 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 `;
 
 const CARD = '[data-role="flight-card"]';
-const priceOf = (card: Element) =>
-  Number((card.querySelector('[data-testid^="flight-card-price"]')?.textContent ?? "").replace(/[^\d]/g, "")) || 1e9;
-
 const CHEAP_BADGE_RE = /en ucuz|cheapest|goedkoopst|günstigst|moins cher|más barato|più economico/i;
 
 function styleBadges(root: ShadowRoot) {
@@ -435,61 +543,120 @@ function styleBadges(root: ShadowRoot) {
   });
 }
 
-/** 10.2 Tarih şeridi (FlightMatrix) hücrelerinde hiç fiyat rakamı yoksa gizler; fiyat gelince gösterir. */
+/** 11.4 Tarih şeridi: fiyatsız hücrelerde büyüteci "—" ile değiştirir; tüm hücreler boşsa şeridi gizler. */
 function syncMatrixVisibility(root: ShadowRoot) {
   const boxes = root.querySelectorAll<HTMLElement>(
     '[class*="FlightMatrixDesktop-module__root___"], [class*="FlightMatrixMobile-module__flightMatrixMobile___"]',
   );
   boxes.forEach((box) => {
-    const cells = [...box.querySelectorAll('[class*="dateCellPrice___"]')];
-    const hasPrice = cells.some((c) => /\d/.test(c.textContent ?? ""));
+    const cells = [...box.querySelectorAll<HTMLElement>('[class*="dateCellPrice___"]')];
+    let hasPrice = false;
+    for (const c of cells) {
+      const hasDigit = /\d/.test(c.textContent ?? "");
+      if (hasDigit) {
+        hasPrice = true;
+        c.removeAttribute("data-pirpir-noprice");
+      } else {
+        c.setAttribute("data-pirpir-noprice", "1");
+      }
+    }
     if (hasPrice) box.removeAttribute("data-pirpir-empty");
     else box.setAttribute("data-pirpir-empty", "1");
   });
 }
 
+/** 11.1 Çift kontrol oluşturan Popüler filtreler kutusunu gizler ve son görünür bölümün alt çizgisini kaldırır. */
+function hideDuplicateFilterBlocks(root: ShadowRoot) {
+  const panel = root.querySelector<HTMLElement>('[class*="FlightFiltersContent-module__root___"]');
+  if (!panel) return;
+  const popBody = panel.querySelector<HTMLElement>('[class*="Popular-module__body___"]');
+  const popWrap = popBody?.parentElement;
+  if (popWrap && popWrap.parentElement === panel && popWrap.dataset.pirpirHide !== "1") {
+    popWrap.dataset.pirpirHide = "1";
+  }
+
+  const children = [...panel.children].filter((el): el is HTMLElement => el instanceof HTMLElement);
+  let lastVisible: HTMLElement | null = null;
+  for (const child of children) {
+    child.removeAttribute("data-pirpir-last-visible");
+    const cls = child.className?.toString?.() ?? "";
+    const tid = child.getAttribute("data-testid") ?? "";
+    const hidden =
+      child.dataset.pirpirHide === "1" ||
+      tid === "expandable-sort-filter" ||
+      /BaggageFilter-module__root___/.test(cls);
+    if (!hidden) lastVisible = child;
+  }
+  if (lastVisible) lastVisible.dataset.pirpirLastVisible = "1";
+}
+
+/** 11.5 Kırık / yüklenemeyen havayolu logolarını gizler (özel logo çizilmez). */
+function fixAirlineLogos(root: ShadowRoot) {
+  root.querySelectorAll<HTMLImageElement>('[data-role="flight-card-air-company"] img').forEach((img) => {
+    const target = img.closest("picture") ?? img;
+    if (img.complete && img.naturalWidth === 0) {
+      target.setAttribute("data-pirpir-broken-logo", "1");
+    }
+    if (!img.dataset.pirpirLogoBound) {
+      img.dataset.pirpirLogoBound = "1";
+      img.addEventListener("error", () => {
+        target.setAttribute("data-pirpir-broken-logo", "1");
+      });
+    }
+  });
+}
+
 /**
- * 10.3 Masaüstünde Bagaj, Aktarmalar ve Kalkış/varış saatleri açık başlasın;
- * Havayolları, Havalimanları, Uçak tipleri, Acenteler ve Sıralama kapalı kalsın.
+ * 11.4 Sol sütunda yalnızca Aktarmalar ve Kalkış/varış saatleri açık başlasın;
+ * Havayolları, Havalimanları, Uçak tipleri, Acenteler ve Seyahat süresi kapalı kalsın.
+ * Gizli Sıralama bölümü de programatik sekme geçişi hızlı olsun diye bir kez açılır.
  */
 function openDefaultFilterSections(root: ShadowRoot): boolean {
   const panel = root.querySelector<HTMLElement>('[class*="FlightFiltersContent-module__root___"]');
   if (!panel) return false;
   const children = [...panel.children].filter((el): el is HTMLElement => el instanceof HTMLElement);
   if (children.length < 2) return false;
-  let openedAny = false;
   for (const child of children) {
     const tid = child.getAttribute("data-testid") ?? "";
     const cls = child.className?.toString?.() ?? "";
-    // Kapalı kalması gereken bölümler
+    if (tid === "expandable-sort-filter") {
+      if (!child.querySelector('input[type="radio"]')) {
+        child.querySelector<HTMLElement>("button")?.click();
+      }
+      continue;
+    }
     if (
+      child.dataset.pirpirHide === "1" ||
+      /BaggageFilter-module__root___/.test(cls) ||
       tid === "expandable-alliances-filter" ||
       tid === "expandable-connecting-airports-filter" ||
       tid.startsWith("expandable-airports-in-filter-") ||
       tid === "expandable-aircraft-types-filter" ||
-      tid === "expandable-sort-filter" ||
-      /Agencies-module|TravelTime-module|ConnectingAirports-module|AircraftTypes-module/.test(cls)
+      /Agencies-module|TravelTime-module|ConnectingAirports-module|AircraftTypes-module|Airlines-module|PriceFilter-module/.test(cls)
     ) {
       continue;
     }
     const header = child.querySelector<HTMLElement>('[class*="Expandable-module__header___"]');
     if (header && !/isOpen/.test(header.className)) {
       header.click();
-      openedAny = true;
     }
   }
-  return openedAny || children.length > 0;
+  return true;
 }
 
-/** 10.5 Aktif filtre sayısını okur (Popüler çipler + sol sütundaki işaretli onay kutuları/anahtarlar). */
-function countActiveFilters(root: ShadowRoot): number {
+/** 11.1 Aktif widget filtresi sayısını çift saymadan okur (Bagaj hariç — bagaj dış sayaçtan eklenir). */
+function countWidgetNonBagFilters(root: ShadowRoot): number {
   const panel = root.querySelector('[class*="FlightFiltersContent-module__root___"]');
   if (!panel) {
-    return root.querySelectorAll('[class*="FlightFiltersMobileMenu-module__list"] [class*="ClearableParameter-module__valueChanged___"]').length;
+    const mobileChips = [...root.querySelectorAll('[class*="FlightFiltersMobileMenu-module__list"] [class*="ClearableParameter-module__valueChanged___"]')];
+    return mobileChips.filter((_, idx) => idx > 0).length;
   }
-  const activeChips = panel.querySelectorAll('[class*="Popular-module__body___"] [class*="ClearableParameter-module__valueChanged___"]').length;
-  const checkedInputs = panel.querySelectorAll('input[type="checkbox"]:checked').length;
-  return activeChips + checkedInputs;
+  let count = 0;
+  panel.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked').forEach((inp) => {
+    if (inp.closest('[class*="BaggageFilter-module__root___"]')) return;
+    count++;
+  });
+  return count;
 }
 
 const isBaggageActive = (el: HTMLElement) => /valueChanged/.test(el.className);
@@ -501,14 +668,7 @@ function findBaggageChip(root: ShadowRoot): HTMLElement | null {
   );
 }
 
-function findDirectChip(root: ShadowRoot): HTMLElement | null {
-  const popular = root.querySelectorAll<HTMLElement>('[class*="Popular-module__body___"] [class*="ClearableParameter-module__root"]');
-  if (popular[1]) return popular[1];
-  const mobile = root.querySelectorAll<HTMLElement>('[class*="FlightFiltersMobileMenu-module__list"] [class*="ClearableParameter-module__root"]');
-  return mobile[1] ?? null;
-}
-
-/** Widget'ın kendi sıralama menüsündeki seçeneği tıklar (index 1 = Önce en ucuz, index 5 = Yolculuk süresi / En hızlı). */
+/** Widget'ın kendi sıralama menüsündeki seçeneği tıklar (0 = En iyi, 1 = En ucuz, 5 = En hızlı). */
 function clickWidgetSort(root: ShadowRoot, index: number): void {
   const pick = () => {
     const sec = root.querySelector<HTMLElement>('[data-testid="expandable-sort-filter"]');
@@ -528,75 +688,56 @@ function clickWidgetSort(root: ShadowRoot, index: number): void {
 
 type WidgetUiState = {
   ready: boolean;
-  direct: boolean;
-  baggage: boolean;
-  activeFilters: number;
+  widgetFilters: number;
+  softNotice: boolean;
+  hasMoreTickets: boolean;
   summaries: WidgetTabSummaries;
 };
 
 type EnhanceController = {
-  setSort: (mode: "cheap" | "fast") => void;
-  toggleDirect: () => void;
-  toggleBaggage: (route: string) => void;
-  clearFilters: (route: string) => void;
-  openMobileFilters: () => boolean;
+  setSort: (mode: SortMode) => void;
+  setBaggage: (wantOn: boolean) => boolean;
+  clearFilters: () => void;
 };
 
 /**
- * Gölge köke pirpir stilini ekler, rozetleri boyar, boş tarih şeridini gizler, kartları en ucuzdan sıralar
- * ve üstteki özetli sekmeler ile aktif filtre sayacını widget'ın gerçek Preact durumuyla eşitler.
+ * Gölge köke pirpir stilini ekler; çift filtreleri, kırık logoları ve İngilizce yumuşak filtre uyarısını yönetir;
+ * tarih şeridini temizler ve özet/durum bilgisini React üst katmanına aktarır.
  */
 function enhanceShadow(
   host: HTMLElement | null,
+  locale: string,
   onState: (s: WidgetUiState) => void,
   ctrlRef: React.MutableRefObject<EnhanceController | null>,
 ): () => void {
   if (!host) return () => {};
   let observer: MutationObserver | null = null;
-  let userSorted = false;
   let defaultSectionsOpened = false;
 
-  const sortCards = (root: ShadowRoot) => {
+  const processDom = (root: ShadowRoot) => {
     styleBadges(root);
     syncMatrixVisibility(root);
-    if (!defaultSectionsOpened && window.innerWidth >= 1024) {
+    hideDuplicateFilterBlocks(root);
+    fixAirlineLogos(root);
+    if (!defaultSectionsOpened) {
       if (openDefaultFilterSections(root)) defaultSectionsOpened = true;
-    }
-    if (userSorted) return;
-    const cards = [...root.querySelectorAll<HTMLElement>(CARD)];
-    if (!cards.length) return;
-    const byParent = new Map<HTMLElement, HTMLElement[]>();
-    for (const c of cards) {
-      const p = c.parentElement;
-      if (!p) continue;
-      const list = byParent.get(p);
-      if (list) list.push(c);
-      else byParent.set(p, [c]);
-    }
-    for (const [parent, group] of byParent) {
-      if (group.length < 2) continue;
-      if (getComputedStyle(parent).display !== "flex") {
-        parent.style.display = "flex";
-        parent.style.flexDirection = "column";
-      }
-      for (const c of group) c.style.order = String(priceOf(c));
-      for (const el of [...parent.children]) {
-        if (!el.matches(CARD)) (el as HTMLElement).style.order = "2000000000";
-      }
     }
   };
 
   const syncUi = (root: ShadowRoot) => {
-    const bag = findBaggageChip(root);
-    const dir = findDirectChip(root);
     const cards = [...root.querySelectorAll(CARD)];
     const ready = cards.length > 0;
-    const summaries = ready ? computeTabSummaries(cards.map(readCardMetrics)) : {};
+    const softNotice = root.querySelector('[data-testid="soft-tickets-notice"], [class*="SoftTicketsNotice-module__root___"]') !== null;
+    const hasMoreTickets = root.querySelector('[class*="TicketsWidget-module__moreTickets___"]') !== null;
+    // 11.0 #9: Yalnızca tüm kartlar DOM'dayken ve filtreler gevşetilmemişken özet gösterilir; kısmi listeden tahmin yapılmaz
+    const summaries = ready && !hasMoreTickets && !softNotice
+      ? computeTabSummaries(cards.map((c) => readCardMetrics(c, locale)), locale)
+      : {};
     onState({
       ready,
-      direct: dir ? isBaggageActive(dir) : false,
-      baggage: bag ? isBaggageActive(bag) : false,
-      activeFilters: countActiveFilters(root),
+      widgetFilters: countWidgetNonBagFilters(root),
+      softNotice,
+      hasMoreTickets,
       summaries,
     });
   };
@@ -613,74 +754,49 @@ function enhanceShadow(
 
     ctrlRef.current = {
       setSort: (mode) => {
-        if (mode === "cheap") {
-          userSorted = false;
-          clickWidgetSort(root, 1);
-          sortCards(root);
-        } else {
-          userSorted = true;
-          root.querySelectorAll<HTMLElement>(CARD).forEach((c) => (c.style.order = ""));
-          clickWidgetSort(root, 5);
-        }
+        clickWidgetSort(root, SORT_INDEX[mode]);
       },
-      toggleDirect: () => {
-        findDirectChip(root)?.click();
-        window.setTimeout(() => syncUi(root), 60);
-      },
-      toggleBaggage: (route) => {
+      setBaggage: (wantOn) => {
         const chip = findBaggageChip(root);
-        if (!chip) return;
-        const willBeOn = !isBaggageActive(chip);
-        chip.click();
-        const prev = readWidgetBags(route);
-        saveWidgetBags(route, { cabin: prev?.cabin ?? 0, checked: willBeOn ? Math.max(1, prev?.checked ?? 1) : 0 });
-        window.setTimeout(() => syncUi(root), 60);
+        if (!chip) return false;
+        if (isBaggageActive(chip) !== wantOn) chip.click();
+        return true;
       },
-      clearFilters: (route) => {
+      clearFilters: () => {
+        const bag = findBaggageChip(root);
+        if (bag && isBaggageActive(bag)) bag.click();
         const panel = root.querySelector('[class*="FlightFiltersContent-module__root___"]');
         if (panel) {
-          panel
-            .querySelectorAll<HTMLElement>('[class*="Popular-module__body___"] [class*="ClearableParameter-module__valueChanged___"]')
-            .forEach((chip) => chip.click());
-          panel.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked').forEach((inp) => inp.click());
+          panel.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked').forEach((inp) => {
+            if (inp.closest('[class*="BaggageFilter-module__root___"]')) return;
+            inp.click();
+          });
+          // Preact DOM'u güncelledikten sonra hâlâ aktif kalan Popüler çip varsa temizle (çift tıklama önlenir)
+          window.setTimeout(() => {
+            panel
+              .querySelectorAll<HTMLElement>('[class*="Popular-module__body___"] [class*="ClearableParameter-module__valueChanged___"]')
+              .forEach((chip) => chip.click());
+            window.setTimeout(() => syncUi(root), 80);
+          }, 80);
         } else {
           root
             .querySelectorAll<HTMLElement>('[class*="FlightFiltersMobileMenu-module__list"] [class*="ClearableParameter-module__valueChanged___"]')
             .forEach((chip) => chip.click());
+          window.setTimeout(() => syncUi(root), 80);
         }
-        saveWidgetBags(route, null);
-        window.setTimeout(() => syncUi(root), 80);
-      },
-      openMobileFilters: () => {
-        const btn = root.querySelector<HTMLElement>('[class*="FlightFiltersMobileMenu-module__list"] > button:last-child');
-        if (!btn) return false;
-        btn.click();
-        return true;
       },
     };
-
-    root.addEventListener(
-      "click",
-      (e) => {
-        const path = e.composedPath() as Element[];
-        if (path.some((n) => n instanceof Element && /Radiolist-module/.test(n.className?.toString?.() ?? ""))) {
-          userSorted = true;
-          root.querySelectorAll<HTMLElement>(CARD).forEach((c) => (c.style.order = ""));
-        }
-      },
-      true,
-    );
 
     let raf = 0;
     observer = new MutationObserver(() => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
-        sortCards(root);
+        processDom(root);
         syncUi(root);
       });
     });
     observer.observe(root, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["class", "checked"] });
-    sortCards(root);
+    processDom(root);
     syncUi(root);
   };
 
@@ -697,92 +813,79 @@ function enhanceShadow(
   };
 }
 
-/**
- * Arama kutusunda kontrol edilen bagaj seçildiyse (veya `sessionStorage`'da bu rota için kayıtlıysa)
- * widget'ın "Bagaj dahil" filtresini açar ve `valueChanged` sınıfıyla etkinleştiğini doğrular.
- */
-function applyBaggageFilter(host: HTMLElement | null, route: string, wantOn: boolean): () => void {
-  if (!host) return () => {};
-  let tries = 0;
-  let clicks = 0;
-  let userTouched = false;
-  let attachedRoot: ShadowRoot | null = null;
+/** 11.2 Kiwi tarzı bagaj kartı: masaüstünde sol sütunun en üstünde, telefonda Filtreler açılınca en üstte. */
+function BaggageCard({
+  bags,
+  onChange,
+  compact = false,
+}: {
+  bags: WidgetBags;
+  onChange: (next: WidgetBags) => void;
+  compact?: boolean;
+}) {
+  const t = useTranslations("results");
+  const btnCls = `${compact ? "h-9 w-9" : "h-11 w-11"} flex flex-none cursor-pointer items-center justify-center rounded-full border-2 border-solid border-primary bg-white font-display text-lg font-semibold leading-none text-primary disabled:cursor-not-allowed disabled:border-line disabled:text-muted focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary`;
 
-  const onUserClick = (e: Event) => {
-    if (!e.isTrusted) return;
-    const path = e.composedPath() as Element[];
-    const hit = path.some(
-      (n) =>
-        n instanceof HTMLElement &&
-        (n.getAttribute("data-testid") === "baggage-included-filter" ||
-          (n.matches('[class*="ClearableParameter-module__root"]') &&
-            !!n.closest('[class*="FlightFiltersMobileMenu-module__list"]') &&
-            n === n.closest('[class*="FlightFiltersMobileMenu-module__list"]')?.querySelector('[class*="ClearableParameter-module__root"]'))),
-    );
-    if (!hit) return;
-    userTouched = true;
-    window.setTimeout(() => {
-      const chip = attachedRoot ? findBaggageChip(attachedRoot) : null;
-      if (!chip) return;
-      const active = isBaggageActive(chip);
-      const prev = readWidgetBags(route);
-      saveWidgetBags(route, { cabin: prev?.cabin ?? 0, checked: active ? Math.max(1, prev?.checked ?? 1) : 0 });
-    }, 50);
-  };
+  const row = (
+    id: "cabin" | "checked",
+    label: string,
+    icon: React.ReactNode,
+    value: number,
+    max: number,
+  ) => (
+    <div className="flex items-center justify-between gap-2">
+      <span className="flex min-w-0 items-center gap-2 text-[15px] font-bold leading-snug text-ink">
+        <span className="flex-none">{icon}</span>
+        <span>{label}</span>
+      </span>
+      <span className="flex flex-none items-center gap-2">
+        <button
+          type="button"
+          data-testid={`bag-${id}-dec`}
+          aria-label={t("filters.remove", { label })}
+          disabled={value <= 0}
+          onClick={() => onChange({ ...bags, [id]: Math.max(0, value - 1) })}
+          className={btnCls}
+        >
+          −
+        </button>
+        <span data-testid={`bag-${id}-val`} aria-live="polite" className="w-5 text-center font-display text-lg font-semibold text-ink">
+          {value}
+        </span>
+        <button
+          type="button"
+          data-testid={`bag-${id}-inc`}
+          aria-label={t("filters.add", { label })}
+          disabled={value >= max}
+          onClick={() => onChange({ ...bags, [id]: Math.min(max, value + 1) })}
+          className={btnCls}
+        >
+          +
+        </button>
+      </span>
+    </div>
+  );
 
-  const attachListener = (root: ShadowRoot) => {
-    if (attachedRoot === root) return;
-    attachedRoot = root;
-    root.addEventListener("click", onUserClick, true);
-  };
-
-  const timer = window.setInterval(() => {
-    const root = host.shadowRoot;
-    if (!root) {
-      if (++tries > 240) window.clearInterval(timer);
-      return;
-    }
-    attachListener(root);
-    if (userTouched) {
-      window.clearInterval(timer);
-      return;
-    }
-    const chip = findBaggageChip(root);
-    if (chip && root.querySelector(CARD)) {
-      const active = isBaggageActive(chip);
-      if (wantOn) {
-        if (active) {
-          window.clearInterval(timer);
-          return;
-        }
-        if (clicks < 8 && tries % 2 === 0) {
-          chip.click();
-          clicks++;
-        }
-      } else {
-        if (!active) {
-          window.clearInterval(timer);
-          return;
-        }
-        if (clicks < 4) {
-          chip.click();
-          clicks++;
-        }
-      }
-    }
-    if (++tries > 240) window.clearInterval(timer);
-  }, 250);
-
-  return () => {
-    window.clearInterval(timer);
-    attachedRoot?.removeEventListener("click", onUserClick, true);
-  };
+  return (
+    <section
+      aria-label={t("filters.bagsTitle")}
+      data-testid={compact ? "live-baggage-desktop" : "live-baggage-mobile"}
+      className="flex flex-col gap-3 rounded-[24px] border-2 border-solid border-line bg-white px-[18px] py-4"
+    >
+      <h3 className="m-0 font-display text-[17px] font-semibold text-ink">{t("filters.bagsTitle")}</h3>
+      {row("cabin", t("filters.cabinBag"), <CabinBagIcon />, bags.cabin, MAX_SEARCH_BAGS.cabin)}
+      {row("checked", t("filters.checkedBag"), <CheckedBagIcon />, bags.checked, MAX_SEARCH_BAGS.checked)}
+      <p className="m-0 text-[13px] font-semibold leading-snug text-muted">{t("liveCabinNote")}</p>
+    </section>
+  );
 }
 
 /**
  * Canlı uçuşlar (Travelpayouts White Label, Widget türü): sonuç sayfasının ana listesi.
- * Masaüstünde (>= 1024 px, 1120 px genişlik): solda yapışkan 260 px filtre sütunu, sağda özetli sıralama sekmeleri +
- * iki bölmeli pirpir uçuş kartları. Telefonda (< 1024 px): üstte haplar + mobil filtre modalı + tek sütun kartlar.
+ * 11. tur Kiwi düzeni:
+ * - Üstte tek parça sıralama sekme çubuğu (En iyi / En ucuz / En hızlı — tek seçim, alt çizgili);
+ * - Masaüstünde (>= 1024 px): solda 260 px filtre sütunu (en üstte Bagaj sayaçları, altında widget filtreleri, iç kaydırmasız);
+ * - Telefonda (< 1024 px): üstte tek parça sekme çubuğu, altında "Filtreler (N)" düğmesi (açılınca en üstte Bagaj sayaçları + filtreler).
  */
 export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string | null }) {
   const t = useTranslations("results");
@@ -790,11 +893,20 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
   const locale = useLocale();
   const { cur } = useCurrency();
   const src = liveWidgetSrc(widgetId);
+  const gridWrapRef = useRef<HTMLDivElement>(null);
+  const bagsBoxRef = useRef<HTMLDivElement>(null);
   const box = useRef<HTMLDivElement>(null);
   const ctrlRef = useRef<EnhanceController | null>(null);
-  const [sortMode, setSortMode] = useState<"cheap" | "fast">("cheap");
+  const [sortMode, setSortMode] = useState<SortMode>("best");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [ui, setUi] = useState<WidgetUiState>({ ready: false, direct: false, baggage: false, activeFilters: 0, summaries: {} });
+  const [bags, setBags] = useState<WidgetBags>(() => normalizeWidgetBags(q.bags));
+  const [ui, setUi] = useState<WidgetUiState>({
+    ready: false,
+    widgetFilters: 0,
+    softNotice: false,
+    hasMoreTickets: false,
+    summaries: {},
+  });
 
   const route = aviasalesRoute({
     from: q.from[0],
@@ -807,19 +919,28 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
     cabin: q.cabin ?? "economy",
   });
 
+  // Widget betiği yükleme, URL temizliği ve dil/para birimi çerez eşitlemesi
   useEffect(() => {
     if (!src) return;
     const w = window as W;
     const sp = new URLSearchParams(window.location.search);
-    if (sp.has("from")) saveWidgetBags(route, q.bags ?? null);
+    if (sp.has("from")) {
+      const normalized = saveWidgetBags(route, q.bags ?? null);
+      setBags(normalized);
+    } else {
+      const saved = readWidgetBags(route);
+      if (saved) setBags(saved);
+    }
     const initialLang = widgetLangFor(locale);
     const initialCur = widgetCurFor(readInitialCurrency() ?? cur);
-    // 10.1 Widget dil/para birimi seçiminde `tpwl_locale` / `tpwl_currency` çerezlerini `defaultLanguage`'den önce okur;
-    // çerezler + URL `?language=&currency=` birlikte yazılarak önceki ziyaretin dili kesin olarak ezilir
     syncWidgetCookies(initialLang, initialCur);
     const clean = cleanWidgetUrl(window.location.href, route, { language: initialLang, currency: initialCur });
     if (document.getElementById(SCRIPT_ID)) {
-      if (w.__tpwlBox !== box.current || w.__tpwlRoute !== route) window.location.replace(clean);
+      if (w.__tpwlBox !== box.current || w.__tpwlRoute !== route) {
+        window.location.replace(clean);
+      } else if (sp.has("from") || !sp.has("flightSearch")) {
+        window.history.replaceState(window.history.state, "", clean);
+      }
       return;
     }
     if (window.location.href !== clean) {
@@ -856,7 +977,7 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
     }
   }, [src, locale, cur, route]);
 
-  // Widget içi tarih/rota değişiminde (`urlchange`) üst çubuğu eşitler; `adults` vb. geri eklenmez
+  // Widget içi tarih/rota değişiminde (`urlchange`) üst çubuğu ve bagajı eşitler; `adults` geri eklenmez
   useEffect(() => {
     if (!src) return;
     const onChange = () => {
@@ -875,8 +996,31 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
     return () => window.removeEventListener("urlchange", onChange);
   }, [src, router]);
 
-  useEffect(() => enhanceShadow(document.getElementById("tpwl-tickets"), setUi, ctrlRef), []);
+  // 11.2 Arama kutusu (`SearchForm`) ile çift yönlü bagaj eşitleme
+  useEffect(() => {
+    return subscribeWidgetBags(route, (next) => {
+      setBags((prev) => (prev.cabin === next.cabin && prev.checked === next.checked ? prev : next));
+    });
+  }, [route]);
 
+  // Gölge DOM gözlemcisi (aynı değerde gereksiz yeniden çizim önlenir)
+  const updateUi = useCallback((next: WidgetUiState) => {
+    setUi((prev) => {
+      if (
+        prev.ready === next.ready &&
+        prev.widgetFilters === next.widgetFilters &&
+        prev.softNotice === next.softNotice &&
+        prev.hasMoreTickets === next.hasMoreTickets &&
+        JSON.stringify(prev.summaries) === JSON.stringify(next.summaries)
+      ) {
+        return prev;
+      }
+      return next;
+    });
+  }, []);
+  useEffect(() => enhanceShadow(document.getElementById("tpwl-tickets"), locale, updateUi, ctrlRef), [locale, updateUi]);
+
+  // Mobil filtre aç/kapa özniteliği
   useEffect(() => {
     const el = document.getElementById("tpwl-tickets");
     if (!el) return;
@@ -884,50 +1028,109 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
     else el.removeAttribute("data-filters");
   }, [filtersOpen]);
 
-  const checked = q.bags?.checked ?? 0;
+  // 11.2 Kontrol edilen bagaj >= 1 ise widget'ın "Bagaj dahil" filtresi açılır, 0 ise kapanır
+  const wantBagOn = bags.checked > 0;
   useEffect(() => {
     if (!src) return;
-    const wantOn = checked > 0 || (readWidgetBags(route)?.checked ?? 0) > 0;
-    return applyBaggageFilter(document.getElementById("tpwl-tickets"), route, wantOn);
-  }, [src, checked, route]);
+    const host = document.getElementById("tpwl-tickets");
+    if (!host) return;
+    let tries = 0;
+    let clicks = 0;
+    const syncOnce = () => {
+      const root = host.shadowRoot;
+      if (!root) return false;
+      const chip = findBaggageChip(root);
+      if (!chip || !root.querySelector(CARD)) return false;
+      const active = isBaggageActive(chip);
+      if (active === wantBagOn) return true;
+      if (clicks < 8) {
+        chip.click();
+        clicks++;
+      }
+      return false;
+    };
+    if (syncOnce()) return;
+    const timer = window.setInterval(() => {
+      if (syncOnce() || ++tries > 240) window.clearInterval(timer);
+    }, 250);
+    return () => window.clearInterval(timer);
+  }, [src, wantBagOn, route]);
+
+  // 11.2 & 11.4 Masaüstünde sol sütundaki Bagaj kartı ile widget filtreleri arasında tam 16 px boşluk (sıfır çakışma)
+  const syncSidebarOffset = useCallback(() => {
+    const wrap = gridWrapRef.current;
+    const bagsBox = bagsBoxRef.current;
+    const tickets = document.getElementById("tpwl-tickets");
+    if (!wrap || !tickets) return;
+    if (window.innerWidth < 1024 || !bagsBox) {
+      tickets.style.setProperty("--pirpir-bags-offset", "0px");
+      wrap.style.minHeight = "";
+      return;
+    }
+    const bagsH = bagsBox.offsetHeight;
+    const ticketsTop = box.current ? box.current.offsetTop : 0;
+    const needed = Math.max(0, Math.ceil(bagsH + 16 - ticketsTop));
+    tickets.style.setProperty("--pirpir-bags-offset", `${needed}px`);
+    wrap.style.minHeight = `${bagsH + 24}px`;
+  }, []);
+
+  useEffect(() => {
+    syncSidebarOffset();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(syncSidebarOffset) : null;
+    if (ro) {
+      if (bagsBoxRef.current) ro.observe(bagsBoxRef.current);
+      if (gridWrapRef.current) ro.observe(gridWrapRef.current);
+    }
+    window.addEventListener("resize", syncSidebarOffset);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", syncSidebarOffset);
+    };
+  }, [syncSidebarOffset, ui.ready, ui.softNotice]);
 
   if (!src || q.from.length !== 1 || q.to.length !== 1) return null;
   preloadModule(src, { as: "script" });
   for (const host of ["https://tpwgt.com", "https://img.avs.io"]) preconnect(host, { crossOrigin: "anonymous" });
 
-  const pill = (active: boolean) =>
-    `flex min-h-[44px] cursor-pointer flex-col items-start justify-center rounded-pill border-0 px-4 py-2 text-left font-display text-[15px] font-semibold leading-tight transition-colors lg:rounded-[20px] lg:px-5 lg:py-[10px] lg:text-[17px] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary ${
-      active ? "bg-ink text-white" : "bg-field text-ink hover:bg-sky"
-    }`;
+  const handleBagsChange = (next: WidgetBags) => {
+    const normalized = saveWidgetBags(route, next);
+    setBags(normalized);
+    ctrlRef.current?.setBaggage(normalized.checked > 0);
+  };
 
-  const subText = (active: boolean) =>
-    `hidden font-sans text-[13px] font-bold leading-tight lg:block ${active ? "text-white/80" : "text-muted"}`;
+  const handleClearFilters = () => {
+    const empty = saveWidgetBags(route, null);
+    setBags(empty);
+    ctrlRef.current?.clearFilters();
+  };
+
+  const bagFilterCount = (bags.checked > 0 ? 1 : 0) + (bags.cabin > 0 ? 1 : 0);
+  const totalActiveFilters = ui.widgetFilters + bagFilterCount;
 
   const formatSummary = (s?: { priceText: string; durText?: string }) =>
     s ? [s.priceText, s.durText].filter(Boolean).join(" · ") : null;
 
-  const onToggleFilters = () => {
-    if (typeof window !== "undefined" && window.innerWidth < 1024 && ctrlRef.current?.openMobileFilters()) {
-      return;
-    }
-    setFiltersOpen((v) => !v);
-  };
+  const tabs: { id: SortMode; label: string; summary?: { priceText: string; durText?: string } }[] = [
+    { id: "best", label: t("sort.best"), summary: ui.summaries.best },
+    { id: "cheap", label: t("sort.cheap"), summary: ui.summaries.cheap },
+    { id: "fast", label: t("sort.fast"), summary: ui.summaries.fast },
+  ];
 
   return (
-    <section aria-labelledby="live-title" className="flex w-full flex-col gap-3">
+    <section aria-labelledby="live-title" className="flex w-full flex-col gap-4">
       <div className="flex flex-col gap-1">
         <h2 id="live-title" className="m-0 font-display text-[24px] font-bold text-ink">{t("liveTitle")}</h2>
         <p className="m-0 text-[15px] font-semibold text-muted">{t("liveText")}</p>
       </div>
 
-      {/* 10.3 Masaüstü (>= 1024 px): solda 260 px filtre başlığı + Temizle; sağda özetli sıralama sekmeleri */}
+      {/* 11.1 Üst satır: solda Filtreler başlığı + Temizle; sağda Kiwi tarzı tek parça sıralama sekme çubuğu */}
       <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:items-center lg:gap-6">
         <div className="hidden items-center justify-between px-1 lg:flex">
           <span className="font-display text-[18px] font-semibold text-ink">{t("filters.title")}</span>
-          {ui.activeFilters > 0 && (
+          {totalActiveFilters > 0 && (
             <button
               type="button"
-              onClick={() => ctrlRef.current?.clearFilters(route)}
+              onClick={handleClearFilters}
               className="min-h-[36px] cursor-pointer rounded-pill border-0 bg-transparent px-2 text-[14px] font-extrabold text-primary hover:underline focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-primary"
             >
               {t("filters.reset")}
@@ -935,95 +1138,136 @@ export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string |
           )}
         </div>
 
-        <div role="toolbar" aria-label={t("sortLabel")} className="flex flex-wrap items-stretch gap-2">
-          <button
-            type="button"
-            aria-pressed={sortMode === "cheap"}
-            onClick={() => {
-              setSortMode("cheap");
-              ctrlRef.current?.setSort("cheap");
-            }}
-            className={pill(sortMode === "cheap")}
-          >
-            <span>{t("sort.cheap")}</span>
-            {formatSummary(ui.summaries.cheap) && (
-              <span data-testid="tab-summary-cheap" className={subText(sortMode === "cheap")}>
-                {formatSummary(ui.summaries.cheap)}
-              </span>
-            )}
-          </button>
+        {/* Tek parça sıralama sekme çubuğu: tek seçim, alt çizgiyle vurgulu (#2F5BD3), hap görünümü yok */}
+        <div
+          role="tablist"
+          aria-label={t("sortLabel")}
+          className="grid w-full grid-cols-3 divide-x divide-line overflow-hidden rounded-[20px] border-2 border-solid border-line bg-white"
+        >
+          {tabs.map((tab) => {
+            const active = sortMode === tab.id;
+            const summaryText = formatSummary(tab.summary);
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => {
+                  setSortMode(tab.id);
+                  ctrlRef.current?.setSort(tab.id);
+                }}
+                className={`relative flex min-h-[52px] cursor-pointer flex-col items-center justify-center border-0 px-2 py-2.5 text-center font-display text-[15px] font-semibold leading-tight transition-colors lg:min-h-[56px] lg:px-4 lg:text-[17px] focus-visible:z-10 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-[-3px] focus-visible:outline-primary ${
+                  active ? "bg-white text-primary" : "bg-white text-ink hover:bg-field/70"
+                }`}
+              >
+                <span className="truncate max-w-full">{tab.label}</span>
+                {summaryText && (
+                  <span
+                    data-testid={`tab-summary-${tab.id}`}
+                    className={`hidden font-sans text-[13px] font-bold leading-tight lg:block ${active ? "text-primary/80" : "text-muted"}`}
+                  >
+                    {summaryText}
+                  </span>
+                )}
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none absolute inset-x-0 bottom-0 h-[3px] transition-colors ${active ? "bg-primary" : "bg-transparent"}`}
+                />
+              </button>
+            );
+          })}
+        </div>
 
-          <button
-            type="button"
-            aria-pressed={sortMode === "fast"}
-            onClick={() => {
-              setSortMode("fast");
-              ctrlRef.current?.setSort("fast");
-            }}
-            className={pill(sortMode === "fast")}
-          >
-            <span>{t("sort.fast")}</span>
-            {formatSummary(ui.summaries.fast) && (
-              <span data-testid="tab-summary-fast" className={subText(sortMode === "fast")}>
-                {formatSummary(ui.summaries.fast)}
-              </span>
-            )}
-          </button>
-
-          <button
-            type="button"
-            aria-pressed={ui.direct}
-            onClick={() => ctrlRef.current?.toggleDirect()}
-            className={pill(ui.direct)}
-          >
-            <span>{t("sort.direct")}</span>
-            {formatSummary(ui.summaries.direct) && (
-              <span data-testid="tab-summary-direct" className={subText(ui.direct)}>
-                {formatSummary(ui.summaries.direct)}
-              </span>
-            )}
-          </button>
-
-          <button
-            type="button"
-            aria-pressed={ui.baggage}
-            onClick={() => ctrlRef.current?.toggleBaggage(route)}
-            className={`${pill(ui.baggage)} lg:self-center lg:rounded-pill`}
-          >
-            <span>{t("liveBaggage")}</span>
-          </button>
-
-          {/* Mobilde (< 1024 px) filtre modalını açan hap (aktif filtre sayısıyla); masaüstünde filtreler solda açık */}
+        {/* 11.1 Mobilde (< 1024 px) sekme çubuğunun altında tek "Filtreler (N)" düğmesi */}
+        <div className="flex items-center justify-between gap-2 lg:hidden">
           <button
             type="button"
             aria-expanded={filtersOpen}
-            onClick={onToggleFilters}
-            className={`${pill(filtersOpen || ui.activeFilters > 0)} inline-flex flex-row items-center gap-2 lg:hidden`}
+            onClick={() => setFiltersOpen((v) => !v)}
+            className={`inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-2 rounded-pill border-2 border-solid px-5 py-2 font-display text-[15px] font-semibold transition-colors focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary ${
+              filtersOpen || totalActiveFilters > 0
+                ? "border-primary bg-sky text-primary"
+                : "border-line bg-white text-ink hover:border-primary"
+            }`}
           >
-            <span>{ui.activeFilters > 0 ? t("filters.active", { n: ui.activeFilters }) : t("filters.show")}</span>
+            <span>{totalActiveFilters > 0 ? t("filters.active", { n: totalActiveFilters }) : t("filters.show")}</span>
           </button>
+          {totalActiveFilters > 0 && (
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="min-h-[44px] cursor-pointer rounded-pill border-0 bg-transparent px-3 text-[14px] font-extrabold text-primary hover:underline focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-primary"
+            >
+              {t("filters.reset")}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* 10.5 İlk kart gelene kadar (4–6 sn) küçük Pırpır ve kısa durum metni */}
-      {!ui.ready && (
-        <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-6">
-          <div className="hidden lg:block" />
-          <div
-            role="status"
-            data-testid="live-loading-pirpir"
-            className="flex items-center gap-3 rounded-[20px] bg-sky px-4 py-3 text-[15px] font-bold text-ink"
-          >
-            <Pirpir aria-hidden width={52} height={36} className="flex-none" />
-            <span>{t("liveLoading")}</span>
-          </div>
+      {/* Ana içerik: solda Bagaj kartı + widget filtreleri; sağda durum uyarıları + tarih şeridi + uçuş kartları */}
+      <div ref={gridWrapRef} className="relative flex w-full flex-col gap-4">
+        {/* 11.2 Masaüstü sol sütun en üstü: Kiwi tarzı Bagaj sayaçları */}
+        <div ref={bagsBoxRef} className="hidden lg:block lg:absolute lg:left-0 lg:top-0 lg:z-10 lg:w-[260px]">
+          <BaggageCard bags={bags} onChange={handleBagsChange} compact />
         </div>
-      )}
 
-      {/* Widget arama formunu (gizli) ve sonuçlarını bu alanlara yerleştirir */}
-      <div ref={box} className="min-h-[480px] w-full">
-        <div id="tpwl-search" className="hidden" aria-hidden="true" />
-        <div id="tpwl-tickets" />
+        {/* 11.2 Mobil Filtreler açılınca en üstte Bagaj sayaçları + Kapat başlığı (hemen altında widget filtreleri açılır) */}
+        {filtersOpen && (
+          <div className="flex flex-col gap-3 lg:hidden">
+            <div className="flex items-center justify-between px-1">
+              <span className="font-display text-[18px] font-semibold text-ink">{t("filters.title")}</span>
+              <button
+                type="button"
+                onClick={() => setFiltersOpen(false)}
+                className="min-h-[40px] cursor-pointer rounded-pill border-2 border-solid border-line bg-white px-4 text-[14px] font-extrabold text-ink hover:border-primary"
+              >
+                {t("close")}
+              </button>
+            </div>
+            <BaggageCard bags={bags} onChange={handleBagsChange} />
+          </div>
+        )}
+
+        {/* 11.3 "Sonuç yok, filtreleri gevşettik" pirpir uyarı kutusu (#FFF4D6, 28px köşe, 7 dil) */}
+        {ui.softNotice && (
+          <div className="lg:ml-[284px]">
+            <div
+              role="status"
+              data-testid="live-relaxed-notice"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-[28px] border-2 border-solid border-line bg-[#FFF4D6] px-5 py-4 text-[15px] font-bold text-ink"
+            >
+              <p className="m-0 min-w-0 flex-1 leading-snug">{t("liveRelaxed")}</p>
+              <button
+                type="button"
+                onClick={handleClearFilters}
+                className="min-h-[44px] flex-none cursor-pointer rounded-pill border-2 border-solid border-line bg-white px-4 py-2 font-display text-[15px] font-semibold text-primary hover:border-primary focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                {t("filters.reset")}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 10.5 İlk kart gelene kadar (4–6 sn) küçük Pırpır ve kısa durum metni */}
+        {!ui.ready && (
+          <div className="lg:ml-[284px]">
+            <div
+              role="status"
+              data-testid="live-loading-pirpir"
+              className="flex items-center gap-3 rounded-[20px] bg-sky px-4 py-3 text-[15px] font-bold text-ink"
+            >
+              <Pirpir aria-hidden width={52} height={36} className="flex-none" />
+              <span>{t("liveLoading")}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Widget arama formunu (gizli) ve sonuçlarını bu alanlara yerleştirir */}
+        <div ref={box} className="min-h-[480px] w-full">
+          <div id="tpwl-search" className="hidden" aria-hidden="true" />
+          <div id="tpwl-tickets" />
+        </div>
       </div>
     </section>
   );

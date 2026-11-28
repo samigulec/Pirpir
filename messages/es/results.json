@@ -250,5 +250,7 @@
   "liveTitle": "Vuelos en directo",
   "liveText": "Vuelos y precios actuales para tus fechas. Reservas con el vendedor que elijas.",
   "liveBaggage": "Equipaje incluido",
-  "liveLoading": "Pırpır está comprobando los precios en directo más recientes…"
+  "liveLoading": "Pırpır está comprobando los precios en directo más recientes…",
+  "liveCabinNote": "Las normas de equipaje de mano se muestran en el vendedor.",
+  "liveRelaxed": "Ningún vuelo cumple todos tus filtros. Hemos flexibilizado algunos filtros para mostrar opciones cercanas — pueden aparecer vuelos con escala."
 }

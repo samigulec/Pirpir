@@ -250,5 +250,7 @@
   "liveTitle": "Voli in tempo reale",
   "liveText": "Voli e prezzi attuali per le tue date. Prenoti con il venditore che scegli.",
   "liveBaggage": "Bagaglio incluso",
-  "liveLoading": "Pırpır sta controllando i prezzi dal vivo più recenti…"
+  "liveLoading": "Pırpır sta controllando i prezzi dal vivo più recenti…",
+  "liveCabinNote": "Le regole sul bagaglio a mano sono indicate dal venditore.",
+  "liveRelaxed": "Nessun volo corrisponde a tutti i tuoi filtri. Abbiamo allentato alcuni filtri per mostrare opzioni vicine — potrebbero comparire voli con scalo."
 }

@@ -250,5 +250,7 @@
   "liveTitle": "Live vluchten",
   "liveText": "Actuele vluchten en prijzen voor jouw data. Je boekt bij de aanbieder die je kiest.",
   "liveBaggage": "Bagage inbegrepen",
-  "liveLoading": "Pırpır zoekt de meest actuele live prijzen…"
+  "liveLoading": "Pırpır zoekt de meest actuele live prijzen…",
+  "liveCabinNote": "Regels voor handbagage zie je bij de aanbieder.",
+  "liveRelaxed": "Geen vluchten die bij al je filters passen. We hebben enkele filters versoepeld om alternatieven te tonen — er kunnen vluchten met overstap tussen staan."
 }

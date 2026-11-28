@@ -250,5 +250,7 @@
   "liveTitle": "Live-Flüge",
   "liveText": "Aktuelle Flüge und Preise für deine Daten. Du buchst beim Anbieter deiner Wahl.",
   "liveBaggage": "Gepäck inklusive",
-  "liveLoading": "Pırpır prüft die aktuellsten Live-Preise…"
+  "liveLoading": "Pırpır prüft die aktuellsten Live-Preise…",
+  "liveCabinNote": "Handgepäck-Regeln siehst du beim Anbieter.",
+  "liveRelaxed": "Keine Flüge passen zu allen deinen Filtern. Wir haben einige Filter gelockert, um ähnliche Optionen zu zeigen — es können Flüge mit Umstieg dabei sein."
 }

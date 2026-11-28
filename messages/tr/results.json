@@ -250,5 +250,7 @@
   "liveTitle": "Canlı uçuşlar",
   "liveText": "Seçtiğin tarihlerin güncel uçuşları ve fiyatları. Bileti seçtiğin satıcıdan alırsın.",
   "liveBaggage": "Bagaj dahil",
-  "liveLoading": "Pırpır en güncel fiyatlara bakıyor…"
+  "liveLoading": "Pırpır en güncel fiyatlara bakıyor…",
+  "liveCabinNote": "Kabin bagajı kuralları satıcıda gösterilir.",
+  "liveRelaxed": "Seçtiğin filtrelere uyan uçuş yok. Bazı filtreleri kaldırıp yakın seçenekleri gösteriyoruz — örneğin aktarmalı uçuşlar listelenebilir."
 }

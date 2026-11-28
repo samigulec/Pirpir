@@ -73,7 +73,7 @@ const browser = await chromium.launch({
 });
 
 try {
-  // Tek tarayıcı oturumu: önce TR /ara, sonra EN /en/search (tpwl_locale çerezinin EN'yi bozmadığını da sınar)
+  // Tek tarayıcı oturumu: TR /ara (bagaj dahil), sonra EN /en/search (tpwl_locale çerezinin EN'yi bozmadığını da sınar)
   const ctx = await browser.newContext({
     ...devices["Desktop Chrome"],
     viewport: { width: 1440, height: 900 },
@@ -93,19 +93,48 @@ try {
     }
   });
 
-  // 1. TR sonuç sayfası
-  await page.goto(`${BASE}/ara?from=AMS&to=ADB&date=${depIso}&return=${retIso}&adults=1`, { waitUntil: "domcontentloaded" });
+  // 1. TR sonuç sayfası (checkedBags=1 ile bagaj senaryosu dahil)
+  await page.goto(`${BASE}/ara?from=AMS&to=ADB&date=${depIso}&return=${retIso}&adults=1&checkedBags=1`, { waitUntil: "domcontentloaded" });
   const trCards = await waitForCards(page);
   const trUrl = page.url();
   const trFs = new URL(trUrl).searchParams.get("flightSearch") || "";
   record("TR sonuç kartları", trCards > 0, `${trCards} kart`);
   record("TR tarih kodu (kayma yok)", trFs === code, `beklenen=${code}, görülen=${trFs}`);
 
-  const trBtn = await page.evaluate(() =>
-    document.getElementById("tpwl-tickets")?.shadowRoot?.querySelector('[data-role="flight-card"] button[class*="Button-module__primary"]')?.textContent?.trim() ?? "",
-  );
-  record("TR widget dili", /bilet|seç/i.test(trBtn), `düğme="${trBtn}"`);
+  const trCheck = await page.evaluate(() => {
+    const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+    const btn = sr?.querySelector('[data-role="flight-card"] button[class*="Button-module__primary"]')?.textContent?.trim() ?? "";
+    const bagChip = sr?.querySelector('[data-testid="baggage-included-filter"]');
+    const sidebar = sr?.querySelector('[class*="FlightFilters-module__filerContainer"]');
+    const tabRect = document.querySelector('[role="tablist"]')?.getBoundingClientRect();
+    const firstCardRect = sr?.querySelector('[data-role="flight-card"]')?.getBoundingClientRect();
+    const bagVal = document.querySelector('[data-testid="live-baggage-desktop"] [data-testid="bag-checked-val"]')?.textContent?.trim() ?? "";
+    const searchBagOk = !!document.querySelector('#results-search [aria-label*="1 kontrol edilen bagaj"]');
+    return {
+      btn,
+      bagActive: bagChip ? /valueChanged/.test(bagChip.className) : false,
+      bagVal,
+      searchBagOk,
+      noInnerScroll: sidebar ? getComputedStyle(sidebar).overflowY === "visible" : false,
+      noOverlap: tabRect && firstCardRect ? firstCardRect.top >= tabRect.bottom : false,
+    };
+  });
+  record("TR widget dili", /bilet|seç/i.test(trCheck.btn), `düğme="${trCheck.btn}"`);
+  record("TR bagaj senaryosu (checkedBags=1 → sayaç+arama+widget eşit)", trCheck.bagActive && trCheck.bagVal === "1" && trCheck.searchBagOk, `widget=${trCheck.bagActive}, sayaç=${trCheck.bagVal}, arama=${trCheck.searchBagOk}`);
+  record("Sol sütunda iç kaydırma ve çakışma yok", trCheck.noInnerScroll && trCheck.noOverlap, `içKaydırmaYok=${trCheck.noInnerScroll}, çakışmaYok=${trCheck.noOverlap}`);
   record("Arama oturumunda marker 812756", markerSeen.startsWith("812756"), `marker="${markerSeen || "(yok)"}"`);
+
+  // Bagajı 1 → 0 yap ve eşitlendiğini doğrula
+  await page.locator('[data-testid="live-baggage-desktop"] [data-testid="bag-checked-dec"]').click();
+  await page.waitForTimeout(1200);
+  const bagOffCheck = await page.evaluate(() => {
+    const sr = document.getElementById("tpwl-tickets")?.shadowRoot;
+    const bagChip = sr?.querySelector('[data-testid="baggage-included-filter"]');
+    const bagVal = document.querySelector('[data-testid="live-baggage-desktop"] [data-testid="bag-checked-val"]')?.textContent?.trim() ?? "";
+    const searchBagZero = !!document.querySelector('#results-search [aria-label*="0 kontrol edilen bagaj"]');
+    return { bagActive: bagChip ? /valueChanged/.test(bagChip.className) : true, bagVal, searchBagZero };
+  });
+  record("Bagaj 1 → 0 eşitlemesi", !bagOffCheck.bagActive && bagOffCheck.bagVal === "0" && bagOffCheck.searchBagZero, `widget=${bagOffCheck.bagActive}, sayaç=${bagOffCheck.bagVal}, arama=${bagOffCheck.searchBagZero}`);
 
   // 2. "Seç" → satıcı yönlendirmesi
   await page.evaluate(() => {

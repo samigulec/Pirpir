@@ -13,7 +13,7 @@ import { formatRangeShort } from "@/lib/dates";
 import { CabinBagIcon, CheckedBagIcon } from "../results/BagIcons";
 import { CABINS, MAX_PASSENGERS, MAX_SEARCH_BAGS, addDays, paxTotal, searchHref, validateSearch, type CabinClass, type Flex, type Passengers, type SearchError } from "@/lib/search";
 import { aviasalesRoute } from "@/lib/outbound";
-import { readWidgetBags, saveWidgetBags } from "@/lib/live-widget-bags";
+import { readWidgetBags, saveWidgetBags, subscribeWidgetBags } from "@/lib/live-widget-bags";
 
 type Trip = "rt" | "ow";
 
@@ -71,15 +71,41 @@ export function SearchForm({
   const [datesTouched, setDatesTouched] = useState(!!initial);
   const [suggested, setSuggested] = useState(false);
 
+  const currentRoute =
+    compact && from.length === 1 && to.length === 1 && date
+      ? aviasalesRoute({
+          from: from[0].code,
+          to: to[0].code,
+          date,
+          returnDate: trip === "rt" && returnDate ? returnDate : undefined,
+          adults: pax.adults,
+          children: pax.children,
+          infants: pax.infants,
+          cabin,
+        })
+      : "";
+
   // Canlı widget adresi yalnızca `?flightSearch=...` biçimine indirdiği için yenilemede bagaj `sessionStorage`'dan geri yüklenir
+  // ve sol sütundaki bagaj sayacıyla çift yönlü eşitlenir.
   useEffect(() => {
-    if (!compact || initial?.bags?.cabin || initial?.bags?.checked) return;
+    if (!compact) return;
     const sp = new URLSearchParams(window.location.search);
-    const fs = sp.get("flightSearch");
-    if (!fs || sp.has("from")) return;
-    const saved = readWidgetBags(fs);
-    if (saved) setBags(saved);
-  }, [compact, initial?.bags?.cabin, initial?.bags?.checked]);
+    const fs = sp.get("flightSearch") || currentRoute;
+    if (fs && !sp.has("from") && !initial?.bags?.cabin && !initial?.bags?.checked) {
+      const saved = readWidgetBags(fs);
+      if (saved) setBags(saved);
+    }
+    const targetRoute = currentRoute || fs;
+    if (!targetRoute) return;
+    return subscribeWidgetBags(targetRoute, (next) => {
+      setBags((prev) => (prev.cabin === next.cabin && prev.checked === next.checked ? prev : next));
+    });
+  }, [compact, currentRoute, initial?.bags?.cabin, initial?.bags?.checked]);
+
+  const updateBags = (next: { cabin: number; checked: number }) => {
+    setBags(next);
+    if (compact && currentRoute) saveWidgetBags(currentRoute, next);
+  };
 
   const routeKey = `${from.map((p) => p.code).join(",")}>${to.map((p) => p.code).join(",")}`;
   useEffect(() => {
@@ -128,6 +154,10 @@ export function SearchForm({
         cabin: q.cabin,
       });
       saveWidgetBags(route, q.bags);
+      const w = window as typeof window & { __tpwlRoute?: string };
+      if (compact && w.__tpwlRoute === route && document.getElementById("tpwl-tickets")?.shadowRoot) {
+        return;
+      }
     }
     router.push(searchHref({ ...q, returnDate: q.returnDate ?? "" }));
   };
@@ -212,9 +242,9 @@ export function SearchForm({
           {(close) => (
             <>
               <Counter label={t("cabinBags")} hint={t("cabinBagsHint")} value={bags.cabin} min={0} max={MAX_SEARCH_BAGS.cabin}
-                onChange={(n) => setBags({ ...bags, cabin: n })} />
+                onChange={(n) => updateBags({ ...bags, cabin: n })} />
               <Counter label={t("checkedBags")} hint={t("checkedBagsHint")} value={bags.checked} min={0} max={MAX_SEARCH_BAGS.checked}
-                onChange={(n) => setBags({ ...bags, checked: n })} />
+                onChange={(n) => updateBags({ ...bags, checked: n })} />
               <span className="text-[13px] font-semibold text-muted">{t(isAffiliate() ? "bagsNoteAff" : "bagsNote")}</span>
               <button type="button" onClick={close} className="min-h-[44px] cursor-pointer rounded-pill border-0 bg-ink px-5 font-display text-base font-semibold text-white">
                 {t("done")}
