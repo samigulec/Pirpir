@@ -9,6 +9,7 @@
     "lint": "tsc --noEmit",
     "check:messages": "node scripts/check-messages.mjs",
     "e2e": "npm run check:messages && playwright test",
+    "verify:live": "node scripts/verify-live.mjs",
     "svg": "node scripts/svg-to-tsx.mjs",
     "airports": "node scripts/build-airports.mjs"
   },

@@ -249,5 +249,6 @@
   "fewResults": "Peu de vols enregistrés pour ces dates. Vois tous les vols et les prix actuels dans la recherche en direct.",
   "liveTitle": "Vols en direct",
   "liveText": "Vols et prix actuels pour tes dates. Tu réserves auprès du vendeur de ton choix.",
-  "liveBaggage": "Bagage inclus"
+  "liveBaggage": "Bagage inclus",
+  "liveLoading": "Pırpır vérifie les prix en direct les plus récents…"
 }

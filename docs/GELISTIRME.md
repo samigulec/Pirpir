@@ -10,6 +10,7 @@ npm run dev      # http://localhost:3000
 npm run build    # üretim derlemesi
 npm run lint     # TypeScript kontrolü
 npm run e2e      # Playwright uçtan uca testleri (önce build; örnek veri modunda, ağ gerektirmez)
+npm run verify:live # Canlı sitede (https://www.flypirpir.nl) gerçek tarayıcı duman testi (ağ gerektirir)
 npm run svg      # assets/ içindeki SVG'leri bileşenlere yeniden çevir
 ```
 

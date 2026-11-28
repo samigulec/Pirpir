@@ -249,5 +249,6 @@
   "fewResults": "Weinig opgeslagen vluchten voor deze data. Bekijk alle vluchten en actuele prijzen in de live zoekfunctie.",
   "liveTitle": "Live vluchten",
   "liveText": "Actuele vluchten en prijzen voor jouw data. Je boekt bij de aanbieder die je kiest.",
-  "liveBaggage": "Bagage inbegrepen"
+  "liveBaggage": "Bagage inbegrepen",
+  "liveLoading": "Pırpır zoekt de meest actuele live prijzen…"
 }

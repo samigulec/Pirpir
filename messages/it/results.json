@@ -249,5 +249,6 @@
   "fewResults": "Pochi voli salvati per queste date. Vedi tutti i voli e i prezzi attuali nella ricerca in tempo reale.",
   "liveTitle": "Voli in tempo reale",
   "liveText": "Voli e prezzi attuali per le tue date. Prenoti con il venditore che scegli.",
-  "liveBaggage": "Bagaglio incluso"
+  "liveBaggage": "Bagaglio incluso",
+  "liveLoading": "Pırpır sta controllando i prezzi dal vivo più recenti…"
 }
