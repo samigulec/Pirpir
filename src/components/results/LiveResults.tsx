@@ -7,8 +7,6 @@ import { LiveWidget } from "./LiveWidget";
 import { goHref } from "@/lib/outbound";
 import { Link } from "@/i18n/navigation";
 import { DateStrip } from "./DateStrip";
-import { PriceTrends } from "./PriceTrends";
-import { PriceAlertButton } from "./PriceAlertButton";
 import { ResultsView, type ResultsTip } from "./ResultsView";
 import type { Offer } from "@/lib/providers/types";
 import { DEFAULT_FILTERS, type Filters } from "@/lib/results-filter";
@@ -91,14 +89,12 @@ export function LiveResults({
   // Ana liste canlı uçuşlar (White Label widget): gerçek uçuşlar, güncel fiyat, kendi filtreleri. Kayıtlı (önbellekli)
   // fiyatlar burada liste olarak gösterilmez; tarih şeridi, fiyat trendi ve alarm onlardan beslenir.
   // Birden çok kalkış/varış yeri seçildiyse widget tek rota aradığı için eski liste kullanılır.
-  // Canlı liste sayfada ayrıca (hemen) başlatılır; burada yalnızca fiyat trendi ve alarm. Tarih seçimi widget'ın kendi
-  // canlı şeridinden yapılır (kayıtlı fiyatlı şerit canlı fiyatlarla uyuşmadığı için gösterilmez).
-  if (liveListFor(q, widgetId))
-    return chunk.done ? <PriceTrends q={q} actions={<PriceAlertButton q={q} offers={chunk.offers} filters={filters} />} /> : null;
+  // Canlı liste sayfada ayrıca (hemen) başlatılır. Fiyat trendi ve fiyat alarmı düğmesi kullanıcı kararıyla kaldırıldı
+  // (önbellek fiyatları canlı fiyatlarla uyuşmuyordu); tarih seçimi widget'ın kendi canlı şeridinden yapılır.
+  if (liveListFor(q, widgetId)) return null;
   return (
     <>
       {chunk.done && <DateStrip q={q} current={cheapest} monthlyPrices={monthlyPrices} />}
-      {chunk.done && <PriceTrends q={q} actions={<PriceAlertButton q={q} offers={chunk.offers} filters={filters} />} />}
       {!chunk.done && !failed && (
         <p role="status" className="m-0 flex items-center gap-3 rounded-[20px] bg-sky px-5 py-3 font-bold">
           <span aria-hidden="true" className="h-4 w-4 flex-none animate-spin rounded-full border-[3px] border-solid border-primary border-t-transparent" />

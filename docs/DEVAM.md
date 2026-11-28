@@ -300,7 +300,7 @@ Kullanıcı "hata üzerine hata" diyor. Canlıda sonuç sayfasını baştan sona
 görünümü, yükleme süresi. Bulduğun her hatayı iş günlüğüne madde madde yaz: adım, beklenen, görülen. Küçükleri düzelt,
 büyükleri "KARAR GEREKİYOR" ya da "CLAUDE'A" diye işaretle.
 
-### 8.4 Fiyat trendleri — KULLANICI KARARI BEKLENİYOR
+### 8.4 Fiyat trendleri — KAPANDI (kullanıcı kararı: sonuç sayfasından kaldırıldı, bkz. 10. tur)
 Kullanıcı: "trend fiyatları doğru vermiyor". Trendler Aviasales önbelleğinden geliyor, canlı widget fiyatlarıyla
 uyuşmuyor. İki seçenek kullanıcıya soruldu, **henüz cevap yok**:
 (a) canlı listenin olduğu sonuç sayfasından kaldır (Claude'un önerisi), (b) "önbellek fiyatı, canlı değil" diye etiketle.
@@ -376,6 +376,86 @@ ve "Bileti seç" görünür ve tıklanabilir; gizlenen gürültü öğeleri gör
 - 8.4 (fiyat trendleri) hâlâ **KULLANICI KARARI BEKLİYOR**; dokunma.
 
 Teslimde iş günlüğüne her alt iş için ekran görüntüsü yolu, değişen dosyalar ve "WIDGET SINIRI" maddelerini yaz.
+
+---
+
+## 10. Altıncı tur (Gemini) — sonuç sayfası düzeni (Kiwi'deki yerleşimden ilham), iki hata
+
+Kullanıcı: "Site çok daha iyi olmuş, daha gerçekçi çalışıyor. Kiwi'den referans aldım; çok bozmadan, seçeneklerin nasıl
+durduğuna bakabilirseniz çok güzel durur." Yani **yerleşim** fikri Kiwi'den alınacak. Renk, yazı tipi, köşe ve karakterler
+pirpir'in kalacak (`CLAUDE.md` tokenları, `design/Results.dc.html`). Kiwi'nin markası, logosu, yeşil rengi, "Guarantee" ve
+reklam kutuları, "Yapay Zeka Modu" gibi öğeler **kopyalanmaz**. 9. turda yapılanlar korunur; "çok bozmadan" şartı var.
+
+Claude'un yaptığı (bu turdan önce): kullanıcı kararıyla sonuç sayfasından **Fiyat trendleri** ve **Fiyat alarmı kur**
+düğmeleri kaldırıldı (`LiveResults.tsx`; bileşen dosyaları duruyor, başka yerde kullanılmıyor). `/api/alert-price` duruyor.
+8.4 kapandı. Bunları geri ekleme.
+
+Kurallar (bölüm 1), kontrol komutları (bölüm 2), teslim biçimi (bölüm 4) ve "canlıda gerçek tarayıcıda dene" kuralı aynen
+geçerli. Önce/sonra ekran görüntüleri: `docs/ekran/10-*.png`, masaüstü 1440 ve telefon 390, TR ve EN.
+`npm run e2e` iki derlemede de geçmeli (widget kimliğiyle ve kimliksiz).
+
+### 10.1 HATA: İngilizce sayfada widget Türkçe (öncelik 1)
+Kullanıcının ekran görüntüsü: `/en/search`, site İngilizce ve EUR, ama widget içi Türkçe: "Seçme bilet", "7 şub, Pz",
+"Seyahat süresi: 3s 25dk", "En ucuz bilet". Para birimi doğru, dil yanlış. 8.3'te "dil değişince widget yeniden yüklenir"
+denmişti; ya ilk yüklemede `TPWL_CONFIGURATION.defaultLanguage` dikkate alınmıyor, ya widget dili adresteki `language`/`locale`
+parametresinden ya da kendi `localStorage` kaydından (önceki Türkçe ziyaret) okuyor. Canlıda şu adımlarla dene:
+- temiz profil + `/en/search?...`;
+- önce `/ara` sonra `/en/search` (aynı sekme);
+- dil seçiciden TR → EN.
+Kökü bul ve düzelt. NL/DE için de doğrula; FR/ES/IT için widget İngilizce olmalı.
+
+### 10.2 HATA: widget'ın üstteki tarih şeridi boş
+Ekran görüntüsünde kartların üstünde "Şub, 6 - 13 · -", "Şub, 7 - 14 · -", "Şub, 8 - 15 · -" var: fiyat yerine tire.
+Bozuk görünüyor. Bu şerit (widget'ın FlightMatrix/esnek tarih bileşeni) fiyat geliyorsa bizim stilde dursun. Hiç fiyat yoksa
+gizlensin. Fiyat sonradan geliyorsa gelince görünsün. Hangisini nasıl yaptığını günlüğe yaz.
+
+### 10.3 Masaüstü yerleşimi (≥ 1024 px) — Kiwi'deki gibi üç bölüm
+Referans: kullanıcının Kiwi ekran görüntüsündeki yerleşim (sol filtre sütunu, ortada sıralama sekmeleri + kartlar).
+- **Sol sütun (≈ 260 px, kaydırırken yapışkan):** widget'ın filtre paneli artık "Filtreler" düğmesinin arkasında değil,
+  solda hep açık dursun. Bölümler başlıklı ve açılır/kapanır olsun. Bagaj, Aktarmalar ve Kalkış/varış saatleri açık;
+  Havayolları, Havalimanları, Uçak tipleri, Acenteler kapalı başlasın. Stil: zemin beyaz, bölümler arasında `#E3E8F2`
+  ince çizgi, başlıklar Fredoka 600 17px, seçenekler Nunito 15px. Radyo ve onay kutuları `#2F5BD3`, en az 44 px dokunma alanı.
+- **Üst sıralama sekmeleri, özetli:** "En ucuz / En hızlı / Sadece direkt" haplarının içinde o sekmedeki en iyi seçeneğin
+  fiyatı ve süresi küçük satırda yazsın (Kiwi'deki "En ucuz · 194 € · 7h 25m" gibi). Değerler kartlardan okunur
+  (`priceOf` ve süre metni). Okunamıyorsa yalnızca etiket kalır, uydurma değer yazılmaz. "Bagaj dahil" hapı kalır.
+  Hap çubuğundaki "Filtreler" düğmesi masaüstünde kalkar (filtreler zaten solda).
+- **Orta sütun kartlar:** 9.1'deki kart stili kalır. Kiwi'deki gibi iki bölümlü kart dene:
+  - sol: gidiş ve dönüş satırları (saat, havalimanı kodu, ortada süre hapı + "Direkt"/aktarma);
+  - sağ: dikey çizgiyle ayrılmış fiyat sütunu (büyük fiyat, bagaj hapı, Seç butonu).
+  Gidiş ve dönüş arasında "İzmir'de 7 gece" gibi bir ayırıcı ancak widget verisinden doğru okunabiliyorsa olsun.
+  Widget'ın DOM'u buna izin vermiyorsa yalnızca CSS (grid/order) ile yapabildiğin kadarını yap, kalanını "WIDGET SINIRI"
+  diye yaz.
+- Sayfa genişliği: sol sütun + kartlar, üstteki arama kutusuyla aynı genişliğe (1120 px) otursun. 9. turdaki 880 px tek
+  sütun masaüstünde kalkar. Sağda boş üçüncü sütun ya da reklam kutusu **yok**.
+
+### 10.4 Telefon (< 1024 px)
+9.3'teki düzen kalır: üstte haplar, "Filtreler" widget'ın mobil filtre penceresini açar. Kartlar tek sütun. Özetli sekmeler
+telefonda tek satıra sığmıyorsa yalnızca etiket göster.
+
+### 10.5 Küçük iyileştirmeler (9. turdaki önerilerden)
+- Telefonda "Filtreler" hapında aktif filtre sayısı: "Filtreler (2)". Masaüstünde sol sütunun en üstünde "Temizle" bağlantısı
+  yalnızca aktif filtre varken görünsün.
+- İlk kart gelene kadar (4–6 sn) widget'ın yükleme çubuğunun yanında küçük Pırpır ve kısa metin (7 dil), ör. "Pırpır en
+  güncel fiyatlara bakıyor…". Karakter çizimi `src/components/characters/`'dan, değiştirmeden. Bir yerde en fazla iki karakter.
+- `scripts/verify-live.mjs`: yayından sonra tek komutla canlı sitede (`https://www.flypirpir.nl`) şunları denetleyen kısa
+  duman testi:
+  - TR ve EN sonuç sayfası açılır;
+  - widget kartları gelir;
+  - adresteki tarih kodu doğru;
+  - widget dili sayfa diliyle aynı;
+  - "Seç" → satıcı yönlendirmesinde `marker=812756`.
+  Gerçek tarayıcı kullanır, bot tespiti atlatma yok. `docs/GELISTIRME.md`'ye nasıl çalıştırılacağını yaz.
+
+### 10.6 Test
+`tests/e2e/live-widget.spec.ts` sahte gölge köküne şunları ekle:
+- masaüstünde sol filtre sütunu görünür ve yapışkan;
+- telefonda gizli ve "Filtreler" ile açılır;
+- sekme özetleri kartlardaki en düşük fiyatı gösterir;
+- tarih şeridi fiyatsızken gizli;
+- dil yapılandırması sayfa diliyle aynı;
+- sonuç sayfasında "Fiyat trendleri" ve "Fiyat alarmı kur" yok.
+
+Teslimde iş günlüğüne her alt iş için önce/sonra ekran görüntüsü, değişen dosyalar ve "WIDGET SINIRI" maddelerini yaz.
 
 ---
 

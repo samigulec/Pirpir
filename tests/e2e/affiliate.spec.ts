@@ -124,7 +124,7 @@ test.describe("Ortaklık modu (sahte Travelpayouts sunucusu)", () => {
     expect(pickDealCandidates("AMS", "IST", [mk(1, 200), mk(2, 90)], today)).toEqual([]);
   });
 
-  test("Fiyat alarmı penceresi /api/alert-price ile önbellek fiyatını ve görülme gününü gösterir", async ({ page, request }) => {
+  test("/api/alert-price önbellek fiyatı ve görülme günü; sonuç sayfasında trend/alarm düğmesi yok", async ({ page, request }) => {
     const errors = trackErrors(page);
     const dep = nextMonthDay(22);
     const ret = nextMonthDay(29);
@@ -146,18 +146,11 @@ test.describe("Ortaklık modu (sahte Travelpayouts sunucusu)", () => {
     expect(flexJson.best?.price ?? 0).toBeGreaterThan(0);
     expect(flexJson.best?.stops).toBe(0);
 
-    // 2. Sonuç sayfasında alarm penceresi açılır, önbellekli fiyat + "1 gün önce görülen fiyat" görünür, Alarmı kur etkindir
+    // 2. Kullanıcı kararı: sonuç sayfasında fiyat trendi ve fiyat alarmı düğmesi yok (önbellek fiyatları canlıyla uyuşmuyordu)
     await page.goto(`/ara?from=AMS&to=IST&date=${dep}&return=${ret}&adults=1`, { waitUntil: "networkidle" });
-    await page.getByRole("button", { name: "Fiyat alarmı kur" }).click();
-    const dialog = page.getByRole("dialog");
-    await expect(dialog).toBeVisible();
-    await expect(dialog.getByText(/gün önce görülen fiyat|Bugün görülen fiyat/i)).toBeVisible({ timeout: 10_000 });
-    await expect(dialog.getByRole("button", { name: "Alarmı kur" })).toBeEnabled();
-
-    // ± 3 gün esnek ve Sadece direkt seçimi yeni fiyat isteğiyle sorunsuz güncellenir
-    await dialog.getByText("± 3 gün esnek").click();
-    await dialog.getByText("Sadece direkt").click();
-    await expect(dialog.getByText(/gün önce görülen fiyat|Bugün görülen fiyat|Şu an kayıtlı fiyat yok/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Fiyat alarmı kur" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Fiyat trendleri" })).toHaveCount(0);
 
     expect(errors).toEqual([]);
   });
