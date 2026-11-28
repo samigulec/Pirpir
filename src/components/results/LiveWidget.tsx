@@ -767,22 +767,26 @@ function enhanceShadow(
         if (bag && isBaggageActive(bag)) bag.click();
         const panel = root.querySelector('[class*="FlightFiltersContent-module__root___"]');
         if (panel) {
+          let unchecked = 0;
           panel.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked').forEach((inp) => {
             if (inp.closest('[class*="BaggageFilter-module__root___"]')) return;
             inp.click();
+            unchecked++;
           });
-          // Preact DOM'u güncelledikten sonra hâlâ aktif kalan Popüler çip varsa temizle (çift tıklama önlenir)
-          window.setTimeout(() => {
+          // Aktarmalar kapalıyken "Aktarmasız" seçili kaldıysa yedek olarak Popüler çipi temizle
+          if (unchecked === 0) {
             panel
               .querySelectorAll<HTMLElement>('[class*="Popular-module__body___"] [class*="ClearableParameter-module__valueChanged___"]')
-              .forEach((chip) => chip.click());
-            window.setTimeout(() => syncUi(root), 80);
-          }, 80);
+              .forEach((chip) => {
+                if (chip.getAttribute("data-testid") !== "baggage-included-filter") chip.click();
+              });
+          }
+          window.setTimeout(() => syncUi(root), 120);
         } else {
           root
             .querySelectorAll<HTMLElement>('[class*="FlightFiltersMobileMenu-module__list"] [class*="ClearableParameter-module__valueChanged___"]')
             .forEach((chip) => chip.click());
-          window.setTimeout(() => syncUi(root), 80);
+          window.setTimeout(() => syncUi(root), 120);
         }
       },
     };
@@ -824,7 +828,7 @@ function BaggageCard({
   compact?: boolean;
 }) {
   const t = useTranslations("results");
-  const btnCls = `${compact ? "h-9 w-9" : "h-11 w-11"} flex flex-none cursor-pointer items-center justify-center rounded-full border-2 border-solid border-primary bg-white font-display text-lg font-semibold leading-none text-primary disabled:cursor-not-allowed disabled:border-line disabled:text-muted focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary`;
+  const btnCls = `${compact ? "h-8 w-8 text-base" : "h-11 w-11 text-lg"} flex flex-none cursor-pointer items-center justify-center rounded-full border-2 border-solid border-primary bg-white font-display font-semibold leading-none text-primary disabled:cursor-not-allowed disabled:border-line disabled:text-muted focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-primary`;
 
   const row = (
     id: "cabin" | "checked",
@@ -834,11 +838,11 @@ function BaggageCard({
     max: number,
   ) => (
     <div className="flex items-center justify-between gap-2">
-      <span className="flex min-w-0 items-center gap-2 text-[15px] font-bold leading-snug text-ink">
+      <span className={`flex min-w-0 flex-1 items-center gap-1.5 font-bold leading-snug text-ink ${compact ? "text-[14px]" : "text-[15px]"}`}>
         <span className="flex-none">{icon}</span>
-        <span>{label}</span>
+        <span className="min-w-0 break-words">{label}</span>
       </span>
-      <span className="flex flex-none items-center gap-2">
+      <span className={`flex flex-none items-center ${compact ? "gap-1.5" : "gap-2"}`}>
         <button
           type="button"
           data-testid={`bag-${id}-dec`}
@@ -849,7 +853,7 @@ function BaggageCard({
         >
           −
         </button>
-        <span data-testid={`bag-${id}-val`} aria-live="polite" className="w-5 text-center font-display text-lg font-semibold text-ink">
+        <span data-testid={`bag-${id}-val`} aria-live="polite" className={`${compact ? "w-4 text-base" : "w-5 text-lg"} text-center font-display font-semibold text-ink`}>
           {value}
         </span>
         <button
@@ -870,7 +874,7 @@ function BaggageCard({
     <section
       aria-label={t("filters.bagsTitle")}
       data-testid={compact ? "live-baggage-desktop" : "live-baggage-mobile"}
-      className="flex flex-col gap-3 rounded-[24px] border-2 border-solid border-line bg-white px-[18px] py-4"
+      className={`flex flex-col gap-3 rounded-[24px] border-2 border-solid border-line bg-white ${compact ? "px-4 py-4" : "px-[18px] py-4"}`}
     >
       <h3 className="m-0 font-display text-[17px] font-semibold text-ink">{t("filters.bagsTitle")}</h3>
       {row("cabin", t("filters.cabinBag"), <CabinBagIcon />, bags.cabin, MAX_SEARCH_BAGS.cabin)}
