@@ -79,7 +79,7 @@
     "manage": "Değişiklik, iptal ve bagaj sitede",
     "free": "Arama ücretsiz, üstüne ücret yok",
     "alerts": "Fiyat düşünce haber veririz",
-    "partner": "Bileti {partner, select, whitelabel {{brand} Live'da} aviasales {Aviasales'te} other {Skyscanner'da}} seçtiğin satıcıdan alırsın"
+    "partner": "{partner, select, whitelabel {Bileti seçtiğin satıcıdan alırsın} aviasales {Bileti Aviasales'te seçtiğin satıcıdan alırsın} other {Bileti Skyscanner'da seçtiğin satıcıdan alırsın}}"
   },
   "mobileDeal": {
     "title": "Hafta sonu Roma'ya kaçalım mı?",
@@ -242,7 +242,7 @@
     },
     "flyAff": {
       "title": "Uç",
-      "text": "Bileti {partner, select, whitelabel {{brand} Live'da} aviasales {Aviasales'te} other {Skyscanner'da}} seçtiğin satıcıdan al. İyi yolculuklar!"
+      "text": "{partner, select, whitelabel {Bileti seçtiğin satıcıdan al.} aviasales {Bileti Aviasales'te seçtiğin satıcıdan al.} other {Bileti Skyscanner'da seçtiğin satıcıdan al.}} İyi yolculuklar!"
     }
   },
   "alert": {
@@ -286,7 +286,7 @@
       },
       "buy": {
         "q": "Bileti nereden alıyorum?",
-        "a": "pirpir uçuşları karşılaştırır, bilet satmaz. “Fırsata git”e basınca uçuş {partner, select, whitelabel {{brand} Live'da} aviasales {Aviasales'te} other {Skyscanner'da}} açılır; bileti orada seçtiğin havayolundan ya da seyahat sitesinden alırsın."
+        "a": "pirpir uçuşları karşılaştırır, bilet satmaz. “Fırsata git”e basınca uçuş {partner, select, whitelabel {canlı aramada} aviasales {Aviasales'te} other {Skyscanner'da}} açılır; bileti orada seçtiğin havayolundan ya da seyahat sitesinden alırsın."
       },
       "pay": {
         "q": "Ödemeyi kime yapıyorum?",

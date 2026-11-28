@@ -80,7 +80,7 @@
     "manage": "Umbuchen, stornieren und Gepäck hinzufügen – alles online",
     "free": "Kostenlos suchen, keine Zusatzgebühren",
     "alerts": "Wir melden uns, wenn der Preis sinkt",
-    "partner": "Du buchst beim Anbieter deiner Wahl auf {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}"
+    "partner": "{partner, select, whitelabel {Du buchst beim Anbieter deiner Wahl} aviasales {Du buchst beim Anbieter deiner Wahl auf Aviasales} other {Du buchst beim Anbieter deiner Wahl auf Skyscanner}}"
   },
   "mobileDeal": {
     "title": "Lust auf ein Wochenende in Rom?",
@@ -243,7 +243,7 @@
     },
     "flyAff": {
       "title": "Flieg",
-      "text": "Buche beim Anbieter, den du auf {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}} wählst. Gute Reise!"
+      "text": "{partner, select, whitelabel {Buche beim Anbieter deiner Wahl.} aviasales {Buche beim Anbieter, den du auf Aviasales wählst.} other {Buche beim Anbieter, den du auf Skyscanner wählst.}} Gute Reise!"
     }
   },
   "alert": {
@@ -287,7 +287,7 @@
       },
       "buy": {
         "q": "Wo kaufe ich das Ticket?",
-        "a": "pirpir vergleicht Flüge und verkauft keine Tickets. Tippe auf „Zum Angebot“ und der Flug öffnet sich auf {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}, wo du bei der Airline oder dem Reiseportal deiner Wahl buchst."
+        "a": "pirpir vergleicht Flüge und verkauft keine Tickets. Tippe auf „Zum Angebot“ und der Flug öffnet sich {partner, select, whitelabel {in der Live-Suche} aviasales {auf Aviasales} other {auf Skyscanner}}, wo du bei der Airline oder dem Reiseportal deiner Wahl buchst."
       },
       "pay": {
         "q": "Wen bezahle ich?",

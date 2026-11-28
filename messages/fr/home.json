@@ -80,7 +80,7 @@
     "manage": "Modifie, annule et ajoute des bagages en ligne",
     "free": "Recherche gratuite, sans frais ajoutés",
     "alerts": "On te prévient quand le prix baisse",
-    "partner": "Tu réserves auprès du vendeur choisi sur {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}"
+    "partner": "{partner, select, whitelabel {Tu réserves auprès du vendeur de ton choix} aviasales {Tu réserves auprès du vendeur choisi sur Aviasales} other {Tu réserves auprès du vendeur choisi sur Skyscanner}}"
   },
   "mobileDeal": {
     "title": "Envie d'un week-end à Rome ?",
@@ -243,7 +243,7 @@
     },
     "flyAff": {
       "title": "Envole-toi",
-      "text": "Réserve auprès du vendeur que tu choisis sur {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}. Bon voyage !"
+      "text": "{partner, select, whitelabel {Réserve auprès du vendeur que tu choisis.} aviasales {Réserve auprès du vendeur que tu choisis sur Aviasales.} other {Réserve auprès du vendeur que tu choisis sur Skyscanner.}} Bon voyage !"
     }
   },
   "alert": {
@@ -287,7 +287,7 @@
       },
       "buy": {
         "q": "Où acheter le billet ?",
-        "a": "pirpir compare les vols, il ne vend pas de billets. Touche « Voir l'offre » et le vol s'ouvre sur {partner, select, whitelabel {{brand} Live} aviasales {Aviasales} other {Skyscanner}}, où tu réserves auprès de la compagnie ou de l'agence de ton choix."
+        "a": "pirpir compare les vols, il ne vend pas de billets. Touche « Voir l'offre » et le vol s'ouvre {partner, select, whitelabel {dans la recherche en direct} aviasales {sur Aviasales} other {sur Skyscanner}}, où tu réserves auprès de la compagnie ou de l'agence de ton choix."
       },
       "pay": {
         "q": "Qui dois-je payer ?",
