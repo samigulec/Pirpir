@@ -576,10 +576,13 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 [class*="TicketsWidget-module__moreTickets___"]:hover { border-color: #2f5bd3 !important; }
 
-/* 12.7 Preact metin düğümüne dokunmadan yerelleştirme (CSS ::after) */
+/* 12.7 Preact metin düğümüne dokunmadan yerelleştirme (CSS ::after; alt <span> etiketleri gizlenir) */
 [data-pirpir-l10n] {
   font-size: 0 !important;
   line-height: 0 !important;
+}
+[data-pirpir-l10n] > * {
+  display: none !important;
 }
 [data-pirpir-l10n]::after {
   content: attr(data-pirpir-l10n);
@@ -685,6 +688,9 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
     text-align: left !important;
     width: 100% !important;
   }
+  [class*="Flight-module__cardFlightTravelLine___"] {
+    display: none !important;
+  }
   [class*="Flight-module__cardFlightTravelDetailMobile___"] {
     grid-column: 1 / -1 !important;
     grid-row: 3 !important;
@@ -738,7 +744,6 @@ function localizeWidgetTexts(root: ShadowRoot, l10n: WidgetL10n) {
   });
 
   root.querySelectorAll<HTMLButtonElement>('[data-role="flight-card"] button[class*="Button-module__primary___"]').forEach((btn) => {
-    if (btn.childElementCount > 0) return;
     if (btn.dataset.pirpirL10n !== l10n.select) {
       btn.dataset.pirpirL10n = l10n.select;
       btn.setAttribute("aria-label", l10n.select);
