@@ -1024,3 +1024,106 @@ Her hücre için: çakışma var mı, seçili durum doğru mu, uyarı doğru mu.
     2. Kart içi dikey hizalama: `FlightCard-module__cardLeft___` ve `cardRight___` saf CSS Grid ile sağ/sol yer değiştirdi;
        Preact olayları ve mobil düzen korundu.
     3. Canlı sonuç sayfasında Claude'un kaldırdığı "Fiyat trendleri" ve "Fiyat alarmı kur" geri eklenmedi.
+- [11.0–11.6] Sonuç sayfası: çakışmalar, tek bagaj sayacı, Kiwi sıralama/filtre ayrımı ve canlı matris — commits 792b89d, bbd2e2a —
+  Değişen dosyalar: `src/components/results/LiveWidget.tsx`, `src/components/home/SearchForm.tsx`,
+  `src/lib/live-widget-bags.ts`, `src/lib/live-widget-summary.ts`, 7 dilde `messages/*/results.json`
+  (`liveCabinNote`, `liveRelaxed`), `tests/e2e/live-widget.spec.ts`, `scripts/verify-live.mjs`.
+  - **11.0 Canlıda yakalanan kök nedenler (NL AMS→AYT 11–17 Ara, `11-before-desktop-nl.png` & `11-before-mobile-nl.png`):**
+    1. *Üst üste binme:* Travelpayouts'un `FlightMatrixDesktop-module__root___` sınıfında gömülü `margin-top: -20px` vardı
+       (`toolbar.bottom=417.4 px > matrix.top=409.4 px`) → `margin: 0 0 16px 0 !important` ve `gap-4` (`16 px`) ile giderildi.
+    2. *Üç koyu hap + üçlü filtre tekrarı:* Üstteki sıralama + direkt + bagaj hapları aynı koyu stildeydi; sol sütunda
+       `Popular-module__body___`, `BaggageFilter` ve `Transfers` aynı filtreleri tekrarlıyordu ve `countActiveFilters`
+       aktif filtreleri çift sayıyordu.
+    3. *Tarih şeridi kesilmesi ve İngilizce "Show":* `FlightMatrixDesktop` `836 px` içinde `overflow: hidden` ile
+       `985.6 px` genişliğindeki 7 hücreyi ("Dec, 1") kesiyordu; boş hücrelerde büyüteç SVG (`noPriceIcon`) ve sağda
+       İngilizce `"Show"` düğmesi vardı.
+    4. *Sol sütun iç kaydırması:* 10. turdaki `max-height: calc(100vh - 32px); overflow-y: auto` ikinci kaydırma çubuğu
+       oluşturuyordu (`scrollHeight=2816 > clientHeight=968`).
+    5. *Yanıltıcı özetler:* `readCardMetrics` gidiş-dönüşte yalnızca ilk bacağın süresini (`4u 10min`) alıyordu ve widget
+       DOM'a ilk 10 kartı çizdiği için kısmi listeden hesaplanan `Snelst` özeti gerçek en hızlıyı yansıtmıyordu.
+    6. *Yumuşak filtre uyarısının alta itilmesi:* Eski `sortCards` CSS `order` döngüsü `data-testid="soft-tickets-notice"`
+       öğesine `order: 2000000000` verip kartların en altına itiyordu.
+  - **11.1 Kiwi ayrımı (sıralama ayrı, filtreler yalnızca sol sütunda):**
+    - Üstte tek parça beyaz sıralama sekme çubuğu (`role="tablist"`, 3 eşit sekme: **En iyi** / **En ucuz** / **En hızlı**,
+      seçili sekmede `#2F5BD3` metin + `3px` alt çizgi; tek seçim, hap görünümü yok). Sekmeler widget'ın gerçek sıralama
+      radyolarını (`0`, `1`, `5`) tetikler; sahte CSS `order` sıralaması kaldırıldı.
+    - `"Sadece direkt"` ve `"Bagaj dahil"` üstten kaldırıldı; widget'ın yinelenen `"Popüler filtreler"`, `"Bagaj"` ve
+      `"Sıralama"` bölümleri gizlendi (`display: none !important`, programatik erişim için DOM'da kalır). Her filtrenin
+      yalnızca tek görünür kontrolü var; aktif filtre sayacı çift saymaz.
+    - Özet satırı (`src/lib/live-widget-summary.ts`, toplam gidiş-dönüş süresi `formatTotalMins`) yalnızca tüm biletler
+      DOM'dayken ve filtreler gevşetilmemişken gösterilir; kısmi listede (`moreTickets` varken) yanıltıcı özet gizlenir.
+    - Telefonda (`< 1024 px`): üstte yatay kaydırmasız tek parça sekme çubuğu, altında tek `"Filtreler (N)"` düğmesi
+      (ve aktif filtre varsa `"Filtreleri temizle"`).
+  - **11.2 Bagaj: tek yer, Kiwi sayaçları + canlıda 6 senaryo teşhisi ve düzeltmeler:**
+    - Masaüstünde sol sütunun en üstüne (`260 px`, `ResizeObserver` ile `--pirpir-bags-offset` üzerinden altındaki filtrelerle
+      tam `16 px` boşluk — sıfır çakışma), telefonda `"Filtreler"` açılınca en üstüne `Bagaj` kartı (`Kabin bagajı − 0 +`,
+      `Kontrol edilen bagaj − 0 +` ve 7 dilde kısa kabin bagajı notu `results.liveCabinNote`) eklendi.
+    - `src/lib/live-widget-bags.ts` içine `pirpir:bags` olay akışı (`subscribeWidgetBags`) eklendi; sol sütun sayaçları
+      ile üstteki `SearchForm` bagaj göstergesi (`0 · 0` ↔ `0 · 1`) anında ve çift yönlü eşitlenir.
+    - **6 canlı bagaj senaryosunda bulunan hatalar ve çözümleri:**
+      1. *Arama kutusundan bagaj 1 ile ara (`checkedBags=1`) & sonuç sayfasında arama kutusunu yeniden gönderme:*
+         *Bulunan kritik hata:* Sonuç sayfasındayken üst `SearchForm`'da bagaj ekleyip `"Bilet bul"`a basınca aynı rota
+         için `?from=...&adults=1&checkedBags=1` gönderiliyordu; `LiveWidget` etkisi aynı rotada yeniden çalışmadığı için
+         widget URL gözlemcisi tüm sorguyu silip adresi çıplak `/ara` yapıyordu (sayfa yenilenince `"Bu aramayı yapamadık"`
+         hatası!). *Düzeltme:* `SearchForm` compact modda bagaj değişimini anında `saveWidgetBags` ile eşitler ve aynı rota
+         canlı widget'ta zaten açıksa `?from=...` itmeden `flightSearch` adresini korur; `LiveWidget` da koruma ekler.
+      2. *Sonuç sayfasında bagajı `0 → 1 → 0` yapmak:*
+         *Bulunan hata:* Üstteki hap değiştirildiğinde widget fiyatı (`€ 186 ↔ € 281` / `€ 277 ↔ € 373`) güncelleniyordu
+         fakat üst `SearchForm` hâlâ `"0 · 0"` gösteriyordu; ayrıca sol sütunda hem çip hem onay kutusu tekrarı vardı.
+         *Düzeltme:* Tek `Bagaj` sayaç kartı + `pirpir:bags` eşitlemesiyle `0 → 1 → 0` her yerde anında eşitlenir.
+      3. *Bagaj + direkt (sonuç yokken, NL AMS→AYT 11–17 Ara):*
+         *Bulunan hata:* Widget `data-testid="soft-tickets-notice"` İngilizce uyarısını gösterip aktarmalı (`IST`/`SAW`)
+         uçuşları listeliyordu; CSS `order` bu uyarıyı en alta itiyor, üstte `"Alleen direct"` koyu seçili kalıyordu.
+         *Düzeltme:* 11.3 pirpir uyarısı (`#FFF4D6`, 7 dil) en üstte görünür, `"Filtreleri temizle"` tek tıkla hem bagajı
+         hem direkti sıfırlar.
+      4. *Bagaj + dil değiştirme (`TR → NL`):*
+         *Doğrulandı:* `pirpir:bags:<flightSearch>` rota anahtarı dilden bağımsız olduğu için `TR → NL` geçişinde bagaj
+         (`0 · 1`), sol sayaç (`1`) ve widget bagaj filtresi korunuyor.
+      5. *Bagaj + sayfayı yenileme:*
+         *Doğrulandı:* `flightSearch` ve `sessionStorage` ile yenileme sonrası bagaj `1` (veya kullanıcı `0` yaptıysa `0`)
+         olarak korunuyor; `SearchForm` ve widget birebir eşit.
+      6. *Telefonda bagaj (`390 px`):*
+         *Bulunan hata:* Üstte 5 koyu/açık hap iki satıra taşıyordu ve mobil filtre penceresinde pirpir bagaj sayacı yoktu.
+         *Düzeltme:* Tek `"Filtreler (1)"` düğmesi açılınca en üstte `Bagaj` sayaçları + hemen altında widget filtreleri
+         açılır; `1 → 0` widget fiyatını ve arama kutusunu günceller, yatay taşma `0`.
+  - **11.3 "Sonuç yok, filtreleri gevşettik" uyarısı (7 dil):** Widget'ın ham İngilizce `SoftTicketsNotice` metni
+    gizlenir; yerine `#FFF4D6` zeminli, `28px` köşeli, 7 dilde `results.liveRelaxed` uyarısı (aktarmalı uçuşların
+    listelenebileceğini açıkça belirtir) ve çalışan `"Filtreleri temizle"` düğmesi gösterilir.
+  - **11.4 Sol sütun ve tarih şeridi:** Sol sütunda `overflow: visible; max-height: none; position: static` (iç kaydırma
+    çubuğu tamamen kaldırıldı; yalnızca Aktarmalar ve Kalkış/varış saatleri açık başlar). `FlightMatrixDesktop` tam sütun
+    genişliğinde 2 satırlı karta çevrildi: 7 tarih hücresi kesilmeden sığar, fiyatsız hücrelerde büyüteç yerine `"—"`
+    gösterilir, İngilizce `"Show"` düğmesi gizlenir, tüm hücreler boşsa şerit gizli kalır.
+  - **11.5 Kart havayolu logoları & rozetler:** Kırık/0 px `img` (`complete && naturalWidth === 0` veya `error`) otomatik
+    gizlenir (özel logo çizilmez). *Canlı inceleme notu:* AMS–AYT ekran görüntüsündeki sarı daire kırık/boş yer tutucu
+    değil, Corendon Dutch Airlines'ın (`CD`) `img.avs.io/pics/al_square/CD@avif` (128×128, HTTP 200) kare simgesidir.
+  - **11.6 Canlı matris testi (`https://www.flypirpir.nl`, gerçek Chrome, `Europe/Amsterdam`):**
+
+| Dil / Görünüm | Sıralama sekmeleri (tek seçim) | Bagaj `0→1→0` & yenileme | Bagaj + Direkt uyarısı & Temizle | Çakışma / İç kaydırma / Taşma | `"Seç"` → satıcı | JS hatası |
+|---|---|---|---|---|---|---|
+| **TR Masaüstü 1440** | En iyi / En ucuz / En hızlı (1 aktif) | `0→1→0` + yenileme (`01`, widget=true) | `#FFF4D6` TR uyarı (ham EN gizli) + temizle | 0 çakışma · iç kaydırma yok · taşma yok | `tpwgt.com/wl/redirect` ✓ | 0 |
+| **EN Masaüstü 1440** | Best / Cheapest / Fastest (1 aktif) | `0→1→0` + yenileme (`01`, widget=true) | `#FFF4D6` EN uyarı (ham EN gizli) + temizle | 0 çakışma · iç kaydırma yok · taşma yok | `tpwgt.com/wl/redirect` ✓ | 0 |
+| **NL Masaüstü 1440** | Beste / Goedkoopst / Snelst (1 aktif) | `0→1→0` + yenileme (`01`, widget=true) | `#FFF4D6` NL uyarı (ham EN gizli) + temizle | 0 çakışma · iç kaydırma yok · taşma yok | `tpwgt.com/wl/redirect` ✓ | 0 |
+| **TR Mobil 390** | En iyi / En ucuz / En hızlı (1 aktif) | `checkedBags=1` → Filtreler(1) → `1→0` | Mobil filtre en üstte Bagaj + widget filtreleri | 0 çakışma · taşma yok (`390===390`) | `tpwgt.com/wl/redirect` ✓ | 0 |
+| **EN Mobil 390** | Best / Cheapest / Fastest (1 aktif) | `checkedBags=1` → Filters(1) → `1→0` | Mobil filtre en üstte Baggage + widget filtreleri | 0 çakışma · taşma yok (`390===390`) | `tpwgt.com/wl/redirect` ✓ | 0 |
+| **NL Mobil 390** | Beste / Goedkoopst / Snelst (1 aktif) | `checkedBags=1` → Filters(1) → `1→0` | Mobil filtre en üstte Bagage + widget filtreleri | 0 çakışma · taşma yok (`390===390`) | `tpwgt.com/wl/redirect` ✓ | 0 |
+
+  - **Otomatik testler & ekran görüntüleri:**
+    - `npm run lint` ve `npm run check:messages` (7 dil × 8 dosya, 0 hata).
+    - `npm run e2e` iki derlemede de geçti: `NEXT_PUBLIC_TP_WL_WIDGET_ID=25161` ile (**25/25**, 13.9 sn / polish sonrası **25/25**)
+      ve widget kimliksiz (**25/25**, 13.0 sn / polish sonrası **25/25**, 12.4 sn).
+    - Canlı `npm run verify:live` (`https://www.flypirpir.nl`, bagaj senaryosu dahil): **12/12 geçti**.
+    - Ekran görüntüleri: öncesi `docs/ekran/11-before-desktop-nl.png`, `docs/ekran/11-before-mobile-nl.png`;
+      sonrası `docs/ekran/11-after-desktop-tr.png`, `docs/ekran/11-after-desktop-en.png`,
+      `docs/ekran/11-after-desktop-nl-clean.png`, `docs/ekran/11-after-desktop-nl.png`,
+      `docs/ekran/11-after-mobile-tr.png`, `docs/ekran/11-after-mobile-en.png`,
+      `docs/ekran/11-after-mobile-nl.png`, `docs/ekran/11-after-mobile-nl-filters.png`.
+  - **WIDGET SINIRI maddeleri:**
+    1. *Kısmi listede sekme özetleri:* Travelpayouts widget'ı DOM'a ilk 10 kartı çizer; diğer sıralama sekmelerinin gerçek
+       #1 fiyatı/süresi için dışa açık API vermediğinden, `"Daha fazla uçuş göster"` varken yanıltıcı özet yerine yalnızca
+       sekme etiketleri gösterilir (tüm biletler DOM'dayken gerçek özetler görünür).
+    2. *Kabin bagajı:* Widget yalnızca kontrol edilen bagaj filtresini (`full_baggage`) destekler; kabin bagajı sayacı
+       arama kutusuyla eşit tutulur ve altında 7 dilde `"Kabin bagajı kuralları satıcıda gösterilir"` notu yer alır.
+    3. *Widget içi rozet/tarih çevirileri:* `"Cheapest with baggage"`, `"Optimal"` gibi rozet metinleri ile tarih şeridi
+       ay kısaltmaları Travelpayouts'un kendi dil paketinden gelir; pirpir stilinde kalır.
+    4. *Corendon Dutch Airlines (`CD`) logosu:* `img.avs.io/pics/al_square/CD@avif` 128×128 geçerli görsel olarak sarı
+       daire döndürür; yalnızca gerçekten kırık (`naturalWidth === 0` / `error`) logolar gizlenir, özel logo çizilmez.
