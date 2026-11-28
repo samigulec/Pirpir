@@ -1205,3 +1205,75 @@ Bir maddeyi çözemezsen "CLAUDE'A" diye yaz ve nerede takıldığını açıkla
        ay kısaltmaları Travelpayouts'un kendi dil paketinden gelir; pirpir stilinde kalır.
     4. *Corendon Dutch Airlines (`CD`) logosu:* `img.avs.io/pics/al_square/CD@avif` 128×128 geçerli görsel olarak sarı
        daire döndürür; yalnızca gerçekten kırık (`naturalWidth === 0` / `error`) logolar gizlenir, özel logo çizilmez.
+- [12.1–12.9] Canlı deneme düzeltmeleri ("En iyi" varsayılanı korundu) — commits 4e21d6a, 347ac41, ebd5e81 —
+  Değişen dosyalar: `src/components/results/LiveWidget.tsx`, `src/lib/airlines.ts`, `src/lib/providers/travelpayouts.ts`,
+  7 dilde `messages/*/results.json` (`liveMatrixNote`, `liveTotalFor`, `liveSelect`, `liveShowMore`, `liveStopsCount`,
+  `liveBadge.*`), `tests/e2e/live-widget.spec.ts`, `docs/travelpayouts-ceviri.md`.
+  - **Korunan kullanıcı kararı:** Sıralama varsayılanı `"En iyi"` (`best`, widget index `0`) olarak korundu; `enhanceShadow`
+    kart sırasına müdahale etmez, direkt uçuş ve en ucuz kart ilk iki sırada kalır (`live-widget.spec.ts` testiyle sabitlendi).
+  - **12.1 Çok aktarmalı uçuşta havalimanı kodları ("SAWDB" çakışması):**
+    - *Neden:* `Flight-module__cardFlightTravelLineAirport___` altındaki havalimanı kutuları toplam uçuş süresine oranlı
+      inline `width: X%` alıyordu; 2 günlük 3 aktarmalı uçuşta (`AMS → WAW → TIA → SAW → ADB`) son bacak `%2` genişlikte
+      (`~6 px`) kaldığı için `"SAW"` ile `"ADB"` üst üste binip `"SAWDB"` görünüyordu (`12-before-desktop-nl-ow.png`).
+    - *Yapılan:* Masaüstünde `cardFlightTravelLineAirport` eşit aralıklı `display: flex; justify-content: space-between; gap: 6px`
+      yapıldı, inline `%` genişlikleri `width: auto !important` ile ezildi ve ara boş `cardFlightTravelLineFlight` dolgu
+      kutuları gizlendi; mobilde tekrar eden masaüstü çizgisi `display: none` ile gizlendi. 2 ve 3 aktarmalı kartlarla
+      Playwright'ta 0 çakışma test edildi; canlıda `AMS WAW TIA SAW ADB` temiz ayrıldı (`12-after-desktop-nl-ow.png`).
+  - **12.2 Telefonda (360–390 px) kart satırı sıkışıklığı:**
+    - *Neden:* Travelpayouts `Flight-module__cardFlightInfo___`'ya sabit `width: 70px` veriyordu; `22px` saat (`"01:40 pm"`)
+      `70px`'i aşıp `"Direct flight"` üzerine biniyordu (`12-before-mobile-360-en.png`).
+    - *Yapılan:* `<= 640 px`'te `cardFlight` 2 satırlı CSS Grid'e alındı (1. satır: sol kalkış + sağ varış, `18px`, `width: auto`;
+      2. satır: tam genişlikte `"Direct flight · 3h 35min"` / `"1 aktarma · 7s 5dk"`; 3. satır: aktarma hapı; kenar boşluğu
+      `>= 16px`). 360, 375 ve 390 px genişliklerde hem EN (12 saat) hem TR (24 saat) ile canlıda ve E2E'de doğrulandı:
+      0 çakışma, 0 yatay taşma (`12-after-mobile-360-en.png`, `12-after-mobile-360-tr.png`).
+  - **12.3 Tarih şeridi fiyatı kartlarla uyuşmuyor:**
+    - *Neden (`tpwl-index.js` `In.getPriceMatrix`):* `FlightMatrixDesktop` canlı arama yanıtından değil, `api.apistp.com`
+      GraphQL önbellekli fiyat takviminden (`prices_one_way` / `prices_round_trip`) **her zaman 1 yetişkin, bagajsız, filtresiz**
+      yaklaşık fiyat çekiyor (ör. `Dec 20` şeritte `€264` iken canlı en ucuz kart `€267`; bagaj 1'de şerit `€188` iken
+      canlı kart `€276`).
+    - *Yapılan:* Uydurma fiyat yazılmadı; tarih şeridi başlığına 7 dilde `results.liveMatrixNote`
+      (`"Yaklaşık fiyat (1 kişi, bagajsız)"`, `"Richtprijs (1 volw., zonder bagage)"`, `"Approx. price (1 adult, no bag)"`)
+      CSS `::after` (`--pirpir-matrix-note`) ile eklendi.
+  - **12.4 Sekme özetleri — karar: (b) tamamen kaldırıldı:**
+    - *Gerekçe:* Widget DOM'a yalnızca ilk 10 kartı çizer ve diğer iki sıralama sekmesinin gerçek #1 fiyatı/süresi için
+      API vermez; sol sütundaki `"Aktarmalar"` fiyatları ise bagajsızdır ve süre içermez. Pratikte hep gizli kalan özet
+      kodu kaldırıldı; sekmeler sade ve tutarlı (`En iyi | En ucuz | En hızlı`) kaldı.
+  - **12.5 Bagaj seçiliyken sol sütun fiyatları bagajsız:**
+    - *Neden:* Travelpayouts sol sütundaki tüm filtre fiyatlarını (`Layovers`, `Alliances`, `Agencies`, `AirportsIn`,
+      `ConnectingAirports`, `AircraftTypes`, `FlightSchedule`) bagaj filtresi açıkken bile bagajsız döndürüyor.
+    - *Yapılan:* `bags.checked > 0` iken `#tpwl-tickets` üzerinde `data-baggage="1"` özniteliği verilir ve sol sütundaki
+      bagajsız filtre fiyatları gizlenir; bagaj `0` yapıldığında geri görünür (`12-after-desktop-tr-bag1.png`).
+  - **12.6 Birden çok yolcu: fiyat kişi başı mı, toplam mı?**
+    - *Canlı doğrulama (`EN, AMS→IST 15–22 Oca`):* 1 yetişkin (`AMS1501IST22011`) `€ 185`, 2 yetişkin (`AMS1501IST22012`)
+      kartta ve Kiwi.com `"Buy"` penceresinde **`€ 372`** → **widget her zaman tüm yolcular için toplam fiyatı gösterir**.
+    - *Yapılan:* `paxTotal(q.pax) > 1` iken `#tpwl-tickets` üzerinde `data-multi-pax="1"` + `--pirpir-pax-note` ayarlanır ve
+      kart fiyatının altında 7 dilde `"2 kişi toplam"` / `"Total for 2 travellers"` / `"Totaal voor 2 reizigers"` gösterilir.
+      Tek yolcuda (`paxTotal === 1`) not gösterilmez.
+  - **12.7 Widget'ın İngilizce / bozuk Türkçe metinleri + Travelpayouts taslağı:**
+    - *Yapılan:* Preact metin düğümlerine hiç dokunmadan (`data-pirpir-l10n` + CSS `font-size: 0` + `::before`, düğmelerde
+      `aria-label` eşitlemesiyle) en sık görülen widget metinleri 7 dilde pirpir çevirisine alındı:
+      - Seç düğmesi (`"Seçme bilet"` / `"Seçme"` → **`"Bileti seç"`**, `"Selecteer ticket"` → **`"Kies ticket"`**);
+      - Kart rozetleri (`"The only direct flight"` → **`"Enige directe vlucht"`**, `"Cheapest"` → **`"Goedkoopst"`**,
+        `"Cheapest with a convenient layover"` → **`"Goedkoopst met korte overstap"`**, `"May be of interest"` →
+        **`"Ook interessant"`**, `"En Uygun"` → **`"En iyi"`** vb.);
+      - `"Show more options"` → **`"Daha fazla uçuş göster"`** / **`"Meer vluchten tonen"`**;
+      - Mobil `"1 konaklama"` / `"2 konaklama"` → **`"1 aktarma"`** / **`"2 aktarma"`**.
+    - Ek olarak Travelpayouts desteğine gönderilmek üzere hazır hata bildirimi taslağı yazıldı: `docs/travelpayouts-ceviri.md`.
+  - **12.8 Corendon (`CD`) ve çok havayollu kartlarda havayolu adı:**
+    - `src/lib/airlines.ts` ortak IATA → havayolu adı tablosu eklendi (`travelpayouts.ts` ile paylaşılır). Çok havayollu
+      kartlarda (`data-role="flight-card-air-company"` metinsizken) masaüstünde logonun yanına CSS `::after` ile bilinen
+      havayolu adı eklenir (`Corendon Dutch Airlines`, `Turkish Airlines`, `Pegasus`, `AJet`, `LOT` vb.); logolara dokunulmaz.
+  - **Testler & canlı doğrulama:**
+    - `npm run lint` ve `npm run check:messages`: 0 hata.
+    - `npm run e2e` iki derlemede de geçti: `NEXT_PUBLIC_TP_WL_WIDGET_ID=25161` ile (**25/25**) ve widget kimliksiz (**25/25**).
+    - Canlı `npm run verify:live` (`https://www.flypirpir.nl`): **12/12 geçti**.
+    - Canlı 3 senaryo + mobil 360/375/390 px (EN 12s & TR 24s, 2 yetişkin): 0 JS hatası, 0 çakışma, 0 yatay taşma.
+    - Ekran görüntüleri: öncesi `docs/ekran/12-before-desktop-nl-ow.png`, `docs/ekran/12-before-desktop-tr-bag1.png`,
+      `docs/ekran/12-before-mobile-360-en.png`; sonrası `docs/ekran/12-after-desktop-nl-ow.png`,
+      `docs/ekran/12-after-desktop-tr-bag1.png`, `docs/ekran/12-after-mobile-360-en.png`, `docs/ekran/12-after-mobile-360-tr.png`.
+  - **WIDGET SINIRI maddeleri:**
+    1. Kart içi karmaşık bileşenlerdeki (`Baggage +€ 21` anahtarı, modal içindeki tarife ayrıntıları, `"Sağlayıcılarda arama"`
+       ilerleme çubuğu) çeviriler Travelpayouts paketinden gelir; `docs/travelpayouts-ceviri.md` içine eklendi.
+    2. Tarih şeridi (`FlightMatrix`) fiyatları Travelpayouts'un kendi önbellekli 1-yetişkin bagajsız takvim API'sinden gelir;
+       canlı kart fiyatıyla eşlenmek yerine dürüst `"Yaklaşık fiyat (1 kişi, bagajsız)"` notuyla etiketlendi.
+    3. `src/lib/airlines.ts` tablosunda bulunmayan nadir havayollarında ham IATA kodu basılmaz, yalnızca widget'ın kendi logosu kalır.
