@@ -576,7 +576,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 [class*="TicketsWidget-module__moreTickets___"]:hover { border-color: #2f5bd3 !important; }
 
-/* 12.7 Preact metin düğümüne dokunmadan yerelleştirme (CSS ::after; alt <span> etiketleri gizlenir) */
+/* 12.7 Preact metin düğümüne dokunmadan yerelleştirme (CSS ::before; widget ::after katmanlarıyla çakışmaz) */
 [data-pirpir-l10n] {
   font-size: 0 !important;
   line-height: 0 !important;
@@ -584,21 +584,26 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 [data-pirpir-l10n] > * {
   display: none !important;
 }
-[data-pirpir-l10n]::after {
-  content: attr(data-pirpir-l10n);
-  line-height: 1.2;
+[data-pirpir-l10n]::before {
+  content: attr(data-pirpir-l10n) !important;
+  display: inline !important;
+  position: static !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  line-height: 1.2 !important;
 }
-[data-role="flight-card"] button[class*="Button-module__primary___"][data-pirpir-l10n]::after {
-  font-size: 19px;
+[data-role="flight-card"] button[class*="Button-module__primary___"][data-pirpir-l10n]::before {
+  font-size: 19px !important;
+  color: #ffffff !important;
 }
-[class*="FlightCard-module__cardBadges___"][data-pirpir-l10n]::after {
-  font-size: 14px;
+[class*="FlightCard-module__cardBadges___"][data-pirpir-l10n]::before {
+  font-size: 14px !important;
 }
-[class*="TicketsWidget-module__moreTickets___"][data-pirpir-l10n]::after {
-  font-size: 17px;
+[class*="TicketsWidget-module__moreTickets___"][data-pirpir-l10n]::before {
+  font-size: 17px !important;
 }
-[class*="Flight-module__cardFlightTravelMobile___"][data-pirpir-l10n]::after {
-  font-size: 13px;
+[class*="Flight-module__cardFlightTravelMobile___"][data-pirpir-l10n]::before {
+  font-size: 13px !important;
 }
 
 /* Filtre sıfırlama uyarısı ve iskelet kartlar */
@@ -630,8 +635,9 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
     padding: 10px 20px !important;
     min-height: 44px !important;
   }
-  [data-role="flight-card"] button[class*="Button-module__primary___"][data-pirpir-l10n]::after {
-    font-size: 16px;
+  [data-role="flight-card"] button[class*="Button-module__primary___"][data-pirpir-l10n]::before {
+    font-size: 16px !important;
+    color: #ffffff !important;
   }
   [class*="FlightCard-module__cardBlockFlight___"] {
     gap: 10px !important;
