@@ -459,6 +459,102 @@ Teslimde iş günlüğüne her alt iş için önce/sonra ekran görüntüsü, de
 
 ---
 
+## 11. Yedinci tur (Gemini) — sonuç sayfası: çakışmalar, bagaj, Kiwi düzeni
+
+Kullanıcı (NL, Amsterdam → Antalya, 11–17 Ara ekran görüntüsüyle): "eksikler var, birbirlerine çarpışıyorlar ve bagaj
+eklenince hatalar oluşuyor, burayı dediğim gibi Kiwi'den referans almamız lazım".
+
+Kurallar (bölüm 1, 2, 4) ve 10. turdaki ilkeler aynen geçerli. Kiwi'den yalnızca **yerleşim ve davranış** alınır; marka,
+renk, logo, reklam ve "Guarantee" alınmaz. Renkler ve yazılar pirpir tokenlarıyla kalır. Fiyat trendi ve fiyat alarmı düğmesi
+geri gelmez.
+
+### 11.0 Ekran görüntüsünde görülen hatalar (hepsi düzelmeli)
+1. **Çakışma:** Sıralama hapları ("Goedkoopst / Snelst / Alleen direct / Bagage inbegrepen") altındaki widget tarih şeridi
+   kutusuna ("Prijzen voor data in de buurt") yapışıyor, üst üste biniyor. Aralarında boşluk yok.
+2. **Aynı anda üç koyu hap:** "Goedkoopst", "Alleen direct" ve "Bagage inbegrepen" üçü birden seçili (koyu) görünüyor.
+   Sıralama (tek seçim) ile filtre (aç/kapa) aynı görünümde olduğu için kullanıcı ne seçili anlamıyor.
+3. **Filtre çifte gösteriliyor:** Sol sütunda "Inclusief bagage ⓧ" ve "Geen tussenstops ⓧ" çipleri, "Direct" onay kutusu ve
+   üstteki haplar aynı filtrenin üç ayrı kontrolü. Birini kapatınca diğerleri eşitleniyor mu, belli değil.
+4. **Bagaj + direkt = sonuç yok:** Widget "No tickets matching your parameters. We removed some filters and found a few
+   available options…" diyor ve **aktarmalı** (SAW) uçuşları gösteriyor. "Alleen direct" açık görünürken aktarmalı kart
+   gösterilmesi yanıltıcı. Ayrıca bu metin NL sayfada İngilizce ve stilsiz.
+5. **Bagaj seçimi tutarsız:** Üstteki arama kutusunda bagaj "0 · 0", ama listede "Bagage inbegrepen" açık. Her kartta ayrı
+   "Inclusief bagage" anahtarı da var. Kullanıcı bagajı nereden seçeceğini bilmiyor. Bagaj ekleyince hatalar oluşuyor.
+6. **İç içe kaydırma:** Sol filtre sütununun kendi kaydırma çubuğu var (sayfa içinde ikinci kaydırma).
+7. **Tarih şeridi yarım:** Fiyatsız hücreler büyüteç simgesiyle boş duruyor, son hücre "Dec, 1" kesik, "Show" düğmesi
+   İngilizce.
+8. **İngilizce kalan widget metinleri:** "Cheapest with baggage", "Show", "No tickets matching…" NL sayfada İngilizce.
+   Widget'ın kendi çevirisi yoksa en azından stilimizde kalsın. Bizim eklediğimiz hiçbir metin İngilizce kalmasın (7 dil).
+9. "Goedkoopst" ve "Snelst" özetleri aynı (€281 · 4u 10min). Bu bir filtre uygulanmışken doğru olabilir. Özetin,
+   görünen kartlardan değil **o sekmenin gerçek en iyisinden** hesaplandığından emin ol; emin değilsen özeti gizle.
+
+### 11.1 Kiwi'deki ayrım: sıralama ayrı, filtre ayrı (öncelik 1)
+Kullanıcının daha önce paylaştığı Kiwi görüntüsündeki düzen:
+- **Sıralama = tek parça sekme çubuğu** (Kiwi: "En iyi / En ucuz / En kısa", her biri altında "194 € · 7h 25m", seçili
+  olanın altında çizgi). Bizde: "En ucuz / En hızlı" (widget'ta "En iyi" karşılığı varsa o da) tek bir beyaz kutu içinde,
+  eşit genişlikte sekmeler. Seçili sekme: `#2F5BD3` metin + alt çizgi (3px). Diğerleri lacivert/gri. Tek seçim.
+  Hap görünümü sıralamada kullanılmaz.
+- **Filtreler yalnızca sol sütunda** (masaüstü). "Sadece direkt" ve "Bagaj dahil" üstteki haplardan **kalkar**. Bunlar sol
+  sütundaki Aktarmalar ve Bagaj bölümlerinde zaten var. Widget'ın "Popüler filtreler" çipleri de sol sütunda tekrar
+  ediyorsa gizle. Her filtrenin tek bir kontrolü olsun.
+- Telefonda: sekme çubuğu üstte (yatay kaydırmasız, sığmazsa yalnızca etiket), altında tek "Filtreler (N)" düğmesi.
+- Sekme çubuğu ile altındaki tarih şeridi ya da kartlar arasında en az 16px boşluk; hiçbir öğe diğerinin üstüne binmesin.
+
+### 11.2 Bagaj: Kiwi'deki gibi tek yer, sayaçlarla (öncelik 1)
+Kiwi'de bagaj, sol sütunun en üstünde "Bagajlar" bölümü: "Kabin bagajı − 0 +" ve "Kontrol edilmiş bagaj − 0 +" sayaçları.
+Fiyatlar seçilen bagaja göre gösterilir.
+- Sol sütunun en üstüne "Bagaj" bölümü: kabin ve kontrol edilen bagaj sayaçları (bizim arama kutusundaki bagaj seçiciyle
+  aynı bileşen/görünüm). Telefonda "Filtreler" penceresinin en üstünde.
+- Bu sayaçlar, üstteki arama kutusundaki bagaj seçiciyle **aynı durumu** paylaşsın (biri değişince diğeri de değişsin;
+  `live-widget-bags.ts` + adres). Kontrol edilen bagaj ≥ 1 ise widget'ın "Bagaj dahil" filtresi açılır, 0 ise kapanır.
+  Kartlardaki bagajlı fiyat widget'ın kendi hesabıdır.
+- Widget'ın kartlardaki tek tek "Bagaj dahil" anahtarları kalabilir (kartın fiyatını değiştiriyorlar). Ama üstteki/soldaki
+  seçimle çelişmesinler: bagaj seçiliyken kart bagajlı fiyatla açılsın.
+- Kabin bagajının widget'ta karşılığı yoksa sayaç durur ama altında kısa not olur (7 dil): kabin bagajı kuralları satıcıda
+  gösterilir. Uydurma fiyat yok.
+- "Bagaj eklenince hatalar oluşuyor": kullanıcı ayrıntı vermedi. Canlıda şu senaryoları dene, her birinde gördüğün hatayı
+  ve düzeltmeyi günlüğe yaz:
+  - arama kutusundan bagaj 1 ile ara;
+  - sonuç sayfasında bagajı 0 → 1 → 0 yap;
+  - bagaj + direkt (sonuç yokken);
+  - bagaj + dil değiştir;
+  - bagaj + sayfayı yenile;
+  - telefonda bagaj.
+
+### 11.3 "Sonuç yok, filtreleri gevşettik" durumu
+Widget filtreleri kendisi gevşetip başka uçuşlar gösterdiğinde bizim stilde net bir uyarı kutusu göster (7 dil, `#FFF4D6`
+zemin, 28px köşe). Örnek: "Seçtiğin filtrelere uyan uçuş yok. Bazı filtreleri kaldırıp yakın seçenekleri gösteriyoruz."
+Yanında "Filtreleri temizle" bağlantısı olsun. Bu durumda "Sadece direkt" seçili görünüp aktarmalı kart gösterilmesin:
+ya filtre görünümü gerçeğe eşitlensin ya da uyarı bunu açıkça söylesin. Widget'ın İngilizce metni gizlenebilir.
+
+### 11.4 Sol sütun ve tarih şeridi
+- Sol sütun sayfayla birlikte kaysın (yapışkan olabilir), **kendi iç kaydırma çubuğu olmasın**. Uzun bölümler kapalı
+  başlar.
+- Widget tarih şeridi ("Yakın tarihlerin fiyatları"): fiyatlı hücreler düzgün, fiyatsız hücreler sade ("—"), kesik hücre
+  olmasın (yatay kaydırma ya da sığdır). "Show" düğmesi gizlenir ya da stilimize alınır. Şerit kart sütununun tam
+  genişliğinde ve sekme çubuğundan ayrı dursun.
+
+### 11.5 Kart
+- Havayolu logoları: bilinmeyen/boş logo (ekrandaki sarı daire) yerine havayolu adı ya da hiçbir şey. Logo çizme; logolar
+  yalnızca widget'tan gelir.
+- "Cheapest with baggage" gibi widget rozetleri: dil sayfa diliyle eşitse olduğu gibi kalır; değilse stilimizde kalır.
+
+### 11.6 Test (zorunlu, son kullanıcı gibi)
+Teslimden önce canlıda bu matrisi dene ve sonucu günlüğe tablo olarak yaz:
+- diller: TR, EN, NL;
+- görünümler: masaüstü 1440 ve telefon 390;
+- senaryolar: sıralama sekmeleri × (bagaj 0/1) × (direkt açık/kapalı) × sayfa yenileme × "Seç" → satıcı.
+Her hücre için: çakışma var mı, seçili durum doğru mu, uyarı doğru mu.
+`live-widget.spec.ts`'e şu kontrolleri ekle:
+- sekme tek seçimli;
+- filtrelerin tek kontrolü var;
+- bagaj sayacı ile arama kutusu eşit;
+- sol sütunda iç kaydırma yok;
+- öğeler üst üste binmiyor (sınır kutuları kesişmiyor).
+`npm run verify:live`'a bagaj senaryosunu ekle. Önce/sonra ekran görüntüleri: `docs/ekran/11-*.png`.
+
+---
+
 ## İş günlüğü
 
 - [hazırlık] Claude — White Label kodu (`NEXT_PUBLIC_TP_WL_HOST`), Travelpayouts sağlayıcısı, logolar, tazelik etiketi,
