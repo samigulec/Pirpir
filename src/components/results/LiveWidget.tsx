@@ -1082,7 +1082,7 @@ function BaggageCard({
     <div className="flex items-center justify-between gap-2">
       <span className={`flex min-w-0 flex-1 items-center gap-1.5 font-bold leading-snug text-ink ${compact ? "text-[14px]" : "text-[15px]"}`}>
         <span className="flex-none">{icon}</span>
-        <span className="min-w-0 break-words">{label}</span>
+        <span className="min-w-0 hyphens-auto">{label}</span>
       </span>
       <span className={`flex flex-none items-center ${compact ? "gap-1.5" : "gap-2"}`}>
         <button
@@ -1131,6 +1131,13 @@ function BaggageCard({
  * Varsayılan sıralama kullanıcı kararıyla "En iyi" kalır (direkt + en ucuz ilk iki sırada).
  */
 export function LiveWidget({ q, widgetId }: { q: MultiQuery; widgetId?: string | null }) {
+  // Widget tek rota arar. Birden çok kalkış/varış yerinde iç bileşen hiç çalışmaz: etkileri adresi tek rotalı
+  // `flightSearch`e çevirirdi (yenilemede ya da paylaşılan linkte ikinci havalimanı kaybolurdu).
+  if (q.from.length !== 1 || q.to.length !== 1) return null;
+  return <LiveWidgetInner q={q} widgetId={widgetId} />;
+}
+
+function LiveWidgetInner({ q, widgetId }: { q: MultiQuery; widgetId?: string | null }) {
   const t = useTranslations("results");
   const router = useRouter();
   const locale = useLocale();

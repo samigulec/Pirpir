@@ -467,6 +467,22 @@ test.describe("Canlı widget (8.1–12.8)", () => {
     await expect(page.locator("#results-search")).toContainText("15 – 22 Oca");
   });
 
+  test("13.1 İki kalkış yerli arama: adres tek rotalı flightSearch'e çevrilmez, yenilemede ikinci havalimanı kalır", async ({ page }) => {
+    await interceptWidget(page);
+    const path = "/ara?from=AMS%2CEIN&to=IST&date=2027-01-15&return=2027-01-22&adults=1";
+    await page.goto(path, { waitUntil: "networkidle" });
+    await page.waitForTimeout(2500);
+    const url = new URL(page.url());
+    expect(url.searchParams.get("flightSearch")).toBeNull();
+    expect(url.searchParams.get("from")).toBe("AMS,EIN");
+    // Widget betiği bu aramada hiç yüklenmez (tek rota arar)
+    expect(await page.locator("script#tpwl-main").count()).toBe(0);
+    await page.reload({ waitUntil: "networkidle" });
+    await page.waitForTimeout(1000);
+    expect(new URL(page.url()).searchParams.get("from")).toBe("AMS,EIN");
+    await expect(page.getByRole("combobox", { name: "Nereden" }).first()).toHaveValue(/Amsterdam \+1/);
+  });
+
   test("11.2 & 12.5 Masaüstü bagaj eşitleme + bagaj seçiliyken sol sütun fiyatları gizlenir", async ({ page }) => {
     await interceptWidget(page);
     await page.goto("/ara?from=AMS&to=ADB&date=2027-01-02&return=2027-01-09&adults=1&checkedBags=1", { waitUntil: "networkidle" });

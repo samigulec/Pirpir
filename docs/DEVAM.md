@@ -633,6 +633,60 @@ Bir maddeyi çözemezsen "CLAUDE'A" diye yaz ve nerede takıldığını açıkla
 
 ---
 
+## 13. Dokuzuncu tur (Gemini) — Claude'un düzelttiği hatanın canlı testi + kalan küçükler
+
+Kullanıcı kararı: "Sorunu Gemini'ye yaz ve haberi olsun; Claude yapsın, test etsin; ondan sonra Gemini test etsin."
+
+Claude canlı sitede şu senaryoları denedi:
+- ana sayfa, telefon;
+- DE, 2 yetişkin + 1 çocuk, bagajlı;
+- business sınıfı, telefon;
+- az uçuşlu rota (EIN → TZX);
+- iki kalkış yerli arama;
+- rota sayfası.
+
+Bir gerçek hata buldu ve düzeltti (13.1). İki küçük şeyi de yaptı (13.2). Senin işin önce bunları **canlıda doğrulamak**
+(13.3), sonra kalan küçük maddeyi yapmak (13.4).
+
+### 13.1 (CLAUDE DÜZELTTİ) İki kalkış yerli aramada adres tek rotaya dönüyordu
+- **Belirti (canlı):** `/ara?from=AMS,EIN&to=IST&date=2027-01-15&return=2027-01-22&adults=1` açılınca sayfa doğru
+  (önbellekli liste, "Amsterdam +1"). Ama adres sessizce `?flightSearch=AMS1501IST22011` oluyordu. Yenileme ya da
+  paylaşılan link Eindhoven'ı kaybedip başka bir arama açıyordu.
+- **Neden:** `LiveResults` önbellekli listede `live={<LiveWidget/>}` veriyor. `LiveWidget` birden çok kalkış/varış yerinde
+  `return null` ediyordu, ama bu satırdan önce tanımlı etkiler (adresi `cleanWidgetUrl` ile temizleme, betik yükleme) yine
+  çalışıyordu.
+- **Düzeltme:** `src/components/results/LiveWidget.tsx` içinde `LiveWidget` artık ince bir sarmalayıcı. Tek kalkış ve tek
+  varış değilse `null`. Değilse tüm mantık `LiveWidgetInner`'da. İki havalimanlı aramada widget betiği hiç yüklenmez, adres
+  değişmez.
+- **Test:** `tests/e2e/live-widget.spec.ts` → "13.1 İki kalkış yerli arama…". Eski kodda düştüğü (`AMS1501IST22011`),
+  yeni kodda geçtiği doğrulandı. `npm run e2e` iki derlemede de 26/26.
+
+### 13.2 (CLAUDE YAPTI) Küçükler
+- DE sol sütunda "Aufgabegepäck" etiketi "Aufgabegepäc / k" diye bölünüyordu. Sayaç etiketinde `break-words` yerine
+  `hyphens-auto` (sayfa `lang` özniteliğiyle hecelenerek bölünür).
+- Ana sayfa güven satırındaki "Bileti pirpir Live'da seçtiğin satıcıdan alırsın" metnine **dokunulmadı**. "pirpir Live",
+  White Label sayfasının (`ucus.flypirpir.nl`) adı; bu bir metin kararı, kullanıcıya soruldu.
+
+### 13.3 Canlı doğrulama (önce bu)
+Vercel yeni sürümü yayınlayınca canlıda, gerçek tarayıcıyla:
+1. `https://www.flypirpir.nl/ara?from=AMS,EIN&to=IST&date=2027-01-15&return=2027-01-22&adults=1`. Adres `from=AMS,EIN` olarak
+   kalmalı. Sayfayı yenile, hâlâ iki havalimanı olmalı. Konsolda hata olmamalı.
+2. Ana sayfadan iki kalkış yeri seçip (Amsterdam + Eindhoven) arama yap. Aynı sonuç olmalı. Sonra kalkışlardan birini silip
+   tek rotalı arama yap: canlı widget gelmeli, adres `flightSearch=…` olmalı (tek rotada temizleme sürmeli).
+3. Tek rotalı akışlar bozulmamalı: `npm run verify:live` geçmeli. Tarih kayması, dil, bagaj ve "Bileti seç" → satıcı
+   (`marker=812756`) kontrolleri.
+4. DE `/de/suche?...&checkedBags=1` masaüstünde "Aufgabegepäck" etiketi tek kelime ya da heceyle bölünmüş olmalı
+   ("Aufgabe-gepäck").
+Sonuçları iş günlüğüne tablo olarak yaz (senaryo · beklenen · görülen). Bir şey tutmazsa "CLAUDE'A" diye yaz.
+
+### 13.4 Telefonda havalimanı kodları iki kez görünüyor
+Telefonda (360–390 px) her uçuş satırında kalkış/varış kodları ("AMS / SAW", business aramasında "AMS / EWR") hem saatlerin
+altında hem "Direct flight · süre" satırının altında tekrar ediyor. Tek yerde kalsın (saatlerin altı). Çok aktarmalı uçuşta
+ara kodlar (ör. "TIA · SAW") kaybolmasın. 12.2'deki düzen (saatler 1. satır, süre 2. satır, kenarda ≥ 12 px) bozulmasın.
+360/375/390 px, TR ve EN ile ekran görüntüsü al (`docs/ekran/13-*.png`) ve testi genişlet.
+
+---
+
 ## İş günlüğü
 
 - [hazırlık] Claude — White Label kodu (`NEXT_PUBLIC_TP_WL_HOST`), Travelpayouts sağlayıcısı, logolar, tazelik etiketi,
