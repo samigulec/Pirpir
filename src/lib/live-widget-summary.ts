@@ -23,20 +23,22 @@ export type CardMetrics = {
 const BIDI_RE = /[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g;
 const STOP_WORD_RE = /\b(aktarma|konaklama|stop|stops|layover|layovers|tussenstop|zwischenstopp|escale|escala|scalo)\b/i;
 
-/** "Seyahat süresi: 3s 25dk", "Travel time: 6h 10min", "4 s", "3u 25m" → toplam dakika (okunamazsa 0). */
+/** "Seyahat süresi: 3s 25dk", "1g 1s 20dk", "Travel time: 1d 6h 10min", "4 s", "3u 25m" → toplam dakika (okunamazsa 0). */
 export function parseDurationMins(raw: string): number {
   const s = raw.replace(BIDI_RE, " ").replace(/\u00a0/g, " ");
+  const d = /(\d+)\s*(?:gün|Tage?|g|j)\b/i.exec(s) ?? /(\d+)\s*d\b(?=\s*\d+\s*(?:h|u|Std))/i.exec(s);
   const h = /(\d+)\s*(?:sa|Std\.?|h|u|s)\b/i.exec(s);
-  const m = /(\d+)\s*(?:dk|min\.?|m|d)\b/i.exec(s);
+  const m = /(\d+)\s*(?:dk|min\.?|m)\b/i.exec(s);
+  const days = d ? Number(d[1]) : 0;
   const hours = h ? Number(h[1]) : 0;
   const mins = m ? Number(m[1]) : 0;
-  return hours * 60 + mins;
+  return days * 1440 + hours * 60 + mins;
 }
 
-/** "Direkt uçuşSeyahat süresi: 3s 25dk" → "3s 25dk" (okunamazsa undefined). */
+/** "Direkt uçuşSeyahat süresi: 3s 25dk" → "3s 25dk", "Seyahat süresi: 1g 1s" → "1g 1s" (okunamazsa undefined). */
 export function cleanDurationText(raw: string): string | undefined {
   const s = raw.replace(BIDI_RE, " ").replace(/\u00a0/g, " ").trim();
-  const m = /(\d+\s*(?:sa|Std\.?|h|u|s)(?:\s*\d+\s*(?:dk|min\.?|m|d))?|\d+\s*(?:dk|min\.?|m))/i.exec(s);
+  const m = /((?:\d+\s*(?:gün|Tage?|g|j|d(?!k))\s*)?\d+\s*(?:sa|Std\.?|h|u|s)(?:\s*\d+\s*(?:dk|min\.?|m))?|\d+\s*(?:dk|min\.?|m))/i.exec(s);
   return m ? m[1].replace(/\s+/g, " ").trim() : undefined;
 }
 

@@ -248,11 +248,15 @@ test.describe("Canlı widget (8.1–8.3, 9.1–9.5 ve 10.1–10.6)", () => {
     expect(synced).toEqual({ flightSearch: "AMS1501ADB22011", currency: "EUR" });
 
     expect(parseDurationMins("Direkt uçuş Seyahat süresi: 3s 25dk")).toBe(205);
+    expect(parseDurationMins("Seyahat süresi: 1g 1s")).toBe(1500);
+    expect(parseDurationMins("Travel time: 1d 2h 10min")).toBe(1570);
     expect(parseDurationMins("Travel time: 6h 10min")).toBe(370);
     expect(cleanDurationText("Seyahat süresi: 3s 25dk")).toBe("3s 25dk");
+    expect(cleanDurationText("Seyahat süresi: 1g 1s")).toBe("1g 1s");
     const sum = computeTabSummaries([
       { price: 291, priceText: "€ 291", totalMins: 205, durText: "3s 25dk", direct: true },
       { price: 267, priceText: "€ 267", totalMins: 370, durText: "6s 10dk", direct: false },
+      { price: 274, priceText: "€ 274", totalMins: 1500, durText: "1g 1s", direct: false },
     ]);
     expect(sum).toEqual({
       cheap: { priceText: "€ 267", durText: "6s 10dk" },
